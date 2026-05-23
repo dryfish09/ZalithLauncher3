@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -41,8 +42,10 @@ import org.lwjgl.glfw.CallbackBridge
 fun SideBar(
     modifier: Modifier = Modifier,
     isVisible: Boolean,
-    onInfoClick: () -> Unit,
-    onVersionsClick: () -> Unit
+    onFpsClick: () -> Unit,
+    onRamClick: () -> Unit,
+    onVersionsClick: () -> Unit,
+    onInfoClick: () -> Unit
 ) {
     var fps by remember { mutableIntStateOf(0) }
     var memoryInfo by remember { mutableStateOf(getMemoryInfo()) }
@@ -70,34 +73,36 @@ fun SideBar(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // FPS Indicator
+            // FPS Indicator & Shortcut
             SideBarIndicator(
                 label = "FPS",
                 value = fps.toString(),
-                icon = painterResource(R.drawable.ic_video_settings)
+                icon = painterResource(R.drawable.ic_video_settings),
+                onClick = onFpsClick
             )
 
-            // RAM Indicator
+            // RAM Indicator & Shortcut
             SideBarIndicator(
                 label = "RAM",
                 value = "${memoryInfo.first}M",
-                icon = painterResource(R.drawable.ic_dashboard_outlined)
+                icon = painterResource(R.drawable.ic_dashboard_outlined),
+                onClick = onRamClick
             )
 
             Spacer(modifier = Modifier.weight(1f))
-
-            // Info Shortcut
-            SideBarShortcut(
-                icon = painterResource(R.drawable.ic_info_outlined),
-                contentDescription = "About",
-                onClick = onInfoClick
-            )
 
             // Versions Shortcut
             SideBarShortcut(
                 icon = painterResource(R.drawable.ic_assignment_filled),
                 contentDescription = "Versions",
                 onClick = onVersionsClick
+            )
+
+            // Info Shortcut
+            SideBarShortcut(
+                icon = painterResource(R.drawable.ic_info_outlined),
+                contentDescription = "About",
+                onClick = onInfoClick
             )
         }
     }
@@ -107,11 +112,14 @@ fun SideBar(
 private fun SideBarIndicator(
     label: String,
     value: String,
-    icon: Painter
+    icon: Painter,
+    onClick: () -> Unit = {}
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.alpha(0.8f)
+        modifier = Modifier
+            .alpha(0.8f)
+            .clickable(onClick = onClick)
     ) {
         Icon(
             painter = icon,

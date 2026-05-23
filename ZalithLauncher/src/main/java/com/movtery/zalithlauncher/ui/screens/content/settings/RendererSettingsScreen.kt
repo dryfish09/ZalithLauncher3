@@ -177,10 +177,23 @@ fun RendererSettingsScreen(
                             TurnipDownloader.downloadLatest(context)
                         },
                         trailingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_download),
-                                contentDescription = null
-                            )
+                            Row {
+                                IconButton(
+                                    onClick = {
+                                        eventViewModel.sendEvent(EventViewModel.Event.OpenLink("https://github.com/K11MCH1/AdrenoToolsDrivers/releases"))
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_link),
+                                        contentDescription = stringResource(R.string.generic_open_link)
+                                    )
+                                }
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_download),
+                                    contentDescription = null,
+                                    modifier = Modifier.align(Alignment.CenterVertically).padding(end = 12.dp)
+                                )
+                            }
                         }
                     )
 

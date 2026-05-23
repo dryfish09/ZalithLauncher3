@@ -86,6 +86,7 @@ import com.movtery.zalithlauncher.ui.screens.addIfEmpty
 import com.movtery.zalithlauncher.ui.screens.clearWith
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoLayout
+import com.movtery.zalithlauncher.ui.screens.content.elements.AboutDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.SideBar
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.MarkdownBlock
@@ -109,6 +110,12 @@ fun LauncherScreen(
         screenKey = NormalNavKey.LauncherMain,
         currentKey = backStackViewModel.mainScreen.currentKey
     ) { isVisible ->
+        var showAboutDialog by remember { mutableStateOf(false) }
+
+        if (showAboutDialog) {
+            AboutDialog(onDismissRequest = { showAboutDialog = false })
+        }
+
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -116,8 +123,15 @@ fun LauncherScreen(
                 modifier = Modifier
                     .padding(start = 12.dp, top = 12.dp, bottom = 12.dp),
                 isVisible = isVisible,
-                onInfoClick = {
-                    backStackViewModel.settingsScreen.backStack.clearWith(NormalNavKey.Settings.AboutInfo)
+                onFpsClick = {
+                    backStackViewModel.settingsScreen.backStack.clearWith(NormalNavKey.Settings.Renderer)
+                    backStackViewModel.mainScreen.removeAndNavigateTo(
+                        removes = backStackViewModel.clearBeforeNavKeys,
+                        screenKey = backStackViewModel.settingsScreen
+                    )
+                },
+                onRamClick = {
+                    backStackViewModel.settingsScreen.backStack.clearWith(NormalNavKey.Settings.Game)
                     backStackViewModel.mainScreen.removeAndNavigateTo(
                         removes = backStackViewModel.clearBeforeNavKeys,
                         screenKey = backStackViewModel.settingsScreen
@@ -128,6 +142,9 @@ fun LauncherScreen(
                         remove = NestedNavKey.VersionSettings::class,
                         screenKey = NormalNavKey.VersionsManager
                     )
+                },
+                onInfoClick = {
+                    showAboutDialog = true
                 }
             )
 
