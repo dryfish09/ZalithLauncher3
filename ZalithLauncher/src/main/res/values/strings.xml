@@ -1218,6 +1218,14 @@
     <string name="disclaimer_content">This is an unofficial modified version of Zalith Launcher 2.</string>
     <string name="disclaimer_original_repo">Original Repo</string>
     <string name="launcher_fork_subtitle">a fork of Zalith Launcher 2</string>
+    <string name="settings_renderer_external_driver">External Driver</string>
+    <string name="settings_renderer_download_turnip">Download Turnip Driver</string>
+    <string name="settings_renderer_download_turnip_summary">Download and extract the latest Turnip drivers from GitHub</string>
+    <string name="settings_renderer_turnip_downloading">Downloading Turnip Driver...</string>
+    <string name="settings_renderer_turnip_extracting">Extracting Turnip Driver...</string>
+    <string name="settings_renderer_turnip_success">Turnip Driver installed successfully</string>
+    <string name="launcher_ram_usage">RAM: %1$dMB / %2$dMB</string>
+    <string name="launcher_fps_display">FPS: %d</string>
     <string name="about_acknowledgements_title">Acknowledgements</string>
     <string name="about_acknowledgements_pojav_text">%s uses the launch backend from PojavLauncher</string>
     <string name="about_acknowledgements_pcl_text">%s references parts of the implementation from PCL2</string>

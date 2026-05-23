@@ -165,6 +165,22 @@ fun RendererSettingsScreen(
                         }
                     )
 
+                    SettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
+                        title = stringResource(R.string.settings_renderer_download_turnip),
+                        summary = stringResource(R.string.settings_renderer_download_turnip_summary),
+                        onClick = {
+                            com.movtery.zalithlauncher.utils.driver.TurnipDownloader.downloadLatest(context)
+                        },
+                        trailingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_download),
+                                contentDescription = null
+                            )
+                        }
+                    )
+
                     ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Middle,

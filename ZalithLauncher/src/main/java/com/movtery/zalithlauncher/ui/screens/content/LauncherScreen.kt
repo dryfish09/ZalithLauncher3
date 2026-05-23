@@ -83,6 +83,7 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoLayout
+import com.movtery.zalithlauncher.ui.screens.content.elements.SideBar
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.MarkdownBlock
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.customHomePage
@@ -106,6 +107,18 @@ fun LauncherScreen(
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
+            SideBar(
+                modifier = Modifier
+                    .padding(start = 12.dp, top = 12.dp, bottom = 12.dp),
+                isVisible = isVisible,
+                onInfoClick = {
+                    backStackViewModel.mainScreen.navigateTo(NestedNavKey.Settings(NormalNavKey.Settings.AboutInfo))
+                },
+                onVersionsClick = {
+                    backStackViewModel.mainScreen.navigateTo(NormalNavKey.VersionsManager)
+                }
+            )
+
             CompositionLocalProvider(
                 LocalUriHandler provides object : UriHandler {
                     override fun openUri(uri: String) {
