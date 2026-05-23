@@ -44,8 +44,8 @@ object TurnipDownloader {
     fun downloadLatest(context: Context) {
         val task = Task.runTask(
             id = "download_turnip_driver",
-            task = {
-                updateMessage(R.string.settings_renderer_turnip_downloading)
+            task = { it ->
+                it.updateMessage(R.string.settings_renderer_turnip_downloading)
                 
                 val repoUrl = "https://api.github.com/repos/K11MCH1/AdrenoToolsDrivers/releases/latest"
                 val request = Request.Builder().url(repoUrl).build()
@@ -75,15 +75,15 @@ object TurnipDownloader {
                                 sink.write(buffer, 0, read)
                                 bytesRead += read
                                 if (totalSize > 0) {
-                                    updateProgress(bytesRead.toFloat() / totalSize)
+                                    it.updateProgress(bytesRead.toFloat() / totalSize)
                                 }
                             }
                         }
                     }
                 }
                 
-                updateMessage(R.string.settings_renderer_turnip_extracting)
-                updateProgress(-1f)
+                it.updateMessage(R.string.settings_renderer_turnip_extracting)
+                it.updateProgress(-1f)
                 
                 val extractDir = File(PathManager.DIR_DRIVERS, asset.name.removeSuffix(".zip"))
                 if (extractDir.exists()) {

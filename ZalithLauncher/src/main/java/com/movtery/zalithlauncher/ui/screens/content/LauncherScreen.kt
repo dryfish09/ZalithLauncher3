@@ -81,12 +81,17 @@ import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.defaultRichTextStyle
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.TitledNavKey
+import com.movtery.zalithlauncher.ui.screens.addIfEmpty
+import com.movtery.zalithlauncher.ui.screens.clearWith
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.SideBar
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.MarkdownBlock
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.customHomePage
+import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.ui.screens.removeAndNavigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.HomePageState
 import com.movtery.zalithlauncher.viewmodel.LocalHomePageViewModel
