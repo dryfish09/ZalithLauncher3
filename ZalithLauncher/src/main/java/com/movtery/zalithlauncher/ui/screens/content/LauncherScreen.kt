@@ -89,6 +89,8 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoL
 import com.movtery.zalithlauncher.ui.screens.content.elements.AboutDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.SideBar
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
+import com.movtery.zalithlauncher.ui.screens.game.elements.PerformanceSettingsDialog
+import com.movtery.zalithlauncher.ui.screens.game.elements.PerformanceSettingsOperation
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.MarkdownBlock
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.customHomePage
 import com.movtery.zalithlauncher.ui.screens.navigateTo
@@ -111,10 +113,16 @@ fun LauncherScreen(
         currentKey = backStackViewModel.mainScreen.currentKey
     ) { isVisible ->
         var showAboutDialog by remember { mutableStateOf(false) }
+        var performanceSettingsState by remember { mutableStateOf<PerformanceSettingsOperation>(PerformanceSettingsOperation.None) }
 
         if (showAboutDialog) {
             AboutDialog(onDismissRequest = { showAboutDialog = false })
         }
+
+        PerformanceSettingsDialog(
+            operation = performanceSettingsState,
+            onDismissRequest = { performanceSettingsState = PerformanceSettingsOperation.None }
+        )
 
         Row(
             modifier = Modifier.fillMaxSize()
@@ -124,18 +132,10 @@ fun LauncherScreen(
                     .padding(start = 12.dp, top = 12.dp, bottom = 12.dp),
                 isVisible = isVisible,
                 onFpsClick = {
-                    backStackViewModel.settingsScreen.backStack.clearWith(NormalNavKey.Settings.Renderer)
-                    backStackViewModel.mainScreen.removeAndNavigateTo(
-                        removes = backStackViewModel.clearBeforeNavKeys,
-                        screenKey = backStackViewModel.settingsScreen
-                    )
+                    performanceSettingsState = PerformanceSettingsOperation.Fps
                 },
                 onRamClick = {
-                    backStackViewModel.settingsScreen.backStack.clearWith(NormalNavKey.Settings.Game)
-                    backStackViewModel.mainScreen.removeAndNavigateTo(
-                        removes = backStackViewModel.clearBeforeNavKeys,
-                        screenKey = backStackViewModel.settingsScreen
-                    )
+                    performanceSettingsState = PerformanceSettingsOperation.Ram
                 },
                 onVersionsClick = {
                     backStackViewModel.mainScreen.removeAndNavigateTo(

@@ -57,6 +57,7 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.Background
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.content.navigateToLogView
+import com.movtery.zalithlauncher.ui.screens.content.navigateToWeb
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.screens.main.crashlogs.LogShareMenu
 import com.movtery.zalithlauncher.ui.screens.main.crashlogs.LogShareMenuOperation
@@ -207,6 +208,12 @@ class MainActivity : BaseAppCompatActivity() {
                         val url = event.url
                         withContext(Dispatchers.Main) {
                             this@MainActivity.openLink(url)
+                        }
+                    }
+                    is EventViewModel.Event.OpenWeb -> {
+                        val url = event.url
+                        withContext(Dispatchers.Main) {
+                            screenBackStackModel.mainScreen.navigateToWeb(url)
                         }
                     }
                     is EventViewModel.Event.CheckUpdate -> {

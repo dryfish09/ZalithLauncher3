@@ -180,7 +180,7 @@ fun RendererSettingsScreen(
                             Row {
                                 IconButton(
                                     onClick = {
-                                        eventViewModel.sendEvent(EventViewModel.Event.OpenLink("https://github.com/K11MCH1/AdrenoToolsDrivers/releases"))
+                                        eventViewModel.sendEvent(EventViewModel.Event.OpenWeb("https://github.com/K11MCH1/AdrenoToolsDrivers/releases"))
                                     }
                                 ) {
                                     Icon(

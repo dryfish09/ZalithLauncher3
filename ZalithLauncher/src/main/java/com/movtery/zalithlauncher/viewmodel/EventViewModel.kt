@@ -85,6 +85,8 @@ class EventViewModel : ViewModel() {
         data object CheckUpdate : Event
         /** 在浏览器访问链接 */
         data class OpenLink(val url: String) : Event
+        /** 在应用内 WebView 访问链接 */
+        data class OpenWeb(val url: String) : Event
         /** 让 MainActivity 防止熄屏 */
         data class KeepScreen(val on: Boolean) : Event
         /** 导入控制布局 */
