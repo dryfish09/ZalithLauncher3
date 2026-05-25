@@ -437,7 +437,9 @@ private fun VersionManagerLayout(
             .combinedClickable(
                 role = Role.Button,
                 onClick = swapToVersionManage,
-                onLongClick = openListMenu
+                onLongClick = {
+                    if (version != null) openListMenu()
+                }
             )
             .padding(PaddingValues(all = 8.dp))
     ) {
