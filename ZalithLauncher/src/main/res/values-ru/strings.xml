@@ -359,7 +359,7 @@
     <string name="settings_renderer_full_screen_title">Игнорирование выреза</string>
     <string name="settings_renderer_full_screen_summary">Игнорирует вырез под фронтальную камеру и даёт дополнительное место для изображение под ней</string>
     <string name="settings_renderer_sustained_performance_title">Режим стабильной производительности</string>
-    <string name="settings_renderer_sustained_performance_summary">При включении снижает производительность устройства для предотвращения тротлинга, подходит для длительных длительный мучений телефона</string>
+    <string name="settings_renderer_sustained_performance_summary">При включении снижает производительность устройства для предотвращения тротлинга, подходит для длительных мучений телефона</string>
     <string name="settings_renderer_shader_dump_title">Логирование шейдеров</string>
     <string name="settings_renderer_shader_dump_summary">Выводить преобразованный код шейдеров во время работы игры в лог-файл для упрощения отладки и анализа рендеринга графики</string>
     <string name="settings_renderer_vulkan_driver_system_title">Использовать системный драйвер Vulkan</string>
