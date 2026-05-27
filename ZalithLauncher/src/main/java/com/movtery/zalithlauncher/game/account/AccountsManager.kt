@@ -230,7 +230,7 @@ object AccountsManager {
             accountDao.saveAccount(account)
             Logger.info(TAG, "Saved account: ${account.username}")
             //同时设置当前账号
-            setCurrentAccountInternal(account)
+            setCurrentAccount(account)
         }.onFailure { e ->
             Logger.error(TAG, "Failed to save account: ${account.username}", e)
         }

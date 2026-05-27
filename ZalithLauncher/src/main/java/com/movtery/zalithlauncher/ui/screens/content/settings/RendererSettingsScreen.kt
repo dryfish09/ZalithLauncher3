@@ -45,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.rememberCoroutineScope
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.driver.Driver
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
@@ -60,6 +61,7 @@ import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
@@ -69,11 +71,14 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettin
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
+import com.movtery.zalithlauncher.upgrade.GithubReleaseApi
 import com.movtery.zalithlauncher.utils.device.checkVulkanSupport
+import com.movtery.zalithlauncher.utils.driver.MobileGluesDownloader
 import com.movtery.zalithlauncher.utils.driver.TurnipDownloader
 import com.movtery.zalithlauncher.utils.isAdrenoGPU
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.sendDLPlugin
+import kotlinx.coroutines.launch
 
 @Composable
 fun RendererSettingsScreen(
@@ -87,6 +92,34 @@ fun RendererSettingsScreen(
         Triple(NormalNavKey.Settings.Renderer, settingsScreenKey, false)
     ) { isVisible ->
         val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
+        var showDriverList by remember { mutableStateOf(false) }
+        var driverAssets by remember { mutableStateOf<List<GithubReleaseApi.Asset>?>(null) }
+        var driverListError by remember { mutableStateOf<String?>(null) }
+        var driverListLoading by remember { mutableStateOf(false) }
+
+        if (showDriverList && driverAssets != null) {
+            SimpleListDialog(
+                title = stringResource(R.string.settings_renderer_download_turnip),
+                items = driverAssets!!,
+                itemTextProvider = { asset ->
+                    val sizeMb = asset.size / (1024 * 1024)
+                    "${asset.name} (${sizeMb}MB)"
+                },
+                onItemSelected = { asset ->
+                    TurnipDownloader.downloadAsset(context, asset)
+                },
+                onDismissRequest = { showDriverList = false }
+            )
+        }
+
+        if (driverListError != null) {
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_error),
+                text = driverListError!!,
+                onDismiss = { driverListError = null }
+            )
+        }
 
         AnimatedColumn(
             modifier = Modifier
@@ -174,13 +207,54 @@ fun RendererSettingsScreen(
                         title = stringResource(R.string.settings_renderer_download_turnip),
                         summary = stringResource(R.string.settings_renderer_download_turnip_summary),
                         onClick = {
-                            TurnipDownloader.downloadLatest(context)
+                            if (!driverListLoading) {
+                                driverListLoading = true
+                                coroutineScope.launch {
+                                    try {
+                                        driverAssets = TurnipDownloader.fetchLatestAssets()
+                                        showDriverList = true
+                                    } catch (e: Exception) {
+                                        driverListError = e.message ?: "Unknown error"
+                                    } finally {
+                                        driverListLoading = false
+                                    }
+                                }
+                            }
                         },
                         trailingIcon = {
                             Row {
                                 IconButton(
                                     onClick = {
                                         eventViewModel.sendEvent(EventViewModel.Event.OpenWeb("https://github.com/K11MCH1/AdrenoToolsDrivers/releases"))
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_link),
+                                        contentDescription = stringResource(R.string.generic_open_link)
+                                    )
+                                }
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_download),
+                                    contentDescription = null,
+                                    modifier = Modifier.align(Alignment.CenterVertically).padding(end = 12.dp)
+                                )
+                            }
+                        }
+                    )
+
+                    SettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
+                        title = "Download MobileGlues",
+                        summary = "Download and install MobileGlues GL-on-ES renderer",
+                        onClick = {
+                            MobileGluesDownloader.downloadLatest(context)
+                        },
+                        trailingIcon = {
+                            Row {
+                                IconButton(
+                                    onClick = {
+                                        eventViewModel.sendEvent(EventViewModel.Event.OpenWeb("https://github.com/MobileGL-Dev/MobileGlues-release/releases"))
                                     }
                                 ) {
                                     Icon(

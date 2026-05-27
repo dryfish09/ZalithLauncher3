@@ -65,6 +65,16 @@ fun PerformanceSettingsDialog(
                     value = AllSettings.showFPS.state,
                     onValueChange = { AllSettings.showFPS.save(it) }
                 )
+                InfoLayoutSliderItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.settings_renderer_resolution_scale_title),
+                    value = (AllSettings.resolutionRatio.state ?: 100).toFloat(),
+                    onValueChange = { AllSettings.resolutionRatio.updateState(it.toInt()) },
+                    onValueChangeFinished = { AllSettings.resolutionRatio.save() },
+                    valueRange = 25f..300f,
+                    decimalFormat = "#0",
+                    suffix = "%"
+                )
             }
         }
         PerformanceSettingsOperation.Ram -> {

@@ -330,7 +330,7 @@ private fun <E: TitledNavKey> TopBar(
                     ) {
                         if (festivals.isEmpty()) {
                             Text(
-                                text = InfoDistributor.LAUNCHER_IDENTIFIER,
+                                text = BuildKeys.LAUNCHER_IDENTIFIER,
                                 style = style,
                                 softWrap = softWarp,
                                 maxLines = maxLines

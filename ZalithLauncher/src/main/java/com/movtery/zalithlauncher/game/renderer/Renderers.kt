@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.game.renderer
 import android.content.Context
 import com.movtery.zalithlauncher.game.renderer.renderers.FreedrenoRenderer
 import com.movtery.zalithlauncher.game.renderer.renderers.GL4ESRenderer
+import com.movtery.zalithlauncher.game.renderer.renderers.MobileGluesRenderer
 import com.movtery.zalithlauncher.game.renderer.renderers.NGGL4ESRenderer
 import com.movtery.zalithlauncher.game.renderer.renderers.PanfrostRenderer
 import com.movtery.zalithlauncher.game.renderer.renderers.VirGLRenderer
@@ -56,6 +57,7 @@ object Renderers {
             NGGL4ESRenderer,
             GL4ESRenderer,
             VulkanZinkRenderer,
+            MobileGluesRenderer,
             VirGLRenderer,
             FreedrenoRenderer,
             PanfrostRenderer

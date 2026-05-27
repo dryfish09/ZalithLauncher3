@@ -23,9 +23,9 @@ import android.widget.Toast
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
-import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.upgrade.GithubReleaseApi
+import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.file.extractFromZip
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import kotlinx.coroutines.Dispatchers
@@ -38,27 +38,37 @@ import java.io.File
 import java.util.zip.ZipFile
 import kotlinx.serialization.json.Json
 
-object TurnipDownloader {
+object MobileGluesDownloader {
     private val client = OkHttpClient()
     private val json = Json { ignoreUnknownKeys = true }
-    private const val REPO_API = "https://api.github.com/repos/K11MCH1/AdrenoToolsDrivers/releases/latest"
+    private const val REPO_API = "https://api.github.com/repos/MobileGL-Dev/MobileGlues-release/releases/latest"
 
-    suspend fun fetchLatestAssets(): List<GithubReleaseApi.Asset> {
-        val request = Request.Builder().url(REPO_API).build()
-        val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
-        if (!response.isSuccessful) throw Exception("Failed to fetch latest release")
-
-        val body = response.body?.string() ?: throw Exception("Empty response body")
-        val release = json.decodeFromString<GithubReleaseApi>(body)
-
-        return release.assets.filter { it.name.endsWith(".zip", ignoreCase = true) }
+    private fun getLibAbi(): String {
+        return when (Architecture.primaryArmArch) {
+            Architecture.ARCH_ARM64 -> "arm64-v8a"
+            Architecture.ARCH_ARM -> "armeabi-v7a"
+            else -> "arm64-v8a"
+        }
     }
 
-    fun downloadAsset(context: Context, asset: GithubReleaseApi.Asset) {
+    fun downloadLatest(context: Context) {
+        val abi = getLibAbi()
         val task = Task.runTask(
-            id = "download_turnip_driver_${asset.name}",
+            id = "download_mobileglues",
             task = { it ->
-                it.updateMessage(R.string.settings_renderer_turnip_downloading)
+                it.updateMessage("Fetching MobileGlues release...")
+                it.updateProgress(-1f)
+
+                val request = Request.Builder().url(REPO_API).build()
+                val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
+                if (!response.isSuccessful) throw Exception("Failed to fetch latest release")
+
+                val body = response.body?.string() ?: throw Exception("Empty response body")
+                val release = json.decodeFromString<GithubReleaseApi>(body)
+                val asset = release.assets.firstOrNull { it.name.endsWith(".apk", ignoreCase = true) }
+                    ?: throw Exception("No APK asset found in latest release")
+
+                it.updateMessage("Downloading MobileGlues...")
                 it.updateProgress(-1f)
 
                 val downloadFile = File(PathManager.DIR_CACHE, asset.name)
@@ -66,7 +76,7 @@ object TurnipDownloader {
 
                 withContext(Dispatchers.IO) {
                     client.newCall(downloadRequest).execute().use { downloadResponse ->
-                        if (!downloadResponse.isSuccessful) throw Exception("Failed to download driver")
+                        if (!downloadResponse.isSuccessful) throw Exception("Failed to download MobileGlues APK")
                         val source = downloadResponse.body?.source() ?: throw Exception("Empty download body")
                         val totalSize = downloadResponse.body?.contentLength() ?: -1L
 
@@ -85,10 +95,10 @@ object TurnipDownloader {
                     }
                 }
 
-                it.updateMessage(R.string.settings_renderer_turnip_extracting)
+                it.updateMessage("Extracting MobileGlues library...")
                 it.updateProgress(-1f)
 
-                val extractDir = File(PathManager.DIR_DRIVERS, asset.name.removeSuffix(".zip"))
+                val extractDir = File(PathManager.DIR_DRIVERS, "mobileglues")
                 if (extractDir.exists()) {
                     extractDir.deleteRecursively()
                 }
@@ -96,19 +106,23 @@ object TurnipDownloader {
 
                 withContext(Dispatchers.IO) {
                     ZipFile(downloadFile).use { zip ->
-                        zip.extractFromZip("", extractDir)
+                        val found = zip.entries().asSequence()
+                            .any { entry ->
+                                entry.name.startsWith("lib/$abi/") && entry.name.endsWith("libMobileGlues.so")
+                            }
+                        if (!found) throw Exception("libMobileGlues.so not found for $abi in APK")
+                        zip.extractFromZip("lib/$abi/", extractDir)
                     }
                 }
 
                 downloadFile.delete()
 
                 withContext(Dispatchers.Main) {
-                    DriverPluginManager.scanExternalDrivers(context)
-                    Toast.makeText(context, R.string.settings_renderer_turnip_success, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "MobileGlues installed successfully", Toast.LENGTH_SHORT).show()
                 }
             },
             onError = { th ->
-                lError("Failed to download Turnip driver", th)
+                lError("Failed to download MobileGlues", th)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Failed: ${th.message}", Toast.LENGTH_LONG).show()
                 }

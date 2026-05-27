@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.movtery.zalithlauncher.BuildConfig
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 
 @Composable
@@ -72,7 +72,7 @@ fun AboutDialog(
                 )
                 
                 Text(
-                    text = InfoDistributor.LAUNCHER_NAME,
+                    text = BuildKeys.LAUNCHER_NAME,
                     style = MaterialTheme.typography.headlineSmall
                 )
                 
@@ -99,7 +99,7 @@ fun AboutDialog(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = stringResource(R.string.about_launcher_author_star1xr_text, InfoDistributor.LAUNCHER_NAME),
+                    text = stringResource(R.string.about_launcher_author_star1xr_text, BuildKeys.LAUNCHER_NAME),
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.alpha(0.7f)
                 )

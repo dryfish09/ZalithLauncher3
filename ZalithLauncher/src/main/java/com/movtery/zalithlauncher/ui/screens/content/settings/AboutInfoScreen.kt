@@ -137,7 +137,7 @@ fun AboutInfoScreen(
                         ButtonIconItem(
                             icon = painterResource(R.drawable.img_star1xr),
                             title = stringResource(R.string.about_launcher_author_star1xr_title),
-                            text = stringResource(R.string.about_launcher_author_star1xr_text, InfoDistributor.LAUNCHER_NAME),
+                            text = stringResource(R.string.about_launcher_author_star1xr_text, BuildKeys.LAUNCHER_NAME),
                             button = {
                                 Button(
                                     onClick = { openLink(URL_STAR1XR) }
