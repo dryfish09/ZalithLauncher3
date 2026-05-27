@@ -1250,6 +1250,4 @@
     <string name="settings_renderer_turnip_downloading">Turnip Sürücüsü İndiriliyor...</string>
     <string name="settings_renderer_turnip_extracting">Turnip Sürücüsü Çıkarılıyor...</string>
     <string name="settings_renderer_turnip_success">Turnip Sürücüsü başarıyla yüklendi</string>
-    <string name="settings_renderer_turnip_release_format">%1$s (%2$d sürücü)</string>
-    <string name="settings_renderer_turnip_asset_format">%1$s (%2$d MB)</string>
 </resources>

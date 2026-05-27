@@ -72,8 +72,9 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCa
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
 import com.movtery.zalithlauncher.utils.device.checkVulkanSupport
-import com.movtery.zalithlauncher.utils.driver.TurnipRelease
+import com.movtery.zalithlauncher.upgrade.GithubReleaseApi
 import com.movtery.zalithlauncher.utils.driver.TurnipDownloader
+import com.movtery.zalithlauncher.utils.driver.TurnipRelease
 import com.movtery.zalithlauncher.utils.isAdrenoGPU
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.sendDLPlugin
@@ -92,41 +93,23 @@ fun RendererSettingsScreen(
     ) { isVisible ->
         val context = LocalContext.current
         val coroutineScope = rememberCoroutineScope()
-        var showReleaseList by remember { mutableStateOf(false) }
-        var releases by remember { mutableStateOf<List<TurnipRelease>?>(null) }
-        var selectedRelease by remember { mutableStateOf<TurnipRelease?>(null) }
-        var showAssetList by remember { mutableStateOf(false) }
+        var showDriverList by remember { mutableStateOf(false) }
+        var allDrivers by remember { mutableStateOf<List<Pair<TurnipRelease, GithubReleaseApi.Asset>>?>(null) }
         var driverListError by remember { mutableStateOf<String?>(null) }
         var driverListLoading by remember { mutableStateOf(false) }
 
-        if (showReleaseList && releases != null) {
+        if (showDriverList && allDrivers != null) {
             SimpleListDialog(
                 title = stringResource(R.string.settings_renderer_download_turnip),
-                items = releases!!,
-                itemTextProvider = { release ->
-                    stringResource(R.string.settings_renderer_turnip_release_format, release.tagName, release.assets.size)
-                },
-                onItemSelected = { release ->
-                    selectedRelease = release
-                    showReleaseList = false
-                    showAssetList = true
-                },
-                onDismissRequest = { showReleaseList = false }
-            )
-        }
-
-        if (showAssetList && selectedRelease != null) {
-            SimpleListDialog(
-                title = selectedRelease!!.tagName,
-                items = selectedRelease!!.assets,
-                itemTextProvider = { asset ->
+                items = allDrivers!!,
+                itemTextProvider = { (release, asset) ->
                     val sizeMb = asset.size / (1024 * 1024)
-                    stringResource(R.string.settings_renderer_turnip_asset_format, asset.name, sizeMb)
+                    "[${release.tagName}] ${asset.name} (${sizeMb}MB)"
                 },
-                onItemSelected = { asset ->
+                onItemSelected = { (_, asset) ->
                     TurnipDownloader.downloadAsset(context, asset)
                 },
-                onDismissRequest = { showAssetList = false }
+                onDismissRequest = { showDriverList = false }
             )
         }
 
@@ -162,6 +145,16 @@ fun RendererSettingsScreen(
                         getItemId = { it.getUniqueIdentifier() },
                         getItemSummary = {
                             RendererSummaryLayout(it)
+                        },
+                        getItemTrailing = { renderer ->
+                            if (renderer.getRendererName() == "MobileGlues") {
+                                IconButton(onClick = { }) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_settings_filled),
+                                        contentDescription = stringResource(R.string.generic_setting)
+                                    )
+                                }
+                            }
                         },
                         trailingIcon = {
                             IconButton(
@@ -228,8 +221,11 @@ fun RendererSettingsScreen(
                                 driverListLoading = true
                                 coroutineScope.launch {
                                     try {
-                                        releases = TurnipDownloader.fetchAllReleases()
-                                        showReleaseList = true
+                                        val releases = TurnipDownloader.fetchAllReleases()
+                                        allDrivers = releases.flatMap { release ->
+                                            release.assets.map { asset -> release to asset }
+                                        }
+                                        showDriverList = true
                                     } catch (e: Exception) {
                                         driverListError = e.message ?: "Unknown error"
                                     } finally {
