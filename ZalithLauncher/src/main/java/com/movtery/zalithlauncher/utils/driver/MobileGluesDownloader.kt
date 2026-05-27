@@ -27,7 +27,7 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.upgrade.GithubReleaseApi
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.file.extractFromZip
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -39,12 +39,13 @@ import java.util.zip.ZipFile
 import kotlinx.serialization.json.Json
 
 object MobileGluesDownloader {
+    private const val TAG = "MobileGluesDownloader"
     private val client = OkHttpClient()
     private val json = Json { ignoreUnknownKeys = true }
     private const val REPO_API = "https://api.github.com/repos/MobileGL-Dev/MobileGlues-release/releases/latest"
 
     private fun getLibAbi(): String {
-        return when (Architecture.primaryArmArch) {
+        return when (Architecture.getDeviceArchitecture()) {
             Architecture.ARCH_ARM64 -> "arm64-v8a"
             Architecture.ARCH_ARM -> "armeabi-v7a"
             else -> "arm64-v8a"
@@ -56,7 +57,7 @@ object MobileGluesDownloader {
         val task = Task.runTask(
             id = "download_mobileglues",
             task = { it ->
-                it.updateMessage("Fetching MobileGlues release...")
+                it.updateMessage(R.string.settings_renderer_turnip_downloading)
                 it.updateProgress(-1f)
 
                 val request = Request.Builder().url(REPO_API).build()
@@ -68,7 +69,7 @@ object MobileGluesDownloader {
                 val asset = release.assets.firstOrNull { it.name.endsWith(".apk", ignoreCase = true) }
                     ?: throw Exception("No APK asset found in latest release")
 
-                it.updateMessage("Downloading MobileGlues...")
+                it.updateMessage(R.string.settings_renderer_turnip_downloading)
                 it.updateProgress(-1f)
 
                 val downloadFile = File(PathManager.DIR_CACHE, asset.name)
@@ -95,7 +96,7 @@ object MobileGluesDownloader {
                     }
                 }
 
-                it.updateMessage("Extracting MobileGlues library...")
+                it.updateMessage(R.string.settings_renderer_turnip_extracting)
                 it.updateProgress(-1f)
 
                 val extractDir = File(PathManager.DIR_DRIVERS, "mobileglues")
@@ -118,11 +119,11 @@ object MobileGluesDownloader {
                 downloadFile.delete()
 
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "MobileGlues installed successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.settings_renderer_turnip_success, Toast.LENGTH_SHORT).show()
                 }
             },
             onError = { th ->
-                lError("Failed to download MobileGlues", th)
+                Logger.error(TAG, "Failed to download MobileGlues", th)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Failed: ${th.message}", Toast.LENGTH_LONG).show()
                 }

@@ -27,7 +27,7 @@ import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.upgrade.GithubReleaseApi
 import com.movtery.zalithlauncher.utils.file.extractFromZip
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -39,6 +39,7 @@ import java.util.zip.ZipFile
 import kotlinx.serialization.json.Json
 
 object TurnipDownloader {
+    private const val TAG = "TurnipDownloader"
     private val client = OkHttpClient()
     private val json = Json { ignoreUnknownKeys = true }
     private const val REPO_API = "https://api.github.com/repos/K11MCH1/AdrenoToolsDrivers/releases/latest"
@@ -108,7 +109,7 @@ object TurnipDownloader {
                 }
             },
             onError = { th ->
-                lError("Failed to download Turnip driver", th)
+                Logger.error(TAG, "Failed to download Turnip driver", th)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Failed: ${th.message}", Toast.LENGTH_LONG).show()
                 }

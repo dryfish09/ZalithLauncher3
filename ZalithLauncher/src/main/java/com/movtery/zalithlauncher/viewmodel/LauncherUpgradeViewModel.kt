@@ -84,6 +84,7 @@ sealed interface LauncherUpgradeOperation {
  */
 private const val LATEST_VERSION = "latest_version_md.json"
 private const val LATEST_API_URL = "$URL_PROJECT_INFO/$LATEST_VERSION"
+private const val LATEST_API_CHINESE_URL = LATEST_API_URL
 
 /**
  * 用于记录启动器更新 ViewModel

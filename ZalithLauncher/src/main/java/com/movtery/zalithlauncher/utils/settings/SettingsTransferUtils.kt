@@ -18,8 +18,7 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -38,6 +37,7 @@ data class SettingsExport(
 )
 
 object SettingsTransferUtils {
+    private const val TAG = "SettingsTransferUtils"
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
@@ -64,10 +64,10 @@ object SettingsTransferUtils {
             
             val exportFile = File(getExportDir(), "settings.json")
             exportFile.writeText(jsonString)
-            lInfo("Settings exported to ${exportFile.absolutePath}")
+            Logger.info(TAG, "Settings exported to ${exportFile.absolutePath}")
             exportFile
         } catch (e: Exception) {
-            lError("Failed to export settings", e)
+            Logger.error(TAG, "Failed to export settings", e)
             null
         }
     }
@@ -107,10 +107,10 @@ object SettingsTransferUtils {
             val accountName = accounts.firstOrNull()?.username ?: "backup"
             val exportFile = File(getExportDir(), "account($accountName).json")
             exportFile.writeText(jsonString)
-            lInfo("Accounts exported to ${exportFile.absolutePath}")
+            Logger.info(TAG, "Accounts exported to ${exportFile.absolutePath}")
             exportFile
         } catch (e: Exception) {
-            lError("Failed to export accounts", e)
+            Logger.error(TAG, "Failed to export accounts", e)
             null
         }
     }
@@ -134,7 +134,7 @@ object SettingsTransferUtils {
                                 is String -> (unit as? com.movtery.zalithlauncher.setting.unit.AbstractSettingUnit<String>)?.save(valueStr)
                             }
                         } catch (e: Exception) {
-                            lError("Failed to import setting ${unit.key}", e)
+                            Logger.error(TAG, "Failed to import setting ${unit.key}", e)
                         }
                     }
                 }
@@ -158,7 +158,7 @@ object SettingsTransferUtils {
                     val skinFile = File(com.movtery.zalithlauncher.path.PathManager.DIR_ACCOUNT_SKIN, "$uuid.png")
                     FileUtils.writeByteArrayToFile(skinFile, bytes)
                 } catch (e: Exception) {
-                    lError("Failed to import skin for $uuid", e)
+                    Logger.error(TAG, "Failed to import skin for $uuid", e)
                 }
             }
             
@@ -168,7 +168,7 @@ object SettingsTransferUtils {
                     val capeFile = File(com.movtery.zalithlauncher.path.PathManager.DIR_ACCOUNT_CAPE, "$uuid.png")
                     FileUtils.writeByteArrayToFile(capeFile, bytes)
                 } catch (e: Exception) {
-                    lError("Failed to import cape for $uuid", e)
+                    Logger.error(TAG, "Failed to import cape for $uuid", e)
                 }
             }
 
@@ -178,10 +178,10 @@ object SettingsTransferUtils {
                 AccountsManager.refreshWardrobe()
             }
             
-            lInfo("Data imported successfully")
+            Logger.info(TAG, "Data imported successfully")
             true
         } catch (e: Exception) {
-            lError("Failed to import data", e)
+            Logger.error(TAG, "Failed to import data", e)
             false
         }
     }
