@@ -19,33 +19,62 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.ui.components.BackgroundCard
-import com.movtery.zalithlauncher.ui.theme.cardColor
 import kotlinx.coroutines.delay
 import org.lwjgl.glfw.CallbackBridge
+
+private val CollapsedWidth = 56.dp
+private val ExpandedWidth = 84.dp
 
 @Composable
 fun SideBar(
@@ -58,7 +87,16 @@ fun SideBar(
 ) {
     var fps by remember { mutableIntStateOf(0) }
     var memoryInfo by remember { mutableStateOf(getMemoryInfo()) }
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    val targetWidth by animateDpAsState(
+        targetValue = if (expanded) ExpandedWidth else CollapsedWidth,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "sidebarWidth"
+    )
 
     LaunchedEffect(isVisible) {
         if (isVisible) {
@@ -70,75 +108,158 @@ fun SideBar(
         }
     }
 
-    BackgroundCard(
+    Box(
         modifier = modifier
-            .width(if (expanded) 80.dp else 56.dp)
-            .fillMaxHeight(),
-        shape = MaterialTheme.shapes.extraLarge
+            .width(targetWidth)
+            .fillMaxHeight()
+            .padding(vertical = 8.dp)
     ) {
-        Column(
+        Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .blur(0.dp),
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.35f),
+            tonalElevation = 0.dp,
+            shadowElevation = 0.dp
         ) {
-            SideBarToggle(
-                expanded = expanded,
-                onClick = { expanded = !expanded }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.12f),
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.08f)
+                            )
+                        )
+                    )
             )
+        }
 
-            AnimatedVisibility(
-                visible = expanded,
-                enter = fadeIn(animationSpec = tween(200)) +
-                    slideInVertically(animationSpec = tween(200)) { it / 4 },
-                exit = fadeOut(animationSpec = tween(150)) +
-                    slideOutVertically(animationSpec = tween(150)) { it / 4 }
+        Surface(
+            modifier = Modifier
+                .fillMaxSize(),
+            shape = RoundedCornerShape(20.dp),
+            color = Color.Transparent,
+            tonalElevation = 0.dp,
+            shadowElevation = 0.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                SideBarToggle(
+                    expanded = expanded,
+                    onClick = { expanded = !expanded }
+                )
+
+                AnimatedVisibility(
+                    visible = expanded,
+                    enter = fadeIn(animationSpec = tween(250)) +
+                        slideInVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessMedium
+                            )
+                        ) { it / 3 },
+                    exit = fadeOut(animationSpec = tween(150)) +
+                        slideOutVertically(
+                            animationSpec = tween(150)
+                        ) { it / 3 }
                 ) {
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .alpha(0.3f)
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .padding(horizontal = 18.dp)
+                                .alpha(0.2f)
+                        )
 
-                    SideBarIndicator(
-                        label = "FPS",
-                        value = fps.toString(),
-                        icon = painterResource(R.drawable.ic_video_settings),
-                        onClick = onFpsClick
-                    )
+                        Spacer(modifier = Modifier.height(2.dp))
 
-                    SideBarIndicator(
-                        label = "RAM",
-                        value = "${memoryInfo.first}M",
-                        icon = painterResource(R.drawable.ic_dashboard_outlined),
-                        onClick = onRamClick
-                    )
+                        StaggeredItem(delay = 0) {
+                            SideBarIndicator(
+                                label = "FPS",
+                                value = fps.toString(),
+                                icon = painterResource(R.drawable.ic_video_settings),
+                                onClick = onFpsClick
+                            )
+                        }
 
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .alpha(0.3f)
-                    )
+                        StaggeredItem(delay = 60) {
+                            SideBarIndicator(
+                                label = "RAM",
+                                value = "${memoryInfo.first}M",
+                                icon = painterResource(R.drawable.ic_dashboard_outlined),
+                                onClick = onRamClick
+                            )
+                        }
 
-                    SideBarShortcut(
-                        icon = painterResource(R.drawable.ic_assignment_filled),
-                        contentDescription = "Versions",
-                        onClick = onVersionsClick
-                    )
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .padding(horizontal = 18.dp)
+                                .alpha(0.2f)
+                        )
 
-                    SideBarShortcut(
-                        icon = painterResource(R.drawable.ic_info_outlined),
-                        contentDescription = "About",
-                        onClick = onInfoClick
-                    )
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        StaggeredItem(delay = 120) {
+                            SideBarShortcut(
+                                icon = painterResource(R.drawable.ic_assignment_filled),
+                                contentDescription = "Versions",
+                                onClick = onVersionsClick
+                            )
+                        }
+
+                        StaggeredItem(delay = 180) {
+                            SideBarShortcut(
+                                icon = painterResource(R.drawable.ic_info_outlined),
+                                contentDescription = "About",
+                                onClick = onInfoClick
+                            )
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StaggeredItem(
+    delay: Int,
+    visible: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    var show by remember { mutableStateOf(!visible) }
+
+    LaunchedEffect(visible) {
+        if (visible) {
+            kotlinx.coroutines.delay(delay.toLong())
+            show = true
+        } else {
+            show = false
+        }
+    }
+
+    AnimatedVisibility(
+        visible = show,
+        enter = fadeIn(animationSpec = tween(200)) +
+            slideInVertically(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            ) { it },
+        exit = fadeOut(animationSpec = tween(100))
+    ) {
+        content()
     }
 }
 
@@ -150,25 +271,43 @@ private fun SideBarToggle(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.88f else 1f,
-        animationSpec = tween(100),
+        targetValue = if (isPressed) 0.85f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh
+        ),
         label = "toggleScale"
+    )
+
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "toggleRotation"
     )
 
     Surface(
         modifier = Modifier
-            .size(40.dp)
+            .size(42.dp)
             .scale(scale)
-            .clip(RoundedCornerShape(12.dp))
+            .shadow(
+                elevation = if (isPressed) 1.dp else 6.dp,
+                shape = RoundedCornerShape(14.dp),
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+            )
+            .clip(RoundedCornerShape(14.dp))
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
             ),
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
-        tonalElevation = if (isPressed) 0.dp else 2.dp,
-        shadowElevation = if (isPressed) 0.dp else 3.dp
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
+        tonalElevation = if (isPressed) 0.dp else 3.dp,
+        shadowElevation = 0.dp
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -178,7 +317,7 @@ private fun SideBarToggle(
                 painter = if (expanded) painterResource(R.drawable.ic_arrow_left_rounded)
                     else painterResource(R.drawable.ic_menu),
                 contentDescription = if (expanded) "Collapse" else "Expand",
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
@@ -194,31 +333,47 @@ private fun SideBarIndicator(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
+
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.92f else 1f,
-        animationSpec = tween(120),
-        label = "scale"
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh
+        ),
+        label = "indicatorScale"
+    )
+
+    val elevation by animateDpAsState(
+        targetValue = if (isPressed) 2.dp else 8.dp,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "indicatorElevation"
     )
 
     Surface(
         modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 2.dp)
+            .padding(horizontal = 6.dp, vertical = 2.dp)
             .scale(scale)
-            .clip(RoundedCornerShape(16.dp))
+            .shadow(
+                elevation = elevation,
+                shape = RoundedCornerShape(18.dp),
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            )
+            .clip(RoundedCornerShape(18.dp))
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
             ),
-        shape = RoundedCornerShape(16.dp),
-        color = cardColor(false).copy(alpha = 0.7f),
-        tonalElevation = if (isPressed) 1.dp else 3.dp,
-        shadowElevation = if (isPressed) 1.dp else 4.dp
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+        tonalElevation = if (isPressed) 1.dp else 4.dp,
+        shadowElevation = 0.dp
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 10.dp)
+                .padding(horizontal = 10.dp, vertical = 10.dp)
         ) {
             Icon(
                 painter = icon,
@@ -231,7 +386,7 @@ private fun SideBarIndicator(
                 text = value,
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
             )
         }
     }
@@ -245,26 +400,42 @@ private fun SideBarShortcut(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
+
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.88f else 1f,
-        animationSpec = tween(100),
+        targetValue = if (isPressed) 0.85f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh
+        ),
         label = "shortcutScale"
+    )
+
+    val elevation by animateDpAsState(
+        targetValue = if (isPressed) 1.dp else 8.dp,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "shortcutElevation"
     )
 
     Surface(
         modifier = Modifier
-            .size(48.dp)
+            .size(46.dp)
             .scale(scale)
-            .clip(RoundedCornerShape(14.dp))
+            .shadow(
+                elevation = elevation,
+                shape = RoundedCornerShape(16.dp),
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            )
+            .clip(RoundedCornerShape(16.dp))
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
             ),
-        shape = RoundedCornerShape(14.dp),
-        color = cardColor(false).copy(alpha = 0.5f),
-        tonalElevation = if (isPressed) 0.dp else 2.dp,
-        shadowElevation = if (isPressed) 0.dp else 3.dp
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        tonalElevation = if (isPressed) 1.dp else 3.dp,
+        shadowElevation = 0.dp
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -274,7 +445,7 @@ private fun SideBarShortcut(
                 painter = icon,
                 contentDescription = contentDescription,
                 modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
             )
         }
     }
