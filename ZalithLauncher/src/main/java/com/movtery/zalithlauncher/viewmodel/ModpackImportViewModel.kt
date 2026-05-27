@@ -54,7 +54,7 @@ import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.content.download.ModpackVersionNameDialog
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.PackIdentifier
 import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.SerializationException
@@ -64,6 +64,8 @@ import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+
+private const val TAG = "ModpackImportVM"
 
 /** 导入整合包相关操作 */
 sealed interface ModpackImportOperation {
@@ -281,7 +283,7 @@ fun ModpackImportOperation(
         }
         is ModpackImportOperation.Error -> {
             val th = operation.th
-            lError("Failed to download the game!", th)
+            Logger.error(TAG, "Failed to download the game!", th)
             val message = when (th) {
                 is HttpRequestTimeoutException, is SocketTimeoutException -> stringResource(R.string.error_timeout)
                 is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)

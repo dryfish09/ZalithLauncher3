@@ -31,12 +31,10 @@ import android.view.KeyEvent
 import android.widget.Toast
 import com.google.gson.GsonBuilder
 import com.movtery.zalithlauncher.BuildConfig
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.device.Architecture
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.xhinliang.lunarcalendar.LunarCalendar
 import java.io.File
 import java.io.PrintStream
@@ -56,6 +54,8 @@ import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.floor
 
+private const val TAG = "LocalUtils"
+
 val GSON = GsonBuilder().setPrettyPrinting().create()
 
 const val DEFAULT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss"
@@ -72,7 +72,7 @@ fun formatDate(
     val formatter = try {
         SimpleDateFormat(pattern, locale)
     } catch (e: IllegalArgumentException) {
-        lWarning("Encountered an illegal format string while initializing time string formatting: $pattern", e)
+        Logger.warning(TAG, "Encountered an illegal format string while initializing time string formatting: $pattern", e)
         SimpleDateFormat(DEFAULT_DATE_PATTERN, locale)
     }
     formatter.timeZone = timeZone
@@ -91,7 +91,7 @@ fun formatDate(
     val formatter = try {
         DateTimeFormatter.ofPattern(pattern)
     } catch (e: IllegalArgumentException) {
-        lWarning("Encountered an illegal format string while initializing time string formatting: $pattern", e)
+        Logger.warning(TAG, "Encountered an illegal format string while initializing time string formatting: $pattern", e)
         DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN)
     }
     return formatter
@@ -224,12 +224,12 @@ fun getDisplayFriendlyRes(displaySideRes: Int, scaling: Float): Int {
 fun isAdrenoGPU(): Boolean {
     val eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
     if (eglDisplay == EGL14.EGL_NO_DISPLAY) {
-        lError("Failed to get EGL display")
+        Logger.error(TAG, "Failed to get EGL display")
         return false
     }
 
     if (!EGL14.eglInitialize(eglDisplay, null, 0, null, 0)) {
-        lError("Failed to initialize EGL")
+        Logger.error(TAG, "Failed to initialize EGL")
         return false
     }
 
@@ -252,7 +252,7 @@ fun isAdrenoGPU(): Boolean {
         ) || numConfigs[0] == 0
     ) {
         EGL14.eglTerminate(eglDisplay)
-        lError("Failed to choose an EGL config")
+        Logger.error(TAG, "Failed to choose an EGL config")
         return false
     }
 
@@ -270,7 +270,7 @@ fun isAdrenoGPU(): Boolean {
     )
     if (context == EGL14.EGL_NO_CONTEXT) {
         EGL14.eglTerminate(eglDisplay)
-        lError("Failed to create EGL context")
+        Logger.error(TAG, "Failed to create EGL context")
         return false
     }
 
@@ -283,7 +283,7 @@ fun isAdrenoGPU(): Boolean {
     ) {
         EGL14.eglDestroyContext(eglDisplay, context)
         EGL14.eglTerminate(eglDisplay)
-        lError("Failed to make EGL context current")
+        Logger.error(TAG, "Failed to make EGL context current")
         return false
     }
 
@@ -303,7 +303,7 @@ fun isAdrenoGPU(): Boolean {
     EGL14.eglDestroyContext(eglDisplay, context)
     EGL14.eglTerminate(eglDisplay)
 
-    lDebug("Running on Adreno GPU: $isAdreno")
+    Logger.debug(TAG, "Running on Adreno GPU: $isAdreno")
     return isAdreno
 }
 
@@ -311,7 +311,7 @@ fun killProgress() {
     runCatching {
         Process.killProcess(Process.myPid())
     }.onFailure {
-        lError("Could not enable System.exit() method!", it)
+        Logger.error(TAG, "Could not enable System.exit() method!", it)
     }
 }
 
@@ -457,12 +457,12 @@ fun writeCrashFile(
 ) {
     runCatching {
         PrintStream(file).use { stream ->
-            stream.append("================ ${InfoDistributor.LAUNCHER_IDENTIFIER} Crash Report ================\n")
-            stream.append("- Time: ${DateFormat.getDateTimeInstance().format(Date())}\n")
-            stream.append("- Device: ${Build.PRODUCT} ${Build.MODEL}\n")
-            stream.append("- Arch: ${Architecture.archAsString(Architecture.getDeviceArchitecture())}\n")
-            stream.append("- Android Version: ${Build.VERSION.RELEASE}\n")
-            stream.append("- Launcher Version: ${BuildConfig.VERSION_NAME}\n")
+            stream.append("================ ${BuildKeys.LAUNCHER_IDENTIFIER} Crash Report ================\n")
+            stream.append("▷ Time: ${DateFormat.getDateTimeInstance().format(Date())}\n")
+            stream.append("▷ Device: ${Build.PRODUCT} ${Build.MODEL}\n")
+            stream.append("▷ Arch: ${Architecture.archAsString(Architecture.getDeviceArchitecture())}\n")
+            stream.append("▷ Android Version: ${Build.VERSION.RELEASE}\n")
+            stream.append("▷ Launcher Version: ${BuildConfig.VERSION_NAME}\n")
             stream.append("===================== Crash Stack Trace =====================\n")
             stream.append(Log.getStackTraceString(throwable))
         }

@@ -39,7 +39,7 @@ import com.movtery.zalithlauncher.utils.file.extractEntryToFile
 import com.movtery.zalithlauncher.utils.file.extractFromZip
 import com.movtery.zalithlauncher.utils.file.readText
 import com.movtery.zalithlauncher.utils.json.parseToJson
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.isBiggerOrEqualTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -54,6 +54,8 @@ import java.util.jar.Attributes
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
 import kotlin.io.path.name
+
+private const val TAG = "Install.ForgeLike"
 
 const val FORGE_LIKE_INSTALL_ID = "Install.ForgeLike"
 
@@ -134,7 +136,7 @@ private suspend fun installNewForgeHMCLWay(
                 if (value.isJsonObject) {
                     val client = value.asJsonObject["client"]
                     if (client != null && client.isJsonPrimitive) {
-                        lInfo("Attempting to recognize mapping: ${client.asString}")
+                        Logger.info(TAG, "Attempting to recognize mapping: ${client.asString}")
                         parseLiteral(
                             baseDir = tempMinecraftDir,
                             literal = client.asString,
@@ -145,12 +147,12 @@ private suspend fun installNewForgeHMCLWay(
                                     .removePrefix("/")
                                     .replace("\\", "/")
                                 zip.extractEntryToFile(item, dest.toFile())
-                                lInfo("Extracting item $item to directory $dest")
+                                Logger.info(TAG, "Extracting item $item to directory $dest")
                                 dest.toString()
                             }
                         )?.let {
                             vars[key] = it
-                            lInfo("Recognized as mapping $key - $it")
+                            Logger.info(TAG, "Recognized as mapping $key - $it")
                         }
                     }
                 }
@@ -207,7 +209,7 @@ private suspend fun installOldForge(
         task.updateProgress(0.5f)
 
         if (!installProfile.has("install")) {
-            lInfo("Starting the Forge installation, Legacy method A")
+            Logger.info(TAG, "Starting the Forge installation, Legacy method A")
 
             //建立 Json 文件
             val jsonVersion = zip.readText(installProfile["json"].asString.trimStart('/')).parseToJson()
@@ -220,7 +222,7 @@ private suspend fun installOldForge(
 
             null
         } else {
-            lInfo("Starting the Forge installation, Legacy method B")
+            Logger.info(TAG, "Starting the Forge installation, Legacy method B")
             val artifact = installProfile["install"].asJsonObject["path"].asString
             val jarPath = getLibraryPath(artifact, baseFolder = tempMinecraftDir.absolutePath)
 
@@ -293,7 +295,7 @@ private suspend fun runProcessors(
                 throw IllegalArgumentException("Invalid forge installation configuration")
             }
         }.also {
-            lInfo("Parsed output mappings for ${processor.javaClass.simpleName}: ${it.entries.joinToString("\n") { entry -> "${entry.key} = ${entry.value}" }}")
+            Logger.info(TAG, "Parsed output mappings for ${processor.javaClass.simpleName}: ${it.entries.joinToString("\n") { entry -> "${entry.key} = ${entry.value}" }}")
         }
 
         val anyMissing = outputs.any { (key, expectedHash) ->
@@ -305,7 +307,7 @@ private suspend fun runProcessors(
             }
             if (actualHash != expectedHash) {
                 Files.delete(artifact)
-                lInfo("Invalid artifact removed: $artifact")
+                Logger.info(TAG, "Invalid artifact removed: $artifact")
                 true
             } else false
         }
@@ -362,7 +364,7 @@ private suspend fun runProcessors(
 
             task.updateProgress(progress, R.string.download_game_install_base_installing, taskStr)
 
-            lInfo("Start to run $jarPath with args: $jvmArgs")
+            Logger.info(TAG, "Start to run $jarPath with args: $jvmArgs")
         }
 
         for ((artifact, value) in outputs) {

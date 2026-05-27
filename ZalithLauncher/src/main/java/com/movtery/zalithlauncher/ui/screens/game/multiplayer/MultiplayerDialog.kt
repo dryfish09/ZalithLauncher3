@@ -37,6 +37,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -94,6 +95,7 @@ sealed interface TerracottaLogOperation {
  * @param onGuestCopyUrl 房客复制备用链接
  * @param onBack 退出当前步骤
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MultiplayerDialog(
     onClose: () -> Unit,
@@ -300,6 +302,7 @@ fun MultiplayerDialog(
 /**
  * 等待选择角色
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun WaitingUI(
     isInteractive: Boolean,

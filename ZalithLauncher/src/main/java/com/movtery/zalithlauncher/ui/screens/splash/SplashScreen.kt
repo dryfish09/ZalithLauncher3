@@ -35,8 +35,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.components.InstallableItem
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.applyFullscreen
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
@@ -89,7 +89,7 @@ private fun TopBar(
         ) {
             Text(
                 modifier = Modifier.align(Alignment.CenterVertically),
-                text = InfoDistributor.LAUNCHER_NAME
+                text = BuildKeys.LAUNCHER_NAME
             )
         }
     }

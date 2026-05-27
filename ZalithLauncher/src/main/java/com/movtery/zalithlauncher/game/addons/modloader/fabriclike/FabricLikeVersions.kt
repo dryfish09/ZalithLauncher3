@@ -27,14 +27,15 @@ import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.utils.isChinaMainland
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.withRetry
 import io.ktor.client.request.get
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+private const val TAG = "FabricLikeVersions"
 
 abstract class FabricLikeVersions(
     val officialUrl: String,
@@ -120,16 +121,16 @@ abstract class FabricLikeVersions(
             }
 
             if (!versions.game.any { it.version == mcVersion }) {
-                lWarning("The version $mcVersion does not have a corresponding loader.")
+                Logger.warning(TAG, "The version $mcVersion does not have a corresponding loader.")
                 return@withContext null
             }
 
             versions.loader
         } catch (_: CancellationException) {
-            lDebug("Client cancelled.")
+            Logger.debug(TAG, "Client cancelled.")
             null
         } catch (e: Exception) {
-            lDebug("Failed to fetch loader list!", e)
+            Logger.debug(TAG, "Failed to fetch loader list!", e)
             throw e
         }
     }

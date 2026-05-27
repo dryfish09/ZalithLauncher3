@@ -27,7 +27,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.model
 import com.movtery.zalithlauncher.game.download.assets.platform.mirroredCurseForgeSource
 import com.movtery.zalithlauncher.game.download.assets.platform.mirroredPlatformSearcher
 import com.movtery.zalithlauncher.game.versioninfo.filterRelease
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.parseInstant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -253,13 +253,13 @@ class CurseForgeFile(
                     }.data
                 }.onFailure { e ->
                     when (e) {
-                        is FileNotFoundException -> lWarning("Could not query api.curseforge.com for deleted mods: $currentProjectId, $fileId", e)
-                        is IOException, is SerializationException -> lWarning("Unable to fetch the file name projectID=$currentProjectId, fileID=$fileId", e)
+                        is FileNotFoundException -> Logger.warning("InitCFFile", "Could not query api.curseforge.com for deleted mods: $currentProjectId, $fileId", e)
+                        is IOException, is SerializationException -> Logger.warning("InitCFFile", "Unable to fetch the file name projectID=$currentProjectId, fileID=$fileId", e)
                     }
                 }.getOrNull() ?: return false
             }
         val link = file.fixedFileUrl() ?: run {
-            lWarning("No download link available, projectID=$currentProjectId, fileID=${file.id}")
+            Logger.warning("InitCFFile", "No download link available, projectID=$currentProjectId, fileID=${file.id}")
             return false
         }
 

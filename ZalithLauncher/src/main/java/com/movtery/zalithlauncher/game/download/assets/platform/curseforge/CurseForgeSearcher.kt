@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.game.download.assets.platform.curseforge
 
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.game.download.assets.platform.AbstractPlatformSearcher
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
@@ -27,7 +28,6 @@ import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.model
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeProject
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeVersion
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeVersions
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.file.MurmurHash2Incremental
 import com.movtery.zalithlauncher.utils.network.httpGetJson
 import com.movtery.zalithlauncher.utils.network.httpPostJson
@@ -40,7 +40,7 @@ import java.io.File
 
 class CurseForgeSearcher(
     val api: String = CURSEFORGE_API,
-    val apiKey: String? = InfoDistributor.CURSEFORGE_API,
+    val apiKey: String? = BuildKeys.CURSEFORGE_API,
     source: String = "Official CurseForge"
 ): AbstractPlatformSearcher(
     platform = Platform.CURSEFORGE,

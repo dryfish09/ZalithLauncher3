@@ -25,8 +25,7 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.math.findNearestPositive
 import com.movtery.zalithlauncher.utils.string.compareVersion
 import com.movtery.zalithlauncher.utils.string.extractUntilCharacter
@@ -43,6 +42,8 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.ConcurrentHashMap
 
+private const val TAG = "RuntimesManager"
+
 /**
  * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/v3_openjdk/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/multirt/MultiRTUtils.java)
  */
@@ -55,7 +56,7 @@ object RuntimesManager {
 
     fun getRuntimes(forceLoad: Boolean = false): List<Runtime> {
         if (!RUNTIME_FOLDER.exists()) {
-            lWarning("Runtime directory not found: ${RUNTIME_FOLDER.absolutePath}")
+            Logger.warning(TAG, "Runtime directory not found: ${RUNTIME_FOLDER.absolutePath}")
             return emptyList()
         }
 
@@ -114,7 +115,7 @@ object RuntimesManager {
                     Runtime(name)
                 }
             }.onFailure { e ->
-                lError("Failed to load runtime $name", e)
+                Logger.error(TAG, "Failed to load runtime $name", e)
             }.getOrElse {
                 Runtime(name)
             }.also { cache[name] = it }
@@ -267,7 +268,7 @@ object RuntimesManager {
                     }
                 }.onFailure { e ->
                     if (e is IOException) {
-                        lError("Failed to unpack the runtime!", e)
+                        Logger.error(TAG, "Failed to unpack the runtime!", e)
                     } else throw e
                 }
             }
@@ -304,7 +305,7 @@ object RuntimesManager {
                     tarEntry.isSymbolicLink -> try {
                         Os.symlink(tarEntry.linkName, tarEntryName)
                     } catch (e: Throwable) {
-                        lError("Exception occurred while creating symbolic link", e)
+                        Logger.error(TAG, "Exception occurred while creating symbolic link", e)
                     }
 
                     tarEntry.isDirectory -> destPath.ensureDirectory()

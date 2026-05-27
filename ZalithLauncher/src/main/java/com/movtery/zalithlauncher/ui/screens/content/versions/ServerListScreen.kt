@@ -52,6 +52,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -131,7 +132,7 @@ import com.movtery.zalithlauncher.ui.theme.onItemColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.copyText
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.stripColorCodes
 import kotlinx.coroutines.Dispatchers
@@ -144,6 +145,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
+
+private const val TAG = "ServerList"
 
 private sealed interface ServerListOperation {
     /** 服务器列表刷新中 */
@@ -314,7 +317,7 @@ private class ServerListViewModel(
     ) {
         val job = viewModelScope.launch(Dispatchers.IO) {
             dataMutex.withLock {
-                lInfo("Saving server list, reason = $reason, reload UI? = $reload")
+                Logger.info(TAG, "Saving server list, reason = $reason, reload UI? = $reload")
 
                 withContext(Dispatchers.Main) { saving = true }
                 beforeSave()
@@ -468,6 +471,7 @@ private fun ServerDataOperation(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ServerListScreen(
     mainScreenKey: TitledNavKey?,

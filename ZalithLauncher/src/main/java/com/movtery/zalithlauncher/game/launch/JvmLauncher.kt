@@ -32,13 +32,14 @@ import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.activities.runJar
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.splitPreservingQuotes
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+
+private const val TAG = "JvmLauncher"
 
 open class JvmLauncher(
     private val context: Context,
@@ -96,7 +97,7 @@ open class JvmLauncher(
         }
 
         LoggerBridge.appendTitle("Launch JVM")
-        LoggerBridge.append("Info: Java arguments: \r\n${argList.joinToString("\r\n")}")
+        LoggerBridge.append("▷ Java arguments: \r\n${argList.joinToString("\r\n")}")
 
         return Pair(runtime, argList)
     }
@@ -146,10 +147,10 @@ private fun generateLauncherProfiles(userHome: String?) {
                 if (parentFile?.exists() == false) parentFile?.mkdirs()
                 if (!createNewFile()) throw IOException("Failed to create launcher_profiles.json file!")
                 writeText(DEFAULT_LAUNCHER_PROFILES)
-                lInfo("The content has already been written! File Location: $absolutePath")
+                Logger.info(TAG, "The content has already been written! File Location: $absolutePath")
             }
         }
     }.onFailure {
-        lWarning("Unable to generate launcher_profiles.json file!", it)
+        Logger.warning(TAG, "Unable to generate launcher_profiles.json file!", it)
     }
 }

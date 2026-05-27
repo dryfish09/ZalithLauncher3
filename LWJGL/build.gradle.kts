@@ -4,7 +4,10 @@ plugins {
 
 group = "org.lwjgl.glfw"
 
-configurations.getByName("default").isCanBeResolved = true
+val fatJarDeps by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
 
 tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -16,7 +19,7 @@ tasks.jar {
         versionFile.writeText(System.currentTimeMillis().toString())
     }
     from({
-        configurations.getByName("default").map {
+        fatJarDeps.map {
             println(it.name)
             if (it.isDirectory) it else zipTree(it)
         }
@@ -37,6 +40,6 @@ java {
 }
 
 dependencies {
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    compileOnly(fileTree(mapOf("dir" to "compileOnly", "include" to listOf("*.jar"))))
+    fatJarDeps(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    fatJarDeps(fileTree(mapOf("dir" to "compileOnly", "include" to listOf("*.jar"))))
 }

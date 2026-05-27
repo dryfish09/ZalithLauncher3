@@ -53,10 +53,7 @@ import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectorySilently
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isEqualTo
 import org.lwjgl.glfw.CallbackBridge
@@ -64,6 +61,8 @@ import java.io.File
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.egl.EGLContext
+
+private const val TAG = "GameLauncher"
 
 class GameLauncher(
     private val activity: Activity,
@@ -124,7 +123,7 @@ class GameLauncher(
         //Fix Forge 1.7.2
         val is172 = (versionInfo?.minecraftVersion ?: "0.0").isEqualTo("1.7.2")
         if (is172 && (versionInfo?.loaderInfo?.loader == ModLoader.FORGE)) {
-            lDebug("Is Forge 1.7.2, use the patched sorting method.")
+            Logger.debug(TAG, "Is Forge 1.7.2, use the patched sorting method.")
             put("sort.patch", "true")
         }
 
@@ -177,7 +176,7 @@ class GameLauncher(
 
         val rendererLib = loadGraphicsLibrary() ?: return
         if (!ZLBridge.dlopen(rendererLib) && !ZLBridge.dlopen(findInLdLibPath(rendererLib))) {
-            lError("Failed to load renderer $rendererLib")
+            Logger.error(TAG, "Failed to load renderer $rendererLib")
         }
     }
 
@@ -251,20 +250,20 @@ class GameLauncher(
         val renderer = Renderers.getCurrentRenderer()
 
         appendTitle("Launch Minecraft")
-        append("Info: Launcher version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
-        append("Info: Architecture: ${Architecture.archAsString(ZLApplication.DEVICE_ARCHITECTURE)}")
-        append("Info: Device model: ${Build.MANUFACTURER}, ${Build.MODEL}")
-        append("Info: API version: ${Build.VERSION.SDK_INT}")
-        append("Info: Renderer: ${renderer.getRendererName()}")
+        append("▷ Launcher version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+        append("▷ Architecture: ${Architecture.archAsString(ZLApplication.DEVICE_ARCHITECTURE)}")
+        append("▷ Device model: ${Build.MANUFACTURER}, ${Build.MODEL}")
+        append("▷ API version: ${Build.VERSION.SDK_INT}")
+        append("▷ Renderer: ${renderer.getRendererName()}")
         renderer.getRendererSummary()?.let { summary ->
-            append("Info: Renderer Summary: $summary")
+            append("▷ Renderer Summary: $summary")
         }
-        append("Info: Selected Minecraft version: ${version.getVersionName()}")
-        append("Info: Minecraft Info: $mcInfo")
-        append("Info: Game Path: ${version.getGameDir().absolutePath} (Isolation: ${version.isIsolation()})")
-        append("Info: Custom Java arguments: $javaArguments")
-        append("Info: Java Runtime: $javaRuntime")
-        append("Info: Account: ${account.username} (${account.accountType})")
+        append("▷ Selected Minecraft version: ${version.getVersionName()}")
+        append("▷ Minecraft Info: $mcInfo")
+        append("▷ Game Path: ${version.getGameDir().absolutePath} (Isolation: ${version.isIsolation()})")
+        append("▷ Custom Java arguments: $javaArguments")
+        append("▷ Java Runtime: $javaRuntime")
+        append("▷ Account: ${account.username} (${account.accountType})")
     }
 
     /**
@@ -326,10 +325,10 @@ class GameLauncher(
                         )
                     }
                 }.onFailure {
-                    lWarning("Could not disable Forge 1.12.2 and below splash screen!", it)
+                    Logger.warning(TAG, "Could not disable Forge 1.12.2 and below splash screen!", it)
                 }
             } else {
-                lWarning("Failed to create the configuration directory")
+                Logger.warning(TAG, "Failed to create the configuration directory")
             }
         }
     }
@@ -378,7 +377,7 @@ private fun setRendererEnv(envMap: MutableMap<String, String>) {
 
     if (!envMap.containsKey("LIBGL_ES")) {
         val glesMajor = getDetectedVersion()
-        lInfo("GLES version detected: $glesMajor")
+        Logger.info(TAG, "GLES version detected: $glesMajor")
 
         envMap["LIBGL_ES"] = if (glesMajor < 3) {
             //fallback to 2 since it's the minimum for the entire app
@@ -458,7 +457,7 @@ private fun getDetectedVersion(): Int {
                                 if (highestEsVersion < 1) highestEsVersion = 1
                             }
                         } else {
-                            lWarning(
+                            Logger.warning(TAG,
                                 ("Getting config attribute with "
                                         + "EGL10#eglGetConfigAttrib failed "
                                         + "(" + i + "/" + numConfigs[0] + "): "
@@ -468,14 +467,14 @@ private fun getDetectedVersion(): Int {
                     }
                     return highestEsVersion
                 } else {
-                    lError(
+                    Logger.error(TAG,
                         "Getting configs with EGL10#eglGetConfigs failed: "
                                 + egl.eglGetError()
                     )
                     return -1
                 }
             } else {
-                lError(
+                Logger.error(TAG,
                     "Getting number of configs with EGL10#eglGetConfigs failed: "
                             + egl.eglGetError()
                 )
@@ -485,7 +484,7 @@ private fun getDetectedVersion(): Int {
             egl.eglTerminate(display)
         }
     } else {
-        lError("Couldn't initialize EGL.")
+        Logger.error(TAG, "Couldn't initialize EGL.")
         return -3
     }
 }

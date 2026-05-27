@@ -18,9 +18,7 @@
 
 package com.movtery.zalithlauncher.game.download.jvm_server
 
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +32,8 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.SocketException
 import java.net.UnknownHostException
+
+private const val TAG = "JVMSocketServer"
 
 /**
  * [Reference FCL](https://github.com/FCL-Team/FoldCraftLauncher/blob/main/FCLCore/src/main/java/com/tungsten/fclcore/util/SocketServer.java)
@@ -71,11 +71,11 @@ object JVMSocketServer {
             packet = DatagramPacket(bytes, bytes.size)
             try {
                 socket = DatagramSocket(port, InetAddress.getByName(ip))
-                lInfo("Socket server init!")
+                Logger.info(TAG, "Socket server init!")
             } catch (e: SocketException) {
-                lError("Failed to init socket server", e)
+                Logger.error(TAG, "Failed to init socket server", e)
             } catch (e: UnknownHostException) {
-                lError("Failed to init socket server", e)
+                Logger.error(TAG, "Failed to init socket server", e)
             }
 
             startServer(onReceive)
@@ -89,20 +89,20 @@ object JVMSocketServer {
             if (packet == null || socket == null) {
                 return@launch
             }
-            lInfo("Socket server $ip:$port start!")
+            Logger.info(TAG, "Socket server $ip:$port start!")
 
             while (true) {
                 try {
                     ensureActive()
                     socket!!.receive(packet)
                     val receiveMsg = String(packet!!.data, packet!!.offset, packet!!.length)
-                    lInfo("receive msg: $receiveMsg")
+                    Logger.info(TAG, "receive msg: $receiveMsg")
                     this@JVMSocketServer.receiveMsg = receiveMsg
                     onReceive(receiveMsg)
                 } catch (e: Exception) {
                     if (e is CancellationException) return@launch
                     else {
-                        lWarning("Socket server $ip:$port crashed!", e)
+                        Logger.warning(TAG, "Socket server $ip:$port crashed!", e)
                     }
                 }
             }
@@ -120,7 +120,7 @@ object JVMSocketServer {
     fun stop() {
         socket?.let {
             it.close()
-            lInfo("Socket server $ip:$port stopped!")
+            Logger.info(TAG, "Socket server $ip:$port stopped!")
         }
         scope?.cancel()
         scope = null

@@ -22,7 +22,7 @@ import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
 import com.movtery.zalithlauncher.coroutine.MutableTransitionStateFlow
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +33,8 @@ import net.burningtnt.terracotta.TerracottaAndroidAPI
 import java.io.IOException
 import java.io.StringWriter
 import java.util.concurrent.atomic.AtomicReference
+
+private const val TAG = "Terracotta"
 
 /**
  * [Reference FCL](https://github.com/FCL-Team/FoldCraftLauncher/blob/52f0542/FCL/src/main/java/com/tungsten/fcl/terracotta/Terracotta.java)
@@ -148,7 +150,7 @@ object Terracotta {
                 writer.toString()
             }
         } catch (e: IOException) {
-            e.message?.let { lWarning(it) }
+            e.message?.let { Logger.warning(TAG, it) }
             "Failed to collect logs: ${e.message}"
         }
     }

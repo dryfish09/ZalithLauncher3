@@ -20,15 +20,14 @@ package com.movtery.zalithlauncher.game.account.auth_server
 
 import android.content.Context
 import com.google.gson.Gson
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.auth_server.models.AuthRequest
 import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
 import com.movtery.zalithlauncher.game.account.auth_server.models.Refresh
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.safeBodyAsText
 import com.movtery.zalithlauncher.utils.string.decodeUnicode
@@ -48,6 +47,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
 import java.util.Objects
+
+private const val TAG = "AuthServerApi"
 
 class AuthServerApi(private var baseUrl: String) {
     fun formatUrl(baseUrl: String): String {
@@ -85,7 +86,7 @@ class AuthServerApi(private var baseUrl: String) {
             password = password,
             agent = agent,
             requestUser = true,
-            clientToken = InfoDistributor.LAUNCHER_NAME.toUuidStr().replace("-", "")
+            clientToken = BuildKeys.LAUNCHER_NAME.toUuidStr().replace("-", "")
         )
 
         val data = Gson().toJson(authRequest)
@@ -138,18 +139,18 @@ class AuthServerApi(private var baseUrl: String) {
                 onSuccess(result)
             } else {
                 val errorMessage = response.getErrorMessage()
-                lError(errorMessage)
+                Logger.error(TAG, errorMessage)
                 onFailed(ResponseException(errorMessage))
             }
         } catch (e: ClientRequestException) {
             val errorMessage = e.response.getErrorMessage()
-            lError(errorMessage, e)
+            Logger.error(TAG, errorMessage, e)
             onFailed(ResponseException(errorMessage))
         } catch (e: CancellationException) {
-            lDebug("Login cancelled")
+            Logger.debug(TAG, "Login cancelled")
             throw e
         } catch (e: Exception) {
-            lError("Request failed", e)
+            Logger.error(TAG, "Request failed", e)
             onFailed(e)
         }
     }
@@ -171,7 +172,7 @@ class AuthServerApi(private var baseUrl: String) {
             }
             message
         } catch (e: Exception) {
-            lError("Failed to parse error", e)
+            Logger.error(TAG, "Failed to parse error", e)
             "Unknown error"
         }
     }

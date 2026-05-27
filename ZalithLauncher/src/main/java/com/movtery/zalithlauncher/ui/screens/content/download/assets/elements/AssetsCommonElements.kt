@@ -55,7 +55,9 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
+
+private const val TAG = "AssetsCommonElements"
 
 /**
  * 平台标识元素，展示平台Logo + 平台名称
@@ -123,7 +125,7 @@ fun AssetsIcon(
                 .data(it)
                 .size(pxSize) //固定大小
                 .listener(
-                    onError = { _, result -> lWarning("Coil: error = ${result.throwable}") }
+                    onError = { _, result -> Logger.warning(TAG, "Coil: error = ${result.throwable}") }
                 )
                 .crossfade(true)
                 .build()

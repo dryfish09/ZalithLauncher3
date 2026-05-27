@@ -19,8 +19,10 @@
 package com.movtery.zalithlauncher.utils.video
 
 import android.media.MediaMetadataRetriever
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import java.io.File
+
+private const val TAG = "VideoUtils"
 
 /**
  * 尝试判断文件是否为一则视频
@@ -34,7 +36,7 @@ fun File.isVideoFile(): Boolean {
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT) != null
         hasVideo
     } catch (e: Exception) {
-        lWarning("An exception occurred while trying to determine if $absolutePath is a video.", e)
+        Logger.warning(TAG, "An exception occurred while trying to determine if $absolutePath is a video.", e)
         false
     } finally {
         retriever.release()

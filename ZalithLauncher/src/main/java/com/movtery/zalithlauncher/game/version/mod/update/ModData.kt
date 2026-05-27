@@ -25,12 +25,13 @@ import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.version.mod.ModFile
 import com.movtery.zalithlauncher.game.version.mod.ModProject
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.initAll
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.parseInstant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+
+private const val TAG = "ModData"
 
 /**
  * 需要更新的模组的数据类，记录模组文件和模组所属的项目
@@ -108,10 +109,10 @@ data class ModData(
 
                 // 获取最新的版本
                 versions.firstOrNull()?.also { version ->
-                    lInfo("Detected update for mod ${file.name}: $currentVersion -> ${version.platformVersion()}")
+                    Logger.info(TAG, "Detected update for mod ${file.name}: $currentVersion -> ${version.platformVersion()}")
                 }
             }.onFailure { th ->
-                lWarning("An error occurred while fetching all versions of the mod.", th)
+                Logger.warning(TAG, "An error occurred while fetching all versions of the mod.", th)
             }.getOrNull()
         }
     }

@@ -26,7 +26,7 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.path.URL_MINECRAFT_VERSION_REPOS
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.readString
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.fetchStringFromUrls
 import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +36,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.util.concurrent.TimeUnit
+
+private const val TAG = "MinecraftVersions"
 
 object MinecraftVersions {
     private var manifest: VersionManifest? = null
@@ -80,7 +82,7 @@ object MinecraftVersions {
                 try {
                     GSON.fromJson(localManifestFile.readText(), VersionManifest::class.java)
                 } catch (e: Exception) {
-                    lWarning("Failed to parse version manifest, will redownload", e)
+                    Logger.warning(TAG, "Failed to parse version manifest, will redownload", e)
                     //读取失败则删除当前的版本信息文件
                     FileUtils.deleteQuietly(localManifestFile)
                     downloadVersionManifest()

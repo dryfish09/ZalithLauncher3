@@ -27,8 +27,7 @@ import com.movtery.zalithlauncher.path.URL_USER_AGENT
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.utils.isChinaMainland
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.safeBodyAsText
 import com.movtery.zalithlauncher.utils.network.withRetry
@@ -110,16 +109,16 @@ object ForgeVersions {
         } catch (e: ClientRequestException) {
             val statusCode = e.response.status
             if (statusCode == HttpStatusCode.NotFound) {
-                lDebug("Not found.")
+                Logger.debug(TAG, "Not found.")
                 null
             } else {
                 throw e
             }
         } catch (_: CancellationException) {
-            lDebug("Client cancelled.")
+            Logger.debug(TAG, "Client cancelled.")
             null
         } catch (e: Exception) {
-            lWarning("Failed to fetch forge list!", e)
+            Logger.warning(TAG, "Failed to fetch forge list!", e)
             throw e
         }
     }
@@ -161,16 +160,16 @@ object ForgeVersions {
         } catch (e: ClientRequestException) {
             val statusCode = e.response.status
             if (statusCode == HttpStatusCode.NotFound) {
-                lDebug("Not found.")
+                Logger.debug(TAG, "Not found.")
                 null
             } else {
                 throw e
             }
         } catch (_: CancellationException) {
-            lDebug("Client cancelled.")
+            Logger.debug(TAG, "Client cancelled.")
             null
         } catch (e: Exception) {
-            lWarning("Failed to fetch forge list!", e)
+            Logger.warning(TAG, "Failed to fetch forge list!", e)
             throw e
         }
     }

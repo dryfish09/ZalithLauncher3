@@ -41,7 +41,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoFo
 import com.movtery.zalithlauncher.game.addons.modloader.modlike.ModVersion
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersion
 import com.movtery.zalithlauncher.game.version.installed.utils.isBiggerVer
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
@@ -49,6 +49,8 @@ import kotlinx.serialization.SerializationException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
+
+private const val TAG = "ModLoaderLists"
 
 class AddonList {
     //版本列表
@@ -305,7 +307,7 @@ suspend fun <T> ViewModel.runWithState(
                 AddonState.Error(res, arrayOf(statusCode))
             }
             else -> {
-                lError("An unknown exception was caught!", e)
+                Logger.error(TAG, "An unknown exception was caught!", e)
                 val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"
                 AddonState.Error(R.string.error_unknown, arrayOf(errorMessage))
             }

@@ -23,9 +23,10 @@ import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest.Library
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.child
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import java.io.File
+
+private const val TAG = "VersionInfoParser"
 
 /**
  * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L885-L979)
@@ -58,7 +59,7 @@ fun getGameManifest(
                     inheritLibrary.name.substring(0, inheritLibrary.name.lastIndexOf(":"))
 
                 if (libName == inheritLibName) {
-                    lDebug(
+                    Logger.debug(TAG,
                         "Library " + libName + ": Replaced version " +
                                 libName.substring(libName.lastIndexOf(":") + 1) + " with " +
                                 inheritLibName.substring(inheritLibName.lastIndexOf(":") + 1)
@@ -146,7 +147,7 @@ private fun insertSafety(
                 fieldB.set(target, value)
             }
         }.onFailure {
-            lWarning("Unable to insert $key = $value", it)
+            Logger.warning(TAG, "Unable to insert $key = $value", it)
         }
     }
 }

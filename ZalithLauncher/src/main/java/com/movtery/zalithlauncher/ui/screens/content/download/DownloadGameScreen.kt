@@ -67,7 +67,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialo
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.isUsingMobileData
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.sendKeepScreen
@@ -336,7 +336,7 @@ private fun GameInstallOperation(
         }
         is GameInstallOperation.Error -> {
             val th = gameInstallOperation.th
-            lError("Failed to download the game!", th)
+            Logger.error("InstallGame", "Failed to download the game!", th)
             val message = when (th) {
                 is HttpRequestTimeoutException, is SocketTimeoutException -> stringResource(R.string.error_timeout)
                 is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)

@@ -22,7 +22,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.utils.file.formatFileSize
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import com.movtery.zalithlauncher.utils.network.isInterruptedIOException
 import com.movtery.zalithlauncher.utils.network.withSpeedReport
@@ -40,6 +40,8 @@ import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicLong
+
+private const val TAG = "ModDownloader"
 
 /**
  * 整合包模组下载器，多线程并行下载所有模组
@@ -105,7 +107,7 @@ class ModDownloader(
                                 downloadedFileCount.incrementAndGet()
                             }.onFailure { e ->
                                 if (e is CancellationException) throw e
-                                lError("Download failed: ${outputFile.absolutePath}, urls: ${urls.joinToString(", ")}", e)
+                                Logger.error(TAG, "Download failed: ${outputFile.absolutePath}, urls: ${urls.joinToString(", ")}", e)
                                 downloadFailedTasks.add(mod)
                             }
                         }

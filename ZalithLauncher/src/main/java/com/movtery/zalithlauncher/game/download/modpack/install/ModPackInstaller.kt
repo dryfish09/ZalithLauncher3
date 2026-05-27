@@ -34,8 +34,7 @@ import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import com.movtery.zalithlauncher.utils.network.isUsingMobileData
@@ -46,6 +45,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
+
+private const val TAG = "ModPackInstaller"
 
 /**
  * 在线下载的整合包安装器，仅支持 CurseForge、Modrinth
@@ -280,7 +281,7 @@ class ModPackInstaller(
     private suspend fun clearTempModPackDir() = withContext(Dispatchers.IO) {
         PathManager.DIR_CACHE_MODPACK_DOWNLOADER.takeIf { it.exists() }?.let { folder ->
             FileUtils.deleteQuietly(folder)
-            lInfo("Temporary modpack directory cleared.")
+            Logger.info(TAG, "Temporary modpack directory cleared.")
         }
     }
 
@@ -325,7 +326,7 @@ class ModPackInstaller(
 
     private fun File.createDirAndLog(): File {
         this.mkdirs()
-        lDebug("Created directory: $this")
+        Logger.debug(TAG, "Created directory: $this")
         return this
     }
 }

@@ -30,9 +30,7 @@ import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsState
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchAssetsState
 import com.movtery.zalithlauncher.utils.isChinaMainland
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.isInterruptedIOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +41,8 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+
+private const val TAG = "PlatformSearch"
 
 private val modrinthSearcher = ModrinthSearcher()
 private val mirrorModrinthSearcher = ModrinthSearcher(
@@ -73,7 +73,7 @@ suspend fun <E: AbstractPlatformSearcher, T> mirroredPlatformSearcher(
     for (searcher in searchers) {
         try {
             if (printLog) {
-                lDebug("Starting to attempt to perform the operation on source: {${searcher.source}}")
+                Logger.debug(TAG, "Starting to attempt to perform the operation on source: {${searcher.source}}")
             }
             return block(searcher)
         } catch (e: Exception) {
@@ -92,7 +92,7 @@ suspend fun <E: AbstractPlatformSearcher, T> mirroredPlatformSearcher(
     }
 
     if (printLog) {
-        lWarning(
+        Logger.warning(TAG, 
             msg = "An error occurred during this search.",
             t = IOException("All sources have failed to attempt", lastException).apply {
                 errors.forEachIndexed { i, e ->
@@ -172,12 +172,12 @@ suspend fun searchAssets(
         )
     }.onFailure { e ->
         if (e !is CancellationException) {
-            lError("An exception occurred while searching for assets.", e)
+            Logger.error(TAG, "An exception occurred while searching for assets.", e)
             val pair = mapExceptionToMessage(e)
             val state = SearchAssetsState.Error(pair.first, pair.second)
             onError(state)
         } else {
-            lWarning("The search task has been cancelled.")
+            Logger.debug(TAG, "The search task has been cancelled.")
         }
     }
 }
@@ -217,12 +217,12 @@ suspend fun <E> getVersions(
         onSuccess(result)
     }.onFailure { e ->
         if (e !is CancellationException) {
-            lError("An exception occurred while retrieving the project version.", e)
+            Logger.error(TAG, "An exception occurred while retrieving the project version.", e)
             val pair = mapExceptionToMessage(e)
             val state = DownloadAssetsState.Error<List<E>>(pair.first, pair.second)
             onError(state)
         } else {
-            lWarning("The version retrieval task has been cancelled.")
+            Logger.debug(TAG, "The version retrieval task has been cancelled.")
         }
     }
 }
@@ -250,12 +250,12 @@ suspend fun <E> getProject(
         onSuccess = onSuccess,
         onFailure = { e ->
             if (e !is CancellationException) {
-                lError("An exception occurred while retrieving project information.", e)
+                Logger.error(TAG, "An exception occurred while retrieving project information.", e)
                 val pair = mapExceptionToMessage(e)
                 val state = DownloadAssetsState.Error<E>(pair.first, pair.second)
                 onError(state, e)
             } else {
-                lWarning("The project retrieval task has been cancelled.")
+                Logger.debug(TAG, "The project retrieval task has been cancelled.")
             }
         }
     )

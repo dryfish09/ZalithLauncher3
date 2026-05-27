@@ -36,12 +36,13 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.terracotta.Terracotta
 import com.movtery.zalithlauncher.terracotta.TerracottaVPNService
 import com.movtery.zalithlauncher.terracotta.fetchNodes
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.burningtnt.terracotta.TerracottaAndroidAPI
-import kotlin.collections.map
+
+private const val TAG = "TerracottaOperation"
 
 /**
  * 陶瓦联机状态操作
@@ -98,6 +99,7 @@ fun TerracottaOperation(
 
             val context = LocalContext.current
 
+            val invalidCodeText = stringResource(R.string.terracotta_status_waiting_guest_prompt_invalid)
             MultiplayerDialog(
                 onClose = { viewModel.operation = TerracottaOperation.None },
                 dialogState = viewModel.dialogState,
@@ -123,7 +125,7 @@ fun TerracottaOperation(
                             Terracotta.setScanning(null, userName, nodeList)
                             viewModel.isWaitingInteractive = false
                         }.onFailure { e ->
-                            lWarning("Error occurred at \"Terracotta.setScanning(null, userName)\", message = ${e.message}")
+                            Logger.warning(TAG, "Error occurred at \"Terracotta.setScanning(null, userName)\", message = ${e.message}")
                             viewModel.isWaitingInteractive = true
                         }
                     }
@@ -146,10 +148,10 @@ fun TerracottaOperation(
                             val success = Terracotta.setGuesting(roomCode, userName, nodeList)
                             viewModel.isWaitingInteractive = false
                             if (!success) {
-                                Toast.makeText(context, context.getString(R.string.terracotta_status_waiting_guest_prompt_invalid), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, invalidCodeText, Toast.LENGTH_SHORT).show()
                             }
                         }.onFailure { e ->
-                            lWarning("Error occurred at \"Terracotta.setGuesting(roomCode, userName)\", message = ${e.message}")
+                            Logger.warning(TAG, "Error occurred at \"Terracotta.setGuesting(roomCode, userName)\", message = ${e.message}")
                             viewModel.isWaitingInteractive = true
                         }
                     }

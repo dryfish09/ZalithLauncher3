@@ -24,7 +24,7 @@ import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileExcepti
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.withRetry
@@ -54,6 +54,8 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.concurrent.TimeUnit
 
+private const val TAG = "YggdrasilApi"
+
 /**
  * 使用 Yggdrasil 上传皮肤
  */
@@ -67,7 +69,7 @@ suspend fun uploadSkin(
     val skinData = file.readBytes()
     val logTag = "YggdrasilApi.uploadSkin"
 
-    lInfo("$logTag: uploading skin -> ${file.name}")
+    Logger.info(TAG, "$logTag: uploading skin -> ${file.name}")
     withRetry(logTag = logTag, maxRetries = maxRetries) {
         GLOBAL_CLIENT.submitFormWithBinaryData(
             url = "$apiUrl/minecraft/profile/skins",
@@ -101,7 +103,7 @@ suspend fun changeCape(
 
     if (capeId.isBlank()) {
         //重置玩家选择的披风
-        lInfo("$logTag: reset cape")
+        Logger.info(TAG, "$logTag: reset cape")
         withRetry(logTag = logTag, maxRetries = maxRetries) {
             GLOBAL_CLIENT.request(url) {
                 method = HttpMethod.Delete
@@ -112,7 +114,7 @@ suspend fun changeCape(
             }
         }
     } else {
-        lInfo("$logTag: capeId -> $capeId")
+        Logger.info(TAG, "$logTag: capeId -> $capeId")
         withRetry(logTag = logTag, maxRetries = maxRetries) {
             GLOBAL_CLIENT.request(url) {
                 method = HttpMethod.Put

@@ -21,8 +21,7 @@ package com.movtery.zalithlauncher.terracotta
 import com.google.gson.JsonParseException
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.isChinaMainland
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import io.ktor.client.request.get
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +32,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.net.URI
 import java.net.URISyntaxException
+
+private const val TAG = "TerracottaNodeList"
 
 private const val NODE_LIST_URL = "https://terracotta.glavo.site/nodes"
 
@@ -82,7 +83,7 @@ private suspend fun fetchNodesFromRemote(): List<URI> {
             .safeBodyAsJson<List<TerracottaNode?>?>()
 
         if (nodes.isNullOrEmpty()) {
-            lInfo("No available Terracotta nodes found")
+            Logger.info(TAG, "No available Terracotta nodes found")
             return emptyList()
         }
 
@@ -96,7 +97,7 @@ private suspend fun fetchNodesFromRemote(): List<URI> {
 
         result
     }.onFailure {
-        lWarning("Failed to fetch terracotta node list", it)
+        Logger.warning(TAG, "Failed to fetch terracotta node list", it)
     }.getOrDefault(emptyList())
 }
 
@@ -113,7 +114,7 @@ private fun parseNode(
         URI.create(node.url)
 
     } catch (e: Exception) {
-        lWarning("Invalid terracotta node: $node", e)
+        Logger.warning(TAG, "Invalid terracotta node: $node", e)
         null
     }
 }

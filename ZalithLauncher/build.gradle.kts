@@ -4,15 +4,13 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     id("com.google.devtools.ksp")
     id("kotlinx-serialization")
     id("kotlin-parcelize")
-    id("stringfog")
+    id("com.movtery.buildkeys")
 }
-apply(plugin = "stringfog")
 
 val zalithPackageName = "com.movtery.zalithlauncher"
 val launcherAPPName = project.findProperty("launcher_app_name") as? String ?: error("The \"launcher_app_name\" property is not set in gradle.properties.")
@@ -28,8 +26,6 @@ val defaultStorePassword = project.findProperty("default_store_password") as? St
 val defaultKeyPassword = project.findProperty("default_key_password") as? String ?: error("The \"default_key_password\" property is not set in gradle.properties.")
 val defaultCurseForgeApiKey = project.findProperty("curseforge_api_key") as? String
 
-val generatedZalithDir = file("$buildDir/generated/source/zalith/java")
-
 fun getKeyFromLocal(envKey: String, fileName: String? = null, default: String? = null): String {
     val key = System.getenv(envKey)
     return key ?: fileName?.let {
@@ -41,16 +37,9 @@ fun getKeyFromLocal(envKey: String, fileName: String? = null, default: String? =
     }
 }
 
-configure<com.github.megatronking.stringfog.plugin.StringFogExtension> {
-    implementation = "com.github.megatronking.stringfog.xor.StringFogImpl"
-    fogPackages = arrayOf("$zalithPackageName.info")
-    kg = com.github.megatronking.stringfog.plugin.kg.RandomKeyGenerator()
-    mode = com.github.megatronking.stringfog.plugin.StringFogMode.bytes
-}
-
 android {
     namespace = zalithPackageName
-    compileSdk = 36
+    compileSdk = 37
 
     signingConfigs {
         create("releaseBuild") {
@@ -79,9 +68,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isShrinkResources = false
-            signingConfig = signingConfigs.getByName("debugBuild")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("releaseBuild")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -92,41 +81,6 @@ android {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             signingConfig = signingConfigs.getByName("debugBuild")
-        }
-    }
-
-    sourceSets["main"].java.srcDirs(generatedZalithDir)
-
-    androidComponents {
-        onVariants { variant ->
-            variant.outputs.forEach { output ->
-                if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
-                    val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
-                    afterEvaluate {
-                        val task = tasks.named("merge${variantName}Assets").get() as MergeSourceSetFolders
-                        task.doLast {
-                            val arch = System.getProperty("arch", "all")
-                            val assetsDir = task.outputDir.get().asFile
-                            val jreList = listOf("jre-8", "jre-17", "jre-21")
-                            println("arch:$arch")
-                            jreList.forEach { jreVersion ->
-                                val runtimeDir = File("$assetsDir/runtimes/$jreVersion")
-                                println("runtimeDir:${runtimeDir.absolutePath}")
-                                runtimeDir.listFiles()?.forEach {
-                                    if (arch != "all" && it.name != "version" && !it.name.contains("universal") && it.name != "bin-${arch}.tar.xz") {
-                                        println("delete:${it} : ${it.delete()}")
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    (output.getFilter(ABI)?.identifier ?: "all").let { abi ->
-                        val baseName = "$launcherName-${if (variant.buildType == "release") defaultConfig.versionName else "Debug-${defaultConfig.versionName}"}"
-                        output.outputFileName = if (abi == "all") "$baseName.apk" else "$baseName-$abi.apk"
-                    }
-                }
-            }
         }
     }
 
@@ -175,54 +129,57 @@ android {
     }
 }
 
+androidComponents {
+    onVariants { variant ->
+        variant.outputs.forEach { output ->
+            if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
+                val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
+                afterEvaluate {
+                    val task = tasks.named("merge${variantName}Assets").get() as MergeSourceSetFolders
+                    task.doLast {
+                        val arch = System.getProperty("arch", "all")
+                        val assetsDir = task.outputDir.get().asFile
+                        val jreList = listOf("jre-8", "jre-17", "jre-21", "jre-25")
+                        val tag = "JREAssetsCleanup"
+                        logger.lifecycle("[$tag] arch: $arch")
+                        jreList.forEach { jreVersion ->
+                            val runtimeDir = File("$assetsDir/runtimes/$jreVersion")
+                            logger.lifecycle("[$tag] runtimeDir: ${runtimeDir.absolutePath}")
+                            runtimeDir.listFiles()?.forEach {
+                                if (arch != "all" && it.name != "version" && !it.name.contains("universal") && it.name != "bin-${arch}.tar.xz") {
+                                    logger.lifecycle("[$tag] delete: $it : ${it.delete()}")
+                                }
+                            }
+                        }
+                    }
+                }
+
+                (output.getFilter(ABI)?.identifier ?: "all").let { abi ->
+                    val baseName = "$launcherName-${if (variant.buildType == "release") launcherVersionName else "Debug-$launcherVersionName"}"
+                    output.outputFileName = if (abi == "all") "$baseName.apk" else "$baseName-$abi.apk"
+                }
+            }
+        }
+    }
+}
+
+
 kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)
-    }
-}
-
-fun generateJavaClass(
-    sourceOutputDir: File,
-    packageName: String,
-    className: String,
-    constantList: List<String>
-) {
-    val outputDir = File(sourceOutputDir, packageName.replace(".", "/"))
-    outputDir.mkdirs()
-    val javaFile = File(outputDir, "$className.java")
-    javaFile.writeText(
-        """
-        |/**
-        | * Automatically generated file. DO NOT MODIFY
-        | */
-        |package $packageName;
-        |
-        |public class $className {
-        |${constantList.joinToString("\n") { "\t$it" }}
-        |}
-        """.trimMargin()
-    )
-    println("Generated Java file: ${javaFile.absolutePath}")
-}
-
-tasks.register("generateInfoDistributor") {
-    doLast {
-        fun String.toStatement(type: String = "String", variable: String) = "public static final $type $variable = $this;"
-
-        val constantList = listOf(
-            "\"${getKeyFromLocal("OAUTH_CLIENT_ID", ".oauth_client_id.txt", defaultOAuthClientID)}\"".toStatement(variable = "OAUTH_CLIENT_ID"),
-            "\"$launcherAPPName\"".toStatement(variable = "LAUNCHER_NAME"),
-            "\"$launcherName\"".toStatement(variable = "LAUNCHER_IDENTIFIER"),
-            "\"$launcherShortName\"".toStatement(variable = "LAUNCHER_SHORT_NAME"),
-            "\"$launcherUrl\"".toStatement(variable = "URL_HOME"),
-            "\"${getKeyFromLocal("CURSEFORGE_API_KEY", ".curseforge_api.txt", defaultCurseForgeApiKey)}\"".toStatement(variable = "CURSEFORGE_API")
+        optIn.addAll(
+            "androidx.compose.material3.ExperimentalMaterial3Api",
         )
-        generateJavaClass(generatedZalithDir, "$zalithPackageName.info", "InfoDistributor", constantList)
     }
 }
 
-tasks.named("preBuild") {
-    dependsOn("generateInfoDistributor")
+buildKeys {
+    string("OAUTH_CLIENT_ID", getKeyFromLocal("OAUTH_CLIENT_ID", ".oauth_client_id.txt", defaultOAuthClientID), true)
+    string("LAUNCHER_NAME", launcherAPPName, true)
+    string("LAUNCHER_IDENTIFIER", launcherName, true)
+    string("LAUNCHER_SHORT_NAME", launcherShortName, true)
+    string("URL_HOME", launcherUrl, true)
+    string("CURSEFORGE_API", getKeyFromLocal("CURSEFORGE_API_KEY", ".curseforge_api.txt", defaultCurseForgeApiKey), true)
 }
 
 dependencies {
@@ -289,7 +246,6 @@ dependencies {
     implementation(libs.lunarcalendar)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     //Safe
-    implementation(libs.stringfog.xor)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.sqlcipher.android)

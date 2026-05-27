@@ -23,7 +23,7 @@ import com.movtery.zalithlauncher.utils.file.JavaZipEntryAdapter
 import com.movtery.zalithlauncher.utils.file.UnpackZipException
 import com.movtery.zalithlauncher.utils.file.ZipEntryBase
 import com.movtery.zalithlauncher.utils.file.extractFromZip
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.zip.ZipFile
@@ -32,17 +32,19 @@ import java.io.File
 import java.io.IOException
 import java.util.zip.ZipFile as JDKZipFile
 
+private const val TAG = "InstallSaves"
+
 /**
  * 解压存档压缩包
  */
 suspend fun unpackSaveZip(zipFile: File, targetPath: File) = withContext(Dispatchers.IO) {
     val path = extractLevelPath(zipFile) ?: throw IOException("Unable to locate the level where the level.dat file is stored.")
-    lInfo("Found the level of the level.data file: $path")
+    Logger.info(TAG, "Found the level of the level.data file: $path")
     val target = File(targetPath, zipFile.nameWithoutExtension)
     try {
         JDKZipFile(zipFile).use { zip ->
             zip.extractFromZip(path, target)
-            lInfo("Decompression is complete")
+            Logger.info(TAG, "Decompression is complete")
         }
     } catch (e: Exception) {
         if (e !is UnpackZipException) {
@@ -62,7 +64,7 @@ private suspend fun tryApacheZip(zipFile: File, path: String, target: File) {
 
     zipFile1.use { zip ->
         zip.extractFromZip(path, target)
-        lInfo("Decompression is complete")
+        Logger.info(TAG, "Decompression is complete")
     }
 }
 

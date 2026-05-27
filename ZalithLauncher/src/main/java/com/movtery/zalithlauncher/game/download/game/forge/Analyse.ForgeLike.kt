@@ -37,7 +37,7 @@ import com.movtery.zalithlauncher.utils.file.extractEntryToFile
 import com.movtery.zalithlauncher.utils.file.readText
 import com.movtery.zalithlauncher.utils.json.merge
 import com.movtery.zalithlauncher.utils.json.parseToJson
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.fetchStringFromUrls
 import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +46,8 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.zip.ZipFile
+
+private const val TAG = "Analyse.ForgeLike"
 
 const val FORGE_LIKE_ANALYSE_ID = "Analyse.ForgeLike"
 
@@ -168,7 +170,7 @@ private suspend fun analyseNewForge(
             (lib.targetFile.name.endsWith("$removeFromDownload.jar") ||
              lib.targetFile.name.endsWith("$removeFromDownload-client.jar")).also {
                 if (it) {
-                    lInfo(
+                    Logger.info(TAG,
                         "The download task has been removed from the scheduled downloads: \n" +
                                 "url: \n${lib.urls.joinToString("\n")}\n" +
                                 "target path: ${lib.targetFile.absolutePath}"
@@ -261,7 +263,7 @@ private suspend fun parseProcessors(
         if (options["task"] != "DOWNLOAD_MOJMAPS" || options["side"] != "client") return@forEach
         val version = options["version"] ?: return@forEach
         val output = options["output"] ?: return@forEach
-        lInfo("Patching DOWNLOAD_MOJMAPS task")
+        Logger.info(TAG, "Patching DOWNLOAD_MOJMAPS task")
 
         val versionManifest = MinecraftVersions.getVersionManifest()
         versionManifest.versions.find { it.id == version }?.let { vanilla ->
@@ -272,7 +274,7 @@ private suspend fun parseProcessors(
             }
             manifest.downloads?.clientMappings?.let { mappings ->
                 schedule(mappings.url.mapBMCLMirrorUrls(), mappings.sha1, File(output), mappings.size)
-                lInfo("Mappings: ${mappings.url} (SHA1: ${mappings.sha1})")
+                Logger.info(TAG, "Mappings: ${mappings.url} (SHA1: ${mappings.sha1})")
             } ?: throw Exception("client_mappings download info not found")
         }
     }

@@ -75,10 +75,12 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SimpleIDLi
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.TextInputSettingsCard
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.StatefulDropdownMenuFollowGlobal
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.ToggleableIntSliderSettingsCard
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.platform.getMaxMemoryForSettings
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+
+private const val TAG = "VersionConfigScreen"
 
 @Composable
 fun VersionConfigScreen(
@@ -551,7 +553,7 @@ private fun VersionConfig.saveOrShowError(
     runCatching {
         saveWithThrowable()
     }.onFailure { e ->
-        lError("Failed to save version config!", e)
+        Logger.error(TAG, "Failed to save version config!", e)
         submitError(
             ErrorViewModel.ThrowableMessage(
                 title = context.getString(R.string.versions_config_failed_to_save),

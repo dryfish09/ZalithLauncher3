@@ -31,9 +31,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.getProjectByVers
 import com.movtery.zalithlauncher.game.version.mod.ModProject
 import com.movtery.zalithlauncher.game.version.mod.RemoteMod
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -45,6 +43,8 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
+
+private const val TAG = "ModUpdater"
 
 /**
  * 全自动模组检查更新，自动检查传入的模组列表，检查并获取模组最新版本，匹配现有MC版本、现有模组加载器
@@ -305,7 +305,7 @@ class ModUpdater(
             task.updateMessage(R.string.mods_update_task_loading, file.name)
             mod.loadRemoteFile()
         }.onFailure {
-            lWarning("Failed to load remote mod version", it)
+            Logger.warning(TAG, "Failed to load remote mod version", it)
         }.getOrNull() ?: return null
 
         val project = mod.projectInfo ?: runCatching {
@@ -320,7 +320,7 @@ class ModUpdater(
                 slug = project.platformSlug()
             )
         }.onFailure {
-            lWarning("Failed to load remote project", it)
+            Logger.warning(TAG, "Failed to load remote project", it)
         }.getOrNull() ?: return null
 
         return ModData(
@@ -341,13 +341,13 @@ class ModUpdater(
     private suspend fun clearTempModUpdaterDir() = withContext(Dispatchers.IO) {
         PathManager.DIR_CACHE_MOD_UPDATER.takeIf { it.exists() }?.let { folder ->
             FileUtils.deleteQuietly(folder)
-            lInfo("Temporary mod updater directory cleared.")
+            Logger.info(TAG, "Temporary mod updater directory cleared.")
         }
     }
 
     private fun File.createDirAndLog(): File {
         this.mkdirs()
-        lDebug("Created directory: $this")
+        Logger.debug(TAG, "Created directory: $this")
         return this
     }
 }

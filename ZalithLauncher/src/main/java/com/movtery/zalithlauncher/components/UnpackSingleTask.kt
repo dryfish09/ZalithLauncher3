@@ -22,13 +22,13 @@ import android.content.Context
 import android.content.res.AssetManager
 import com.movtery.zalithlauncher.context.copyAssetFile
 import com.movtery.zalithlauncher.utils.file.readString
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
+
+private const val TAG = "UnpackSingleTask"
 
 abstract class UnpackSingleTask(
     val context: Context,
@@ -47,7 +47,7 @@ abstract class UnpackSingleTask(
             versionFile = File("$rootDir/$fileDirName/version")
             input = am.open("$assetsDirName/$fileDirName/version")
         }.onFailure { e ->
-            lWarning("Failed to init asset version. assetsPath=$assetsDirName/$fileDirName/version", e)
+            Logger.warning(TAG, "Failed to init asset version. assetsPath=$assetsDirName/$fileDirName/version", e)
             isCheckFailed = true
         }
     }
@@ -59,7 +59,7 @@ abstract class UnpackSingleTask(
 
         return if (!versionFile.exists()) {
             requestEmptyParentDir(versionFile)
-            lInfo("$fileDirName: Pack was installed manually, or does not exist...")
+            Logger.info(TAG, "$fileDirName: Pack was installed manually, or does not exist...")
             InstallableItem.State.NOT_STARTED
         } else {
             runCatching {
@@ -70,11 +70,11 @@ abstract class UnpackSingleTask(
                     requestEmptyParentDir(versionFile)
                     InstallableItem.State.PENDING
                 } else {
-                    lInfo("$fileDirName: Pack is up-to-date with the launcher, continuing...")
+                    Logger.info(TAG, "$fileDirName: Pack is up-to-date with the launcher, continuing...")
                     InstallableItem.State.FINISHED
                 }
             }.onFailure { e ->
-                lError("An exception occurred while detecting the assets resource.", e)
+                Logger.error("CheckComponent", "An exception occurred while detecting the assets resource.", e)
             }.getOrElse {
                 //检查失败，要求重新进行安装
                 InstallableItem.State.NOT_STARTED

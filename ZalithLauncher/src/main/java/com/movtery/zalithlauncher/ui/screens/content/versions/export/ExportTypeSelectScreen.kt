@@ -41,9 +41,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.export.PackType
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
@@ -124,7 +124,7 @@ fun ExportTypeSelectScreen(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Top,
                         title = stringResource(R.string.versions_export_type_mcbbs),
-                        summary = stringResource(R.string.versions_export_type_mcbbs_summary, InfoDistributor.LAUNCHER_SHORT_NAME),
+                        summary = stringResource(R.string.versions_export_type_mcbbs_summary, BuildKeys.LAUNCHER_SHORT_NAME),
                         icon = painterResource(R.drawable.img_chest),
                         onClick = { onTypeSelect(PackType.MCBBS) }
                     )
@@ -154,7 +154,7 @@ fun ExportTypeSelectScreen(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Bottom,
                         title = stringResource(R.string.versions_export_type_multimc),
-                        summary = stringResource(R.string.versions_export_type_multimc_summary, InfoDistributor.LAUNCHER_SHORT_NAME),
+                        summary = stringResource(R.string.versions_export_type_multimc_summary, BuildKeys.LAUNCHER_SHORT_NAME),
                         icon = painterResource(R.drawable.img_platform_multimc),
                         onClick = { onTypeSelect(PackType.MultiMC) }
                     )

@@ -22,7 +22,7 @@ import com.github.steveice10.opennbt.NBTIO
 import com.github.steveice10.opennbt.tag.builtin.ByteTag
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag
 import com.github.steveice10.opennbt.tag.builtin.ListTag
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.nbt.asBoolean
 import com.movtery.zalithlauncher.utils.nbt.asBooleanNotNull
 import com.movtery.zalithlauncher.utils.nbt.asList
@@ -34,6 +34,8 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 import java.nio.file.Files
 import java.util.Base64
+
+private const val TAG = "AllServers"
 
 class AllServers {
     private val _serverList = mutableListOf<ServerData>()
@@ -61,7 +63,7 @@ class AllServers {
 
                 servers.forEach { tag ->
                     val serverTag = tag as? CompoundTag ?: return@forEach
-                    val data = serverTag.parseServerData() ?: return@forEach
+                    val data = serverTag.parseServerData()
                     val isHidden = serverTag.asBooleanNotNull("hidden", false)
                     if (!isHidden) {
                         _serverList.add(data)
@@ -70,7 +72,7 @@ class AllServers {
                     }
                 }
             }.onFailure {
-                lWarning("An exception occurred while reading and parsing the servers.dat file (${dataFile.absolutePath}).", it)
+                Logger.warning(TAG, "An exception occurred while reading and parsing the servers.dat file (${dataFile.absolutePath}).", it)
             }
         }
     }
@@ -131,7 +133,7 @@ class AllServers {
                 newFile.copyTo(currentDataFile, true)
                 FileUtils.deleteQuietly(newFile)
             }.onFailure {
-                lWarning("Couldn't save server list", it)
+                Logger.warning(TAG, "Couldn't save server list", it)
             }
         }
     }
@@ -150,7 +152,7 @@ class AllServers {
     /**
      * [参考 WIKI](https://zh.minecraft.wiki/w/%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%97%E8%A1%A8%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F#%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F)
      */
-    private fun CompoundTag.parseServerData(): ServerData? {
+    private fun CompoundTag.parseServerData(): ServerData {
         val name = asStringNotNull("name", "")
         val origin = asStringNotNull("ip", "")
 
@@ -159,7 +161,7 @@ class AllServers {
             runCatching {
                 Base64.getDecoder().decode(base64)
             }.onFailure {
-                lWarning("Unable to recognize server $name's icon as a valid icon array")
+                Logger.warning(TAG, "Unable to recognize server $name's icon as a valid icon array")
             }.getOrNull()
         }
 

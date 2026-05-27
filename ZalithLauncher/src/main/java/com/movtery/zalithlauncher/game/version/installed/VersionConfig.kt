@@ -26,11 +26,12 @@ import com.movtery.zalithlauncher.game.support.touch_controller.VibrationHandler
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager.getZalithVersionPath
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.GSON
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.getStringNotNull
 import java.io.File
 import java.io.FileWriter
+
+private const val TAG = "VersionConfig"
 
 class VersionConfig(
     @Transient
@@ -157,7 +158,7 @@ class VersionConfig(
         runCatching {
             saveWithThrowable()
         }.onFailure { e ->
-            lError("An exception occurred while saving the version configuration.", e)
+            Logger.error(TAG, "An exception occurred while saving the version configuration.", e)
         }
     }
 
@@ -171,7 +172,7 @@ class VersionConfig(
             val json = GSON.toJson(this)
             it.write(json)
         }
-        lInfo("Saved version configuration: $this")
+        Logger.info(TAG, "Saved version configuration: $this")
     }
 
     fun getVersionPath() = versionPath
@@ -270,7 +271,7 @@ class VersionConfig(
                     else -> createNewConfig(versionPath)
                 }
             }.onFailure {  e ->
-                lError("An exception occurred while parsing the version configuration.", e)
+                Logger.error(TAG, "An exception occurred while parsing the version configuration.", e)
             }.getOrElse {
                 createNewConfig(versionPath)
             }

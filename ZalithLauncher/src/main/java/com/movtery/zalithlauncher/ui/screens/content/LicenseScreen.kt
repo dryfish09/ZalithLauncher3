@@ -36,7 +36,7 @@ import com.movtery.zalithlauncher.ui.code_editor.SoraEditor
 import com.movtery.zalithlauncher.ui.code_editor.scheme.SchemeIDEADark
 import com.movtery.zalithlauncher.ui.code_editor.scheme.SchemeIDEALight
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +58,7 @@ fun LicenseScreen(
             runCatching {
                 context.readRawContent(key.raw)
             }.getOrElse { e ->
-                lWarning("Unable to read R.raw license", e)
+                Logger.warning("ViewLicense", "Unable to read R.raw license", e)
                 e.message
             }
         }

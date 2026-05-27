@@ -25,6 +25,7 @@ import android.system.Os
 import android.util.ArrayMap
 import androidx.annotation.CallSuper
 import androidx.compose.ui.unit.IntSize
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.bridge.ZLNativeInvoker
@@ -34,7 +35,6 @@ import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.game.plugin.ffmpeg.FFmpegPluginManager
 import com.movtery.zalithlauncher.game.plugin.natives.NativePluginManager
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
@@ -42,15 +42,15 @@ import com.movtery.zalithlauncher.setting.unit.getOrMin
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.device.Architecture.ARCH_X86
 import com.movtery.zalithlauncher.utils.device.Architecture.is64BitsDevice
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.oracle.dalvik.VMLauncher
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
 import java.util.Locale
 import java.util.TimeZone
+
+private const val TAG = "Launcher"
 
 abstract class Launcher(
     val onExit: (code: Int, isSignal: Boolean) -> Unit,
@@ -126,11 +126,11 @@ abstract class Launcher(
             val arg = iterator.next()
             if (arg.startsWith("--accessToken") && iterator.hasNext()) {
                 iterator.next()
-                LoggerBridge.append("JVMArgs: $arg")
-                LoggerBridge.append("JVMArgs: ********************")
+                LoggerBridge.append("▷ $arg")
+                LoggerBridge.append("▷ ********************")
                 continue
             }
-            LoggerBridge.append("JVMArgs: $arg")
+            LoggerBridge.append("▷ $arg")
         }
 
         ZLBridge.setupExitMethod(context.applicationContext)
@@ -182,7 +182,7 @@ abstract class Launcher(
             put("com.sun.jndi.rmi.object.trustURLCodebase", "false")
             put("com.sun.jndi.cosnaming.object.trustURLCodebase", "false")
 
-            put("net.minecraft.clientmodname", InfoDistributor.LAUNCHER_NAME)
+            put("net.minecraft.clientmodname", BuildKeys.LAUNCHER_NAME)
 
             // fml
             put("fml.earlyprogresswindow", "false")
@@ -203,7 +203,7 @@ abstract class Launcher(
             val stripped = arg.substringBefore('=')
             val overridden = userArguments.any { it.startsWith(stripped) }
             if (overridden) {
-                lInfo("Arg skipped: $arg")
+                Logger.info(TAG, "Arg skipped: $arg")
             }
             !overridden
         }
@@ -232,7 +232,7 @@ abstract class Launcher(
             runCatching {
                 resolvFile.writeText(configText)
             }.onFailure {
-                lWarning("Failed to create resolv.conf", it)
+                Logger.warning(TAG, "Failed to create resolv.conf", it)
                 FileUtils.deleteQuietly(resolvFile)
             }
         }
@@ -374,11 +374,11 @@ abstract class Launcher(
     private fun setEnv(screenSize: IntSize) {
         val envMap = initEnv(screenSize)
         envMap.forEach { (key, value) ->
-            LoggerBridge.append("Added env: $key = $value")
+            LoggerBridge.append("▷ $key = $value")
             runCatching {
                 Os.setenv(key, value, true)
             }.onFailure {
-                lError("Unable to set environment variable.", it)
+                Logger.error(TAG, "Unable to set environment variable.", it)
             }
         }
     }
@@ -479,7 +479,7 @@ fun parseJavaArguments(args: String): List<String> {
                     parsedArguments.add(parsedSubstring)
                 }
             } else {
-                lWarning("Removed improper arguments: $parsedSubstring")
+                Logger.warning(TAG, "Removed improper arguments: $parsedSubstring")
             }
         }
     }

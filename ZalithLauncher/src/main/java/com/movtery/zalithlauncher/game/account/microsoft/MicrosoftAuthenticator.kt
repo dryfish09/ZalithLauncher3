@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.game.account.microsoft
 
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
@@ -43,9 +44,8 @@ import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.yggdrasil.findUsing
 import com.movtery.zalithlauncher.game.account.yggdrasil.getPlayerProfile
 import com.movtery.zalithlauncher.game.account.yggdrasil.getSkinModel
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.httpPostJson
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.submitForm
@@ -73,6 +73,8 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlin.coroutines.CoroutineContext
 
+private const val TAG = "MicrosoftAuth"
+
 private val SCOPES = listOf("XboxLive.signin", "offline_access", "openid", "profile", "email")
 private const val TENANT = "/consumers"
 
@@ -91,7 +93,7 @@ suspend fun fetchDeviceCodeResponse(context: CoroutineContext): DeviceCodeRespon
         submitForm(
             url = "$MICROSOFT_AUTH_URL/$TENANT/oauth2/v2.0/devicecode",
             parameters = Parameters.build {
-                append("client_id", InfoDistributor.OAUTH_CLIENT_ID)
+                append("client_id", BuildKeys.OAUTH_CLIENT_ID)
                 append("scope", SCOPES.joinToString(" "))
             },
             context = context
@@ -126,7 +128,7 @@ suspend fun getTokenResponse(
                 parameters = Parameters.build {
                     append("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
                     append("device_code", codeResponse.deviceCode)
-                    append("client_id", InfoDistributor.OAUTH_CLIENT_ID)
+                    append("client_id", BuildKeys.OAUTH_CLIENT_ID)
                     append("tenant", TENANT)
                 },
                 context = context
@@ -143,7 +145,7 @@ suspend fun getTokenResponse(
             handleClientRequestException(e, pollingInterval)
             pollingInterval = adjustPollingInterval(e, pollingInterval)
         } catch (e: CancellationException) {
-            lDebug("Authentication cancelled")
+            Logger.debug(TAG, "Authentication cancelled")
             throw e
         }
 
@@ -160,7 +162,7 @@ private suspend fun handleClientRequestException(e: ClientRequestException, inte
     val errorBody = e.response.safeBodyAsJson<JsonObject>()
     when (errorBody["error"]?.jsonPrimitive?.content) {
         "authorization_pending" -> Unit /* 正常情况，继续轮询 */
-        "slow_down" -> lDebug("Slowing down polling to ${interval + 1000}ms")
+        "slow_down" -> Logger.debug(TAG, "Slowing down polling to ${interval + 1000}ms")
         else -> throw e
     }
 }
@@ -215,7 +217,7 @@ private suspend fun refreshAccessToken(
         val response = submitForm<JsonObject>(
             url = "$LIVE_AUTH_URL/oauth20_token.srf",
             parameters = Parameters.build {
-                append("client_id", InfoDistributor.OAUTH_CLIENT_ID)
+                append("client_id", BuildKeys.OAUTH_CLIENT_ID)
                 append("refresh_token", refreshToken)
                 append("grant_type", "refresh_token")
             },
@@ -354,7 +356,7 @@ private suspend fun createAccount(
         this.accessToken = authResponse.accessToken
         this.expiresAt = System.currentTimeMillis() + authResponse.expiresIn * 1000
         this.accountType = AccountType.MICROSOFT.tag
-        this.clientToken = InfoDistributor.LAUNCHER_NAME.toUuidStr().replace("-", "")
+        this.clientToken = BuildKeys.LAUNCHER_NAME.toUuidStr().replace("-", "")
         this.profileId = profileId
         this.refreshToken = refreshToken.ifEmpty { "None" }
         this.xUid = uhs

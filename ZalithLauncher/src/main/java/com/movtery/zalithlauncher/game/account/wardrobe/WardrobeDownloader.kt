@@ -28,6 +28,8 @@ import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
 
+private const val TAG = "WardrobeDownloader"
+
 abstract class WardrobeDownloader {
     protected val mClient = createOkHttpClient()
 
@@ -70,7 +72,7 @@ abstract class WardrobeDownloader {
                     }
                 }
             } catch (e: Exception) {
-                Logger.lError("Failed to download skin file", e)
+                Logger.error(TAG, "Failed to download skin file", e)
             }
         }
     }

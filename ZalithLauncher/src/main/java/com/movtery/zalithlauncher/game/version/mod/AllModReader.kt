@@ -18,7 +18,7 @@
 
 package com.movtery.zalithlauncher.game.version.mod
 
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -30,6 +30,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
+
+private const val TAG = "AllModReader"
 
 const val READER_PARALLELISM = 8
 
@@ -114,7 +116,7 @@ class AllModReader(val modsDir: File) {
                 when (e) {
                     is CancellationException -> throw e
                     else -> {
-                        lWarning("Failed to read mod: $file", e)
+                        Logger.warning(TAG, "Failed to read mod: $file", e)
                         return pack(
                             createNotMod(file)
                         )

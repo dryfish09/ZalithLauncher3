@@ -26,6 +26,8 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.in
 import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CancellationException
 
+private const val TAG = "ModVersions"
+
 /**
  * 模组版本管理类
  * @param modrinthID Modrinth 平台模组对应的 ID
@@ -63,7 +65,7 @@ abstract class ModVersions(
                 if (!version.gameVersions.contains(mcVersion)) return@mapNotNull null
                 //仅保留主文件
                 val file = version.files.getPrimary() ?: run {
-                    Logger.lWarning("No file list available, skipping -> ${version.name}")
+                    Logger.warning(TAG, "No file list available, skipping -> ${version.name}")
                     return@mapNotNull null
                 }
                 ModVersion(
@@ -74,10 +76,10 @@ abstract class ModVersions(
                 )
             }
         } catch (_: CancellationException) {
-            Logger.lDebug("Client cancelled.")
+            Logger.debug(TAG, "Client cancelled.")
             return null
         } catch (e: Exception) {
-            Logger.lDebug("Failed to fetch mod list! {mod id = $modrinthID}", e)
+            Logger.debug(TAG, "Failed to fetch mod list! {mod id = $modrinthID}", e)
             throw e
         }
     }

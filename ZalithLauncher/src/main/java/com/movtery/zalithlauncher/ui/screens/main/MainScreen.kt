@@ -73,11 +73,11 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.applyFullscreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
@@ -343,9 +343,8 @@ private fun <E: TitledNavKey> TopBar(
                             )
                         }
                         Text(
-                            text = stringResource(R.string.launcher_fork_subtitle),
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.alpha(0.7f),
+                            text = BuildKeys.LAUNCHER_IDENTIFIER,
+                            style = style,
                             softWrap = softWarp,
                             maxLines = 1
                         )

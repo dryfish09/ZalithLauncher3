@@ -95,11 +95,13 @@ import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.theme.itemColor
 import com.movtery.zalithlauncher.ui.theme.onItemColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
+
+private const val TAG = "VersionsManageElements"
 
 sealed interface GamePathOperation {
     data object None: GamePathOperation
@@ -146,7 +148,8 @@ fun GamePathItemLayout(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     onRename: () -> Unit = {},
-    onDelete: () -> Unit = {}
+    onDelete: () -> Unit = {},
+    enabled: Boolean = true,
 ) {
     val notDefault = item.id != GamePathManager.DEFAULT_ID
 
@@ -155,7 +158,9 @@ fun GamePathItemLayout(
         colors = NavigationDrawerItemDefaults.colors(),
         label = {
             Column(
-                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                modifier = Modifier
+                    .padding(top = 4.dp, bottom = 4.dp)
+                    .alpha(if (enabled) 1f else DisabledAlpha)
             ) {
                 Text(
                     modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
@@ -226,7 +231,9 @@ fun GamePathItemLayout(
             }
         },
         selected = selected,
-        onClick = onClick
+        onClick = {
+            if (enabled) onClick()
+        }
     )
 }
 
@@ -431,7 +438,7 @@ fun VersionsOperation(
                 context = Dispatchers.IO,
                 onDismiss = { updateVersionsOperation(VersionsOperation.None) },
                 onError = { e ->
-                    lError("Failed to run task.", e)
+                    Logger.error(TAG, "Failed to run task.", e)
                     submitError(
                         ErrorViewModel.ThrowableMessage(
                             title = errorMessage,
@@ -679,8 +686,6 @@ fun VersionItemLayout(
     onDeleteClick: () -> Unit = {},
     onPinned: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
         scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
@@ -714,16 +719,17 @@ fun VersionItemLayout(
                 version = version
             )
 
+            val saveFailedText = stringResource(R.string.versions_config_failed_to_save)
             IconButton(
                 onClick = {
                     val currentValue = version.pinnedState
                     runCatching {
                         version.setPinnedAndSave(!currentValue)
                     }.onFailure { e ->
-                        lError("Failed to save version config!", e)
+                        Logger.error(TAG, "Failed to save version config!", e)
                         submitError(
                             ErrorViewModel.ThrowableMessage(
-                                title = context.getString(R.string.versions_config_failed_to_save),
+                                title = saveFailedText,
                                 message = e.getMessageOrToString()
                             )
                         )

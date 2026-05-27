@@ -72,7 +72,7 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettin
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.GAMEPAD_CONFIG_NAME_LENGTH
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
@@ -145,7 +145,7 @@ fun GamepadSettingsScreen(
             viewModel.createNewConfig(
                 name = name,
                 onContainsConfig = {
-                    lWarning("There is already a configuration with the same name")
+                    Logger.warning("GamepadSettings", "There is already a configuration with the same name")
                 },
                 onFinished = {
                     refreshed = refreshed.not()
@@ -182,6 +182,7 @@ fun GamepadSettingsScreen(
                     val scope = rememberCoroutineScope()
                     val context = LocalContext.current
 
+                    val resetFinishedText = stringResource(R.string.settings_gamepad_remapping_reset_finished)
                     SettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Top,
@@ -194,7 +195,7 @@ fun GamepadSettingsScreen(
                                 withContext(Dispatchers.Main) {
                                     Toast.makeText(
                                         context,
-                                        context.getString(R.string.settings_gamepad_remapping_reset_finished),
+                                        resetFinishedText,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }

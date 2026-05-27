@@ -26,8 +26,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.model
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.utils.isChinaMainland
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.httpGetJson
 import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.CancellationException
@@ -133,10 +132,10 @@ object NeoForgeVersions {
                 .sortedByDescending { it.forgeBuildVersion }
                 .toList()
         } catch (_: CancellationException) {
-            lDebug("Client cancelled.")
+            Logger.debug(TAG, "Client cancelled.")
             null
         } catch (e: Exception) {
-            lWarning("Failed to fetch neoforge list!", e)
+            Logger.warning(TAG, "Failed to fetch neoforge list!", e)
             throw e
         }
     }

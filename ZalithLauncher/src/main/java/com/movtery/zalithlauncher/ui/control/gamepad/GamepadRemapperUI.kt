@@ -68,9 +68,11 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.theme.cardColor
 import com.movtery.zalithlauncher.ui.theme.onCardColor
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.viewmodel.GamepadRemapperViewModel
 import kotlinx.coroutines.delay
+
+private const val TAG = "GamepadRemapper"
 
 /**
  * 构建出需要重新映射的所有步骤
@@ -167,12 +169,12 @@ fun GamepadRemapperDialog(
                     val keyLog = keyMapping.entries.joinToString("\n") { entry ->
                         "Key: ${KeyEvent.keyCodeToString(entry.key)} (${entry.key}), Mapping to: ${KeyEvent.keyCodeToString(entry.value)} (${entry.value})"
                     }
-                    lInfo("=============================")
-                    lInfo("Gamepad Motion Remapping:")
-                    lInfo(motionLog)
-                    lInfo("=============================")
-                    lInfo("Gamepad Key Remapping:")
-                    lInfo(keyLog)
+                    Logger.info(TAG, "=============================")
+                    Logger.info(TAG, "Gamepad Motion Remapping:")
+                    Logger.info(TAG, motionLog)
+                    Logger.info(TAG, "=============================")
+                    Logger.info(TAG, "Gamepad Key Remapping:")
+                    Logger.info(TAG, keyLog)
 
                     remapperViewModel.applyMapping(deviceName, motionMapping, keyMapping)
                     remapperViewModel.save()

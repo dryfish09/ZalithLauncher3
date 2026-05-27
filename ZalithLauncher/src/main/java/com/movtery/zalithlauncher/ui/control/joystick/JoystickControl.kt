@@ -66,13 +66,15 @@ import com.movtery.layer_controller.data.loadFromFile
 import com.movtery.layer_controller.data.saveToFile
 import com.movtery.layer_controller.observable.ObservableJoystickStyle
 import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.atan2
 import kotlin.math.sqrt
+
+private const val TAG = "JoystickControl"
 
 private const val JSON_FILE_NAME = "joystick.json"
 
@@ -89,7 +91,7 @@ suspend fun loadJoystickStyle(
                 loadFromFile(styleFile)
             }
         }.onFailure {
-            lWarning("Failed to load joystick from file: $styleFile", it)
+            Logger.warning(TAG, "Failed to load joystick from file: $styleFile", it)
         }.getOrNull()
     } else null
 

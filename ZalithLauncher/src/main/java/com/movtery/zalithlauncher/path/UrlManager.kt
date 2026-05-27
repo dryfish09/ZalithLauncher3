@@ -19,7 +19,7 @@
 package com.movtery.zalithlauncher.path
 
 import com.movtery.zalithlauncher.BuildConfig
-import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.BuildKeys
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
@@ -33,7 +33,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import java.util.concurrent.TimeUnit
 
-const val URL_USER_AGENT: String = "${InfoDistributor.LAUNCHER_SHORT_NAME}/Android_${BuildConfig.VERSION_NAME}"
+val URL_USER_AGENT: String = "${BuildKeys.LAUNCHER_SHORT_NAME}/Android_${BuildConfig.VERSION_NAME}"
 val TIME_OUT = TimeUnit.SECONDS.toMillis(30L)
 const val URL_MCMOD: String = "https://www.mcmod.cn/"
 const val URL_MINECRAFT_VERSION_REPOS: String = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"

@@ -22,11 +22,13 @@ import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations.EMP
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations.MOD
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations.MODPACK
 import com.movtery.zalithlauncher.path.URL_MCMOD
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import kotlin.math.max
+
+private const val TAG = "ModTranslations"
 
 /**
  * Parser for mod_data.txt
@@ -106,7 +108,7 @@ enum class ModTranslations(private val resourceName: String) {
             }
             true
         } catch (e: Exception) {
-            lWarning("Failed to load $resourceName", e)
+            Logger.warning(TAG, "Failed to load $resourceName", e)
             false
         }
     }

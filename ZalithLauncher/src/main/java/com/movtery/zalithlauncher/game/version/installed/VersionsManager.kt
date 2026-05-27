@@ -18,14 +18,11 @@
 
 package com.movtery.zalithlauncher.game.version.installed
 
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.game.launch.LogName
 import com.movtery.zalithlauncher.game.path.getVersionsHome
 import com.movtery.zalithlauncher.game.version.installed.utils.parseJsonToVersionInfo
-import com.movtery.zalithlauncher.info.InfoDistributor
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -37,6 +34,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.apache.commons.io.FileUtils
 import java.io.File
+
+private const val TAG = "VersionsManager"
 
 object VersionsManager {
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -98,11 +97,11 @@ object VersionsManager {
         currentJob = scope.launch {
             mutex.withLock {
                 _isRefreshing.update { true }
-                lDebug("Initiated by $tag: starting to refresh the version list.")
+                Logger.debug(TAG, "Initiated by $tag: starting to refresh the version list.")
 
                 if (trySetVersion != null) {
                     saveCurrentVersion(trySetVersion, refresh = false)
-                    lDebug("Has attempted to save the current version: $trySetVersion")
+                    Logger.debug(TAG, "Has attempted to save the current version: $trySetVersion")
                 }
 
                 versions = emptyList()
@@ -119,7 +118,7 @@ object VersionsManager {
                 versions = newVersions.sortedWith(VersionComparator)
 
                 gameInfo = refreshCurrentInfo()
-                lDebug("Version list refreshed, refreshing the current version now.")
+                Logger.debug(TAG, "Version list refreshed, refreshing the current version now.")
                 refreshCurrentVersion()
 
                 listeners.forEach { it.invoke(versions) }
@@ -162,7 +161,7 @@ object VersionsManager {
                 versionInfo.getVersionType()
             )
 
-            lInfo(
+            Logger.info(TAG, 
                 "Identified and added version: ${version.getVersionName()}, " +
                         "Path: (${version.getVersionPath()}), " +
                         "Info: ${version.getVersionInfo()?.getInfoString()}"
@@ -187,16 +186,16 @@ object VersionsManager {
             runCatching {
                 val versionString = gameInfo!!.version
                 getVersion(versionString) ?: run {
-                    lDebug("Stored version $versionString not found, using the first available version instead.")
+                    Logger.debug(TAG, "Stored version $versionString not found, using the first available version instead.")
                     getVersionByFirst()
                 }
             }.onFailure { e ->
-                lWarning("The current version information has not been initialized yet.", e)
+                Logger.warning(TAG, "The current version information has not been initialized yet.", e)
             }.getOrElse {
                 getVersionByFirst()
             }
         }.also { version ->
-            lDebug("The current version is: ${version?.getVersionName()}")
+            Logger.debug(TAG, "The current version is: ${version?.getVersionName()}")
         }
 
         _currentVersion.update { version }
@@ -218,17 +217,17 @@ object VersionsManager {
     /**
      * @return 获取 Zalith 启动器版本标识文件夹
      */
-    fun getZalithVersionPath(version: Version) = File(version.getVersionPath(), InfoDistributor.LAUNCHER_IDENTIFIER)
+    fun getZalithVersionPath(version: Version) = File(version.getVersionPath(), BuildKeys.LAUNCHER_IDENTIFIER)
 
     /**
      * @return 通过目录获取 Zalith 启动器版本标识文件夹
      */
-    fun getZalithVersionPath(folder: File) = File(folder, InfoDistributor.LAUNCHER_IDENTIFIER)
+    fun getZalithVersionPath(folder: File) = File(folder, BuildKeys.LAUNCHER_IDENTIFIER)
 
     /**
      * @return 通过名称获取 Zalith 启动器版本标识文件夹
      */
-    fun getZalithVersionPath(name: String) = File(getVersionPath(name), InfoDistributor.LAUNCHER_IDENTIFIER)
+    fun getZalithVersionPath(name: String) = File(getVersionPath(name), BuildKeys.LAUNCHER_IDENTIFIER)
 
     /**
      * @return 游戏的上一次运行日志
@@ -275,11 +274,11 @@ object VersionsManager {
                 saveCurrentInfo()
             }
             if (refresh) {
-                lDebug("Current game info file saved, refreshing the current version now.")
+                Logger.debug(TAG, "Current game info file saved, refreshing the current version now.")
                 refreshCurrentVersion()
             }
         }.onFailure { e ->
-            lError("An exception occurred while saving the currently selected version information.", e)
+            Logger.error(TAG, "An exception occurred while saving the currently selected version information.", e)
         }
     }
 

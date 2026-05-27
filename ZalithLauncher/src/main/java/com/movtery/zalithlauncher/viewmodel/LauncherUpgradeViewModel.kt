@@ -54,8 +54,7 @@ import com.movtery.zalithlauncher.upgrade.GithubContentApi
 import com.movtery.zalithlauncher.upgrade.GithubReleaseApi
 import com.movtery.zalithlauncher.upgrade.RemoteData
 import com.movtery.zalithlauncher.upgrade.TooFrequentOperationException
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.withRetry
 import com.movtery.zalithlauncher.utils.string.decodeBase64
@@ -67,6 +66,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+
+private const val TAG = "LauncherUpgradeVM"
 
 sealed interface LauncherUpgradeOperation {
     data object None : LauncherUpgradeOperation
@@ -130,7 +131,7 @@ class LauncherUpgradeViewModel: ViewModel() {
                     lastCheckTime = AllSettings.lastUpgradeCheck.getValue()
                 )
             ) {
-                lInfo("App start check: Within rate limit, skipping")
+                Logger.info(TAG, "App start check: Within rate limit, skipping")
                 return@launch
             }
 
@@ -198,42 +199,20 @@ class LauncherUpgradeViewModel: ViewModel() {
                     val contentString = decodeBase64(api.content)
                     GLOBAL_JSON.decodeFromString(RemoteData.serializer(), contentString)
                 }
-            }.getOrElse { e1 ->
-                // 如果失败，尝试直接从 GitHub Releases 获取（更通用的机制）
-                runCatching {
-                    lInfo("Custom info not found, trying GitHub Releases API...")
-                    withRetry(logTag = "LauncherUpgrade_Releases", maxRetries = 2) {
-                        val release = GLOBAL_CLIENT.get(URL_PROJECT_RELEASES_LATEST).safeBodyAsJson<GithubReleaseApi>()
-                        
-                        // 将 GitHub Release 转换为 RemoteData
-                        // 我们需要一个 versionCode (Int)，尝试从 tag_name 提取数字
-                        val code = release.tagName.filter { it.isDigit() }.toIntOrNull() ?: 0
-                        
-                        RemoteData(
-                            code = code,
-                            version = release.tagName,
-                            createdAt = release.publishedAt,
-                            files = release.assets.map { asset ->
-                                val arch = when {
-                                    asset.name.contains("arm64", true) -> RemoteData.RemoteFile.Arch.ARM64
-                                    asset.name.contains("armeabi", true) || asset.name.contains("arm", true) -> RemoteData.RemoteFile.Arch.ARM
-                                    asset.name.contains("x86_64", true) -> RemoteData.RemoteFile.Arch.X86_64
-                                    asset.name.contains("x86", true) -> RemoteData.RemoteFile.Arch.X86
-                                    else -> RemoteData.RemoteFile.Arch.ALL
-                                }
-                                RemoteData.RemoteFile(
-                                    fileName = asset.name,
-                                    uri = asset.browserDownloadUrl,
-                                    arch = arch,
-                                    size = asset.size
-                                )
-                            },
-                            defaultBody = RemoteData.RemoteBody(language = "en", markdown = release.body),
-                            bodies = listOf(RemoteData.RemoteBody(language = "en", markdown = release.body))
-                        )
+            }.getOrElse { e ->
+                if (Locale.getDefault().language == "zh") {
+                    runCatching {
+                        Logger.info(TAG, "Check for updates in the Chinese region.")
+                        //在中国地区，可能因为无法访问 Github API 导致获取更新信息失败
+                        withRetry(logTag = "LauncherUpgrade_Chinese", maxRetries = 2) {
+                            GLOBAL_CLIENT.get(LATEST_API_CHINESE_URL).safeBodyAsJson<RemoteData>()
+                        }
+                    }.getOrElse { e ->
+                        Logger.warning(TAG, "Failed to check for launcher upgrade!", e)
+                        null
                     }
-                }.getOrElse { e2 ->
-                    lWarning("Failed to check for launcher upgrade from both custom and releases API!", e2)
+                } else {
+                    Logger.warning(TAG, "Failed to check for launcher upgrade!", e)
                     null
                 }
             }
@@ -260,16 +239,16 @@ class LauncherUpgradeViewModel: ViewModel() {
             when {
                 ignoreDismissedVersions && lastIgnored == data.code -> {
                     //忽略这次更新
-                    lInfo("Launcher update detected: $currentVersionCode -> ${data.code}, but ignored by user")
+                    Logger.info(TAG, "Launcher update detected: $currentVersionCode -> ${data.code}, but ignored by user")
                 }
                 else -> {
                     //弹出更新弹窗
-                    lInfo("Launcher update detected: $currentVersionCode -> ${data.code}, dialog shown to user")
+                    Logger.info(TAG, "Launcher update detected: $currentVersionCode -> ${data.code}, dialog shown to user")
                     onUpgrade(data)
                 }
             }
         } else {
-            lInfo("Launcher is running the latest version: $currentVersionCode")
+            Logger.info(TAG, "Launcher is running the latest version: $currentVersionCode")
             onIsLatest()
         }
     }

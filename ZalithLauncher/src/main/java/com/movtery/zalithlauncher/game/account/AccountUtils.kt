@@ -40,7 +40,7 @@ import com.movtery.zalithlauncher.game.account.microsoft.microsoftAuthAsync
 import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.utils.copyText
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
@@ -59,6 +59,8 @@ import java.util.Locale
 import java.util.Objects
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
+
+private const val TAG = "AccountUtils"
 
 fun Account.isAuthServerAccount(): Boolean {
     return !isLocalAccount() && !Objects.isNull(otherBaseUrl) && otherBaseUrl != "0"
@@ -329,7 +331,7 @@ fun addOtherServer(
             runCatching {
                 getAuthServeInfo(fullServerUrl)
             }.onFailure { th ->
-                lError("Failed to get server info", th)
+                Logger.error(TAG, "Failed to get server info", th)
                 onThrowable(th)
             }.getOrNull()?.let { data ->
                 JSONObject(data).optJSONObject("meta")?.let { meta ->
@@ -352,7 +354,7 @@ fun addOtherServer(
         },
         onError = { e ->
             onThrowable(e)
-            lError("Failed to add auth server", e)
+            Logger.error(TAG, "Failed to add auth server", e)
         }
     )
 
@@ -409,7 +411,7 @@ fun tryGetFullServerUrl(baseUrl: String): String {
             conn?.disconnect()
         }
     }.getOrElse { e ->
-        lError("Failed to get full server url", e)
+        Logger.error(TAG, "Failed to get full server url", e)
         initialUrl
     }
 }

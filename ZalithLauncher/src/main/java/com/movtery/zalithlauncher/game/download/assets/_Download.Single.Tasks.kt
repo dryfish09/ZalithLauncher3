@@ -28,8 +28,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.file.formatFileSize
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import com.movtery.zalithlauncher.utils.network.withSpeedReport
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -42,6 +41,8 @@ import java.io.File
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
+
+private const val TAG = "DownloadSingle"
 
 /**
  * 为一些版本下载单独的资源文件
@@ -76,7 +77,7 @@ fun downloadSingleForVersions(
             }
         },
         onError = { e ->
-            lWarning("An error occurred while downloading the resource files.", e)
+            Logger.warning(TAG, "An error occurred while downloading the resource files.", e)
             val message = mapExceptionToMessage(e).let { pair ->
                 val args = pair.second
                 if (args != null) {
@@ -102,7 +103,7 @@ fun downloadSingleForVersions(
             }
         },
         onFinally = {
-            lInfo("Attempting to clear cached resource files.")
+            Logger.info(TAG, "Attempting to clear cached resource files.")
             FileUtils.deleteQuietly(cacheFile)
         }
     )

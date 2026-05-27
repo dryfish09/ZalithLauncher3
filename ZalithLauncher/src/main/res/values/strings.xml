@@ -28,14 +28,14 @@
     <string name="generic_disable">Disable</string>
     <string name="generic_open_link">Open in Browser</string>
     <string name="generic_cannot_empty">Content cannot be empty!</string>
-    <string name="generic_input_invalid_character">Invalid characters in name: \"%s\"</string>
+    <string name="generic_input_invalid_character">Invalid character in name: \"%s\"</string>
     <string name="generic_input_failed_to_number">Input cannot be parsed as a number</string>
     <string name="generic_input_too_small">Value cannot be smaller than %s</string>
     <string name="generic_input_too_large">Value cannot be larger than %s</string>
     <string name="generic_input_length">Text length: %1$d/%2$d</string>
     <string name="generic_unpacking">Unpacking %s</string>
     <string name="generic_unknown">Unknown</string>
-    <string name="generic_follow_global">Follow the global setting</string>
+    <string name="generic_follow_global">Follow Global</string>
     <string name="generic_custom">Custom</string>
     <string name="generic_search">Search</string>
     <string name="generic_loading">Loading</string>
@@ -124,7 +124,7 @@
     <string name="crash_launch_crash_title">App Launch Failed</string>
     <string name="crash_launch_crash_message">The launcher encountered a serious problem and crashed during startup</string>
     <!-- Errors -->
-    <string name="error_import_image">Failed to import image</string>
+    <string name="error_import_image">An error occurred while importing the image</string>
     <string name="error_import_file">An error occurred while importing the file</string>
     <string name="error_create_dir">Failed to create directory: %s</string>
     <string name="error_timeout">Request timed out</string>
@@ -144,7 +144,7 @@
     <string name="notification_request">Request Permission</string>
     <string name="notification_data_jvm_service_message">To ensure a smooth installation, the launcher needs to run the installer in the foreground. We\'ll try to start a foreground service to maintain stability, but this requires notification permissions. Could you help us enable notification permissions? This will help prevent installation interruptions!</string>
     <string name="notification_data_jvm_service_name">Foreground Installation Service</string>
-    <string name="notification_data_jvm_service_running">Installing the game via foreground service</string>
+    <string name="notification_data_jvm_service_running">Installing game via foreground service</string>
     <string name="notification_data_terracotta_message">During multiplayer sessions, the launcher uses a foreground service to display the current connection status, so notification permission is required.</string>
     <string name="notification_jvm_running_name">JVM Keep-Alive Service</string>
     <!--  Microphone  -->
@@ -156,11 +156,11 @@
     <string name="unpack_screen_jre17">Java 17 Environment (required for Minecraft 1.17+)</string>
     <string name="unpack_screen_jre21">Java 21 Environment (required for Minecraft 1.20.5+)</string>
     <string name="unpack_screen_jre25">Java 25 Environment (required for Minecraft 26.1+)</string>
-    <string name="unpack_screen_authlib_injector">Modifies authlib for external logins</string>
+    <string name="unpack_screen_authlib_injector">Modifies authlib at runtime to enable external logins</string>
     <string name="unpack_screen_cacio">Portable GUI backend for OpenJDK</string>
     <string name="unpack_screen_lwjgl">Lightweight Java Game Library (required by Minecraft)</string>
     <string name="unpack_screen_launcher">Essential launcher components</string>
-    <string name="unpack_screen_jna">Enables Minecraft to directly call low-level OS functions.</string>
+    <string name="unpack_screen_jna">Enables Minecraft to directly call low-level OS functions</string>
     <!-- Main Menu -->
     <string name="main_launch_game">Launch</string>
     <string name="main_task_menu">Task Menu</string>
@@ -257,11 +257,11 @@
     <string name="download_modpack_warning1">Before installation, you need to understand that most modpacks are made for PC, and there\'s a high chance of crashes or other issues when you try to launch them. These problems are often beyond what the launcher can resolve.</string>
     <string name="download_modpack_warning2">You will need to learn the relevant knowledge to try and resolve the issues yourself, or seek help from others.</string>
     <string name="download_modpack_warning3">Note: The launcher developers typically do not handle issues caused by modpacks.</string>
-    <string name="download_modpack_install_title">Installing modpack</string>
+    <string name="download_modpack_install_title">Installing Modpack</string>
     <string name="download_modpack_install_parse">Parse modpack</string>
     <string name="download_modpack_install_get_mod_url">Get mod download link (%1$d/%2$d)</string>
     <string name="download_modpack_install_overrides">Extract modpack files</string>
-    <string name="download_modpack_download">Download required content for modpack</string>
+    <string name="download_modpack_download">Download modpack content</string>
     <string name="download_modpack_download_mods">Download all mods (%1$d/%2$d, %3$s)</string>
     <string name="download_modpack_download_mods_retry">Retry downloading all mods (%1$d/%2$d, %3$s)</string>
     <string name="download_modpack_get_loaders">Retrieve loader information</string>
@@ -270,14 +270,14 @@
     <string name="download_assets_category_worldgen">World Generation</string>
     <string name="download_assets_category_biomes">Biomes</string>
     <string name="download_assets_category_dimensions">Dimensions</string>
-    <string name="download_assets_category_ores_resources">Ores &amp;amp; Resources</string>
+    <string name="download_assets_category_ores_resources">Ores &amp; Resources</string>
     <string name="download_assets_category_structures">Structures</string>
     <string name="download_assets_category_technology">Technology</string>
-    <string name="download_assets_category_item_fluid_energy_transport">Pipes &amp;amp; Logistics</string>
+    <string name="download_assets_category_item_fluid_energy_transport">Pipes &amp; Logistics</string>
     <string name="download_assets_category_automation">Automation</string>
     <string name="download_assets_category_energy">Energy</string>
     <string name="download_assets_category_redstone">Redstone</string>
-    <string name="download_assets_category_food">Food &amp;amp; Cooking</string>
+    <string name="download_assets_category_food">Food &amp; Cooking</string>
     <string name="download_assets_category_farming">Farming</string>
     <string name="download_assets_category_transport">Transportation</string>
     <string name="download_assets_category_storage">Storage</string>
@@ -286,7 +286,7 @@
     <string name="download_assets_category_decoration">Decoration</string>
     <string name="download_assets_category_mobs">Mobs</string>
     <string name="download_assets_category_equipment">Equipment</string>
-    <string name="download_assets_category_information">HUD &amp;amp; Information</string>
+    <string name="download_assets_category_information">HUD &amp; Information</string>
     <string name="download_assets_category_social">Server</string>
     <string name="download_assets_category_utility">Utility</string>
     <string name="download_assets_category_library">Library</string>
@@ -376,20 +376,20 @@
     <string name="version_summary_fools_infinite">We\'ve added 2 billion (exactly 2,147,483,647) new dimensions!</string>
     <string name="version_summary_fools_one_block_at_time">We\'ve stripped the game down to its purest form: one block at a time.</string>
     <string name="version_summary_fools_a_or_b">Research shows players love making choices, so we let you vote on everything!</string>
-    <string name="version_summary_fools_potato">For years, the poisonous potato was ignored and underestimated, so we gave it an epic buff!</string>
+    <string name="version_summary_fools_potato">For years, the Poisonous Potato was ignored and underestimated, so we gave it an epic buff!</string>
     <string name="version_summary_fools_creaft_mine">Now you can craft anything—even an entire world!</string>
     <string name="version_summary_fools_herd_craft">Stop organizing your inventory—your items and blocks want to run wild with you!</string>
     <!-- Game Launch -->
     <string name="game_launch_no_version">No game version selected!</string>
     <string name="game_launch_no_account">No account logged in!</string>
     <string name="game_auto_pick_runtime_failed">No compatible runtime found. Using selected version\'s runtime.</string>
-    <string name="game_button_input">Input</string>
+    <string name="game_button_input">Input Method</string>
     <string name="game_button_force_close">Force Close</string>
     <string name="game_button_log_output">Log Output</string>
     <string name="game_button_mouse_left">Left Click</string>
     <string name="game_button_mouse_right">Right Click</string>
     <string name="game_dialog_force_close_message">Are you sure you want to force close and return to the main screen?</string>
-    <string name="game_loading">The game is running, waiting for the game screen to appear</string>
+    <string name="game_loading">The game is running. Waiting for the game screen to appear…</string>
     <string name="game_loading_version_name">Game Version: %s</string>
     <string name="game_loading_version_info">Game Info: %s</string>
     <string name="game_menu_title">Game Menu</string>
@@ -425,7 +425,7 @@
     <string name="game_styles_joystick_hide_when_mouse">Hide When Using Physical Mouse</string>
     <string name="game_styles_joystick_hide_when_gamepad">Hide When Using Gamepad</string>
     <string name="game_styles_save_failed">Failed to Save Style</string>
-    <string name="game_saponsorship_finished_game">The launcher has successfully run the game %s times! If you find it useful, please consider supporting the developer! :)</string>
+    <string name="game_saponsorship_finished_game">The launcher has successfully launched the game %s times! If you find it useful, please consider supporting the developer! :)</string>
 
     <string name="game_vulkan_check_title">Vulkan Check</string>
     <string name="game_vulkan_check_text">Check whether your device supports running Minecraft 26.2+ with Vulkan. Results are for reference only.</string>
@@ -450,7 +450,7 @@
     <string name="account_no_account">No accounts available</string>
     <string name="account_login">Login</string>
     <string name="account_logging_in">Logging in as %s</string>
-    <string name="account_logging_in_failed">Login failed</string>
+    <string name="account_logging_in_failed">Login Failed</string>
     <string name="account_logging_in_saving">Fetching skin and saving account info</string>
     <string name="account_logging_time_out">Network timeout. Check your connection.</string>
     <string name="account_logging_xbox_banned">Your account has been banned for violating the Xbox Community Standards and can no longer be used!</string>
@@ -464,7 +464,7 @@
     <string name="account_logging_frequent">Login attempts are too frequent. Please try again later.</string>
     <string name="account_logging_blocked_ip">The current IP address has been blocked from logging in.</string>
     <string name="account_logging_profile_not_exists">Please create a Minecraft player profile first, then try logging in again!</string>
-    <string name="account_logging_not_purchased_minecraft">Minecraft ownership not verified. Purchase it from Mojang\'s official site.</string>
+    <string name="account_logging_not_purchased_minecraft">Minecraft ownership not verified. Please purchase it from Minecraft\'s official website.</string>
     <string name="account_type_microsoft">Microsoft</string>
     <string name="account_type_local">Offline</string>
     <string name="account_add_new_server">Add Auth Server</string>
@@ -487,7 +487,7 @@
     <string name="account_change_cape">Change Cape</string>
     <string name="account_change_cape_fetch_all">Fetching all capes</string>
     <string name="account_change_cape_fetch_all_failed">Unable to fetch capes</string>
-    <string name="account_change_cape_cache_all">Caching All Capes</string>
+    <string name="account_change_cape_cache_all">Caching all capes</string>
     <string name="account_change_cape_select_cape">Select Cape</string>
     <string name="account_change_cape_apply">Applying cape</string>
     <string name="account_change_cape_apply_success">Successfully changed your cape to: %s</string>
@@ -519,9 +519,9 @@
     <string name="account_supporting_microsoft_tip_hint_t7">If the webpage shows an "Error" message or the account fails to be added, please retry the above steps.\n</string>
     <string name="account_supporting_microsoft_tip_hint_t8">Tip: If your network connection is poor, the webpage may load slowly or fail to open. Try using a network proxy and retry.</string>
     <string name="account_delete_title">Delete Account</string>
-    <string name="account_delete_message">Delete account %s from the launcher?</string>
+    <string name="account_delete_message">Are you sure you want to delete account %s from the launcher?</string>
     <string name="account_microsoft_fetch_device_code">Get Device Code</string>
-    <string name="account_microsoft_coped_device_code">Device code copied: %s. Complete verification in your browser.</string>
+    <string name="account_microsoft_coped_device_code">Device code copied: %s. Please complete verification in your browser shortly.</string>
     <string name="account_microsoft_get_token">Polling in progress, attempting to obtain token; device code: %s</string>
     <string name="account_microsoft_getting_access_token">Requesting access token</string>
     <string name="account_microsoft_getting_xbl_token">Requesting XBL token</string>
@@ -547,7 +547,7 @@
     <string name="account_other_login_adding_failure">Failed to add auth server</string>
     <string name="account_other_login_register">No account? Register here!</string>
     <string name="account_other_login_delete_server_title">Delete Auth Server</string>
-    <string name="account_other_login_delete_server_message">Delete auth server %s?</string>
+    <string name="account_other_login_delete_server_message">Are you sure you want to delete auth server %s?</string>
     <string name="account_other_login_select_role">Select Role</string>
     <string name="account_other_login_select_role_logging">Logging in as %s</string>
     <string name="account_other_login_role_not_found">No role matching the current account was found. Please check on the server you are using to see if this role exists!</string>
@@ -589,29 +589,29 @@
     <string name="file_invalid_length">Name too long! (Current: %d, Max: %d)</string>
     <string name="file_invalid_leading_or_trailing_space">Cannot start or end with a space!</string>
     <!-- Java Runtime -->
-    <string name="multirt_runtime_corrupt">Java runtime corrupted</string>
+    <string name="multirt_runtime_corrupt">Corrupted Java runtime</string>
     <string name="multirt_runtime_incompatible_arch">Incompatible architecture: %s</string>
-    <string name="multirt_runtime_delete_message">Delete Java runtime %s? This cannot be undone!</string>
+    <string name="multirt_runtime_delete_message">Are you sure you want to delete Java runtime %s? This cannot be undone!</string>
     <string name="multirt_runtime_deleting">Deleting Java runtime: %s</string>
     <string name="multirt_runtime_delete_failed">Failed to delete Java runtime</string>
     <string name="multirt_runtime_import_failed">Failed to import Java runtime</string>
-    <string name="multirt_runtime_import_failed_file_name">Invalid filename</string>
+    <string name="multirt_runtime_import_failed_file_name">Could not get the target file name</string>
     <string name="multirt_runtime_import_failed_input_stream">Failed to read file</string>
     <string name="multirt_runtime_provided_by_launcher">Built-in</string>
     <string name="multirt_runtime_version_name">Version: %s</string>
     <string name="multirt_runtime_version_code">Version code: %s</string>
     <string name="multirt_runtime_version_arch">Architecture: %s</string>
-    <string name="multirt_no_java_8">Java 8 not found. Required for this feature.</string>
+    <string name="multirt_no_java_8">Java 8 is required for this feature, but was not found.</string>
     <string name="execute_jar_title">Execute Jar</string>
     <!-- Version Management -->
     <string name="versions_manage_game_path_default">Default Game Folder</string>
-    <string name="versions_manage_game_path_add_new">Add Folder</string>
-    <string name="versions_manage_game_path_edit_title">Name this folder</string>
+    <string name="versions_manage_game_path_add_new">Add Game Folder</string>
+    <string name="versions_manage_game_path_edit_title">Rename Game Folder</string>
     <string name="versions_manage_game_path_delete_title">Delete Game Folder</string>
-    <string name="versions_manage_game_path_delete_message">Delete this folder? Files will remain, but the launcher will unlink it.</string>
-    <string name="versions_manage_game_path_exists_title">Folder conflict</string>
-    <string name="versions_manage_game_path_exists_message">This folder is already managed. You cannot add duplicates.</string>
-    <string name="versions_manage_game_path_error_title">Encountered a problem while accessing the game directory</string>
+    <string name="versions_manage_game_path_delete_message">Are you sure you want to delete this game folder? Your files will not be deleted — they will simply be unlinked from the launcher.</string>
+    <string name="versions_manage_game_path_exists_title">Folder Already Exists</string>
+    <string name="versions_manage_game_path_exists_message">This game directory conflicts with an existing one. You cannot manage two game directories at the same time.</string>
+    <string name="versions_manage_game_path_error_title">Problem Accessing Game Directory</string>
     <string name="versions_manage_game_path_storage_permissions">Want to install the game to external storage? Please enable external storage permission for the launcher first, or it won\'t be able to install the game to an external directory!</string>
     <string name="versions_manage_game_path_storage_permissions_sdk30">Want to install the game to external storage? Please enable "Manage all files on device" permission for the launcher first, or it won\'t be able to install the game to an external directory!</string>
     <string name="versions_manage_game_storage_permissions">Want to use an external game path? Please enable external storage permission for the launcher first, or it won\'t be able to access external game files!</string>
@@ -624,7 +624,7 @@
     <string name="versions_manage_invalid">Invalid version</string>
     <string name="versions_manage_rename_version">Rename Version</string>
     <string name="versions_manage_copy_version">Copy Version</string>
-    <string name="versions_manage_copy_version_tip">Copy this version with isolation enabled. Check \"Copy All Files\" to include resources.</string>
+    <string name="versions_manage_copy_version_tip">Copy the current version as a new version, with version isolation enabled by default. Check "Copy All Files" below to also include all generated files (resource packs, saves, game settings, etc.).</string>
     <string name="versions_manage_copy_version_all">Copy All Files</string>
     <string name="versions_manage_delete_version">Delete Version</string>
     <string name="versions_manage_delete_version_tip_hint1">Deleting a version will also delete all files within the "./versions/%s" directory, including important resources such as game saves, resource packs, mods, and more for that version.</string>
@@ -656,7 +656,7 @@
     <string name="versions_overview_reset_version_icon">Reset Icon</string>
     <string name="versions_overview_reset_version_icon_message">Are you sure you want to reset the icon for the current version?</string>
     <string name="versions_overview_edit_version_summary">Edit Description</string>
-    <string name="versions_overview_edit_version_summary_label">Leave blank for default</string>
+    <string name="versions_overview_edit_version_summary_label">Leave blank to use the default launcher description</string>
     <string name="versions_overview_version_folder">Version Folder</string>
     <string name="versions_overview_saves_folder">Saves Folder</string>
     <string name="versions_overview_resource_pack_folder">Resource Pack Folder</string>
@@ -678,18 +678,18 @@
     <string name="versions_config_java_runtime_summary">Specify the Java environment used by the current version</string>
     <string name="versions_config_auto_join_server_ip_title">Auto-Join Server</string>
     <string name="versions_config_auto_join_server_ip_summary">Enter the server IP here to auto-join after launching the game (e.g., 114.514.114.514:114514)</string>
-    <string name="versions_config_vibrate_kind_title">Vibration Kind</string>
-    <string name="versions_config_vibrate_kind_summary">Set the vibrate kind when TouchController triggers vibration</string>
+    <string name="versions_config_vibrate_kind_title">Vibration Type</string>
+    <string name="versions_config_vibrate_kind_summary">Set the vibration type when the Touch Controller mod triggers vibration</string>
     <string name="versions_config_vibrate_duration_title">Vibration Duration</string>
     <string name="versions_config_vibrate_duration_summary">Set the vibration duration required by the Touch Controller mod</string>
     <string name="versions_config_follow_global_if_blank">Leave blank to use global settings</string>
     <string name="versions_config_disable_if_blank">Leave blank to disable</string>
-    <string name="versions_config_failed_to_save">Failed to save configuration</string>
+    <string name="versions_config_failed_to_save">Failed to save version configuration</string>
     <string name="versions_config_microphone_check_title">Check Microphone</string>
     <string name="versions_config_microphone_check_summary">Check whether the system microphone is available or confirm that the launcher has been granted microphone permission. This check ensures that you can use mods like Simple Voice Chat that require a microphone.</string>
     <string name="versions_install_loader">Install Loader</string>
     <string name="versions_update_loader">Update Loader</string>
-    <string name="versions_update_loader_waiting_for_others">Waiting for other items to finish loading</string>
+    <string name="versions_update_loader_waiting_for_others">Waiting for other tasks to finish</string>
     <string name="versions_update_loader_diff_message">Are you sure you want to change the current game\'s loader?</string>
     <string name="versions_update_loader_diff_change">Change: %1$s %2$s → %3$s</string>
     <string name="versions_update_loader_diff_remove">Remove: %s</string>
@@ -768,7 +768,7 @@
     <string name="mods_update_task_loading">Syncing mod data: %s</string>
     <string name="mods_update_no_mods_update">All mods are already up to date, no update needed</string>
     <string name="mods_update_updating">Updating all mods (%1$d/%2$d, %3$s)</string>
-    <string name="mods_update_updating_retry">Retrying to update all mods (%1$d/%2$d, %3$s)</string>
+    <string name="mods_update_updating_retry">Retrying update for all mods (%1$d/%2$d, %3$s)</string>
     <string name="mods_update_success">Update Successful</string>
     <string name="mods_update_success_text">All selected mods have been updated to the latest version!</string>
     <string name="mods_update_failed">Mod Update Failed</string>
@@ -845,8 +845,8 @@
     <string name="minecraft_download_progress_retry_downloading_files">Retrying downloads \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_progress_retry_verifying_files">Retrying verifications \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_failed">An error occurred while downloading Minecraft</string>
-    <string name="minecraft_download_failed_retried">Before this, the launcher had already attempted a retry once, but some tasks still failed to download</string>
-    <string name="minecraft_download_failed_notfound">Some dependency files could not be downloaded. If the issue persists after multiple attempts, the game may be missing required library files. It is recommended to reinstall the game.</string>
+    <string name="minecraft_download_failed_retried">The launcher already attempted one retry, but some tasks still failed to download</string>
+    <string name="minecraft_download_failed_notfound">Some dependency files could not be downloaded. If the issue persists after multiple attempts, the game may be missing required libraries. We recommend reinstalling the game.</string>
     <!-- Settings -->
     <string name="settings_element_selected">Selected: %s</string>
     <string name="settings_label_ignore_if_blank">Leave blank to ignore</string>
@@ -856,7 +856,7 @@
     <string name="settings_tab_gamepad">Gamepad</string>
     <string name="settings_tab_launcher">Launcher</string>
     <string name="settings_tab_java_manage">Java</string>
-    <string name="settings_tab_control_manage">Control list</string>
+    <string name="settings_tab_control_manage">Controls</string>
     <string name="settings_tab_info_about">About</string>
     <string name="settings_renderer_global_renderer_title">Global Renderer</string>
     <string name="settings_renderer_global_renderer_summary">The global default renderer uses a dynamic library translation layer to ensure the game runs smoothly on mobile devices</string>
@@ -864,7 +864,7 @@
     <string name="settings_renderer_from_plugins">From %s plugin</string>
     <string name="settings_renderer_resolution_scale_title">Resolution Scale</string>
     <string name="settings_renderer_resolution_scale_summary">Lower values improve performance; higher values enhance graphics quality. Adjust according to your needs</string>
-    <string name="settings_renderer_full_screen_title">Fullscreen game mode</string>
+    <string name="settings_renderer_full_screen_title">Game Fullscreen</string>
     <string name="settings_renderer_full_screen_summary">Enable fullscreen mode, ignoring safe areas like notches and punch-holes</string>
     <string name="settings_renderer_sustained_performance_title">Sustained Performance Mode</string>
     <string name="settings_renderer_sustained_performance_summary">When enabled, the system provides more stable performance for the game, suitable for long play sessions, but may slightly reduce device responsiveness to prevent overheating</string>
@@ -882,7 +882,7 @@
     <string name="settings_game_version_isolation_title">Global Version Isolation</string>
     <string name="settings_game_version_isolation_summary">Isolates all versions so that their data does not interfere with each other</string>
     <string name="settings_game_skip_game_integrity_check_title">Skip Integrity Check</string>
-    <string name="settings_game_skip_game_integrity_check_summary">When launching the game, existing game files will not be re-downloaded even if they do not match the actual files</string>
+    <string name="settings_game_skip_game_integrity_check_summary">When launching the game, mismatched game files will not be re-downloaded</string>
     <string name="settings_game_version_custom_info_title">Custom Version Info</string>
     <string name="settings_game_version_custom_info_summary">Custom info is shown at the bottom-left of the main menu and top-left of the F3 debug screen. It may not work for special versions or external account logins. You can add the [zl_version] tag, which will be replaced with the current version number automatically</string>
     <string name="settings_game_auto_pick_java_runtime_title">Auto-Select Java</string>
@@ -898,7 +898,7 @@
     <string name="settings_game_graphics_api_title">Graphics API</string>
     <string name="settings_game_graphics_api_summary">Set the graphics API used by Minecraft 26.2+</string>
     <string name="settings_game_graphics_api_default">Follow game settings</string>
-    <string name="settings_game_graphics_api_default_opengl">Set to OpenGL only on first launch</string>
+    <string name="settings_game_graphics_api_default_opengl">Only set to OpenGL on first launch</string>
     <string name="settings_game_jvm_args_title">JVM Arguments</string>
     <string name="settings_game_jvm_args_summary">Additional JVM arguments added when starting the JVM. Modifying these without proper knowledge is not recommended, as it may cause crashes</string>
     <string name="settings_game_show_log_automatic_title">Automatically Show Logs</string>
@@ -907,13 +907,13 @@
     <string name="settings_game_log_text_size_summary">Adjust the text size on the log screen</string>
     <string name="settings_game_log_buffer_flush_interval_title">Log Flush Interval</string>
     <string name="settings_game_log_buffer_flush_interval_summary">Set how often the log buffer refreshes. Refreshing too frequently or too infrequently may affect performance</string>
-    <string name="settings_control_physical_key_bind_ime_title">Physical Keyboard Input Method Invocation</string>
+    <string name="settings_control_physical_key_bind_ime_title">Keyboard IME Shortcut</string>
     <string name="settings_control_physical_key_bind_ime_summary">Click to bind a key for invoking the input method during gameplay</string>
     <string name="settings_control_physical_key_bind_ime_bound">Bound key: %s</string>
     <string name="settings_control_physical_key_bind_ime_un_bind">Not bound</string>
     <string name="settings_control_mouse_physical_mouse_mode_title">Physical Mouse</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">When a physical mouse is connected, disable the virtual mouse pointer and use the system mouse pointer for control</string>
-    <string name="settings_control_mouse_physical_mouse_warning">If your device interprets physical mouse right-click as "Back" or middle-click as "Home", you can go to System Settings &gt; Developer Options and enable "Disable Permission Monitoring", this will likely resolve the issue.</string>
+    <string name="settings_control_mouse_physical_mouse_warning">If your device interprets a physical mouse right-click as "Back" or middle-click as "Home", go to System Settings &gt; Developer Options and enable "Disable Permission Monitoring"; this will likely resolve the issue.</string>
     <string name="settings_control_mouse_hide_title">Hide Virtual Mouse</string>
     <string name="settings_control_mouse_hide_summary">In some situations, you may want to hide the virtual mouse; this setting does not affect physical mouse control or swipe control</string>
     <string name="settings_control_mouse_size_title">Virtual Mouse Size</string>
@@ -921,7 +921,7 @@
     <string name="settings_control_mouse_sensitivity_summary">Adjust the movement speed of the virtual mouse in normal mode</string>
     <string name="settings_control_mouse_capture_sensitivity_title">Captured Mouse Movement Sensitivity</string>
     <string name="settings_control_mouse_capture_sensitivity_summary">Adjust the sensitivity of mouse movement when captured, such as sensitivity for moving the game view</string>
-    <string name="settings_control_mouse_control_mode_title">Control Mode</string>
+    <string name="settings_control_mouse_control_mode_title">Mouse Control Mode</string>
     <string name="settings_control_mouse_control_mode_summary">Choose the virtual mouse control method: swipe the screen to move the cursor, or tap the screen to specify the cursor position</string>
     <string name="settings_control_mouse_control_mode_slide">Swipe Control</string>
     <string name="settings_control_mouse_control_mode_click">Tap Control</string>
@@ -942,7 +942,7 @@
     <string name="settings_control_mouse_pointer_not_allowed_title">Virtual Mouse Pointer (Not Allowed)</string>
     <string name="settings_control_mouse_pointer_not_allowed_summary">MC 1.21.9+ supports switching the mouse pointer to a "not allowed" shape over disabled components</string>
     <string name="settings_control_mouse_pointer_common_summary">MC 1.21.9+ supports this mouse pointer</string>
-    <string name="settings_control_mouse_pointer_reset_message">Reset mouse pointer to default?</string>
+    <string name="settings_control_mouse_pointer_reset_message">Reset virtual mouse pointer image to default?</string>
     <string name="settings_control_mouse_pointer_hotspot">Set Hotspot</string>
     <string name="settings_control_mouse_pointer_hotspot_x_percent">X Coordinate</string>
     <string name="settings_control_mouse_pointer_hotspot_y_percent">Y Coordinate</string>
@@ -989,7 +989,7 @@
     <string name="settings_gamepad_mapping_unbound">No keys bound</string>
     <string name="settings_gamepad_mapping_in_game">In Game</string>
     <string name="settings_gamepad_mapping_in_menu">In Menu</string>
-    <string name="settings_gamepad_remapping_reset_title">Reset Gamepad Button Mapping</string>
+    <string name="settings_gamepad_remapping_reset_title">Reset Gamepad Mapping</string>
     <string name="settings_gamepad_remapping_reset_summary">Button mapping helps better adapt to your gamepad. If the previous setup was incorrect, you can restart the game after resetting and rebind the buttons</string>
     <string name="settings_gamepad_remapping_reset_finished">All gamepad button mappings have been reset</string>
     <string name="settings_gamepad_remapping_tip_title">Gamepad Button Remapping</string>
@@ -1011,7 +1011,7 @@
     <string name="settings_gamepad_config_summary">Select the gamepad mapping configuration to use</string>
     <string name="settings_gamepad_config_delete">Delete Current Configuration</string>
     <string name="settings_gamepad_config_delete_message">Are you sure you want to delete this configuration?</string>
-    <string name="settings_gamepad_config_create">Create Gamepad Mapping Configuration</string>
+    <string name="settings_gamepad_config_create">New Gamepad Profile</string>
     <string name="settings_gamepad_config_create_name">Configuration Name</string>
     <string name="settings_gamepad_config_create_contains">A configuration with the same name already exists</string>
     <string name="settings_gamepad_config_no_items">No configurations created, unable to switch</string>
@@ -1019,7 +1019,7 @@
     <string name="settings_launcher_color_theme_summary">Customize launcher colors</string>
     <string name="settings_launcher_dark_mode_title">Dark Mode</string>
     <string name="settings_launcher_language">Language</string>
-    <string name="settings_launcher_full_screen_title">Fullscreen mode</string>
+    <string name="settings_launcher_full_screen_title">Fullscreen Mode</string>
     <string name="settings_launcher_full_screen_summary">Make the launcher pages fullscreen, ignoring safe areas like notches and punch-holes</string>
     <string name="settings_launcher_animate_speed_title">Animation Speed</string>
     <string name="settings_launcher_animate_speed_summary">Adjust the playback speed multiplier for launcher animations</string>
@@ -1046,7 +1046,7 @@
     <string name="settings_launcher_background_opacity_summary">Adjust the opacity of background elements for better visuals and to avoid conflicts with the background</string>
     <string name="settings_launcher_background_video_volume_title">Background Video Volume</string>
     <string name="settings_launcher_background_video_volume_summary">When the background is a video, you can adjust the volume using this option.</string>
-    <string name="settings_launcher_festivals_effects_title">Persistent Festival Easter Egg Effects</string>
+    <string name="settings_launcher_festivals_effects_title">Festival Easter Eggs</string>
     <string name="settings_launcher_festivals_effects_summary">Display persistent easter egg effects during specific time periods</string>
     <string name="settings_launcher_home_page_title">Home Page</string>
     <string name="settings_launcher_home_page_type_blank">Blank</string>
@@ -1175,7 +1175,7 @@
     <string name="control_editor_edit_style_config_empty">No control appearances in the current control layout</string>
     <string name="control_editor_edit_style_config_name">Control Appearance Name</string>
     <string name="control_editor_edit_style_config_animate_swap">Enable Animation Transition</string>
-    <string name="control_editor_edit_style_config_common_style">Do not distinguish dark theme</string>
+    <string name="control_editor_edit_style_config_common_style">Ignore Dark Theme</string>
     <string name="control_editor_edit_style_config_delete">Are you sure you want to delete the control appearance %s?</string>
     <string name="control_editor_edit_style_config_light">Light Appearance</string>
     <string name="control_editor_edit_style_config_dark">Dark Appearance</string>
@@ -1279,8 +1279,8 @@
     <!-- Vibration Kind -->
     <string name="vibrate_kind_one_shot">Constant</string>
     <string name="vibrate_kind_click">Click</string>
-    <string name="vibrate_kind_double_click">Double click</string>
-    <string name="vibrate_kind_heavy_click">Heavy click</string>
+    <string name="vibrate_kind_double_click">Double Click</string>
+    <string name="vibrate_kind_heavy_click">Heavy Click</string>
     <string name="vibrate_kind_tick">Tick</string>
 
     <string name="festivals_new_year">Happy New Year!</string>

@@ -21,11 +21,12 @@ package com.movtery.zalithlauncher.game.version.installed
 import com.google.gson.annotations.SerializedName
 import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.utils.GSON
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
+
+private const val TAG = "CurrentGameInfo"
 
 /**
  * 当前游戏状态信息（支持旧配置迁移）
@@ -45,9 +46,9 @@ data class CurrentGameInfo(
         val infoFile = getInfoFile()
         runCatching {
             FileUtils.writeByteArrayToFile(infoFile, GSON.toJson(this).toByteArray(Charsets.UTF_8))
-            lDebug("Current version $version has been saved to the config file.")
+            Logger.debug(TAG, "Current version $version has been saved to the config file.")
         }.onFailure { e ->
-            lError("Save failed: ${infoFile.absolutePath}", e)
+            Logger.error(TAG, "Save failed: ${infoFile.absolutePath}", e)
         }
     }
 }
@@ -66,7 +67,7 @@ fun refreshCurrentInfo(): CurrentGameInfo {
             else -> createNewConfig()
         }
     }.getOrElse { e ->
-        lError("Refresh failed", e)
+        Logger.error(TAG, "Refresh failed", e)
         createNewConfig()
     }
 }

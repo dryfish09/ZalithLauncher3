@@ -55,8 +55,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.activities.CrashType
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
@@ -272,7 +272,7 @@ private fun ErrorScreenPortrait(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = stringResource(R.string.crash_launcher_title, InfoDistributor.LAUNCHER_NAME)
+                        text = stringResource(R.string.crash_launcher_title, BuildKeys.LAUNCHER_NAME)
                     )
                 }
 
@@ -298,9 +298,9 @@ private fun TopBar(
     ) {
         val text = when (crashType) {
             //在启动器崩溃的时候，显示一个较为严重的标题
-            CrashType.LAUNCHER_CRASH -> stringResource(R.string.crash_launcher_title, InfoDistributor.LAUNCHER_NAME)
+            CrashType.LAUNCHER_CRASH -> stringResource(R.string.crash_launcher_title, BuildKeys.LAUNCHER_NAME)
             //游戏运行崩溃了，大概和启动器关系不大，仅展示应用标题
-            CrashType.GAME_CRASH -> InfoDistributor.LAUNCHER_NAME
+            CrashType.GAME_CRASH -> BuildKeys.LAUNCHER_NAME
         }
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),

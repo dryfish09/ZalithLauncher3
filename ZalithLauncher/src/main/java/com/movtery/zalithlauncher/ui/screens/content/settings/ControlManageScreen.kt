@@ -44,6 +44,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -432,6 +433,7 @@ private fun ControlOperation(
 /**
  * 左侧：控制布局展示列表
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ControlLayoutList(
     modifier: Modifier = Modifier,
@@ -646,6 +648,7 @@ private fun ControlLayoutItem(
 /**
  * 右侧：控制布局详细信息
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ControlLayoutInfo(
     modifier: Modifier = Modifier,

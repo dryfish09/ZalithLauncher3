@@ -83,7 +83,7 @@ import com.movtery.zalithlauncher.ui.theme.cardColor
 import com.movtery.zalithlauncher.ui.theme.itemColor
 import com.movtery.zalithlauncher.ui.theme.onCardColor
 import com.movtery.zalithlauncher.ui.theme.onItemColor
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
@@ -191,7 +191,7 @@ fun ModsUpdateOperation(
         }
         is ModsUpdateOperation.Error -> {
             val th = operation.th
-            lError("Failed to update the mods", th)
+            Logger.error("UpdateMods", "Failed to update the mods", th)
             val message = when (th) {
                 is HttpRequestTimeoutException, is SocketTimeoutException -> stringResource(R.string.error_timeout)
                 is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)

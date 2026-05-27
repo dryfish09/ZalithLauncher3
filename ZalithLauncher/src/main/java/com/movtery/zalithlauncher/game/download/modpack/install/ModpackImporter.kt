@@ -33,10 +33,7 @@ import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.extractFromZip
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.isUsingMobileData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -48,6 +45,8 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 import org.apache.commons.compress.archivers.zip.ZipFile as ApacheZipFile
 import java.util.zip.ZipFile as JDKZipFile
+
+private const val TAG = "ModpackImporter"
 
 /**
  * 本地整合包导入器
@@ -153,7 +152,7 @@ class ModpackImporter(
                         }
                     } catch (e: Exception) {
                         if (e is CancellationException) throw e
-                        lWarning("JDK ZipFile failed to unpack, fallback to Apache ZipFile.", e)
+                        Logger.warning(TAG, "JDK ZipFile failed to unpack, fallback to Apache ZipFile.", e)
                         try {
                             ApacheZipFile.builder().setFile(installerFile).get().use { zip ->
                                 zip.extractFromZip("", packDir)
@@ -162,7 +161,7 @@ class ModpackImporter(
                             if (e is CancellationException) throw e
                             //如果兜底解压也失败了，则说明这可能不是一个压缩包
                             //或者压缩包已损坏，抛出不支持的异常终止任务流
-                            lError("Unable to extract the installer file. Is it really a compressed archive?", e)
+                            Logger.error(TAG, "Unable to extract the installer file. Is it really a compressed archive?", e)
                             throw PackNotSupportedException(
                                 reason = UnsupportedPackReason.CorruptedArchive
                             )
@@ -195,15 +194,15 @@ class ModpackImporter(
                             val result = runCatching {
                                 parser.parse(packFolder = packDir)
                             }.onFailure { th ->
-                                lDebug("${parser.getIdentifier()} parser does not recognize this format", th)
+                                Logger.debug(TAG, "${parser.getIdentifier()} parser does not recognize this format", th)
                             }.getOrNull()
 
                             if (result != null) {
                                 //成功识别到这个整合包格式
-                                lInfo("Successfully detected the modpack format: ${result.platform.identifier}")
+                                Logger.info(TAG, "Successfully detected the modpack format: ${result.platform.identifier}")
                                 return@run result
                             } else {
-                                lDebug("Skipped the ${parser.getIdentifier()} parser")
+                                Logger.debug(TAG, "Skipped the ${parser.getIdentifier()} parser")
                             }
                         }
                         //整合包不受支持，或格式有误未能匹配
@@ -236,7 +235,7 @@ class ModpackImporter(
     private suspend fun clearTempModPackDir() = withContext(Dispatchers.IO) {
         PathManager.DIR_CACHE_MODPACK_DOWNLOADER.takeIf { it.exists() }?.let { folder ->
             FileUtils.deleteQuietly(folder)
-            lInfo("Temporary modpack directory cleared.")
+            Logger.info(TAG, "Temporary modpack directory cleared.")
         }
     }
 
@@ -249,7 +248,7 @@ class ModpackImporter(
 
     private fun File.createDirAndLog(): File {
         this.mkdirs()
-        lDebug("Created directory: $this")
+        Logger.debug(TAG, "Created directory: $this")
         return this
     }
 }

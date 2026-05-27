@@ -33,10 +33,12 @@ import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.io.File
+
+private const val TAG = "MultiMCPack"
 
 open class MultiMCPack(
     private val root: File,
@@ -81,7 +83,7 @@ open class MultiMCPack(
                     task.updateProgress(-1f)
                     //MMC 实例配置文件
                     configuration = loadMMCConfigFromPack(root)?.also { configuration ->
-                        lDebug("Successfully read the MultiMC instance configuration: $configuration")
+                        Logger.debug(TAG, "Successfully read the MultiMC instance configuration: $configuration")
                     }
 
                     //成功识别后，开始提取整合包游戏文件

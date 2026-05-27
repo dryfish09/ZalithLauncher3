@@ -41,8 +41,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.activities.runGame
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.readText
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.isNetworkAvailable
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -53,6 +52,8 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
 import java.util.zip.ZipFile
+
+private const val TAG = "LaunchGame"
 
 object LaunchGame {
     var isLaunching: Boolean = false
@@ -180,7 +181,7 @@ object LaunchGame {
                     }
                 } ?: false
             }.onFailure { e ->
-                lWarning("Unable to determine the data version of this client Jar, possibly due to an outdated version.", e)
+                Logger.warning(TAG, "Unable to determine the data version of this client Jar, possibly due to an outdated version.", e)
             }.getOrDefault(false)
 
             if (hasVulkan) {
@@ -225,7 +226,7 @@ object LaunchGame {
                             context.getString(res, statusCode)
                         }
                         else -> {
-                            lError("An unknown exception was caught!", error)
+                            Logger.error(TAG, "An unknown exception was caught!", error)
                             val errorMessage = error.localizedMessage ?: error.message ?: error::class.qualifiedName ?: "Unknown error"
                             context.getString(R.string.error_unknown, errorMessage)
                         }

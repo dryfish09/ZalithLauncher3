@@ -73,13 +73,15 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionOve
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.image.isImageFile
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.Dispatchers
 import org.apache.commons.io.FileUtils
 import java.io.File
+
+private const val TAG = "VersionOverView"
 
 @Composable
 fun VersionOverViewScreen(
@@ -258,7 +260,7 @@ private fun VersionInfoLayout(
                                         if (!iconFile.isImageFile()) error("The selected file is not an image!")
                                     },
                                     onError = { e ->
-                                        lError("Failed to import icon!", e)
+                                        Logger.error(TAG, "Failed to import icon!", e)
                                         FileUtils.deleteQuietly(iconFile)
                                         submitError(
                                             ErrorViewModel.ThrowableMessage(
@@ -560,7 +562,7 @@ private fun VersionsOperation(
                 context = Dispatchers.IO,
                 onDismiss = { updateOperation(VersionsOperation.None) },
                 onError = { e ->
-                    lError("Failed to run task.", e)
+                    Logger.error(TAG, "Failed to run task.", e)
                     submitError(
                         ErrorViewModel.ThrowableMessage(
                             title = errorMessage,

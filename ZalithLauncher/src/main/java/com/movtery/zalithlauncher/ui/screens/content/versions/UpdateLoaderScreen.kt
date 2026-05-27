@@ -66,13 +66,15 @@ import com.movtery.zalithlauncher.ui.screens.content.download.game.NeoForgeList
 import com.movtery.zalithlauncher.ui.screens.content.download.game.QuiltList
 import com.movtery.zalithlauncher.ui.screens.content.download.game.rememberLoaderVerSupports
 import com.movtery.zalithlauncher.ui.screens.content.download.game.runWithState
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+
+private const val TAG = "UpdateLoaderScreen"
 
 data class AddonDiffs(
     val list: List<Diff>
@@ -224,7 +226,7 @@ private class AddonsViewModel(
                     add(currentAddon.cleanroomState)
                 }
             }.all { it == AddonState.None }
-            if (isLoaded0) lInfo("Game’s mod loader found, or all mod loaders loaded.")
+            if (isLoaded0) Logger.info(TAG, "Game’s mod loader found, or all mod loaders loaded.")
             isLoaded = isLoaded0
         }
     }

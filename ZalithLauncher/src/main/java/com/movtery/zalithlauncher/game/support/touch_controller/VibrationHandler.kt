@@ -22,9 +22,11 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import top.fifthlight.touchcontroller.proxy.client.LauncherProxyClient
 import top.fifthlight.touchcontroller.proxy.message.VibrateMessage
+
+private const val TAG = "VibrationHandler"
 
 class VibrationHandler(
     private val vibrator: Vibrator,
@@ -72,7 +74,7 @@ class VibrationHandler(
                 }
                 vibrator.vibrate(effect)
             }.onFailure {
-                lError("Failed to attempt vibrating the device!", it)
+                Logger.error(TAG, "Failed to attempt vibrating the device!", it)
             }
         }
     }

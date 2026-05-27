@@ -25,7 +25,7 @@ import com.movtery.zalithlauncher.game.version.mod.ModMetadataReader
 import com.movtery.zalithlauncher.game.version.mod.meta.ForgeNewModMetadata
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.UnpackZipException
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.zip.ZipFile
@@ -35,6 +35,8 @@ import java.io.IOException
 import java.util.jar.Attributes
 import java.util.jar.Manifest
 import java.util.zip.ZipFile as JDKZipFile
+
+private const val TAG = "ForgeNewMetadata"
 
 /**
  * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/4650287/HMCLCore/src/main/java/org/jackhuang/hmcl/mod/modinfo/ForgeNewModMetadata.java)
@@ -127,7 +129,7 @@ object ForgeNewModMetadataReader : ModMetadataReader {
                 Manifest(stream).mainAttributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION)
             }
         } catch (e: Exception) {
-            lWarning("Failed to parse MANIFEST.MF in file $modFile", e)
+            Logger.warning(TAG, "Failed to parse MANIFEST.MF in file $modFile", e)
             null
         }
     }
@@ -213,7 +215,7 @@ object ForgeNewModMetadataReader : ModMetadataReader {
                 Manifest(stream).mainAttributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION)
             }
         } catch (e: Exception) {
-            lWarning("Failed to parse MANIFEST.MF in file $modFile", e)
+            Logger.warning(TAG, "Failed to parse MANIFEST.MF in file $modFile", e)
             null
         }
     }

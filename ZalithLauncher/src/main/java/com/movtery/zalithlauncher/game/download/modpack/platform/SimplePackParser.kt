@@ -20,10 +20,12 @@ package com.movtery.zalithlauncher.game.download.modpack.platform
 
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.locateRealRoot
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+
+private const val TAG = "SimplePackParser"
 
 /**
  * 较为简单的整合包解析器，适合结构较为简单的，以索引/清单文件为特征的整合包，
@@ -44,7 +46,7 @@ abstract class SimplePackParser<E: PackManifest>(
         val indexFile = File(root, indexFilePath)
         return withContext(Dispatchers.IO) {
             if (!indexFile.exists()) {
-                lDebug("${getIdentifier()} parser -> manifest file does not exist $indexFile")
+                Logger.debug(TAG, "${getIdentifier()} parser -> manifest file does not exist $indexFile")
                 return@withContext null
             }
 

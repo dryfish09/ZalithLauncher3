@@ -24,7 +24,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.download.assets.platform.mcim.mapMCIMMirrorUrls
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.utils.file.formatFileSize
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import com.movtery.zalithlauncher.utils.network.withSpeedReport
 import kotlinx.coroutines.CancellationException
@@ -41,6 +41,8 @@ import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.atomic.AtomicLong
+
+private const val TAG = "ModVersionUpdater"
 
 class ModVersionUpdater(
     val mods: List<PlatformVersion>,
@@ -106,7 +108,7 @@ class ModVersionUpdater(
                             downloadedFileCount.incrementAndGet()
                         }.onFailure { e ->
                             if (e is CancellationException) return@onFailure
-                            lError("Download failed: ${outputFile.absolutePath}, urls: ${urls.joinToString(", ")}", e)
+                            Logger.error(TAG, "Download failed: ${outputFile.absolutePath}, urls: ${urls.joinToString(", ")}", e)
                             downloadFailedTasks.add(newVersion)
                         }
                     }

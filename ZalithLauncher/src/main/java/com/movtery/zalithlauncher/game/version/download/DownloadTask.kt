@@ -21,7 +21,7 @@ package com.movtery.zalithlauncher.game.version.download
 import com.movtery.zalithlauncher.utils.file.check7z
 import com.movtery.zalithlauncher.utils.file.checkZip
 import com.movtery.zalithlauncher.utils.file.compareSHA1
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorList
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import kotlinx.coroutines.CancellationException
@@ -31,6 +31,8 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.FileNotFoundException
+
+private const val TAG = "DownloadTask"
 
 class DownloadTask(
     val urls: List<String>,
@@ -74,7 +76,7 @@ class DownloadTask(
             if (e is CancellationException) throw e
             //fix: 下载中途断开网络，导致过多文本刷入日志
             //此处不再详细记录堆栈信息
-            lError("Download failed: ${file.absolutePath}\nurls: ${urls.joinToString("\n")}, string = ${e.getMessageOrToString()}")
+            Logger.error(TAG, "Download failed: ${file.absolutePath}\nurls: ${urls.joinToString("\n")}, string = ${e.getMessageOrToString()}")
             if (!isDownloadable && e is FileNotFoundException) throw e
             onDownloadFailed(this)
         }

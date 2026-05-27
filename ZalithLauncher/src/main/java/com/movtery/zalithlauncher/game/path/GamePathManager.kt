@@ -23,9 +23,9 @@ import com.movtery.zalithlauncher.database.AppDatabase
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings.currentGamePathId
-import com.movtery.zalithlauncher.utils.checkStoragePermissions
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.canHandlePermission
+import com.movtery.zalithlauncher.utils.hasStoragePermission
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +36,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.util.UUID
+
+private const val TAG = "GamePathManager"
 
 /**
  * 游戏目录管理，为支持将游戏文件保存至不同的路径
@@ -91,7 +93,7 @@ object GamePathManager {
 
                 _gamePathData.update { newValue }
 
-                if (!checkStoragePermissions()) {
+                if (canHandlePermission &&  !hasStoragePermission) {
                     _currentPath.update { defaultGamePath }
                     saveDefaultPath(false)
                 } else {
@@ -99,7 +101,7 @@ object GamePathManager {
                 }
 
                 VersionsManager.refresh("GamePathManager.reloadPath")
-                lInfo("Loaded ${_gamePathData.value.size} game paths")
+                Logger.info(TAG, "Loaded ${_gamePathData.value.size} game paths")
             }
         }
     }
@@ -117,7 +119,7 @@ object GamePathManager {
             runCatching {
                 noMediaFile.createNewFile()
             }.onFailure { e ->
-                lError("Failed to create .nomedia file in $this", e)
+                Logger.error(TAG, "Failed to create .nomedia file in $this", e)
             }
         }
     }
@@ -174,7 +176,7 @@ object GamePathManager {
      * @throws IllegalArgumentException 未找到匹配项
      */
     fun saveCurrentPath(id: String, reloadVersions: Boolean = true) {
-        if (!checkStoragePermissions()) throw IllegalStateException("Storage permissions are not granted")
+        if (canHandlePermission && !hasStoragePermission) throw IllegalStateException("Storage permissions are not granted")
         if (!containsId(id)) throw IllegalArgumentException("No match found!")
         saveCurrentPathUncheck(id, reloadVersions)
     }
@@ -208,9 +210,9 @@ object GamePathManager {
         scope.launch {
             runCatching {
                 gamePathDao.savePath(path)
-                lInfo("Saved game path: ${path.path}")
+                Logger.info(TAG, "Saved game path: ${path.path}")
             }.onFailure { e ->
-                lError("Failed to save game path config!", e)
+                Logger.error(TAG, "Failed to save game path config!", e)
             }
             reloadPath()
         }

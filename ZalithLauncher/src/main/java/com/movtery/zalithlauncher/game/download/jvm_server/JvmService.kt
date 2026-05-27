@@ -36,9 +36,7 @@ import com.movtery.zalithlauncher.notification.NOTIFICATION_ID_JVM_SERVICE
 import com.movtery.zalithlauncher.notification.NoticeProgress
 import com.movtery.zalithlauncher.notification.NotificationChannelData
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,6 +46,8 @@ import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetSocketAddress
+
+private const val TAG = "JvmService"
 
 class JvmService : Service() {
     private val scope = CoroutineScope(Dispatchers.Default)
@@ -85,7 +85,7 @@ class JvmService : Service() {
                 jreName = jreName,
                 userHome = userHome,
                 onExit = { code, _ ->
-                    lInfo("Process exit with code $code")
+                    Logger.info(TAG, "Process exit with code $code")
                     //移除前台通知再停止服务，让系统知道这是正常关闭
                     stopForeground(STOP_FOREGROUND_REMOVE)
                     scope.launch(Dispatchers.IO) {
@@ -106,10 +106,10 @@ class JvmService : Service() {
                 val data = (code.toString() + "").toByteArray()
                 val packet = DatagramPacket(data, data.size)
                 socket.send(packet)
-                lInfo("Send code $code to 127.0.0.1:$PROCESS_SERVICE_PORT")
+                Logger.info(TAG, "Send code $code to 127.0.0.1:$PROCESS_SERVICE_PORT")
             }
         } catch (e: Exception) {
-            lError("Failed to send exit code", e)
+            Logger.error(TAG, "Failed to send exit code", e)
         }
     }
 
@@ -191,13 +191,13 @@ class JvmService : Service() {
             if (!logFile.exists() && !logFile.createNewFile()) throw IOException("Failed to create a new log file")
             LoggerBridge.start(logFile.absolutePath)
 
-            lInfo("start jvm!")
+            Logger.info(TAG, "start jvm!")
 
             launcher.launch(
                 screenSize = IntSize(1920, 1080) //fake
             )
         }.onFailure { e ->
-            lWarning("jvm crashed!", e)
+            Logger.warning(TAG, "jvm crashed!", e)
         }.getOrElse { 1 }
 
         onExit(code, false)

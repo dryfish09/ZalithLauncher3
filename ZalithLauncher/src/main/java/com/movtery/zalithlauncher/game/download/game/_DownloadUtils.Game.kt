@@ -23,8 +23,10 @@ import com.movtery.zalithlauncher.game.download.game.models.LibraryComponents
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.json.parseToJson
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import java.io.File
+
+private const val TAG = "DownloadGame"
 
 fun GameManifest.isOldVersion(): Boolean = !minecraftArguments.isNullOrEmpty()
 
@@ -35,11 +37,11 @@ fun GameManifest.isOldVersion(): Boolean = !minecraftArguments.isNullOrEmpty()
 fun String?.getJsonOrNull(tag: String): JsonObject? {
     return this?.let { path ->
         val text: String = File(path).takeIf { it.exists() && it.isFile }?.readText() ?: run {
-            lWarning("The $tag json file is invalid!")
+            Logger.warning(TAG, "The $tag json file is invalid!")
             return@let null
         }
         if (!text.startsWith("{")) {
-            lWarning("The $tag JSON is invalid, first part of the content: ${text.take(1000)}")
+            Logger.warning(TAG, "The $tag JSON is invalid, first part of the content: ${text.take(1000)}")
             return@let null
         }
         text.parseToJson()

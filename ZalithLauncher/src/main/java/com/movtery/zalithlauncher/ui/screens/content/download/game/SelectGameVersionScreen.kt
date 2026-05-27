@@ -87,8 +87,7 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.classes.Quadruple
 import com.movtery.zalithlauncher.utils.formatDate
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -99,6 +98,8 @@ import kotlinx.coroutines.launch
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
+
+private const val TAG = "SelectGameVersion"
 
 /** 版本列表加载状态 */
 private sealed interface VersionState {
@@ -172,7 +173,7 @@ private class VersionsViewModel: ViewModel() {
                 val allVersions = MinecraftVersions.allVersions.value
                 VersionState.None(allVersions.filterVersions(versionFilter))
             }.getOrElse { e ->
-                lWarning("Failed to get version manifest!", e)
+                Logger.warning(TAG, "Failed to get version manifest!", e)
                 val message: Pair<Int, Array<Any>?> = when(e) {
                     is HttpRequestTimeoutException -> R.string.error_timeout to null
                     is UnknownHostException, is UnresolvedAddressException -> R.string.error_network_unreachable to null
@@ -187,7 +188,7 @@ private class VersionsViewModel: ViewModel() {
                         res to arrayOf(statusCode)
                     }
                     else -> {
-                        lError("An unknown exception was caught!", e)
+                        Logger.error(TAG, "An unknown exception was caught!", e)
                         val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"
                         R.string.error_unknown to arrayOf(errorMessage)
                     }

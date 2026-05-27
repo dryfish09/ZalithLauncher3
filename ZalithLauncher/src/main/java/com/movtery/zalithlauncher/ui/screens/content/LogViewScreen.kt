@@ -38,7 +38,7 @@ import com.movtery.zalithlauncher.ui.code_editor.scheme.SchemeIDEALight
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.Dispatchers
@@ -70,7 +70,7 @@ fun LogViewScreen(
             runCatching {
                 File(key.logPath).readText()
             }.getOrElse { e ->
-                lWarning("Unable to read log file!", e)
+                Logger.warning("ViewLog", "Unable to read log file!", e)
                 e.message
             }
         }

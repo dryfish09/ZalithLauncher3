@@ -24,8 +24,7 @@ import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest
 import com.movtery.zalithlauncher.utils.file.formatFileSize
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.withSpeedReport
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import kotlinx.coroutines.CancellationException
@@ -44,6 +43,8 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicLong
+
+private const val TAG = "MinecraftDownloader"
 
 /**
  * Minecraft 安装器
@@ -121,7 +122,7 @@ class MinecraftDownloader(
                 onCompletion(task)
             },
             onError = { e ->
-                lError("Failed to download Minecraft!", e)
+                Logger.error(TAG, "Failed to download Minecraft!", e)
                 if (onThrowable != null) {
                     onThrowable(e)
                 } else {
@@ -258,7 +259,7 @@ class MinecraftDownloader(
                         task.fileDownloadedTask = {
                             if (!targetFile.exists() && inheritsJar.exists()) {
                                 inheritsJar.copyTo(targetFile, overwrite = true)
-                                lInfo("Copied ${inheritsJar.absolutePath} to ${targetFile.absolutePath}")
+                                Logger.info(TAG, "Copied ${inheritsJar.absolutePath} to ${targetFile.absolutePath}")
                             }
                         }
                     }

@@ -26,9 +26,9 @@ import com.movtery.zalithlauncher.components.InstallableItem
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.file.readString
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
+
+private const val TAG = "UnpackJreTask"
 
 class UnpackJreTask(
     private val context: Context,
@@ -48,7 +48,7 @@ class UnpackJreTask(
             }
             launcherRuntimeVersion = assetManager.open(jre.jrePath + "/version").readString()
         }.onFailure { e ->
-            lWarning("Failed to init jre version. assetsPath=${jre.jrePath}/version", e)
+            Logger.warning(TAG, "Failed to init jre version. assetsPath=${jre.jrePath}/version", e)
             isCheckFailed = true
         }
     }
@@ -67,7 +67,7 @@ class UnpackJreTask(
                 else -> InstallableItem.State.FINISHED
             }
         }.onFailure { e ->
-            lError("An exception occurred while detecting the Java Runtime.", e)
+            Logger.error("CheckJre", "An exception occurred while detecting the Java Runtime.", e)
         }.getOrElse {
             //检查失败，要求重新进行安装
             InstallableItem.State.NOT_STARTED
@@ -80,10 +80,10 @@ class UnpackJreTask(
             //检查是否包含符合当前设备架构的环境
             val runtime = getRuntimeByArch()
             allPacks.contains(runtime).also {
-                lInfo("Device requires environment: ${jre.jrePath}/$runtime, contains = $it")
+                Logger.info(TAG, "Device requires environment: ${jre.jrePath}/$runtime, contains = $it")
             }
         }.getOrElse { e ->
-            lWarning("Failed to list assets directory", e)
+            Logger.warning(TAG, "Failed to list assets directory", e)
             false
         }
     }
@@ -103,7 +103,7 @@ class UnpackJreTask(
             )
             RuntimesManager.postPrepare(jre.jreName)
         }.onFailure {
-            lError("Internal JRE unpack failed", it)
+            Logger.error("UnpackJre", "Internal JRE unpack failed", it)
         }.getOrThrow()
     }
 }

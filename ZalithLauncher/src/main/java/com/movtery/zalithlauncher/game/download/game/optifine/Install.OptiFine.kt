@@ -32,10 +32,12 @@ import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.utils.file.extractEntryToFile
 import com.movtery.zalithlauncher.utils.file.readText
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.zip.ZipFile
+
+private const val TAG = "Install.OptiFine"
 
 const val OPTIFINE_INSTALL_ID = "Install.OptiFine"
 
@@ -121,7 +123,7 @@ private fun checkOFLaunchWrapper(version: String, installer: ZipFile, libFolder:
 
     if (!lwTargetFile.exists()) {
         //安装出现神秘问题导致该文件未解压，自行尝试解压
-        lInfo("$fileName is not exists! try extract it by self.")
+        Logger.info(TAG, "$fileName is not exists! try extract it by self.")
         installer.extractEntryToFile(fileName, lwTargetFile)
     }
 }

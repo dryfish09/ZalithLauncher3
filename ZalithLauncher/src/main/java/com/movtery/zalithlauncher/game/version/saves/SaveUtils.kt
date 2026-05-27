@@ -21,7 +21,7 @@ package com.movtery.zalithlauncher.game.version.saves
 import com.github.steveice10.opennbt.NBTIO
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag
 import com.movtery.zalithlauncher.game.version.installed.utils.isBiggerOrEqualVer
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.nbt.asBooleanNotNull
 import com.movtery.zalithlauncher.utils.nbt.asCompoundTag
 import com.movtery.zalithlauncher.utils.nbt.asInt
@@ -30,6 +30,8 @@ import com.movtery.zalithlauncher.utils.nbt.asString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+
+private const val TAG = "SaveUtils"
 
 /**
  * 判断这个存档是否与指定的版本兼容
@@ -93,7 +95,7 @@ suspend fun parseLevelDatFile(
 
                 worldData.asLong("seed", null)
             }.onFailure {
-                lWarning("An exception occurred while reading and parsing the world_gen_settings.dat file (${worldGenDatFile.absolutePath}).", it)
+                Logger.warning(TAG, "An exception occurred while reading and parsing the world_gen_settings.dat file (${worldGenDatFile.absolutePath}).", it)
             }.getOrNull()
         } else {
             data.asCompoundTag("WorldGenSettings")
@@ -119,7 +121,7 @@ suspend fun parseLevelDatFile(
             worldSeed = worldSeed
         )
     }.onFailure {
-        lWarning("An exception occurred while reading and parsing the level.dat file (${levelDatFile.absolutePath}).", it)
+        Logger.warning(TAG, "An exception occurred while reading and parsing the level.dat file (${levelDatFile.absolutePath}).", it)
     }.getOrElse {
         //读取出现异常，返回一个无效数据
         SaveData(

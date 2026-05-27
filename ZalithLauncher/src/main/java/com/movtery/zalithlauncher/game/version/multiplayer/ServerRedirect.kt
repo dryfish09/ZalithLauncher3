@@ -18,14 +18,15 @@
 
 package com.movtery.zalithlauncher.game.version.multiplayer
 
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.ServerAddress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.minidns.hla.DnssecResolverApi
 import org.minidns.record.SRV
 import java.util.Random
-import kotlin.collections.filter
+
+private const val TAG = "ServerRedirect"
 
 /**
  * 在默认端口尝试 SRV 重定向
@@ -53,7 +54,7 @@ suspend fun lookupRedirect(original: ServerAddress): ServerAddress? {
             selected.port
         )
     } catch (e: Exception) {
-        lWarning("Unable to redirect server $original", e)
+        Logger.warning(TAG, "Unable to redirect server $original", e)
         null
     }
 }

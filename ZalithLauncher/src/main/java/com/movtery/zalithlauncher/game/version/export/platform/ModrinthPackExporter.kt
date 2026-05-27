@@ -36,7 +36,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.mod.enabledMod
 import com.movtery.zalithlauncher.game.version.mod.isDisabled
 import com.movtery.zalithlauncher.utils.GSON
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -44,6 +44,8 @@ import kotlinx.coroutines.withContext
 import org.jackhuang.hmcl.util.DigestUtils
 import java.io.File
 import java.nio.file.Files
+
+private const val TAG = "ModrinthPackExporter"
 
 /**
  * Modrinth 整合包导出工具
@@ -207,7 +209,7 @@ class ModrinthPackExporter: AbstractExporter(
                             files.add(resourceFile)
                             true
                         }.onFailure {
-                            lWarning("Failed to obtain remote data for ${file.name}!", it)
+                            Logger.warning(TAG, "Failed to obtain remote data for ${file.name}!", it)
                         }.getOrDefault(false)
 
                         if (inManifest) {

@@ -20,7 +20,7 @@ package com.movtery.zalithlauncher.utils.network
 
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.path.GLOBAL_JSON
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.forms.submitForm
@@ -42,6 +42,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromStream
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
+
+private const val TAG = "NetWorks"
 
 @OptIn(ExperimentalSerializationApi::class)
 suspend inline fun <reified T> HttpResponse.safeBodyAsJson(): T {
@@ -119,10 +121,10 @@ suspend fun <T> withRetry(
             return block()
         } catch (e: CancellationException) {
             //协程被取消时不重试，直接抛出
-            lDebug("$logTag: Cancelled: ${e.message}")
+            Logger.debug(TAG, "$logTag: Cancelled: ${e.message}")
             throw e
         } catch (e: Exception) {
-            lDebug("$logTag: Attempt ${retryCount + 1} failed: ${e.message}")
+            Logger.debug(TAG, "$logTag: Attempt ${retryCount + 1} failed: ${e.message}")
             lastError = e
             if (canRetry(e)) {
                 delay(currentDelay)

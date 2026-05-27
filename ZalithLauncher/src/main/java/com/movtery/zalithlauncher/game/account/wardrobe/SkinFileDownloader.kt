@@ -18,8 +18,10 @@
 
 package com.movtery.zalithlauncher.game.account.wardrobe
 
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import java.io.File
+
+private const val TAG = "SkinFileDownloader"
 
 class SkinFileDownloader: WardrobeDownloader() {
     /**
@@ -45,7 +47,7 @@ class SkinFileDownloader: WardrobeDownloader() {
                 SkinModelType.ALEX
             } ?: SkinModelType.STEVE
         }.getOrElse {
-            lWarning("Can not get skin model type.")
+            Logger.warning(TAG, "Can not get skin model type.")
             SkinModelType.NONE
         }
 

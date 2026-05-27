@@ -22,12 +22,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.io.IOException
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+
+private const val TAG = "LocalMod"
 
 /** 本地模组信息 */
 class LocalMod(
@@ -99,7 +101,7 @@ class LocalMod(
             )
             true
         } catch (e: IOException) {
-            lWarning("Failed to rename file {$this} to $dest!", e)
+            Logger.warning(TAG, "Failed to rename file {$this} to $dest!", e)
             false
         }
     }

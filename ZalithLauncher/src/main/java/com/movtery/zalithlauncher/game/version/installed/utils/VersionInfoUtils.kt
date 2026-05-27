@@ -24,10 +24,11 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import java.io.File
+
+private const val TAG = "VersionInfoUtils"
 
 private const val VERSION_PATTERN = """(\d+\.\d+\.\d+|\d{2}w\d{2}[a-z])"""
 
@@ -75,7 +76,7 @@ fun parseJsonToVersionInfo(jsonFile: File): VersionInfo? {
         val quickPlay = runCatching {
             ensureQuickPlay(jsonObject)
         }.getOrElse { e ->
-            lWarning("Failed to parse Quick Play", e)
+            Logger.warning(TAG, "Failed to parse Quick Play", e)
             VersionInfo.QuickPlay(
                 hasQuickPlaysSupport = false,
                 isQuickPlaySingleplayer = false,
@@ -85,7 +86,7 @@ fun parseJsonToVersionInfo(jsonFile: File): VersionInfo? {
         val (versionId, loaderInfo) = detectMinecraftAndLoader(jsonObject)
         VersionInfo(versionId, quickPlay, loaderInfo)
     }.getOrElse {
-        lError("Error parsing version json", it)
+        Logger.error(TAG, "Error parsing version json", it)
         null
     }
 }

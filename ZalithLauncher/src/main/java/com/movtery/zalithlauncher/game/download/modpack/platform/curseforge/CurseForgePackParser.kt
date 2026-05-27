@@ -25,8 +25,10 @@ import com.movtery.zalithlauncher.game.download.modpack.platform.mcbbs.MCBBSPack
 import com.movtery.zalithlauncher.game.download.modpack.platform.multimc.MultiMCManifest
 import com.movtery.zalithlauncher.game.download.modpack.platform.multimc.MultiMCPackParser
 import com.movtery.zalithlauncher.utils.GSON
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import java.io.File
+
+private const val TAG = "CurseForgePackParser"
 
 /**
  * CurseForge 整合包解析器，用于尝试以 CurseForge 的格式解析整合包
@@ -43,7 +45,7 @@ object CurseForgePackParser : SimplePackParser<CurseForgeManifest>(
                 //成功识别为 MultiMC 整合包，则说明是误判为 CurseForge 整合包
                 return@extraProcess false
             } catch (th: Throwable) {
-                lWarning("An exception occurred while trying to exclude the MultiMC modpack.", th)
+                Logger.warning(TAG, "An exception occurred while trying to exclude the MultiMC modpack.", th)
             }
         }
         //排除 MCBBS 整合包误判
@@ -54,7 +56,7 @@ object CurseForgePackParser : SimplePackParser<CurseForgeManifest>(
                 //成功识别为 MCBBS 整合包，则说明是误判为 CurseForge 整合包
                 return@extraProcess false
             } catch (th: Throwable) {
-                lWarning("An exception occurred while trying to exclude the MCBBS modpack.", th)
+                Logger.warning(TAG, "An exception occurred while trying to exclude the MCBBS modpack.", th)
             }
         }
         true

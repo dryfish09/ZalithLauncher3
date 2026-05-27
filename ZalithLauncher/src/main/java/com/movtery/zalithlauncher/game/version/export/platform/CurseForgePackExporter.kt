@@ -33,11 +33,13 @@ import com.movtery.zalithlauncher.game.version.export.PackType
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.mod.isDisabled
 import com.movtery.zalithlauncher.utils.GSON
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jackhuang.hmcl.util.DigestUtils
 import java.io.File
+
+private const val TAG = "CurseForgePackExporter"
 
 class CurseForgePackExporter: AbstractExporter(
     type = PackType.CurseForge
@@ -179,7 +181,7 @@ class CurseForgePackExporter: AbstractExporter(
                             remoteMods.add(project)
                             filesInManifest.add(file)
                         }.onFailure {
-                            lWarning("Failed to obtain remote data for ${file.name}!", it)
+                            Logger.warning(TAG, "Failed to obtain remote data for ${file.name}!", it)
                         }
                     }
 

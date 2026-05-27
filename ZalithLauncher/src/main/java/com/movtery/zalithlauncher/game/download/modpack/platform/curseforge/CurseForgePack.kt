@@ -34,10 +34,12 @@ import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfoTask
 import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+
+private const val TAG = "CurseForgePack"
 
 /**
  * CurseForge 整合包安装信息
@@ -100,9 +102,9 @@ class CurseForgePack(
                             )
                         }.onFailure { e ->
                             when (e) {
-                                is FileNotFoundException -> lWarning("Could not query api.curseforge.com for deleted mods: ${manifestFile.projectID}, ${manifestFile.fileID}", e)
-                                is IOException, is JsonParseException -> lWarning("Unable to fetch the file name projectID=${manifestFile.projectID}, fileID=${manifestFile.fileID}", e)
-                                else -> lWarning("Unable to fetch the file name projectID=${manifestFile.projectID}, fileID=${manifestFile.fileID}", e)
+                                is FileNotFoundException -> Logger.warning(TAG, "Could not query api.curseforge.com for deleted mods: ${manifestFile.projectID}, ${manifestFile.fileID}", e)
+                                is IOException, is JsonParseException -> Logger.warning(TAG, "Unable to fetch the file name projectID=${manifestFile.projectID}, fileID=${manifestFile.fileID}", e)
+                                else -> Logger.warning(TAG, "Unable to fetch the file name projectID=${manifestFile.projectID}, fileID=${manifestFile.fileID}", e)
                             }
                         }.getOrThrow()
                     }

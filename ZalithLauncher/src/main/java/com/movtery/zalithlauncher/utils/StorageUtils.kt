@@ -33,27 +33,33 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import java.io.File
 
+private const val TAG = "StorageUtils"
+
 private const val REQUEST_CODE_PERMISSIONS: Int = 0
-private var hasStoragePermission: Boolean = false
+/** 是否有存储权限 */
+var hasStoragePermission: Boolean = false
+    private set
+/** 是否可以处理存储权限申请 */
+var canHandlePermission: Boolean = false
+    private set
 
 /**
- * 检查存储权限，返回是否拥有存储权限
+ * 检查存储权限，并检查是否能够处理存储权限申请
+ * @return 是否拥有存储权限
  */
 fun checkStoragePermissionsForInit(context: Context) {
-    hasStoragePermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        checkPermissionsForAndroid11AndAbove()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val intent = getPermissionSettingsAndroid11AndAbove(context)
+        canHandlePermission = intent.resolveActivity(context.packageManager) != null
+        hasStoragePermission = checkPermissionsForAndroid11AndAbove()
     } else {
-        hasStoragePermissions(context)
+        canHandlePermission = true
+        hasStoragePermission = hasStoragePermissions(context)
     }
 }
-
-/**
- * 获得提前检查好的存储权限
- */
-fun checkStoragePermissions() = hasStoragePermission
 
 /**
  * 检查存储权限，如果没有存储权限，则弹出弹窗向用户申请
@@ -85,6 +91,13 @@ fun hasStoragePermissions(context: Context): Boolean {
 private fun checkPermissionsForAndroid11AndAbove() = Environment.isExternalStorageManager()
 
 @RequiresApi(api = Build.VERSION_CODES.R)
+fun getPermissionSettingsAndroid11AndAbove(context: Context): Intent {
+    return Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+        data = ("package:${context.packageName}").toUri()
+    }
+}
+
+@RequiresApi(api = Build.VERSION_CODES.R)
 private fun handlePermissionsForAndroid11AndAbove(
     activity: Activity,
     title: Int,
@@ -95,10 +108,20 @@ private fun handlePermissionsForAndroid11AndAbove(
     if (!checkPermissionsForAndroid11AndAbove()) {
         showPermissionRequestDialog(activity, title, message, object : RequestPermissions {
             override fun onRequest() {
-                val intent =
-                    Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                intent.data = ("package:${activity.packageName}").toUri()
-                activity.startActivityForResult(intent, REQUEST_CODE_PERMISSIONS)
+                val intent = getPermissionSettingsAndroid11AndAbove(activity)
+
+                //先检查系统是否有 Activity 能处理
+                if (intent.resolveActivity(activity.packageManager) != null) {
+                    try {
+                        activity.startActivityForResult(intent, REQUEST_CODE_PERMISSIONS)
+                    } catch (e: Exception) {
+                        Logger.warning(TAG, "Failed to start MANAGE_APP_ALL_FILES_ACCESS_PERMISSION activity", e)
+                        onDialogCancel()
+                    }
+                } else {
+                    Logger.warning(TAG, "The current device doesn't support the \"Manage all files\" setting.")
+                    onDialogCancel()
+                }
             }
 
             override fun onCancel() {
@@ -192,7 +215,7 @@ fun getExternalSDCardPaths(context: Context): List<SDCardInfo>? {
             } else null
         }
     }.onFailure { e ->
-        lWarning("Failed to get external SD Card paths.", e)
+        Logger.warning(TAG, "Failed to get external SD Card paths.", e)
     }.getOrNull()
 }
 

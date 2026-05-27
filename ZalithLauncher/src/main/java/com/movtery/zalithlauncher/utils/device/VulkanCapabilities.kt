@@ -19,12 +19,11 @@
 package com.movtery.zalithlauncher.utils.device
 
 import androidx.annotation.Keep
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import org.apache.commons.io.FileUtils
 import java.io.File
+
+private const val TAG = "VulkanCapabilities"
 
 @Keep
 data class VulkanCapabilities(
@@ -82,20 +81,21 @@ fun interface VulkanLogCallback {
     fun log(level: String, message: String)
 }
 
+@Keep
 object VulkanChecker {
     init {
         try {
             System.loadLibrary("vulkan_check")
             nativeSetLogCallback { level, msg ->
                 when (level) {
-                    "INFO" -> lInfo(msg)
-                    "WARN" -> lWarning(msg)
-                    "ERROR" -> lError(msg)
-                    else -> lDebug(msg)
+                    "INFO" -> Logger.info(TAG, msg)
+                    "WARN" -> Logger.warning(TAG, msg)
+                    "ERROR" -> Logger.error(TAG, msg)
+                    else -> Logger.debug(TAG, msg)
                 }
             }
         } catch (e: UnsatisfiedLinkError) {
-            lError("Failed to load vulkan_check library", e)
+            Logger.error(TAG, "Failed to load vulkan_check library", e)
         }
     }
 
@@ -114,21 +114,21 @@ object VulkanChecker {
                 nativeDir = nativeDir,
                 cacheDir = cacheDir,
             )?.also { caps ->
-                lInfo("Vulkan version: ${caps.versionString}")
-                lInfo("Version >= 1.2: ${caps.isVersionSupported}")
+                Logger.info(TAG, "Vulkan version: ${caps.versionString}")
+                Logger.info(TAG, "Version >= 1.2: ${caps.isVersionSupported}")
                 if (caps.missingExtensions.isNotEmpty()) {
-                    lWarning("Missing required extensions: ${caps.missingExtensions}")
+                    Logger.warning(TAG, "Missing required extensions: ${caps.missingExtensions}")
                 }
                 if (caps.missingFeatures.isNotEmpty()) {
-                    lWarning("Missing required features: ${caps.missingFeatures}")
+                    Logger.warning(TAG, "Missing required features: ${caps.missingFeatures}")
                 }
-                lInfo("All requirements satisfied: ${caps.isAllSupported}")
+                Logger.info(TAG, "All requirements satisfied: ${caps.isAllSupported}")
             }
         } catch (e: UnsatisfiedLinkError) {
-            lError("Native library or method not found", e)
+            Logger.error(TAG, "Native library or method not found", e)
             null
         } catch (e: Exception) {
-            lError("Native check failed", e)
+            Logger.error(TAG, "Native check failed", e)
             null
         } finally {
             if (nativeDir != null && cacheDir != null) {
@@ -137,9 +137,11 @@ object VulkanChecker {
         }
     }
 
+    @Keep
     @JvmStatic
     private external fun nativeSetLogCallback(callback: VulkanLogCallback)
 
+    @Keep
     @JvmStatic
     private external fun nativeCheckVulkan(
         driverPath: String?,

@@ -1,5 +1,5 @@
 [versions]
-agp = "8.12.3"
+agp = "9.2.0"
 #noinspection GradleDependency,NewerVersionAvailable
 bytehook = "1.0.10"
 coilCompose = "3.4.0"
@@ -7,6 +7,7 @@ compress = "1.28.0"
 commonsCodec = "1.21.0"
 commonsIo = "2.21.0"
 constraintlayoutCompose = "1.1.1"
+buildKeys = "1.0.0"
 coreSplashscreen = "1.2.0"
 editorBom = "0.24.5"
 fishnet = "1.1.0"
@@ -18,18 +19,18 @@ kotlinxCoroutinesAndroid = "1.10.2"
 ktor = "3.4.3"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
-composeBom = "2026.04.01"
+composeBom = "2026.05.01"
 lunarcalendar = "4.0.7"
-material = "1.13.0"
-material3 = "1.5.0-alpha18"
+material = "1.14.0"
+material3 = "1.5.0-alpha20"
 materialColorUtilities = "4.1.1"
-mavenArtifact = "3.9.15"
-media3Exoplayer = "1.10.0"
+mavenArtifact = "3.9.16"
+media3Exoplayer = "1.10.1"
 minidnsHla = "1.1.1"
 #noinspection GradleDependency,NewerVersionAvailable
 mmkv = "1.3.14"
 compose-richtext = "1.0.0-alpha04"
-navigation3 = "1.1.1"
+navigation3 = "1.1.2"
 navigation3Lifecycle = "2.10.0"
 okhttp = "5.3.2"
 okio = "3.17.0"
@@ -37,8 +38,6 @@ processPhoenix = "3.0.0"
 proxyClientAndroid = "0.0.5"
 reorderable = "3.1.0"
 room = "2.8.4"
-stringfog-gradlePlugin = "5.2.0"
-stringfog-xor = "5.0.0"
 toml4j = "0.7.2"
 xz = "1.12"
 sqlcipher = "4.14.1"
@@ -46,14 +45,14 @@ junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 appcompat = "1.7.1"
-#noinspection GradleDependency,NewerVersionAvailable
-dagger = "2.58"
+dagger = "2.59.2"
 hilt = "1.3.0"
-webkit = "1.12.1"
+webkit = "1.16.0"
 
 [libraries]
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3Exoplayer" }
+buildkeys = { module = "com.github.MovTery.BuildKeys:core", version.ref = "buildKeys" }
 editor = { module = "io.github.rosemoe:editor" }
 editor-bom = { module = "io.github.rosemoe:editor-bom", version.ref = "editorBom" }
 fishnet = { module = "io.github.kyant0:fishnet", version.ref = "fishnet" }
@@ -114,8 +113,6 @@ process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "p
 proxy-client-android = { module = "top.fifthlight.touchcontroller:proxy-client-android", version.ref = "proxyClientAndroid" }
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 sqlcipher-android = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher" }
-stringfog-gradle-plugin = { module = "com.github.megatronking.stringfog:gradle-plugin", version.ref = "stringfog-gradlePlugin" }
-stringfog-xor = { module = "com.github.megatronking.stringfog:xor", version.ref = "stringfog-xor" }
 toml4j = { module = "com.moandjiezana.toml:toml4j", version.ref = "toml4j" }
 xz = { module = "org.tukaani:xz", version.ref = "xz" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -125,7 +122,6 @@ dagger-hilt-android-compiler = { group = "com.google.dagger", name = "hilt-andro
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp-plugin = { id = "com.google.devtools.ksp", version.ref = "kspPlugin" }
 android-library = { id = "com.android.library", version.ref = "agp" }

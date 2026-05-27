@@ -58,10 +58,7 @@ import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import com.movtery.zalithlauncher.utils.network.withSpeedReport
 import kotlinx.coroutines.CoroutineScope
@@ -71,6 +68,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
+
+private const val TAG = "GameInstaller"
 
 /**
  * 在安装游戏前发现存在冲突的已安装版本，抛出这个异常
@@ -221,7 +220,7 @@ class GameInstaller(
 
         //目标版本已经安装的情况，非覆盖模式将退出
         if (!info.overwrite && checkTargetVersion && targetVersionJson.exists()) {
-            lDebug("The game has already been installed!")
+            Logger.debug(TAG, "The game has already been installed!")
             throw GameAlreadyInstalledException()
         }
 
@@ -242,7 +241,7 @@ class GameInstaller(
                 //无法正常备份，只能硬着头皮干！
                 FileUtils.deleteQuietly(overrideClientJson)
                 FileUtils.deleteQuietly(overrideClientJar)
-                lWarning("Backup failed, will proceed with overwrite installation directly!", it)
+                Logger.warning(TAG, "Backup failed, will proceed with overwrite installation directly!", it)
             }
         }
 
@@ -701,7 +700,7 @@ class GameInstaller(
     private suspend fun clearTempGameDir() = withContext(Dispatchers.IO) {
         PathManager.DIR_CACHE_GAME_DOWNLOADER.takeIf { it.exists() }?.let { folder ->
             FileUtils.deleteQuietly(folder)
-            lInfo("Temporary game directory cleared.")
+            Logger.info(TAG, "Temporary game directory cleared.")
         }
     }
 
@@ -717,7 +716,7 @@ class GameInstaller(
             dirToDelete?.let {
                 //直接清除上一次安装的目标目录
                 FileUtils.deleteQuietly(it)
-                lInfo("Successfully deleted version directory: ${it.name} at path: ${it.absolutePath}")
+                Logger.info(TAG, "Successfully deleted version directory: ${it.name} at path: ${it.absolutePath}")
             }
         }
     }
@@ -746,7 +745,7 @@ class GameInstaller(
                     FileUtils.moveFile(overrideClientJar, targetJar)
                 }
             }.onFailure { e ->
-                lError("Failed to revert client files: ${e.message}", e)
+                Logger.error(TAG, "Failed to revert client files: ${e.message}", e)
             }
         }
     }
@@ -1067,7 +1066,7 @@ class GameInstaller(
 
     private fun File.createDirAndLog(): File {
         this.mkdirs()
-        lDebug("Created directory: $this")
+        Logger.debug(TAG, "Created directory: $this")
         return this
     }
 }

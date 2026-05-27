@@ -33,14 +33,15 @@ import com.movtery.zalithlauncher.game.version.export.platform.MultiMCPackExport
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.zipDirectory
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
+
+private const val TAG = "PackExporter"
 
 /**
  * 整合包导出器
@@ -155,7 +156,7 @@ class PackExporter(
     private suspend fun clearTempModPackDir() = withContext(Dispatchers.IO) {
         PathManager.DIR_CACHE_MODPACK_EXPORTER.takeIf { it.exists() }?.let { folder ->
             FileUtils.deleteQuietly(folder)
-            lInfo("Temporary modpack export directory cleared.")
+            Logger.info(TAG, "Temporary modpack export directory cleared.")
         }
     }
 
@@ -168,7 +169,7 @@ class PackExporter(
 
     private fun File.createDirAndLog(): File {
         this.mkdirs()
-        lDebug("Created directory: $this")
+        Logger.debug(TAG, "Created directory: $this")
         return this
     }
 }

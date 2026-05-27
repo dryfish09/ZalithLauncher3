@@ -51,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.google.gson.JsonSyntaxException
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.export.ExportInfo
@@ -61,7 +62,6 @@ import com.movtery.zalithlauncher.game.version.export.data.Selected
 import com.movtery.zalithlauncher.game.version.export.data.getSelectedFiles
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -77,7 +77,7 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.export.ExportTypeS
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import com.movtery.zalithlauncher.viewmodel.sendKeepScreen
@@ -98,6 +98,8 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
+
+private const val TAG = "VersionExportScreen"
 
 private sealed interface PackExportOperation {
     data object None : PackExportOperation
@@ -122,7 +124,7 @@ private val selectBlackList = listOf(
     "natives",
     "downloads",
     //各启动器的配置文件
-    "PCL", InfoDistributor.LAUNCHER_IDENTIFIER, "fclversion.cfg",
+    "PCL", BuildKeys.LAUNCHER_IDENTIFIER, "fclversion.cfg",
     //一般来说不需要打包游戏存档
     "saves",
     //Realms配置
@@ -387,7 +389,7 @@ private class ExportModpackViewModel(
             "saves" -> R.string.versions_export_alias_saves
             "shaderpacks" -> R.string.versions_export_alias_shaderpacks
             "config" -> R.string.versions_export_alias_config
-            InfoDistributor.LAUNCHER_IDENTIFIER -> R.string.versions_export_alias_launcher
+            BuildKeys.LAUNCHER_IDENTIFIER -> R.string.versions_export_alias_launcher
             else -> null
         }
     }
@@ -647,7 +649,7 @@ private fun PackExportOperation(
         }
         is PackExportOperation.Error -> {
             val th = operation.throwable
-            lError("Failed to download the game!", th)
+            Logger.error(TAG, "Failed to download the game!", th)
             val message = when (th) {
                 is HttpRequestTimeoutException, is SocketTimeoutException -> stringResource(R.string.error_timeout)
                 is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)

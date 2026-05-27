@@ -92,8 +92,6 @@ import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.checkStoragePermissions
 import com.movtery.zalithlauncher.utils.isChinaMainland
 import com.movtery.zalithlauncher.utils.logging.Logger
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.settings.SettingsTransferUtils
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -104,6 +102,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+
+private const val TAG = "LauncherSettingsScreen"
 
 private sealed interface CustomColorOperation {
     data object None : CustomColorOperation
@@ -619,7 +619,7 @@ fun LauncherSettingsScreen(
                                         )
                                     },
                                     onError = { e ->
-                                        lError("Failed to package log files.", e)
+                                        Logger.error(TAG, "Failed to package log files.", e)
                                     }
                                 )
                             )
@@ -687,6 +687,7 @@ private fun CustomBackground(
         backgroundViewModel = backgroundViewModel
     )
 
+    val importErrorText = stringResource(R.string.error_import_image)
     val filePicker = rememberLauncherForActivityResult(
         contract = MediaPickerContract(
             allowImages = true,
@@ -706,7 +707,7 @@ private fun CustomBackground(
                         backgroundViewModel.delete()
                         submitError(
                             ErrorViewModel.ThrowableMessage(
-                                title = context.getString(R.string.error_import_image),
+                                title = importErrorText,
                                 message = th.getMessageOrToString()
                             )
                         )

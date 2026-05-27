@@ -61,7 +61,9 @@ import com.movtery.colorpicker.components.HueBarPicker
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.theme.cardColor
 import com.movtery.zalithlauncher.ui.theme.onCardColor
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger
+
+private const val TAG = "ColorPicker"
 
 /**
  * 一个简易的颜色选择器
@@ -326,7 +328,7 @@ fun String.toColorOrNull(): Color? {
             else -> null
         }
     } catch (_: Exception) {
-        lDebug("Failed to convert hex to color, input: $this")
+        Logger.debug(TAG, "Failed to convert hex to color, input: $this")
         null
     }
 }
