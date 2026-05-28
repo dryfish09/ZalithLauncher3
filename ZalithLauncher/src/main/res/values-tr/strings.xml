@@ -505,6 +505,7 @@
     <string name="settings_renderer_fsr_quality_quality">Kalite</string>
     <string name="settings_renderer_fsr_quality_balanced">Dengeli</string>
     <string name="settings_renderer_fsr_quality_performance">Performans</string>
+    <string name="sidebar_shortcut_menu">Kısayol Menüsü</string>
     <string name="settings_renderer_vulkan_driver_system_title">Sistem Vulkan Sürücüsünü Kullan</string>
     <string name="settings_renderer_vulkan_driver_system_summary">Etkinleştirildiğinde, başlatıcı varsayılan Turnip sürücüsü yerine sistemin kendi Vulkan sürücüsünü (Adreno GPU için) zorunlu olarak kullanacaktır. Bu ayar yalnızca Vulkan ile render yapan Zink arka ucu ve ilgili modları etkiler</string>
     <string name="settings_renderer_zink_driver_adreno">Başlatıcı cihazınızın Adreno GPU olduğunu tespit etti; bu seçeneği açmak Zink render cihazının düzgün çalışmamasına yol açabilir. Bu seçeneği açmak istediğinize emin misiniz?</string>
