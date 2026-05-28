@@ -71,30 +71,36 @@ static GLuint compileShader(GLenum type, const char* source) {
     return shader;
 }
 
-static void getRealGLFunctions() {
-    if (real_glBindFramebuffer) return;
+static void resolveGLProc(void** ptr, const char* name) {
+    if (*ptr) return;
+    if (real_eglGetProcAddress) {
+        *ptr = real_eglGetProcAddress(name);
+        if (*ptr) return;
+    }
     void* gles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_LOCAL);
     if (!gles) gles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_LOCAL);
-    if (gles) {
-        real_glBindFramebuffer = (void (*)(GLenum, GLuint))dlsym(gles, "glBindFramebuffer");
-        real_glViewport = (void (*)(GLint, GLint, GLsizei, GLsizei))dlsym(gles, "glViewport");
-        real_glGetIntegerv = (void (*)(GLenum, GLint*))dlsym(gles, "glGetIntegerv");
-        real_glGenVertexArrays = (void (*)(GLsizei, GLuint*))dlsym(gles, "glGenVertexArrays");
-        real_glBindVertexArray = (void (*)(GLuint))dlsym(gles, "glBindVertexArray");
-        real_glDeleteVertexArrays = (void (*)(GLsizei, const GLuint*))dlsym(gles, "glDeleteVertexArrays");
-        real_glBlitFramebuffer = (void (*)(GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum))dlsym(gles, "glBlitFramebuffer");
+    if (gles) *ptr = dlsym(gles, name);
+}
+
+static void getRealGLFunctions() {
+    if (real_glBindFramebuffer) return;
+    if (!real_eglGetProcAddress) {
+        real_eglGetProcAddress = (void* (*)(const char*))dlsym(RTLD_DEFAULT, "eglGetProcAddress");
+        if (!real_eglGetProcAddress) {
+            void* egl = dlopen("libEGL.so", RTLD_LAZY | RTLD_LOCAL);
+            if (egl) real_eglGetProcAddress = (void* (*)(const char*))dlsym(egl, "eglGetProcAddress");
+        }
     }
+    resolveGLProc((void**)&real_glBindFramebuffer, "glBindFramebuffer");
+    resolveGLProc((void**)&real_glViewport, "glViewport");
+    resolveGLProc((void**)&real_glGetIntegerv, "glGetIntegerv");
+    resolveGLProc((void**)&real_glGenVertexArrays, "glGenVertexArrays");
+    resolveGLProc((void**)&real_glBindVertexArray, "glBindVertexArray");
+    resolveGLProc((void**)&real_glDeleteVertexArrays, "glDeleteVertexArrays");
+    resolveGLProc((void**)&real_glBlitFramebuffer, "glBlitFramebuffer");
     if (!real_glBindFramebuffer || !real_glViewport || !real_glGetIntegerv || !real_glGenVertexArrays || !real_glBindVertexArray || !real_glDeleteVertexArrays || !real_glBlitFramebuffer) {
         LOGE("Failed to resolve real GL functions");
     }
-}
-
-static void* resolveRealEGLGetProcAddress() {
-    void* egl = dlopen("libEGL.so", RTLD_LAZY | RTLD_LOCAL);
-    if (egl) {
-        return dlsym(egl, "eglGetProcAddress");
-    }
-    return nullptr;
 }
 
 /*
@@ -178,15 +184,12 @@ static bool initHooks() {
         return false;
     }
 
-    real_eglGetProcAddress = (void* (*)(const char*))dlsym(RTLD_DEFAULT, "eglGetProcAddress");
-    if (!real_eglGetProcAddress) {
-        LOGD("real eglGetProcAddress not found via RTLD_DEFAULT, trying dlopen");
-        real_eglGetProcAddress = (void* (*)(const char*))resolveRealEGLGetProcAddress();
-    }
-
     bytehook_hook_all(nullptr, "eglGetProcAddress", (void*)hook_eglGetProcAddress, nullptr, nullptr);
+    bytehook_hook_all(nullptr, "glBindFramebuffer", (void*)glBindFramebuffer, nullptr, nullptr);
+    bytehook_hook_all(nullptr, "glViewport", (void*)glViewport, nullptr, nullptr);
+    bytehook_hook_all(nullptr, "glGetIntegerv", (void*)glGetIntegerv, nullptr, nullptr);
 
-    LOGD("FSR: bytehook installed — eglGetProcAddress intercepted");
+    LOGD("FSR: bytehook installed — all hooks active");
     return true;
 }
 
@@ -288,17 +291,17 @@ extern "C" void fsr_init(int qualityPreset) {
     g_initialized = false;
     g_active = false;
 
-    getRealGLFunctions();
-    if (!g_hooksActive) {
-        g_hooksActive = initHooks();
-    }
-
     EGLDisplay display = eglGetCurrentDisplay();
     EGLSurface surface = eglGetCurrentSurface(EGL_DRAW);
     if (display == EGL_NO_DISPLAY || surface == EGL_NO_SURFACE) {
         LOGD("FSR init deferred (no current context)");
         g_initialized = true;
         return;
+    }
+
+    getRealGLFunctions();
+    if (!g_hooksActive) {
+        g_hooksActive = initHooks();
     }
 
     EGLint targetW = 0, targetH = 0;
