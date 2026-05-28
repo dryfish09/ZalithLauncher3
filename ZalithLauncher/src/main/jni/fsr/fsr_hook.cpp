@@ -342,6 +342,56 @@ extern "C" void fsr_init(int qualityPreset) {
     real_glBindFramebuffer(GL_FRAMEBUFFER, g_renderFBO);
 }
 
+static bool fsrRebuildFramebuffers() {
+    GLint prevTexture, prevFBO, prevRBO;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTexture);
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
+    glGetIntegerv(GL_RENDERBUFFER_BINDING, &prevRBO);
+
+    if (g_renderTexture) glDeleteTextures(1, &g_renderTexture);
+    if (g_depthStencilRBO) glDeleteRenderbuffers(1, &g_depthStencilRBO);
+    if (g_renderFBO) glDeleteFramebuffers(1, &g_renderFBO);
+    if (g_targetTexture) glDeleteTextures(1, &g_targetTexture);
+    if (g_targetFBO) glDeleteFramebuffers(1, &g_targetFBO);
+    g_renderTexture = g_depthStencilRBO = g_renderFBO = g_targetTexture = g_targetFBO = 0;
+
+    glGenTextures(1, &g_renderTexture);
+    glBindTexture(GL_TEXTURE_2D, g_renderTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, g_renderWidth, g_renderHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glGenRenderbuffers(1, &g_depthStencilRBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, g_depthStencilRBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, g_renderWidth, g_renderHeight);
+
+    glGenFramebuffers(1, &g_renderFBO);
+    real_glBindFramebuffer(GL_FRAMEBUFFER, g_renderFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_renderTexture, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g_depthStencilRBO);
+
+    glGenTextures(1, &g_targetTexture);
+    glBindTexture(GL_TEXTURE_2D, g_targetTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, g_targetWidth, g_targetHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glGenFramebuffers(1, &g_targetFBO);
+    real_glBindFramebuffer(GL_FRAMEBUFFER, g_targetFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_targetTexture, 0);
+
+    glBindTexture(GL_TEXTURE_2D, prevTexture);
+    glBindRenderbuffer(GL_RENDERBUFFER, prevRBO);
+    real_glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
+
+    checkError("fsrRebuildFramebuffers");
+    return true;
+}
+
 extern "C" void fsr_apply() {
     if (g_active) {
         EGLDisplay display = eglGetCurrentDisplay();
@@ -445,56 +495,6 @@ do_fsr:
 
 extern "C" void fsr_set_quality(int qualityPreset) {
     g_qualityPreset = qualityPreset;
-}
-
-static bool fsrRebuildFramebuffers() {
-    GLint prevTexture, prevFBO, prevRBO;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTexture);
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
-    glGetIntegerv(GL_RENDERBUFFER_BINDING, &prevRBO);
-
-    if (g_renderTexture) glDeleteTextures(1, &g_renderTexture);
-    if (g_depthStencilRBO) glDeleteRenderbuffers(1, &g_depthStencilRBO);
-    if (g_renderFBO) glDeleteFramebuffers(1, &g_renderFBO);
-    if (g_targetTexture) glDeleteTextures(1, &g_targetTexture);
-    if (g_targetFBO) glDeleteFramebuffers(1, &g_targetFBO);
-    g_renderTexture = g_depthStencilRBO = g_renderFBO = g_targetTexture = g_targetFBO = 0;
-
-    glGenTextures(1, &g_renderTexture);
-    glBindTexture(GL_TEXTURE_2D, g_renderTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, g_renderWidth, g_renderHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glGenRenderbuffers(1, &g_depthStencilRBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, g_depthStencilRBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, g_renderWidth, g_renderHeight);
-
-    glGenFramebuffers(1, &g_renderFBO);
-    real_glBindFramebuffer(GL_FRAMEBUFFER, g_renderFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_renderTexture, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g_depthStencilRBO);
-
-    glGenTextures(1, &g_targetTexture);
-    glBindTexture(GL_TEXTURE_2D, g_targetTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, g_targetWidth, g_targetHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glGenFramebuffers(1, &g_targetFBO);
-    real_glBindFramebuffer(GL_FRAMEBUFFER, g_targetFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_targetTexture, 0);
-
-    glBindTexture(GL_TEXTURE_2D, prevTexture);
-    glBindRenderbuffer(GL_RENDERBUFFER, prevRBO);
-    real_glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
-
-    checkError("fsrRebuildFramebuffers");
-    return true;
 }
 
 extern "C" void fsr_destroy() {
