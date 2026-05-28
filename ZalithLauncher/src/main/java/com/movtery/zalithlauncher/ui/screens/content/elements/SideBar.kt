@@ -79,6 +79,7 @@ private val ExpandedWidth = 84.dp
 fun SideBar(
     modifier: Modifier = Modifier,
     isVisible: Boolean,
+    onFpsClick: () -> Unit,
     onRamClick: () -> Unit,
     onVersionsClick: () -> Unit,
     onInfoClick: () -> Unit
@@ -190,6 +191,14 @@ fun SideBar(
                         )
 
                         Spacer(modifier = Modifier.height(2.dp))
+
+                        StaggeredItem(delay = 60) {
+                            SideBarShortcut(
+                                icon = painterResource(R.drawable.ic_video_settings),
+                                contentDescription = "FPS",
+                                onClick = onFpsClick
+                            )
+                        }
 
                         StaggeredItem(delay = 120) {
                             SideBarShortcut(
