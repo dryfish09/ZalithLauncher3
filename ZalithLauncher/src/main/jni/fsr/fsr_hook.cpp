@@ -26,6 +26,7 @@ static GLsizei g_targetHeight = 0;
 /* Real function pointers for intercepted GL functions */
 static void (*real_glBindFramebuffer)(GLenum target, GLuint framebuffer) = nullptr;
 static void (*real_glViewport)(GLint x, GLint y, GLsizei width, GLsizei height) = nullptr;
+static void (*real_glGetIntegerv)(GLenum pname, GLint* data) = nullptr;
 static void* (*real_eglGetProcAddress)(const char* procname) = nullptr;
 
 static void checkError(const char* tag) {
@@ -73,8 +74,9 @@ static void getRealGLFunctions() {
     if (gles) {
         real_glBindFramebuffer = (void (*)(GLenum, GLuint))dlsym(gles, "glBindFramebuffer");
         real_glViewport = (void (*)(GLint, GLint, GLsizei, GLsizei))dlsym(gles, "glViewport");
+        real_glGetIntegerv = (void (*)(GLenum, GLint*))dlsym(gles, "glGetIntegerv");
     }
-    if (!real_glBindFramebuffer || !real_glViewport) {
+    if (!real_glBindFramebuffer || !real_glViewport || !real_glGetIntegerv) {
         LOGE("Failed to resolve real GL functions");
     }
 }
@@ -95,6 +97,7 @@ static void* resolveRealEGLGetProcAddress() {
 extern "C" void* hook_eglGetProcAddress(const char* name) {
     if (strcmp(name, "glBindFramebuffer") == 0) return (void*)glBindFramebuffer;
     if (strcmp(name, "glViewport") == 0) return (void*)glViewport;
+    if (strcmp(name, "glGetIntegerv") == 0) return (void*)glGetIntegerv;
     return real_eglGetProcAddress(name);
 }
 
@@ -127,6 +130,20 @@ extern "C" void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
         return;
     }
     real_glViewport(x, y, width, height);
+}
+
+/*
+ * Exported wrapper — spoof GL_FRAMEBUFFER_BINDING queries so the game always sees 0
+ * when our redirect FBO is active. This prevents state save/restore breakage.
+ */
+extern "C" void glGetIntegerv(GLenum pname, GLint* data) {
+    real_glGetIntegerv(pname, data);
+    if (g_active && g_renderFBO != 0) {
+        if (pname == GL_FRAMEBUFFER_BINDING &&
+            (GLuint)data[0] == g_renderFBO) {
+            data[0] = 0;
+        }
+    }
 }
 
 static bool initHooks() {

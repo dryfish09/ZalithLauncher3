@@ -21,6 +21,7 @@ void fsr_destroy();
 /* Exported wrappers that eglGetProcAddress will return when hooked */
 void glBindFramebuffer(GLenum target, GLuint framebuffer);
 void glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
+void glGetIntegerv(GLenum pname, GLint* data);
 
 #ifdef __cplusplus
 }
