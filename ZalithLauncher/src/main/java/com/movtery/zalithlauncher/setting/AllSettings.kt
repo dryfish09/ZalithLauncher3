@@ -30,6 +30,7 @@ import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
 import com.movtery.zalithlauncher.setting.enums.AppLanguage
 import com.movtery.zalithlauncher.setting.enums.BackgroundBlur
+import com.movtery.zalithlauncher.setting.enums.ChromaMode
 import com.movtery.zalithlauncher.setting.enums.DarkMode
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.HomePageType
