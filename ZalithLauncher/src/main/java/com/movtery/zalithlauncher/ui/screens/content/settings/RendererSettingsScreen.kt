@@ -18,7 +18,9 @@
 
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -60,8 +63,11 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
+import com.movtery.zalithlauncher.ui.components.DefaultSwitch
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
+import com.movtery.zalithlauncher.ui.components.SimpleListItem
+import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
@@ -70,7 +76,6 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.IntSliderS
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettingsCard
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
 import com.movtery.zalithlauncher.utils.device.checkVulkanSupport
 import com.movtery.zalithlauncher.upgrade.GithubReleaseApi
 import com.movtery.zalithlauncher.utils.driver.TurnipDownloader
@@ -276,26 +281,70 @@ fun RendererSettingsScreen(
                         }
                     )
 
-                    SwitchSettingsCard(
+                    SettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Top,
-                        unit = AllSettings.fsrEnabled,
-                        title = stringResource(R.string.settings_renderer_fsr_title),
-                        summary = stringResource(R.string.settings_renderer_fsr_summary)
-                    )
+                        position = CardPosition.Middle
+                    ) {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(all = 16.dp)
+                                    .clickable { AllSettings.fsrEnabled.save(!AllSettings.fsrEnabled.state) },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 16.dp)
+                                ) {
+                                    TitleAndSummary(
+                                        title = stringResource(R.string.settings_renderer_fsr_title),
+                                        summary = stringResource(R.string.settings_renderer_fsr_summary)
+                                    )
+                                }
+                                DefaultSwitch(
+                                    checked = AllSettings.fsrEnabled.state,
+                                    onCheckedChange = { AllSettings.fsrEnabled.save(it) }
+                                )
+                            }
 
-                    if (AllSettings.fsrEnabled.state) {
-                        IntSliderSettingsCard(
-                            modifier = Modifier.fillMaxWidth(),
-                            position = CardPosition.Bottom,
-                            value = AllSettings.fsrQuality.state,
-                            title = stringResource(R.string.settings_renderer_fsr_quality_title),
-                            summary = stringResource(R.string.settings_renderer_fsr_quality_summary),
-                            valueRange = 1f..4f,
-                            steps = 3,
-                            onValueChange = { AllSettings.fsrQuality.updateState(it) },
-                            onValueChangeFinished = { AllSettings.fsrQuality.save() }
-                        )
+                            if (AllSettings.fsrEnabled.state) {
+                                val fsrQualityLabels = listOf(
+                                    1 to stringResource(R.string.settings_renderer_fsr_quality_ultra),
+                                    2 to stringResource(R.string.settings_renderer_fsr_quality_quality),
+                                    3 to stringResource(R.string.settings_renderer_fsr_quality_balanced),
+                                    4 to stringResource(R.string.settings_renderer_fsr_quality_performance)
+                                )
+
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                                )
+
+                                Column(
+                                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    fsrQualityLabels.forEach { (value, label) ->
+                                        val summary = when (value) {
+                                            1 -> "1.33x (1080p → 1440p)"
+                                            2 -> "1.5x (720p → 1080p)"
+                                            3 -> "1.7x (632p → 1080p)"
+                                            4 -> "2.0x (540p → 1080p)"
+                                            else -> ""
+                                        }
+                                        SimpleListItem(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            selected = AllSettings.fsrQuality.state == value,
+                                            itemName = label,
+                                            summary = { Text(text = summary, style = MaterialTheme.typography.labelSmall) },
+                                            onClick = { AllSettings.fsrQuality.save(value) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     IntSliderSettingsCard(
