@@ -2,9 +2,11 @@
 #include "fsr_shader.h"
 
 #include <cmath>
+#include <cstring>
 
 static bool g_initialized = false;
 static bool g_active = false;
+static bool g_hooksActive = false;
 static int g_qualityPreset = 2;
 
 static GLuint g_renderFBO = 0;
@@ -20,6 +22,11 @@ static GLsizei g_renderWidth = 0;
 static GLsizei g_renderHeight = 0;
 static GLsizei g_targetWidth = 0;
 static GLsizei g_targetHeight = 0;
+
+/* Real function pointers for intercepted GL functions */
+static void (*real_glBindFramebuffer)(GLenum target, GLuint framebuffer) = nullptr;
+static void (*real_glViewport)(GLint x, GLint y, GLsizei width, GLsizei height) = nullptr;
+static void* (*real_eglGetProcAddress)(const char* procname) = nullptr;
 
 static void checkError(const char* tag) {
     GLenum err = glGetError();
@@ -57,6 +64,105 @@ static GLuint compileShader(GLenum type, const char* source) {
         return 0;
     }
     return shader;
+}
+
+static void getRealGLFunctions() {
+    if (real_glBindFramebuffer) return;
+    void* gles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_LOCAL);
+    if (!gles) gles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_LOCAL);
+    if (gles) {
+        real_glBindFramebuffer = (void (*)(GLenum, GLuint))dlsym(gles, "glBindFramebuffer");
+        real_glViewport = (void (*)(GLint, GLint, GLsizei, GLsizei))dlsym(gles, "glViewport");
+    }
+    if (!real_glBindFramebuffer || !real_glViewport) {
+        LOGE("Failed to resolve real GL functions");
+    }
+}
+
+static void* resolveRealEGLGetProcAddress() {
+    void* egl = dlopen("libEGL.so", RTLD_LAZY | RTLD_LOCAL);
+    if (egl) {
+        return dlsym(egl, "eglGetProcAddress");
+    }
+    return nullptr;
+}
+
+/*
+ * Hooked eglGetProcAddress — returns our wrapper for intercepted functions,
+ * passes through everything else to the real eglGetProcAddress.
+ * Called from any library whose PLT entry for eglGetProcAddress was hooked by bytehook.
+ */
+extern "C" void* hook_eglGetProcAddress(const char* name) {
+    if (strcmp(name, "glBindFramebuffer") == 0) return (void*)glBindFramebuffer;
+    if (strcmp(name, "glViewport") == 0) return (void*)glViewport;
+    return real_eglGetProcAddress(name);
+}
+
+/*
+ * Exported wrapper — when the game binds framebuffer 0 (the default / EGL surface),
+ * redirect to our lower-resolution render FBO so the game renders at reduced resolution.
+ */
+extern "C" void glBindFramebuffer(GLenum target, GLuint framebuffer) {
+    if (g_active && g_renderFBO != 0 && framebuffer == 0) {
+        real_glBindFramebuffer(target, g_renderFBO);
+        return;
+    }
+    real_glBindFramebuffer(target, framebuffer);
+}
+
+/*
+ * Exported wrapper — clamp viewport to the render resolution when FSR is active.
+ * This ensures the rasterizer only generates fragments within the lower-res FBO,
+ * delivering the full FPS gain from reduced pixel processing.
+ */
+extern "C" void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
+    if (g_active) {
+        GLsizei maxW = (GLsizei)g_renderWidth - x;
+        GLsizei maxH = (GLsizei)g_renderHeight - y;
+        if (maxW < 0) maxW = 0;
+        if (maxH < 0) maxH = 0;
+        real_glViewport(x, y,
+            width < maxW ? width : maxW,
+            height < maxH ? height : maxH);
+        return;
+    }
+    real_glViewport(x, y, width, height);
+}
+
+static bool initHooks() {
+    void* bh = dlopen("libbytehook.so", RTLD_NOW);
+    if (!bh) {
+        LOGD("bytehook not available — FSR running without FPS gain");
+        return false;
+    }
+
+    int (*bytehook_init)(int mode, bool debug) =
+        (int (*)(int, bool))dlsym(bh, "bytehook_init");
+    void* (*bytehook_hook_all)(const char*, const char*, void*, void*, void*) =
+        (void* (*)(const char*, const char*, void*, void*, void*))dlsym(bh, "bytehook_hook_all");
+
+    if (!bytehook_init || !bytehook_hook_all) {
+        LOGD("bytehook symbols not found");
+        dlclose(bh);
+        return false;
+    }
+
+    if (bytehook_init(0, false) != 0) {
+        LOGD("bytehook init failed");
+        dlclose(bh);
+        return false;
+    }
+
+    real_eglGetProcAddress = (void* (*)(const char*))dlsym(RTLD_DEFAULT, "eglGetProcAddress");
+    if (!real_eglGetProcAddress) {
+        LOGD("real eglGetProcAddress not found via RTLD_DEFAULT, trying dlopen");
+        real_eglGetProcAddress = (void* (*)(const char*))resolveRealEGLGetProcAddress();
+    }
+
+    bytehook_hook_all(nullptr, "eglGetProcAddress", (void*)hook_eglGetProcAddress, nullptr, nullptr);
+
+    LOGD("FSR: bytehook installed — eglGetProcAddress intercepted");
+    return true;
 }
 
 static bool initFSRResources() {
@@ -124,7 +230,7 @@ static bool initFSRResources() {
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, g_renderWidth, g_renderHeight);
 
     glGenFramebuffers(1, &g_renderFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, g_renderFBO);
+    real_glBindFramebuffer(GL_FRAMEBUFFER, g_renderFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_renderTexture, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g_depthStencilRBO);
 
@@ -137,7 +243,7 @@ static bool initFSRResources() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glGenFramebuffers(1, &g_targetFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, g_targetFBO);
+    real_glBindFramebuffer(GL_FRAMEBUFFER, g_targetFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_targetTexture, 0);
 
     checkError("initFSRResources");
@@ -146,7 +252,7 @@ static bool initFSRResources() {
     glBindVertexArray(prevVAO);
     glBindBuffer(GL_ARRAY_BUFFER, prevArrayBuffer);
     glBindTexture(GL_TEXTURE_2D, prevTexture);
-    glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
+    real_glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
 
     LOGD("FSR initialized: render %dx%d target %dx%d", g_renderWidth, g_renderHeight, g_targetWidth, g_targetHeight);
     return true;
@@ -156,6 +262,11 @@ extern "C" void fsr_init(int qualityPreset) {
     g_qualityPreset = qualityPreset;
     g_initialized = false;
     g_active = false;
+
+    getRealGLFunctions();
+    if (!g_hooksActive) {
+        g_hooksActive = initHooks();
+    }
 
     EGLDisplay display = eglGetCurrentDisplay();
     EGLSurface surface = eglGetCurrentSurface(EGL_DRAW);
@@ -193,10 +304,14 @@ extern "C" void fsr_init(int qualityPreset) {
     }
 
     g_active = true;
-    LOGD("FSR active: render %dx%d target %dx%d preset %d", g_renderWidth, g_renderHeight, g_targetWidth, g_targetHeight, g_qualityPreset);
+    if (!g_hooksActive) {
+        LOGD("FSR active (no FPS gain — no bytehook)");
+    } else {
+        LOGD("FSR active with FPS gain — fb/wvp hooks installed");
+    }
 
-    glViewport(0, 0, g_renderWidth, g_renderHeight);
-    glBindFramebuffer(GL_FRAMEBUFFER, g_renderFBO);
+    real_glViewport(0, 0, g_renderWidth, g_renderHeight);
+    real_glBindFramebuffer(GL_FRAMEBUFFER, g_renderFBO);
 }
 
 extern "C" void fsr_apply() {
@@ -231,8 +346,8 @@ do_fsr:
         glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevDrawFBO);
         glGetIntegerv(GL_RENDERBUFFER_BINDING, &prevRenderbuffer);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, g_targetFBO);
-        glViewport(0, 0, g_targetWidth, g_targetHeight);
+        real_glBindFramebuffer(GL_FRAMEBUFFER, g_targetFBO);
+        real_glViewport(0, 0, g_targetWidth, g_targetHeight);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -257,13 +372,13 @@ do_fsr:
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, g_targetFBO);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        real_glBindFramebuffer(GL_READ_FRAMEBUFFER, g_targetFBO);
+        real_glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glBlitFramebuffer(0, 0, g_targetWidth, g_targetHeight, 0, 0, g_targetWidth, g_targetHeight,
                           GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, g_renderFBO);
-        glViewport(0, 0, g_renderWidth, g_renderHeight);
+        real_glBindFramebuffer(GL_FRAMEBUFFER, g_renderFBO);
+        real_glViewport(0, 0, g_renderWidth, g_renderHeight);
 
         glUseProgram(prevProgram);
         glBindVertexArray(prevVAO);
@@ -271,8 +386,8 @@ do_fsr:
         glActiveTexture(prevActiveTexture);
         glBindTexture(GL_TEXTURE_2D, prevTexture);
         glBindRenderbuffer(GL_RENDERBUFFER, prevRenderbuffer);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, prevReadFBO);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prevDrawFBO);
+        real_glBindFramebuffer(GL_READ_FRAMEBUFFER, prevReadFBO);
+        real_glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prevDrawFBO);
 
         checkError("fsr_apply");
     }
@@ -285,6 +400,7 @@ extern "C" void fsr_set_quality(int qualityPreset) {
 extern "C" void fsr_destroy() {
     g_active = false;
     g_initialized = false;
+    g_hooksActive = false;
     if (g_fsrProgram) { glDeleteProgram(g_fsrProgram); g_fsrProgram = 0; }
     if (g_quadVAO) { glDeleteVertexArrays(1, &g_quadVAO); g_quadVAO = 0; }
     if (g_quadVBO) { glDeleteBuffers(1, &g_quadVBO); g_quadVBO = 0; }
