@@ -132,9 +132,6 @@ fun LauncherScreen(
                 modifier = Modifier
                     .padding(start = 12.dp, top = 12.dp, bottom = 12.dp),
                 isVisible = isVisible,
-                onFpsClick = {
-                    performanceSettingsState = PerformanceSettingsOperation.Fps
-                },
                 onRamClick = {
                     performanceSettingsState = PerformanceSettingsOperation.Ram
                 },

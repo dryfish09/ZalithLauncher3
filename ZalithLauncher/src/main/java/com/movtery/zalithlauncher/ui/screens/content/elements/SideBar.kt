@@ -51,7 +51,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -67,13 +66,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.movtery.zalithlauncher.R
 import kotlinx.coroutines.delay
-import org.lwjgl.glfw.CallbackBridge
 
 private val CollapsedWidth = 56.dp
 private val ExpandedWidth = 84.dp
@@ -82,12 +79,10 @@ private val ExpandedWidth = 84.dp
 fun SideBar(
     modifier: Modifier = Modifier,
     isVisible: Boolean,
-    onFpsClick: () -> Unit,
     onRamClick: () -> Unit,
     onVersionsClick: () -> Unit,
     onInfoClick: () -> Unit
 ) {
-    var fps by remember { mutableIntStateOf(0) }
     var memoryInfo by remember { mutableStateOf(getMemoryInfo()) }
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -103,7 +98,6 @@ fun SideBar(
     LaunchedEffect(isVisible) {
         if (isVisible) {
             while (true) {
-                fps = CallbackBridge.getCurrentFps()
                 memoryInfo = getMemoryInfo()
                 delay(1000)
             }
@@ -182,17 +176,8 @@ fun SideBar(
 
                         StaggeredItem(delay = 0) {
                             SideBarIndicator(
-                                label = "FPS",
-                                value = fps.toString(),
-                                icon = painterResource(R.drawable.ic_video_settings),
-                                onClick = onFpsClick
-                            )
-                        }
-
-                        StaggeredItem(delay = 60) {
-                            SideBarIndicator(
                                 label = "RAM",
-                                value = "${memoryInfo.first}M",
+                                value = "${"%.1f".format(memoryInfo.first / 1024f)}G",
                                 icon = painterResource(R.drawable.ic_dashboard_outlined),
                                 onClick = onRamClick
                             )
@@ -322,12 +307,6 @@ private fun SideBarToggle(
                 contentDescription = if (expanded) "Collapse" else "Expand",
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            Text(
-                text = stringResource(R.string.sidebar_shortcut_menu),
-                style = MaterialTheme.typography.labelSmall,
-                fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
             )
         }
     }
