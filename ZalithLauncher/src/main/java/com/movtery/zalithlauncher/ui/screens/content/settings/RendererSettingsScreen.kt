@@ -276,6 +276,51 @@ fun RendererSettingsScreen(
                         }
                     )
 
+                    SwitchSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
+                        unit = AllSettings.fsrEnabled,
+                        title = stringResource(R.string.settings_renderer_fsr_title),
+                        summary = stringResource(R.string.settings_renderer_fsr_summary)
+                    )
+
+                    if (AllSettings.fsrEnabled.state) {
+                        SettingsCardColumn(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            val fsrQualityLabels = listOf(
+                                1 to stringResource(R.string.settings_renderer_fsr_quality_ultra),
+                                2 to stringResource(R.string.settings_renderer_fsr_quality_quality),
+                                3 to stringResource(R.string.settings_renderer_fsr_quality_balanced),
+                                4 to stringResource(R.string.settings_renderer_fsr_quality_performance)
+                            )
+
+                            ListSettingsCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                position = CardPosition.Top,
+                                items = fsrQualityLabels,
+                                currentId = AllSettings.fsrQuality.state.toString(),
+                                defaultId = AllSettings.fsrQuality.defaultValue.toString(),
+                                title = stringResource(R.string.settings_renderer_fsr_quality_title),
+                                summary = stringResource(R.string.settings_renderer_fsr_quality_summary),
+                                getItemText = { it.second },
+                                getItemId = { it.first.toString() },
+                                getItemSummary = {
+                                    when (it.first) {
+                                        1 -> "1.33x (1080p → 1440p)"
+                                        2 -> "1.5x (720p → 1080p)"
+                                        3 -> "1.7x (632p → 1080p)"
+                                        4 -> "2.0x (540p → 1080p)"
+                                        else -> ""
+                                    }
+                                },
+                                onValueChange = { item ->
+                                    AllSettings.fsrQuality.save(item.first)
+                                }
+                            )
+                        }
+                    }
+
                     IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Middle,
@@ -295,34 +340,10 @@ fun RendererSettingsScreen(
                         summary = stringResource(R.string.settings_renderer_full_screen_summary)
                     )
                 }
-            }
-
-            AnimatedItem(scope) { yOffset ->
-                SettingsCardColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
-                ) {
-                    SwitchSettingsCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Top,
-                        unit = AllSettings.sustainedPerformance,
-                        title = stringResource(R.string.settings_renderer_sustained_performance_title),
-                        summary = stringResource(R.string.settings_renderer_sustained_performance_summary)
-                    )
-
-                    if (checkVulkanSupport(LocalContext.current.packageManager)) {
-                        var adrenoGPUAlert by remember { mutableStateOf(false) }
-
-                        SwitchSettingsCard(
-                            modifier = Modifier.fillMaxWidth(),
-                            position = CardPosition.Middle,
-                            unit = AllSettings.zinkPreferSystemDriver,
-                            title = stringResource(R.string.settings_renderer_vulkan_driver_system_title),
-                            summary = stringResource(R.string.settings_renderer_vulkan_driver_system_summary),
-                            onCheckedChange = { checked ->
-                                if (checked && isAdrenoGPU()) adrenoGPUAlert = true
-                            }
+}
+        }
+    }
+}
                         )
 
                         if (adrenoGPUAlert) {
@@ -372,57 +393,9 @@ fun RendererSettingsScreen(
                         title = stringResource(R.string.settings_renderer_shader_dump_title),
                         summary = stringResource(R.string.settings_renderer_shader_dump_summary)
                     )
-
-                    SwitchSettingsCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Bottom,
-                        unit = AllSettings.fsrEnabled,
-                        title = stringResource(R.string.settings_renderer_fsr_title),
-                        summary = stringResource(R.string.settings_renderer_fsr_summary)
-                    )
                 }
             }
 
-            if (AllSettings.fsrEnabled.state) {
-                AnimatedItem(scope) { yOffset ->
-                    SettingsCardColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
-                    ) {
-                        val fsrQualityLabels = listOf(
-                            1 to stringResource(R.string.settings_renderer_fsr_quality_ultra),
-                            2 to stringResource(R.string.settings_renderer_fsr_quality_quality),
-                            3 to stringResource(R.string.settings_renderer_fsr_quality_balanced),
-                            4 to stringResource(R.string.settings_renderer_fsr_quality_performance)
-                        )
-
-                        ListSettingsCard(
-                            modifier = Modifier.fillMaxWidth(),
-                            position = CardPosition.Top,
-                            items = fsrQualityLabels,
-                            currentId = AllSettings.fsrQuality.state.toString(),
-                            defaultId = AllSettings.fsrQuality.defaultValue.toString(),
-                            title = stringResource(R.string.settings_renderer_fsr_quality_title),
-                            summary = stringResource(R.string.settings_renderer_fsr_quality_summary),
-                            getItemText = { it.second },
-                            getItemId = { it.first.toString() },
-                            getItemSummary = {
-                                when (it.first) {
-                                    1 -> "1.33x (1080p → 1440p)"
-                                    2 -> "1.5x (720p → 1080p)"
-                                    3 -> "1.7x (632p → 1080p)"
-                                    4 -> "2.0x (540p → 1080p)"
-                                    else -> ""
-                                }
-                            },
-                            onValueChange = { item ->
-                                AllSettings.fsrQuality.save(item.first)
-                            }
-                        )
-                    }
-                }
-            }
         }
     }
 }
