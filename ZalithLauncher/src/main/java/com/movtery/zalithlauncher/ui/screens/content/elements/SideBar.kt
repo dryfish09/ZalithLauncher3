@@ -70,7 +70,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.setting.AllSettings
 import kotlinx.coroutines.delay
 
 private val CollapsedWidth = 56.dp
@@ -85,7 +84,6 @@ fun SideBar(
     onInfoClick: () -> Unit
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val gameRam = AllSettings.ramAllocation.state ?: 1024
 
     val targetWidth by animateDpAsState(
         targetValue = if (expanded) ExpandedWidth else CollapsedWidth,
@@ -167,22 +165,6 @@ fun SideBar(
                         Spacer(modifier = Modifier.height(2.dp))
 
                         StaggeredItem(delay = 0) {
-                            SideBarIndicator(
-                                label = "RAM",
-                                value = "${gameRam}M",
-                                icon = painterResource(R.drawable.ic_dashboard_outlined)
-                            )
-                        }
-
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .padding(horizontal = 18.dp)
-                                .alpha(0.2f)
-                        )
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        StaggeredItem(delay = 60) {
                             SideBarShortcut(
                                 icon = painterResource(R.drawable.ic_video_settings),
                                 contentDescription = "FPS",
@@ -306,74 +288,6 @@ private fun SideBarToggle(
                 contentDescription = if (expanded) "Collapse" else "Expand",
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        }
-    }
-}
-
-@Composable
-private fun SideBarIndicator(
-    label: String,
-    value: String,
-    icon: Painter,
-    onClick: () -> Unit = {}
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.92f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessHigh
-        ),
-        label = "indicatorScale"
-    )
-
-    val elevation by animateDpAsState(
-        targetValue = if (isPressed) 2.dp else 8.dp,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-        label = "indicatorElevation"
-    )
-
-    Surface(
-        modifier = Modifier
-            .padding(horizontal = 6.dp, vertical = 2.dp)
-            .scale(scale)
-            .shadow(
-                elevation = elevation,
-                shape = RoundedCornerShape(18.dp),
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-            )
-            .clip(RoundedCornerShape(18.dp))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick
-            ),
-        shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-        tonalElevation = if (isPressed) 1.dp else 4.dp,
-        shadowElevation = 0.dp
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(horizontal = 10.dp, vertical = 10.dp)
-        ) {
-            Icon(
-                painter = icon,
-                contentDescription = label,
-                modifier = Modifier.size(22.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = value,
-                style = MaterialTheme.typography.labelSmall,
-                fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
             )
         }
     }
