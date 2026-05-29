@@ -58,18 +58,17 @@ fun BackgroundCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-        modifier = modifier
-            .backgroundGlass(
-                blur = blur,
-                shape = shape,
-                enabled = influencedByBackground
-            ),
+        modifier = modifier,
         shape = shape,
         colors = colors,
         elevation = elevation,
         border = border,
-        content = content
-    )
+    ) {
+        Column(
+            modifier = Modifier.backgroundGlass(blur, colors.containerColor, influencedByBackground),
+            content = content
+        )
+    }
 }
 
 /**
@@ -94,20 +93,19 @@ fun BackgroundCard(
     content: @Composable @UiComposable ColumnScope.() -> Unit
 ) {
     Card(
-        modifier = modifier
-            .backgroundGlass(
-                blur = blur,
-                shape = shape,
-                enabled = influencedByBackground
-            ),
+        modifier = modifier,
         shape = shape,
         colors = colors,
         elevation = elevation,
         border = border,
         onClick = onClick,
         enabled = enabled,
-        content = content
-    )
+    ) {
+        Column(
+            modifier = Modifier.backgroundGlass(blur, colors.containerColor, influencedByBackground),
+            content = content
+        )
+    }
 }
 
 /**
@@ -124,15 +122,22 @@ fun CardTitleLayout(
         enabled = influencedByBackground
     ),
     contentColor: Color = onCardColor(),
-    content: @Composable @UiComposable () -> Unit
+    blur: Int = AllSettings.backgroundBlur.state,
+    content: @Composable @UiComposable ColumnScope.() -> Unit
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = color,
             contentColor = contentColor,
-            content = content
-        )
+        ) {
+            Column(
+                modifier = Modifier.backgroundGlass(blur, color, influencedByBackground),
+                content = content
+            )
+        }
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
     }
 }

@@ -409,23 +409,28 @@ fun BaseFilterLayout(
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
+    @Composable
+    fun Content() {
+        Column(
+            modifier = Modifier.backgroundGlass(blur, color, influencedByBackground)
+        ) { content() }
+    }
+
     if (onClick != null) {
         Surface(
-            modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+            modifier = modifier,
             shape = shape,
             color = color,
             contentColor = contentColor,
             onClick = onClick,
-            content = content
-        )
+        ) { Content() }
     } else {
         Surface(
-            modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+            modifier = modifier,
             shape = shape,
             color = color,
             contentColor = contentColor,
-            content = content
-        )
+        ) { Content() }
     }
 }
 

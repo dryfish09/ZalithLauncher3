@@ -26,6 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.COPY_LABEL_THROWABLE_STACK
 import com.movtery.zalithlauncher.ui.base.AbstractAppCompatActivity
+import com.movtery.zalithlauncher.ui.theme.showThemed
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.getSerializableSafely
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,7 +61,7 @@ class FatalErrorActivity : AbstractAppCompatActivity() {
                 finish()
             }
             .setCancelable(false)
-            .show()
+            .showThemed()
     }
 }
 

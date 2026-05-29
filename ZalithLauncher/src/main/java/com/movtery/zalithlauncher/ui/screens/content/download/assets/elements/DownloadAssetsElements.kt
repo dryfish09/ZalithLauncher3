@@ -243,12 +243,16 @@ fun AssetsVersionItemLayout(
     var expanded by remember { mutableStateOf(false) }
 
     Surface(
-        modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier,
         shape = shape,
         color = color,
         contentColor = contentColor
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .backgroundGlass(blur, color, influencedByBackground)
+        ) {
             AssetsVersionHeadLayout(
                 modifier = Modifier.fillMaxWidth(),
                 infoMap = infoMap,

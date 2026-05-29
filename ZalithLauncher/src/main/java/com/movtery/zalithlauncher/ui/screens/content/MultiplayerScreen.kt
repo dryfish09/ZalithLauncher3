@@ -64,7 +64,6 @@ import com.movtery.zalithlauncher.ui.components.NotificationCheck
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.influencedByBackgroundColor
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.elements.backgroundGlass
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
@@ -283,8 +282,7 @@ private fun TutorialMenu(
     BackgroundCard(
         modifier = modifier
             .fillMaxHeight()
-            .padding(vertical = 12.dp)
-            .backgroundGlass(AllSettings.backgroundBlur.state, MaterialTheme.shapes.extraLarge),
+            .padding(vertical = 12.dp),
         shape = MaterialTheme.shapes.extraLarge
     ) {
         val tabs = remember {

@@ -31,6 +31,7 @@ import com.movtery.zalithlauncher.path.TIME_OUT
 import com.movtery.zalithlauncher.path.URL_USER_AGENT
 import com.movtery.zalithlauncher.path.createOkHttpClient
 import com.movtery.zalithlauncher.path.createRequestBuilder
+import com.movtery.zalithlauncher.ui.theme.showThemed
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.file.compareSHA1
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
@@ -451,7 +452,7 @@ fun Activity.openLink(link: String, dataType: String?) {
             copyText(COPY_LABEL_LINK, link, this)
             dialog.dismiss()
         }
-        .show()
+        .showThemed()
 }
 
 /**

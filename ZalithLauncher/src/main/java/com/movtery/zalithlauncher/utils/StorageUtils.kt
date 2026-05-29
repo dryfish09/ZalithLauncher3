@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.theme.showThemed
 import com.movtery.zalithlauncher.utils.logging.Logger
 import java.io.File
 
@@ -172,7 +173,7 @@ private fun showPermissionRequestDialog(
         .setPositiveButton(R.string.generic_authorization) { _, _ -> requestPermissions.onRequest() }
         .setNegativeButton(R.string.generic_ignore) { _, _ -> requestPermissions.onCancel() }
         .setCancelable(false)
-        .show()
+        .showThemed()
 }
 
 private interface RequestPermissions {

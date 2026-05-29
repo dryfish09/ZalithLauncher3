@@ -319,12 +319,11 @@ fun MenuTextButton(
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = itemColor(influencedByBackground),
     contentColor: Color = onItemColor(),
-    blur: Int = AllSettings.backgroundBlur.state,
     appendLayout: (@Composable () -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
     MenuButtonLayout(
-        modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier,
         shape = shape,
         color = color,
         contentColor = contentColor,
@@ -357,10 +356,9 @@ fun MenuSwitchButton(
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = itemColor(influencedByBackground),
     contentColor: Color = onItemColor(),
-    blur: Int = AllSettings.backgroundBlur.state,
 ) {
     MenuButtonLayout(
-        modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier,
         shape = shape,
         color = color,
         contentColor = contentColor,
@@ -410,12 +408,11 @@ fun <E> MenuListLayout(
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = itemColor(influencedByBackground),
     contentColor: Color = onItemColor(),
-    blur: Int = AllSettings.backgroundBlur.state,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     MenuButtonLayout(
-        modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier,
         shape = shape,
         color = color,
         contentColor = contentColor,
@@ -571,13 +568,12 @@ fun MenuSliderLayout(
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = itemColor(influencedByBackground),
     contentColor: Color = onItemColor(),
-    blur: Int = AllSettings.backgroundBlur.state,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var showInputDialog by remember { mutableStateOf(false) }
 
     MenuButtonLayout(
-        modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier,
         enabled = enabled,
         shape = shape,
         color = color,
@@ -652,7 +648,6 @@ fun MenuSliderLayout(
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = itemColor(influencedByBackground),
     contentColor: Color = onItemColor(),
-    blur: Int = AllSettings.backgroundBlur.state,
 ) {
     val formatter = DecimalFormat(decimalFormat)
     fun getTextString(value: Float) = formatter.format(value) + (suffix ?: "")
@@ -661,7 +656,7 @@ fun MenuSliderLayout(
     var showInputDialog by remember { mutableStateOf(false) }
 
     MenuButtonLayout(
-        modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier,
         enabled = enabled,
         shape = shape,
         color = color,
@@ -739,9 +734,7 @@ fun MenuButtonLayout(
     }
 
     Surface(
-        modifier = modifier
-            .graphicsLayer(scaleY = scale.value, scaleX = scale.value)
-            .backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
         shape = shape,
         color = color,
         contentColor = contentColor,
@@ -749,7 +742,9 @@ fun MenuButtonLayout(
         onClick = onClick
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .backgroundGlass(blur, color, influencedByBackground),
             horizontalArrangement = horizontalArrangement,
             verticalAlignment = verticalAlignment,
             content = content

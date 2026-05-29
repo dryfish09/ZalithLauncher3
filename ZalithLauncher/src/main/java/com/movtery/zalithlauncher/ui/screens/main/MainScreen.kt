@@ -697,7 +697,7 @@ private fun TaskMenu(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
         ) {
             Column {
-                CardTitleLayout {
+                CardTitleLayout(blur = 0) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()

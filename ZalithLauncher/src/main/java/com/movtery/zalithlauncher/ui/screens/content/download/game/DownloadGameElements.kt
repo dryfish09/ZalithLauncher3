@@ -202,12 +202,16 @@ fun <E> AddonListLayout(
     }
 
     Surface(
-        modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier,
         shape = shape,
         color = color,
         contentColor = contentColor
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .backgroundGlass(blur, color, influencedByBackground)
+        ) {
             AddonListHeader(
                 modifier = Modifier.fillMaxWidth(),
                 state = state,
@@ -424,13 +428,14 @@ fun AddonWarningItem(
     blur: Int = AllSettings.backgroundBlur.state,
 ) {
     Surface(
-        modifier = modifier.backgroundGlass(blur, MaterialTheme.shapes.large),
+        modifier = modifier,
         shape = MaterialTheme.shapes.large,
         color = color,
         contentColor = contentColor
     ) {
         Row(
             modifier = Modifier
+                .backgroundGlass(blur, color)
                 .padding(horizontal = 16.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

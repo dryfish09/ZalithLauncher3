@@ -71,7 +71,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.context.getFileName
-import com.movtery.zalithlauncher.contract.extensionToMimeType
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -81,6 +80,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.BaseFileItem
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.ui.theme.itemColor
 import com.movtery.zalithlauncher.ui.theme.onItemColor
+import com.movtery.zalithlauncher.ui.theme.showThemed
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenJellyBounce
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
@@ -195,7 +195,8 @@ fun OpenFolderLayer(
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         CardTitleLayout(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            blur = 0
                         ) {
                             Column(
                                 modifier = Modifier
@@ -308,7 +309,7 @@ fun OpenFolderLayer(
                                     //导入按钮
                                     Button(
                                         onClick = {
-                                            launcher.launch("zip".extensionToMimeType())
+                                            launcher.launch("*/*")
                                         }
                                     ) {
                                         Text(text = stringResource(R.string.generic_import))
@@ -403,7 +404,7 @@ private fun ImportFileOperation(
                                     .setMessage(messageString)
                                     .setPositiveButton(R.string.generic_confirm) { dialog, _ ->
                                         dialog.dismiss()
-                                    }.show()
+                                    }.showThemed()
                             }
                         }
                     }

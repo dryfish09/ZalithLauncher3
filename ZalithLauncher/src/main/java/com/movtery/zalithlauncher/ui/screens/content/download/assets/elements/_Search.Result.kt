@@ -307,13 +307,15 @@ private fun PageController(
     }
 
     Surface(
-        modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier,
         shape = shape,
         color = color,
         contentColor = contentColor
     ) {
         Row(
-            modifier = Modifier.padding(all = 4.dp),
+            modifier = Modifier
+                .backgroundGlass(blur, color, influencedByBackground)
+                .padding(all = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
@@ -437,9 +439,7 @@ private fun ResultItemLayout(
     }
 
     Surface(
-        modifier = modifier
-            .graphicsLayer(scaleY = scale.value, scaleX = scale.value)
-            .backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
         shape = shape,
         color = color,
         contentColor = contentColor,
@@ -447,6 +447,7 @@ private fun ResultItemLayout(
     ) {
         Row(
             modifier = Modifier
+                .backgroundGlass(blur, color, influencedByBackground)
                 .padding(all = 8.dp)
                 .height(IntrinsicSize.Min),
             horizontalArrangement = Arrangement.spacedBy(12.dp)

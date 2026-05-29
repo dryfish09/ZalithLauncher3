@@ -484,9 +484,7 @@ private fun VersionItemLayout(
     val (icon, versionType, wikiUrl, summary) = getVersionComponents(version)
 
     Surface(
-        modifier = modifier
-            .graphicsLayer(scaleY = scale.value, scaleX = scale.value)
-            .backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
         onClick = onClick,
         shape = shape,
         color = color,
@@ -494,7 +492,8 @@ private fun VersionItemLayout(
     ) {
         Row(
             modifier = Modifier
-                .clip(shape = MaterialTheme.shapes.large)
+                .clip(shape = shape)
+                .backgroundGlass(blur, color, influencedByBackground)
                 .padding(all = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

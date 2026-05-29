@@ -520,6 +520,7 @@ private fun ProjectInfo(
         when (val result = projectResult) {
             is DownloadAssetsState.Getting -> {
                 LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(all = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -571,6 +572,7 @@ private fun ProjectInfo(
                 val screenshots = remember { project.platformScreenshots() }
 
                 LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(all = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -684,9 +686,11 @@ private fun ProjectInfo(
                 }
             }
             is DownloadAssetsState.Error -> {
-                Box(Modifier
-                    .fillMaxSize()
-                    .padding(all = 12.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(all = 12.dp)
+                ) {
                     val message = if (result.args != null) {
                         stringResource(result.message, *result.args)
                     } else {

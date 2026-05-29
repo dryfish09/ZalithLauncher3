@@ -78,7 +78,7 @@ fun SimpleTextInputField(
     singleLine: Boolean = false,
 ) {
     Surface(
-        modifier = modifier.backgroundGlass(blur, shape, influencedByBackground),
+        modifier = modifier,
         color = color,
         contentColor = contentColor,
         shape = shape
@@ -88,6 +88,7 @@ fun SimpleTextInputField(
         BasicTextField(
             modifier = Modifier
                 .wrapContentHeight()
+                .backgroundGlass(blur, color, influencedByBackground)
                 .padding(contextPadding),
             value = value,
             onValueChange = { new ->

@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.ui.screens.content.elements.backgroundGlass
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.rememberSettingsCardShape
 
@@ -85,12 +84,13 @@ fun WarningCard(
     )
 
     BackgroundCard(
-        modifier = modifier.backgroundGlass(blur, cardShape, influencedByBackground),
+        modifier = modifier,
         shape = cardShape,
         colors = CardDefaults.cardColors(
             containerColor = containerColor,
             contentColor = contentColor
-        )
+        ),
+        blur = blur,
     ) {
         Column(
             modifier = Modifier

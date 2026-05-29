@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.theme.showThemed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -54,7 +55,7 @@ class ErrorViewModel : ViewModel() {
                 .setPositiveButton(R.string.generic_confirm) { dialog, _ ->
                     dialog.dismiss()
                 }.setCancelable(false)
-                .show()
+                .showThemed()
         }
     }
 

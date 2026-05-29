@@ -44,6 +44,7 @@ import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorWarningOp
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorWidgetOperation
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.PreviewScenario
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.SelectedWidgetData
+import com.movtery.zalithlauncher.ui.theme.showThemed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -300,6 +301,6 @@ class EditorViewModel() : ViewModel() {
                 dialog.dismiss()
                 onExit()
             }
-            .show()
+            .showThemed()
     }
 }

@@ -28,10 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -350,7 +348,7 @@ private fun Modifier.backgroundBlur(
     hazeState: HazeState,
 ): Modifier {
     return when (AllSettings.backgroundBlurType.state) {
-        BackgroundBlur.Background -> this.glass(blur, null)
+        BackgroundBlur.Background -> this.glass(blur, null, null)
         BackgroundBlur.Foreground -> this.hazeSource(hazeState)
     }
 }
@@ -362,14 +360,13 @@ private fun Modifier.backgroundBlur(
 @Composable
 fun Modifier.backgroundGlass(
     blur: Int,
-    shape: Shape,
+    color: Color,
     enabled: Boolean = true,
 ): Modifier {
-    val clipModifier = this.clip(shape)
-    if (AllSettings.backgroundBlurType.state == BackgroundBlur.Background) return clipModifier
-    if (!enabled) return clipModifier
-    val state = LocalBackgroundViewModel.current?.hazeState ?: return clipModifier
-    return clipModifier.glass(blur, state)
+    if (AllSettings.backgroundBlurType.state == BackgroundBlur.Background) return this
+    if (!enabled) return this
+    val state = LocalBackgroundViewModel.current?.hazeState ?: return this
+    return this.glass(blur, color, state)
 }
 
 /**
@@ -378,6 +375,7 @@ fun Modifier.backgroundGlass(
 @Composable
 private fun Modifier.glass(
     blur: Int,
+    color: Color?,
     hazeState: HazeState?,
 ): Modifier {
     if (blur <= 0 || AllSettings.launcherBackgroundOpacity.state >= 100) return this
@@ -401,15 +399,18 @@ private fun Modifier.glass(
             fraction = sqrt(t)
         )
     }
-    val colorEffects = remember(t) {
+    val colorEffects = remember(t, color) {
         val whiteAlpha = lerp(
             start = 0f,
             stop = 0.25f,
             fraction = sqrt(t)
         )
-        listOf(
-            HazeColorEffect.tint(Color.White.copy(alpha = whiteAlpha), BlendMode.SrcOver),
-        )
+        buildList {
+            if (color != null) {
+                add(HazeColorEffect.tint(color, BlendMode.SrcOver))
+            }
+            add(HazeColorEffect.tint(Color.White.copy(alpha = whiteAlpha), BlendMode.Softlight))
+        }
     }
 
     return this
