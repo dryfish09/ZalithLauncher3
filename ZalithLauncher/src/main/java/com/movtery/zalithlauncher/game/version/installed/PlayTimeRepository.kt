@@ -19,16 +19,42 @@
 package com.movtery.zalithlauncher.game.version.installed
 
 import com.movtery.zalithlauncher.setting.launcherMMKV
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 object PlayTimeRepository {
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
     private fun lastPlayedKey(versionName: String) = "pt_last_$versionName"
     private fun totalPlayTimeKey(versionName: String) = "pt_total_$versionName"
+    private fun dailyKey(date: String, versionName: String) = "pt_day_${date}_$versionName"
 
     fun getLastPlayed(versionName: String): Long =
         launcherMMKV().getLong(lastPlayedKey(versionName), 0L)
 
     fun getTotalPlayTime(versionName: String): Long =
         launcherMMKV().getLong(totalPlayTimeKey(versionName), 0L)
+
+    fun getDailyPlayTime(date: String, versionName: String): Long =
+        launcherMMKV().getLong(dailyKey(date, versionName), 0L)
+
+    /** Sum of all version play times for a given date (YYYY-MM-DD). */
+    fun getDailyTotalPlayTime(date: String, versionNames: List<String>): Long =
+        versionNames.sumOf { getDailyPlayTime(date, it) }
+
+    /** Today's date string (YYYY-MM-DD). */
+    fun today(): String = dateFormat.format(Date())
+
+    /** The last N day strings including today, newest first. */
+    fun lastNDays(n: Int): List<String> {
+        val cal = java.util.Calendar.getInstance()
+        return (0 until n).map {
+            val d = dateFormat.format(cal.time)
+            cal.add(java.util.Calendar.DAY_OF_YEAR, -1)
+            d
+        }
+    }
 
     fun recordSession(versionName: String, sessionStartMs: Long, sessionEndMs: Long) {
         val duration = sessionEndMs - sessionStartMs
@@ -37,5 +63,9 @@ object PlayTimeRepository {
         mmkv.putLong(lastPlayedKey(versionName), sessionEndMs).apply()
         val previous = mmkv.getLong(totalPlayTimeKey(versionName), 0L)
         mmkv.putLong(totalPlayTimeKey(versionName), previous + duration).apply()
+
+        val todayKey = dailyKey(today(), versionName)
+        val prevDaily = mmkv.getLong(todayKey, 0L)
+        mmkv.putLong(todayKey, prevDaily + duration).apply()
     }
 }

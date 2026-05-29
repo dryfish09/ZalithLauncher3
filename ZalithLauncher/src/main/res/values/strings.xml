@@ -82,6 +82,16 @@
     <string name="play_time_total">Play time: %s</string>
     <string name="play_time_hours_minutes">%1$dh %2$dm</string>
     <string name="play_time_minutes">%dm</string>
+    <!-- Game Stats -->
+    <string name="stats_game_stats">Game Statistics</string>
+    <string name="stats_play_time_graph">Play Time (Last 7 Days)</string>
+    <string name="stats_daily_hours">Today\'s Play Time</string>
+    <string name="stats_daily_hours_value">%s today</string>
+    <string name="stats_per_version">Play Time by Version</string>
+    <string name="stats_last_log">Last Game Log</string>
+    <string name="stats_no_log">No log available yet</string>
+    <string name="stats_no_data">No data yet</string>
+    <string name="stats_view_all">View All</string>
     <string name="empty_holder" translatable="false">%s</string>
     <!-- Sort By -->
     <string name="sort_by">Sort By</string>

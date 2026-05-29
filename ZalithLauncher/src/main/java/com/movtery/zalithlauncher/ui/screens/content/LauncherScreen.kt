@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -42,6 +44,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -55,9 +58,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
@@ -73,10 +78,13 @@ import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.version.installed.PlayTimeRepository
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
+import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.defaultRichTextStyle
@@ -96,6 +104,7 @@ import com.movtery.zalithlauncher.ui.screens.main.custom_home.MarkdownBlock
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.customHomePage
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.removeAndNavigateTo
+import com.movtery.zalithlauncher.utils.PlayTimeUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.HomePageState
 import com.movtery.zalithlauncher.viewmodel.LocalHomePageViewModel
@@ -108,6 +117,8 @@ fun LauncherScreen(
     onLaunchGame: (Version?) -> Unit,
     onOpenLink: (String) -> Unit,
     onHomePageEvent: (MarkdownBlock.Button.Event) -> Unit,
+    onNavigateToStats: () -> Unit = {},
+    onNavigateToLog: (String) -> Unit = {},
 ) {
     BaseScreen(
         screenKey = NormalNavKey.LauncherMain,
@@ -156,7 +167,9 @@ fun LauncherScreen(
                 ContentMenu(
                     modifier = Modifier.weight(7f),
                     isVisible = isVisible,
-                    onHomePageEvent = onHomePageEvent
+                    onHomePageEvent = onHomePageEvent,
+                    onNavigateToStats = onNavigateToStats,
+                    onNavigateToLog = onNavigateToLog
                 )
             }
 
@@ -197,6 +210,8 @@ fun LauncherScreen(
 private fun ContentMenu(
     isVisible: Boolean,
     onHomePageEvent: (MarkdownBlock.Button.Event) -> Unit,
+    onNavigateToStats: () -> Unit,
+    onNavigateToLog: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val yOffset by swapAnimateDpAsState(
@@ -212,14 +227,14 @@ private fun ContentMenu(
         modifier = modifier
             .fillMaxSize()
             .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-        contentPadding = PaddingValues(all = 12.dp)
+        contentPadding = PaddingValues(all = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         if (BuildConfig.DEBUG) {
             item {
                 //debug版本关不掉的警告，防止有人把测试版当正式版用 XD
                 BackgroundCard(
                     shape = MaterialTheme.shapes.extraLarge,
-                    modifier = Modifier.padding(bottom = 12.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
@@ -243,6 +258,26 @@ private fun ContentMenu(
                     }
                 }
             }
+        }
+
+        // ── Card 1: Play time graph (last 7 days) ──
+        item(key = "stat_graph") {
+            PlayTimeGraphCard()
+        }
+
+        // ── Card 2: Today's play time + rank ──
+        item(key = "stat_daily") {
+            DailyPlayTimeCard()
+        }
+
+        // ── Card 3: Per-version play rate (tappable → GameStatsScreen) ──
+        item(key = "stat_versions") {
+            VersionPlayRateCard(onNavigateToStats = onNavigateToStats)
+        }
+
+        // ── Card 4: Last game log ──
+        item(key = "stat_log") {
+            LastLogCard(onNavigateToLog = onNavigateToLog)
         }
 
         when (val state = pageState) {
@@ -273,6 +308,250 @@ private fun ContentMenu(
                     blocks = state.page,
                     richTextStyle = richTextStyle,
                     onEvent = onHomePageEvent
+                )
+            }
+        }
+    }
+}
+
+// ── Stat Card 1: Bar graph of daily play time ───────────────────────────────
+
+@Composable
+private fun PlayTimeGraphCard() {
+    val versions = remember { VersionsManager.versions.map { it.getVersionName() } }
+    val days = remember { PlayTimeRepository.lastNDays(7).reversed() } // oldest → newest
+    val barData = remember(versions, days) {
+        days.map { date ->
+            val totalMs = PlayTimeRepository.getDailyTotalPlayTime(date, versions)
+            PlayTimeUtils.getPlayHours(totalMs).toFloat()
+        }
+    }
+    val maxVal = remember(barData) { barData.maxOrNull()?.takeIf { it > 0f } ?: 1f }
+    val barColor = MaterialTheme.colorScheme.primary
+    val labelColor = MaterialTheme.colorScheme.onSurface
+
+    BackgroundCard(shape = MaterialTheme.shapes.extraLarge) {
+        CardTitleLayout {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                text = stringResource(R.string.stats_play_time_graph),
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+            ) {
+                val barCount = barData.size
+                val gap = size.width * 0.04f
+                val barWidth = (size.width - gap * (barCount + 1)) / barCount
+                barData.forEachIndexed { i, hours ->
+                    val barHeight = (hours / maxVal) * size.height
+                    val x = gap + i * (barWidth + gap)
+                    val y = size.height - barHeight
+                    drawRect(
+                        color = barColor,
+                        topLeft = Offset(x, y),
+                        size = androidx.compose.ui.geometry.Size(barWidth, barHeight)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            // Day labels
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                days.forEach { date ->
+                    Text(
+                        text = date.takeLast(5), // MM-dd
+                        style = MaterialTheme.typography.labelSmall,
+                        color = labelColor,
+                        modifier = Modifier.alpha(0.6f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ── Stat Card 2: Today's hours + rank ───────────────────────────────────────
+
+@Composable
+private fun DailyPlayTimeCard() {
+    val context = LocalContext.current
+    val versions = remember { VersionsManager.versions.map { it.getVersionName() } }
+    val today = remember { PlayTimeRepository.today() }
+    val todayMs = remember(today, versions) {
+        PlayTimeRepository.getDailyTotalPlayTime(today, versions)
+    }
+    val globalMs = remember { AllSettings.playTime.getValue() }
+    val rank = remember(globalMs) { PlayTimeUtils.getRankName(context, globalMs) }
+    val todayFormatted = remember(todayMs) { PlayTimeUtils.formatPlayTime(context, todayMs) }
+
+    BackgroundCard(shape = MaterialTheme.shapes.extraLarge) {
+        CardTitleLayout {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                text = stringResource(R.string.stats_daily_hours),
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.stats_daily_hours_value, todayFormatted),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = rank,
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.alpha(0.7f)
+            )
+        }
+    }
+}
+
+// ── Stat Card 3: Per-version play rate ──────────────────────────────────────
+
+@Composable
+private fun VersionPlayRateCard(onNavigateToStats: () -> Unit) {
+    val context = LocalContext.current
+    val versions = remember { VersionsManager.versions }
+    data class VersionStat(val name: String, val version: Version, val totalMs: Long)
+    val stats = remember(versions) {
+        versions
+            .map { v -> VersionStat(v.getVersionName(), v, PlayTimeRepository.getTotalPlayTime(v.getVersionName())) }
+            .sortedByDescending { it.totalMs }
+            .take(3)
+    }
+    val maxMs = remember(stats) { stats.firstOrNull()?.totalMs?.takeIf { it > 0 } ?: 1L }
+    val hasData = stats.any { it.totalMs > 0L }
+
+    BackgroundCard(
+        shape = MaterialTheme.shapes.extraLarge,
+        onClick = onNavigateToStats
+    ) {
+        CardTitleLayout {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.stats_per_version),
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    text = stringResource(R.string.stats_view_all),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            }
+        }
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (!hasData) {
+                Text(
+                    text = stringResource(R.string.stats_no_data),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            } else {
+                stats.forEach { stat ->
+                    if (stat.totalMs == 0L) return@forEach
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        VersionIconImage(
+                            version = stat.version,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = stat.name,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    maxLines = 1,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = PlayTimeUtils.formatPlayTime(context, stat.totalMs),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier.alpha(0.7f)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            LinearProgressIndicator(
+                                progress = { stat.totalMs.toFloat() / maxMs },
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ── Stat Card 4: Last game log ───────────────────────────────────────────────
+
+@Composable
+private fun LastLogCard(onNavigateToLog: (String) -> Unit) {
+    val currentVersion by VersionsManager.currentVersion.collectAsStateWithLifecycle()
+    val logFile = remember(currentVersion) {
+        currentVersion?.let { VersionsManager.getLatestLog(it) }
+    }
+    val logExists = remember(logFile) { logFile?.exists() == true }
+
+    BackgroundCard(
+        shape = MaterialTheme.shapes.extraLarge,
+        onClick = {
+            if (logExists) logFile?.absolutePath?.let { onNavigateToLog(it) }
+        },
+        enabled = logExists
+    ) {
+        CardTitleLayout {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                text = stringResource(R.string.stats_last_log),
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            if (!logExists || logFile == null) {
+                Text(
+                    text = stringResource(R.string.stats_no_log),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            } else {
+                Text(
+                    text = logFile.name,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                Text(
+                    text = remember(logFile) {
+                        logFile.useLines { lines -> lines.firstOrNull() ?: "" }.take(80)
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 2,
+                    modifier = Modifier.alpha(0.6f)
                 )
             }
         }
