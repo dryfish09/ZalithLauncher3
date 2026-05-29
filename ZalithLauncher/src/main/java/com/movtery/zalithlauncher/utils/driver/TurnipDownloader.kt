@@ -155,4 +155,87 @@ object TurnipDownloader {
         )
         TaskSystem.submitTask(task)
     }
+
+    fun downloadUrl(context: Context, downloadUrl: String) {
+        val zipName = downloadUrl.substringAfterLast("/").substringBefore("?")
+        val safeDirName = run {
+            val base = zipName.substringBeforeLast(".zip", zipName)
+            if (base.isEmpty() || base == "." || base == "..") {
+                val prefix = "unnamed-driver-"
+                val next = (PathManager.DIR_DRIVERS.listFiles()
+                    ?.map { it.name }
+                    ?.filter { it.startsWith(prefix) }
+                    ?.mapNotNull { it.removePrefix(prefix).toIntOrNull() }
+                    ?.maxOrNull() ?: 0) + 1
+                "$prefix$next"
+            } else {
+                base.replace(Regex("[/\\\\]+"), "_")
+            }
+        }
+
+        val task = Task.runTask(
+            id = "download_turnip_driver_$zipName",
+            task = { it ->
+                val extractDir = File(PathManager.DIR_DRIVERS, safeDirName)
+                if (extractDir.exists()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, R.string.settings_renderer_turnip_already_exists, Toast.LENGTH_SHORT).show()
+                    }
+                    return@runTask
+                }
+
+                it.updateMessage(R.string.settings_renderer_turnip_downloading)
+                it.updateProgress(-1f)
+
+                val downloadFile = File(PathManager.DIR_CACHE, zipName)
+                try {
+                    withContext(Dispatchers.IO) {
+                        val request = Request.Builder().url(downloadUrl).build()
+                        client.newCall(request).execute().use { response ->
+                            if (!response.isSuccessful) throw Exception("Failed to download driver")
+                            val source = response.body?.source() ?: throw Exception("Empty download body")
+                            val totalSize = response.body?.contentLength() ?: -1L
+
+                            downloadFile.sink().buffer().use { sink ->
+                                val buffer = ByteArray(8192)
+                                var bytesRead = 0L
+                                var read: Int
+                                while (source.read(buffer).also { read = it } != -1) {
+                                    sink.write(buffer, 0, read)
+                                    bytesRead += read
+                                    if (totalSize > 0) {
+                                        it.updateProgress(bytesRead.toFloat() / totalSize)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    it.updateMessage(R.string.settings_renderer_turnip_extracting)
+                    it.updateProgress(-1f)
+
+                    extractDir.mkdirs()
+                    withContext(Dispatchers.IO) {
+                        ZipFile(downloadFile).use { zip ->
+                            zip.extractFromZip("", extractDir)
+                        }
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        DriverPluginManager.scanExternalDrivers(context)
+                        Toast.makeText(context, R.string.settings_renderer_turnip_success, Toast.LENGTH_SHORT).show()
+                    }
+                } finally {
+                    downloadFile.delete()
+                }
+            },
+            onError = { th ->
+                Logger.error(TAG, "Failed to download Turnip driver from URL", th)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Failed: ${th.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        )
+        TaskSystem.submitTask(task)
+    }
 }
