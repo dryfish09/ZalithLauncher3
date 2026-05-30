@@ -8,7 +8,7 @@ object FSRUtils {
 
     // Scale factors match fsr_hook.cpp calcRenderResolution:
     // 1=UltraQuality(1.3x), 2=Quality(1.5x), 3=Balanced(1.7x), 4=Performance(2.0x)
-    private fun qualityToResolutionRatio(preset: Int): Int = when (preset) {
+    fun qualityToResolutionRatio(preset: Int): Int = when (preset) {
         1 -> 77
         2 -> 67
         3 -> 59

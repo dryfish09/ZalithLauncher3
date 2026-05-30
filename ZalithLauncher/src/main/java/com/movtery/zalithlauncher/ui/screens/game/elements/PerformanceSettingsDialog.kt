@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.fsr.FSRUtils
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
@@ -81,9 +82,16 @@ fun PerformanceSettingsDialog(
                     modifier = Modifier.fillMaxWidth(),
                     title = stringResource(R.string.settings_renderer_fsr_title),
                     value = AllSettings.fsrEnabled.state,
-                    onValueChange = {
-                        AllSettings.fsrEnabled.save(it)
-                        if (it) AllSettings.resolutionRatio.save(100)
+                    onValueChange = { enabled ->
+                        AllSettings.fsrEnabled.save(enabled)
+                        if (enabled) {
+                            val ratio = FSRUtils.qualityToResolutionRatio(AllSettings.fsrQuality.getValue())
+                            AllSettings.resolutionRatio.updateState(ratio)
+                            AllSettings.resolutionRatio.save()
+                        } else {
+                            AllSettings.resolutionRatio.updateState(100)
+                            AllSettings.resolutionRatio.save()
+                        }
                     }
                 )
 
@@ -93,7 +101,12 @@ fun PerformanceSettingsDialog(
                         title = stringResource(R.string.settings_renderer_fsr_quality_title),
                         options = listOf(1, 2, 3, 4),
                         current = AllSettings.fsrQuality.state ?: 2,
-                        onClick = { AllSettings.fsrQuality.save(it) },
+                        onClick = { quality ->
+                            AllSettings.fsrQuality.save(quality)
+                            val ratio = FSRUtils.qualityToResolutionRatio(quality)
+                            AllSettings.resolutionRatio.updateState(ratio)
+                            AllSettings.resolutionRatio.save()
+                        },
                         label = { quality ->
                             Text(
                                 text = when (quality) {
