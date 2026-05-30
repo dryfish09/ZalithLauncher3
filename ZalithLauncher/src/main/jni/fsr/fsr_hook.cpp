@@ -71,34 +71,33 @@ static GLuint compileShader(GLenum type, const char* source) {
     return shader;
 }
 
-static void resolveGLProc(void** ptr, const char* name) {
-    if (*ptr) return;
-    if (real_eglGetProcAddress) {
-        *ptr = real_eglGetProcAddress(name);
-        if (*ptr) return;
+static void* resolveFromGLES(const char* name) {
+    // Load directly from GLES libs — never through eglGetProcAddress which may be
+    // hooked by the renderer (e.g. Krypton Wrapper), causing circular resolution.
+    static void* gles = nullptr;
+    if (!gles) {
+        gles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_NOLOAD);
+        if (!gles) gles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_NOLOAD);
+        if (!gles) gles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_LOCAL);
+        if (!gles) gles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_LOCAL);
     }
-    void* gles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_LOCAL);
-    if (!gles) gles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_LOCAL);
-    if (gles) *ptr = dlsym(gles, name);
+    void* sym = gles ? dlsym(gles, name) : nullptr;
+    if (!sym) sym = dlsym(RTLD_DEFAULT, name);
+    return sym;
 }
 
 static void getRealGLFunctions() {
     if (real_glBindFramebuffer) return;
-    if (!real_eglGetProcAddress) {
-        real_eglGetProcAddress = (void* (*)(const char*))dlsym(RTLD_DEFAULT, "eglGetProcAddress");
-        if (!real_eglGetProcAddress) {
-            void* egl = dlopen("libEGL.so", RTLD_LAZY | RTLD_LOCAL);
-            if (egl) real_eglGetProcAddress = (void* (*)(const char*))dlsym(egl, "eglGetProcAddress");
-        }
-    }
-    resolveGLProc((void**)&real_glBindFramebuffer, "glBindFramebuffer");
-    resolveGLProc((void**)&real_glViewport, "glViewport");
-    resolveGLProc((void**)&real_glGetIntegerv, "glGetIntegerv");
-    resolveGLProc((void**)&real_glGenVertexArrays, "glGenVertexArrays");
-    resolveGLProc((void**)&real_glBindVertexArray, "glBindVertexArray");
-    resolveGLProc((void**)&real_glDeleteVertexArrays, "glDeleteVertexArrays");
-    resolveGLProc((void**)&real_glBlitFramebuffer, "glBlitFramebuffer");
-    if (!real_glBindFramebuffer || !real_glViewport || !real_glGetIntegerv || !real_glGenVertexArrays || !real_glBindVertexArray || !real_glDeleteVertexArrays || !real_glBlitFramebuffer) {
+    real_glBindFramebuffer  = (void (*)(GLenum, GLuint))         resolveFromGLES("glBindFramebuffer");
+    real_glViewport         = (void (*)(GLint, GLint, GLsizei, GLsizei)) resolveFromGLES("glViewport");
+    real_glGetIntegerv      = (void (*)(GLenum, GLint*))          resolveFromGLES("glGetIntegerv");
+    real_glGenVertexArrays  = (void (*)(GLsizei, GLuint*))        resolveFromGLES("glGenVertexArrays");
+    real_glBindVertexArray  = (void (*)(GLuint))                  resolveFromGLES("glBindVertexArray");
+    real_glDeleteVertexArrays = (void (*)(GLsizei, const GLuint*))resolveFromGLES("glDeleteVertexArrays");
+    real_glBlitFramebuffer  = (void (*)(GLint,GLint,GLint,GLint,GLint,GLint,GLint,GLint,GLbitfield,GLenum)) resolveFromGLES("glBlitFramebuffer");
+    if (!real_glBindFramebuffer || !real_glViewport || !real_glGetIntegerv ||
+        !real_glGenVertexArrays || !real_glBindVertexArray ||
+        !real_glDeleteVertexArrays || !real_glBlitFramebuffer) {
         LOGE("Failed to resolve real GL functions");
     }
 }

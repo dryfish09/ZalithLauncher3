@@ -114,7 +114,7 @@ $(info $(shell (rm $(HERE_PATH)/../jniLibs/*/libawt_headless.so)))
 
 include $(CLEAR_VARS)
 LOCAL_PATH := $(HERE_PATH)
-LOCAL_MODULE := gl_fsr
+LOCAL_MODULE := zl_fsr
 LOCAL_CFLAGS += -rdynamic
 LOCAL_LDLIBS := -ldl -llog -lEGL -lGLESv2
 LOCAL_SRC_FILES := \
