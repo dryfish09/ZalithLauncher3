@@ -81,6 +81,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.path.GamePath
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.version.installed.PlayTimeRepository
+import com.movtery.zalithlauncher.game.version.mod.update.ModUpdateChecker
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.game.version.installed.cleanup.CleanFailedException
@@ -918,6 +919,15 @@ fun CommonVersionInfoLayout(
                                 style = MaterialTheme.typography.labelSmall
                             )
                         }
+                    }
+                    val updateCount = remember(versionName) { ModUpdateChecker.getUpdateCount(versionName) }
+                    if (updateCount > 0) {
+                        LittleTextLabel(
+                            text = stringResource(R.string.versions_manage_mod_updates, updateCount),
+                            color = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            textStyle = MaterialTheme.typography.labelSmall
+                        )
                     }
                 }
             }
