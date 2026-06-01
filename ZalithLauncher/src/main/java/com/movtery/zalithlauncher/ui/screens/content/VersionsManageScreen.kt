@@ -80,6 +80,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategory
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategoryItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
+import com.movtery.zalithlauncher.utils.ShortcutUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.canHandlePermission
 import com.movtery.zalithlauncher.utils.checkStoragePermissions
@@ -471,6 +472,7 @@ private fun VersionsLayout(
     onVersionPinned: () -> Unit,
     onInstall: () -> Unit,
 ) {
+    val context = LocalContext.current
     val surfaceYOffset by swapAnimateDpAsState(
         targetValue = (-40).dp,
         swapIn = isVisible
@@ -576,7 +578,10 @@ private fun VersionsLayout(
                                 onCopyClick = { versionsOperation = VersionsOperation.Copy(version) },
                                 onExportClick = { navigateToExport(version) },
                                 onDeleteClick = { versionsOperation = VersionsOperation.Delete(version) },
-                                onPinned = onVersionPinned
+                                onPinned = onVersionPinned,
+                                onAddShortcutClick = {
+                                    ShortcutUtils.pinVersion(context, version)
+                                }
                             )
                         }
                     }

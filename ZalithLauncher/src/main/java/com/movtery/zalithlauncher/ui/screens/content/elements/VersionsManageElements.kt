@@ -686,7 +686,8 @@ fun VersionItemLayout(
     onCopyClick: () -> Unit = {},
     onExportClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
-    onPinned: () -> Unit = {}
+    onPinned: () -> Unit = {},
+    onAddShortcutClick: () -> Unit = {}
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
@@ -824,6 +825,20 @@ fun VersionItemLayout(
                         },
                         onClick = {
                             onExportClick()
+                            menuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.versions_manage_add_shortcut)) },
+                        leadingIcon = {
+                            Icon(
+                                modifier = Modifier.size(20.dp),
+                                painter = painterResource(R.drawable.ic_add_box_outlined),
+                                contentDescription = stringResource(R.string.versions_manage_add_shortcut)
+                            )
+                        },
+                        onClick = {
+                            onAddShortcutClick()
                             menuExpanded = false
                         }
                     )

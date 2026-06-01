@@ -57,6 +57,7 @@ private const val TAG = "SplashActivity"
 const val EXTRA_IMPORT_ACTION = "EXTRA_IMPORT_ACTION"
 const val EXTRA_IMPORT_URI    = "EXTRA_IMPORT_URI"
 const val EXTRA_IMPORT_TYPE   = "EXTRA_IMPORT_TYPE"
+const val EXTRA_LAUNCH_VERSION = "EXTRA_LAUNCH_VERSION"
 
 const val IMPORT_TYPE_MODPACK = "modpack"
 const val IMPORT_TYPE_CONTROLS = "controls"
@@ -110,6 +111,17 @@ class SplashActivity : BaseAppCompatActivity(refreshData = false) {
 
         if (isImportIntent(intent) && !isLauncherIntent(intent)) {
             handleImportIntent(intent)
+            finish()
+            return
+        }
+
+        val versionName = intent.getStringExtra(EXTRA_LAUNCH_VERSION)
+        if (versionName != null) {
+            val forward = Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra(EXTRA_LAUNCH_VERSION, versionName)
+            }
+            startActivity(forward)
             finish()
         }
     }

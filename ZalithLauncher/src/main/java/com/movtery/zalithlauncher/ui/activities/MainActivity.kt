@@ -46,6 +46,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.ui.activities.EXTRA_LAUNCH_VERSION
 import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.path.URL_SUPPORT
@@ -716,6 +717,17 @@ class MainActivity : BaseAppCompatActivity() {
      */
     private fun handleImportIfNeeded(intent: Intent?): Boolean {
         if (intent == null) return false
+
+        val versionName = intent.getStringExtra(EXTRA_LAUNCH_VERSION)
+        if (versionName != null) {
+            intent.removeExtra(EXTRA_LAUNCH_VERSION)
+            val version = VersionsManager.getVersion(versionName)
+            if (version != null) {
+                VersionsManager.saveVersion(version)
+                launchGameViewModel.tryLaunch(version)
+            }
+            return true
+        }
 
         val type = intent.getStringExtra(EXTRA_IMPORT_TYPE) ?: return false
 
