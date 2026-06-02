@@ -322,34 +322,32 @@ fun RendererSettingsScreen(
                         summary = stringResource(R.string.settings_renderer_sustained_performance_summary)
                     )
 
-                    if (checkVulkanSupport(LocalContext.current.packageManager)) {
-                        var adrenoGPUAlert by remember { mutableStateOf(false) }
+                    var adrenoGPUAlert by remember { mutableStateOf(false) }
 
-                        SwitchSettingsCard(
-                            modifier = Modifier.fillMaxWidth(),
-                            position = CardPosition.Middle,
-                            unit = AllSettings.zinkPreferSystemDriver,
-                            title = stringResource(R.string.settings_renderer_vulkan_driver_system_title),
-                            summary = stringResource(R.string.settings_renderer_vulkan_driver_system_summary),
-                            onCheckedChange = { checked ->
-                                if (checked && isAdrenoGPU()) adrenoGPUAlert = true
+                    SwitchSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
+                        unit = AllSettings.zinkPreferSystemDriver,
+                        title = stringResource(R.string.settings_renderer_vulkan_driver_system_title),
+                        summary = stringResource(R.string.settings_renderer_vulkan_driver_system_summary),
+                        onCheckedChange = { checked ->
+                            if (checked && isAdrenoGPU()) adrenoGPUAlert = true
+                        }
+                    )
+
+                    if (adrenoGPUAlert) {
+                        SimpleAlertDialog(
+                            title = stringResource(R.string.generic_warning),
+                            text = stringResource(R.string.settings_renderer_zink_driver_adreno),
+                            onConfirm = {
+                                AllSettings.zinkPreferSystemDriver.save(true)
+                                adrenoGPUAlert = false
+                            },
+                            onDismiss = {
+                                AllSettings.zinkPreferSystemDriver.save(false)
+                                adrenoGPUAlert = false
                             }
                         )
-
-                        if (adrenoGPUAlert) {
-                            SimpleAlertDialog(
-                                title = stringResource(R.string.generic_warning),
-                                text = stringResource(R.string.settings_renderer_zink_driver_adreno),
-                                onConfirm = {
-                                    AllSettings.zinkPreferSystemDriver.save(true)
-                                    adrenoGPUAlert = false
-                                },
-                                onDismiss = {
-                                    AllSettings.zinkPreferSystemDriver.save(false)
-                                    adrenoGPUAlert = false
-                                }
-                            )
-                        }
                     }
 
                     SwitchSettingsCard(
