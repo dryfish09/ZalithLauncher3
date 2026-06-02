@@ -420,6 +420,9 @@
     <string name="versions_manage_invalid">Geçersiz sürüm</string>
     <string name="versions_manage_mod_updates">%d mod güncellemesi</string>
     <string name="versions_manage_add_shortcut">Ana Ekrana Ekle</string>
+    <string name="turnip_driver_installed">Yüklü Sürücüler</string>
+    <string name="turnip_driver_available">İndirilebilir</string>
+    <string name="turnip_driver_delete_confirm">"%s" sürücüsü silinsin mi? Bu işlem geri alınamaz.</string>
     <string name="versions_manage_rename_version">Sürümü Yeniden Adlandır</string>
     <string name="versions_manage_copy_version">Sürümü Kopyala</string>
     <string name="versions_manage_copy_version_tip">Bu sürümü yalıtımla kopyala. Tüm Dosyaları Kopyala ile kaynaklar da eklenir.</string>
