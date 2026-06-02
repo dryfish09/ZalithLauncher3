@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
@@ -70,6 +71,7 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettin
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
+import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.utils.device.checkVulkanSupport
 import com.movtery.zalithlauncher.utils.isAdrenoGPU
@@ -89,9 +91,27 @@ fun RendererSettingsScreen(
     ) { isVisible ->
         val context = LocalContext.current
         var showMobileGluesSettings by remember { mutableStateOf(false) }
+        var driverToDelete by remember { mutableStateOf<Driver?>(null) }
 
         if (showMobileGluesSettings) {
             MobileGluesSettingsDialog(onDismissRequest = { showMobileGluesSettings = false })
+        }
+
+        driverToDelete?.let { driver ->
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_delete),
+                text = stringResource(R.string.turnip_driver_delete_confirm, driver.name),
+                confirmText = stringResource(R.string.generic_delete),
+                onConfirm = {
+                    java.io.File(driver.path).deleteRecursively()
+                    DriverPluginManager.scanExternalDrivers(context)
+                    if (AllSettings.vulkanDriver.getValue() == driver.id) {
+                        AllSettings.vulkanDriver.save(AllSettings.vulkanDriver.defaultValue)
+                    }
+                    driverToDelete = null
+                },
+                onDismiss = { driverToDelete = null }
+            )
         }
 
         AnimatedColumn(
@@ -162,6 +182,18 @@ fun RendererSettingsScreen(
                         getItemSummary = {
                             DriverSummaryLayout(it)
                         },
+                        getItemTrailing = { driver ->
+                            if (driver.isExternal) {
+                                IconButton(onClick = { driverToDelete = driver }) {
+                                    Icon(
+                                        modifier = Modifier.padding(4.dp),
+                                        painter = painterResource(R.drawable.ic_delete_filled),
+                                        contentDescription = stringResource(R.string.generic_delete),
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                        },
                         trailingIcon = {
                             IconButton(
                                 onClick = {
@@ -190,7 +222,7 @@ fun RendererSettingsScreen(
                         title = stringResource(R.string.settings_renderer_download_turnip),
                         summary = stringResource(R.string.settings_renderer_download_turnip_summary),
                         onClick = {
-                            key.backStack.navigateOnce(NormalNavKey.Settings.TurnipDrivers)
+                            key.backStack.navigateTo(NormalNavKey.Settings.TurnipDrivers)
                         },
                         trailingIcon = {
                             Row {
