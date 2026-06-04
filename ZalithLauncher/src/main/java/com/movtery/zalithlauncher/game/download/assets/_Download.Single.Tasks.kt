@@ -30,11 +30,11 @@ import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
+import com.movtery.zalithlauncher.utils.network.toLocal
 import com.movtery.zalithlauncher.utils.network.withSpeedReport
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
-import io.ktor.http.HttpStatusCode
 import okio.IOException
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -172,13 +172,7 @@ fun mapExceptionToMessage(e: Throwable): Pair<Int, Array<Any>?> {
         is HttpRequestTimeoutException -> Pair(R.string.error_timeout, null)
         is UnknownHostException, is UnresolvedAddressException -> Pair(R.string.error_network_unreachable, null)
         is ConnectException -> Pair(R.string.error_connection_failed, null)
-        is ResponseException -> {
-            when (e.response.status) {
-                HttpStatusCode.Unauthorized -> Pair(R.string.error_unauthorized, null)
-                HttpStatusCode.NotFound -> Pair(R.string.error_notfound, null)
-                else -> Pair(R.string.error_client_error, arrayOf(e.response.status))
-            }
-        }
+        is ResponseException -> e.toLocal()
         else -> {
             val errorMessage = e.localizedMessage ?: e::class.simpleName ?: "Unknown error"
             Pair(R.string.error_unknown, arrayOf(errorMessage))

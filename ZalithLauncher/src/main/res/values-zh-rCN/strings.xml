@@ -128,10 +128,22 @@
     <string name="error_network_unreachable">网络不可用</string>
     <string name="error_connection_failed">无法连接到服务器</string>
     <string name="error_parse_failed">数据解析失败</string>
-    <string name="error_unauthorized">（%s）未授权</string>
-    <string name="error_notfound">（%s）资源未找到</string>
     <string name="error_client_error">（%s）客户端错误</string>
     <string name="error_unknown">未知错误：%s</string>
+
+    <string name="error_bad_request">(%s) 服务器无法处理该请求</string>
+    <string name="error_unauthorized">(%s) 请检查登录凭证并重试</string>
+    <string name="error_forbidden">(%s) 您没有权限访问此资源</string>
+    <string name="error_notfound">(%s) 请求的资源不存在</string>
+    <string name="error_not_acceptable">(%s) 请求不可接受</string>
+    <string name="error_request_timeout">(%s) 服务器等待请求超时</string>
+    <string name="error_conflict">(%s) 请求与当前资源状态冲突</string>
+    <string name="error_gone">(%s) 请求的资源已不再可用</string>
+    <string name="error_too_many_requests">(%s) 请稍后重试</string>
+    <string name="error_internal_server_error">(%s) 服务器遇到意外情况</string>
+    <string name="error_bad_gateway">(%s) 上游服务器返回了无效响应</string>
+    <string name="error_service_unavailable">(%s) 服务器暂时无法处理请求</string>
+    <string name="error_gateway_timeout">(%s) 服务器未能及时收到响应</string>
     <!--  启动页面  -->
     <string name="splash_screen_unpack_desc">启动器需要安装这些内容，才能够确保 Minecraft 能够正常启动。这些内容已经包含在应用中，需要解压之后才能正常使用，点击下方按钮，开始解压并更新这些内容。</string>
     <string name="splash_screen_installing">启动器正在解压这些内容，解压完成后将自动进入主界面，请耐心等待。</string>

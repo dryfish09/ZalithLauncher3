@@ -42,9 +42,9 @@ import com.movtery.zalithlauncher.game.addons.modloader.modlike.ModVersion
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersion
 import com.movtery.zalithlauncher.game.version.installed.utils.isBiggerVer
 import com.movtery.zalithlauncher.utils.logging.Logger
+import com.movtery.zalithlauncher.utils.network.toLocal
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
-import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -298,13 +298,8 @@ suspend fun <T> ViewModel.runWithState(
                 AddonState.Error(R.string.error_parse_failed)
             }
             is ResponseException -> {
-                val statusCode = e.response.status
-                val res = when (statusCode) {
-                    HttpStatusCode.Unauthorized -> R.string.error_unauthorized
-                    HttpStatusCode.NotFound -> R.string.error_notfound
-                    else -> R.string.error_client_error
-                }
-                AddonState.Error(res, arrayOf(statusCode))
+                val local = e.toLocal()
+                AddonState.Error(local.first, local.second)
             }
             else -> {
                 Logger.error(TAG, "An unknown exception was caught!", e)

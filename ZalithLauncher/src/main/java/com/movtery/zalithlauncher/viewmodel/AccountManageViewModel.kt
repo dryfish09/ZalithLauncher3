@@ -68,12 +68,11 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOper
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.logging.Logger
-import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
+import com.movtery.zalithlauncher.utils.network.toLocal
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.plugins.HttpRequestTimeoutException
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,9 +82,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonPrimitive
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.net.ConnectException
@@ -596,12 +592,11 @@ class AccountManageViewModel @Inject constructor(
                 },
                 onError = { th ->
                     val (title, msg) = if (th is KtorResponseException) {
-                        val body = th.response.safeBodyAsJson<JsonObject>()
-                        context.getString(
+                        val title = context.getString(
                             R.string.account_change_skin_failed_to_upload,
                             th.response.status.value
-                        ) to (body["errorMessage"]?.jsonPrimitive?.contentOrNull
-                            ?: th.getMessageOrToString())
+                        )
+                        title to th.toLocal(context)
                     } else {
                         context.getString(R.string.generic_error) to formatAccountError(th)
                     }
@@ -704,12 +699,11 @@ class AccountManageViewModel @Inject constructor(
                 },
                 onError = { th ->
                     val (title, msg) = if (th is KtorResponseException) {
-                        val body = th.response.safeBodyAsJson<JsonObject>()
-                        context.getString(
+                        val title = context.getString(
                             R.string.account_change_cape_apply_failed,
                             th.response.status.value
-                        ) to (body["errorMessage"]?.jsonPrimitive?.contentOrNull
-                            ?: th.getMessageOrToString())
+                        )
+                        title to th.toLocal(context)
                     } else {
                         context.getString(R.string.generic_error) to formatAccountError(th)
                     }
@@ -890,15 +884,7 @@ class AccountManageViewModel @Inject constructor(
         is HttpRequestTimeoutException -> context.getString(R.string.error_timeout)
         is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
         is ConnectException -> context.getString(R.string.error_connection_failed)
-        is KtorResponseException -> {
-            val res = when (th.response.status) {
-                HttpStatusCode.Unauthorized -> R.string.error_unauthorized
-                HttpStatusCode.NotFound -> R.string.error_notfound
-                else -> R.string.error_client_error
-            }
-            context.getString(res, th.response.status.value)
-        }
-
+        is KtorResponseException -> th.toLocal(context)
         is ResponseException -> th.responseMessage
         else -> {
             Logger.error(TAG, "An unknown exception was caught!", th)
