@@ -50,9 +50,11 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadGameScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadModPackScreen
@@ -60,6 +62,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.DownloadModScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadResourcePackScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadSavesScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadShadersScreen
+import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchIdScreen
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
@@ -130,6 +133,7 @@ private fun TabMenu(
         CategoryItem(backScreenViewModel.downloadResourcePackScreen, { CategoryIcon(R.drawable.ic_format_paint_outlined, R.string.download_category_resource_pack) }, R.string.download_category_resource_pack),
         CategoryItem(backScreenViewModel.downloadSavesScreen, { CategoryIcon(R.drawable.ic_public, R.string.download_category_saves) }, R.string.download_category_saves),
         CategoryItem(backScreenViewModel.downloadShadersScreen, { CategoryIcon(R.drawable.ic_lightbulb, R.string.download_category_shaders) }, R.string.download_category_shaders),
+        CategoryItem(NormalNavKey.SearchId, { CategoryIcon(R.drawable.ic_card, R.string.download_category_by_id) }, R.string.download_category_by_id, division = true),
     )
 
     val xOffset by swapAnimateDpAsState(
@@ -283,6 +287,36 @@ private fun NavigationUI(
                         },
                         submitError = submitError,
                         eventViewModel = eventViewModel
+                    )
+                }
+                entry<NormalNavKey.SearchId> {
+                    SearchIdScreen(
+                        mainScreenKey = backScreenViewModel.mainScreen.currentKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreen.currentKey,
+                        swapToDownload = { platform, classes, projectId, iconUrl ->
+                            val backStack = when (classes) {
+                                PlatformClasses.MOD -> backScreenViewModel.downloadModScreen
+                                PlatformClasses.MOD_PACK -> backScreenViewModel.downloadModPackScreen
+                                PlatformClasses.RESOURCE_PACK -> backScreenViewModel.downloadResourcePackScreen
+                                PlatformClasses.SAVES -> backScreenViewModel.downloadSavesScreen
+                                PlatformClasses.SHADERS -> backScreenViewModel.downloadShadersScreen
+                            }
+                            backScreenViewModel.navigateToDownload(
+                                targetScreen = backStack.apply {
+                                    navigateTo(
+                                        NormalNavKey.DownloadAssets(
+                                            platform = platform,
+                                            projectId = projectId,
+                                            classes = PlatformClasses.MOD,
+                                            iconUrl = iconUrl
+                                        )
+                                    )
+                                }
+                            )
+                        },
+                        openLink = { link ->
+                            eventViewModel.sendEvent(EventViewModel.Event.OpenLink(link))
+                        }
                     )
                 }
             }

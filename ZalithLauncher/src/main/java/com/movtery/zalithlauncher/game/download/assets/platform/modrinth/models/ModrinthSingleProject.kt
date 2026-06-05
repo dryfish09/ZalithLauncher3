@@ -20,6 +20,8 @@ package com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models
 
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -147,7 +149,7 @@ class ModrinthSingleProject(
 
     /** 关注项目的用户总数 */
     @SerialName("followers")
-    val followers: Int,
+    val followers: Long,
 
     /** 项目的许可证 */
     @SerialName("license")
@@ -254,6 +256,26 @@ class ModrinthSingleProject(
     override fun platformAuthor(): String? = null
 
     override fun platformDownloadCount(): Long = downloads
+
+    override fun platformFollows(): Long = followers
+
+    override fun platformModLoaders(): List<PlatformDisplayLabel>? {
+        val modloaders = loaders.mapNotNull { string ->
+                ModrinthModLoaderCategory.entries.find { it.facetValue() == string }
+            }.toSet().takeIf { it.isNotEmpty() }
+
+        return modloaders?.sortedWith { o1, o2 -> o1.index() - o2.index() }
+    }
+
+    override fun platformCategories(classes: PlatformClasses): List<PlatformFilterCode>? {
+        return categories.take(4) //没有主要类别，则展示前4个
+            .mapNotNull { string ->
+                string.mapModrinthCategory(classes)
+            }
+            .toSet()
+            .takeIf { it.isNotEmpty() }
+            ?.sortedWith { o1, o2 -> o1.index() - o2.index() }
+    }
 
     override fun platformUrls(defaultClasses: PlatformClasses): PlatformProject.Urls {
         return PlatformProject.Urls(

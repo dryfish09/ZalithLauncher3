@@ -42,6 +42,19 @@ fun PlatformProject.getMcMod(
 }
 
 /**
+ * 根据平台获取模组翻译信息
+ */
+fun PlatformProject.getMcMod(
+    translations: ModTranslations
+): ModTranslations.McMod? {
+    return when (this) {
+        is ModrinthSingleProject -> translations.getModBySlugId(slug)
+        is CurseForgeProject -> translations.getModBySlugId(data.slug)
+        else -> error("Unknown project type: $this")
+    }
+}
+
+/**
  * 获取 mcmod 模组翻译标题，若当前环境非中文环境，则返回原始模组名称
  */
 fun ModTranslations.McMod?.getMcmodTitle(originTitle: String, context: Context? = null): String {

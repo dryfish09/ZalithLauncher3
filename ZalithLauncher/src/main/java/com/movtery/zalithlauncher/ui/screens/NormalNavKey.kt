@@ -178,6 +178,8 @@ sealed interface NormalNavKey : TitledNavKey {
     @Serializable data object SearchSaves : NormalNavKey
     /** 搜索光影包屏幕 */
     @Serializable data object SearchShaders : NormalNavKey
+    /** 搜索ID屏幕 */
+    @Serializable data object SearchId : NormalNavKey
 
     /** 下载资源屏幕 */
     @Serializable data class DownloadAssets(

@@ -391,7 +391,7 @@ private fun ResultList(
             val modloaders = remember(item) { item.platformModLoaders() }
             val categories = remember(item, classes) { item.platformCategories(classes) }
 
-            ResultItemLayout(
+            ResultProjectLayout(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 6.dp),
@@ -413,7 +413,7 @@ private fun ResultList(
 }
 
 @Composable
-private fun ResultItemLayout(
+fun ResultProjectLayout(
     modifier: Modifier = Modifier,
     platform: Platform,
     title: String,
