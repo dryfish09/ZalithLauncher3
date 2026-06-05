@@ -43,7 +43,6 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.QuickPlay
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.ServerAddress
-import com.movtery.zalithlauncher.utils.string.compareVersion
 import com.movtery.zalithlauncher.utils.string.insertJSONValueList
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.isLowerTo
@@ -317,42 +316,7 @@ class LaunchArgs(
             }
         }
 
-        //最后进行去重
-        val deduplicated = LinkedHashMap<GameManifest.Library, String>()
-        val bestVersionMap = mutableMapOf<String, Pair<GameManifest.Library, String>>()
-
-        for ((lib, path) in libs) {
-            val nameParts = lib.name.split(":")
-            if (nameParts.size < 3) {
-                deduplicated[lib] = path
-                continue
-            }
-            val groupArtifact = "${nameParts[0]}:${nameParts[1]}"
-            val version = nameParts[2]
-
-            val existing = bestVersionMap[groupArtifact]
-            if (existing == null) {
-                bestVersionMap[groupArtifact] = lib to path
-                deduplicated[lib] = path
-            } else {
-                val existingVersion = existing.first.name.split(":")[2]
-                val cmp = version.compareVersion(existingVersion)
-                if (cmp > 0) {
-                    //重复库，仅保留高版本
-                    Logger.info(TAG, "Duplicate library detected: $groupArtifact, replacing version $existingVersion with higher version $version")
-                    deduplicated.remove(existing.first)
-                    bestVersionMap[groupArtifact] = lib to path
-                    deduplicated[lib] = path
-                } else if (cmp < 0) {
-                    Logger.debug(TAG, "Duplicate library detected: $groupArtifact, ignoring lower version $version (keeping $existingVersion)")
-                } else {
-                    //版本重复，仅保留一�?
-                    Logger.debug(TAG, "Duplicate library detected: $groupArtifact, ignoring duplicate version $version (keeping first occurrence)")
-                }
-            }
-        }
-
-        return deduplicated.values.toTypedArray<String>()
+        return libs.values.toTypedArray<String>()
     }
 
 

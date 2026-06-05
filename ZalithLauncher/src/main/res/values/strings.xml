@@ -180,6 +180,7 @@
     <string name="download_category_resource_pack">Resource Pack</string>
     <string name="download_category_saves">Saves</string>
     <string name="download_category_shaders">Shader Pack</string>
+    <string name="download_category_by_id">Search by ID</string>
     <string name="download_game_failed_to_get_versions">Failed to get version: %s. Tap to retry.</string>
     <string name="download_game_type_release">Release</string>
     <string name="download_game_type_snapshot">Snapshot</string>
@@ -263,6 +264,10 @@
     <string name="download_assets_install_progress_downloading">Downloading and installing assets\n%1$s\n (%2$s / %3$s)</string>
     <string name="download_assets_install_progress_installing">Installing assets\n%s</string>
     <string name="download_assets_install_failed">Failed to install assets!</string>
+    <string name="download_assets_id_holder">Project ID</string>
+    <string name="download_assets_id_tip">Quickly get the corresponding project by project ID</string>
+    <string name="download_assets_id_not_found">Project not found!</string>
+    <string name="download_assets_id_unsupported">Project not supported!</string>
     <string name="download_modpack_warning1">Before installation, you need to understand that most modpacks are made for PC, and there\'s a high chance of crashes or other issues when you try to launch them. These problems are often beyond what the launcher can resolve.</string>
     <string name="download_modpack_warning2">You will need to learn the relevant knowledge to try and resolve the issues yourself, or seek help from others.</string>
     <string name="download_modpack_warning3">Note: The launcher developers typically do not handle issues caused by modpacks.</string>

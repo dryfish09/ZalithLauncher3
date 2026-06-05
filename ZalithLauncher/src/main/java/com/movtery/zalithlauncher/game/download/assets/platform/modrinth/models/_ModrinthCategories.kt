@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.ModLoaderDisplayLabel
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import kotlinx.parcelize.Parcelize
 
@@ -327,4 +328,18 @@ enum class ModrinthShadersCategory : ModrinthFacet, PlatformFilterCode {
 
     override fun facetName(): String = "categories"
     override fun index(): Int = this.ordinal
+}
+
+fun String.mapModrinthCategory(
+    classes: PlatformClasses
+): PlatformFilterCode? {
+    val mapValues = when (classes) {
+        PlatformClasses.MOD -> ModrinthModCategory.entries
+        PlatformClasses.MOD_PACK -> ModrinthModpackCategory.entries
+        PlatformClasses.RESOURCE_PACK -> ModrinthResourcePackCategory.entries
+        PlatformClasses.SAVES -> null
+        PlatformClasses.SHADERS -> ModrinthShadersCategory.entries
+    }
+    return mapValues?.find { it.facetValue() == this }
+        ?: ModrinthFeatures.entries.find { it.facetValue() == this }
 }

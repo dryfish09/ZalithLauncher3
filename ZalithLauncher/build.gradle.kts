@@ -1,4 +1,5 @@
 import com.android.build.api.variant.FilterConfiguration.FilterType.ABI
+import com.android.build.api.variant.impl.VariantOutputImpl
 import com.android.build.gradle.tasks.MergeSourceSetFolders
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -25,6 +26,8 @@ val defaultOAuthClientID = project.findProperty("oauth_client_id") as? String
 val defaultStorePassword = project.findProperty("default_store_password") as? String ?: error("The \"default_store_password\" property is not set in gradle.properties.")
 val defaultKeyPassword = project.findProperty("default_key_password") as? String ?: error("The \"default_key_password\" property is not set in gradle.properties.")
 val defaultCurseForgeApiKey = project.findProperty("curseforge_api_key") as? String
+
+val projectArch: String = System.getProperty("arch", "all")
 
 fun getKeyFromLocal(envKey: String, fileName: String? = null, default: String? = null): String {
     val key = System.getenv(envKey)
@@ -85,7 +88,7 @@ android {
     }
 
     splits {
-        val arch = System.getProperty("arch", "all").takeIf { it != "all" } ?: return@splits
+        val arch = projectArch.takeIf { it != "all" } ?: return@splits
         abi {
             isEnable = true
             reset()
@@ -132,21 +135,20 @@ android {
 androidComponents {
     onVariants { variant ->
         variant.outputs.forEach { output ->
-            if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
+            if (output is VariantOutputImpl) {
                 val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
                 afterEvaluate {
                     val task = tasks.named("merge${variantName}Assets").get() as MergeSourceSetFolders
                     task.doLast {
-                        val arch = System.getProperty("arch", "all")
                         val assetsDir = task.outputDir.get().asFile
                         val jreList = listOf("jre-8", "jre-17", "jre-21", "jre-25")
                         val tag = "JREAssetsCleanup"
-                        logger.lifecycle("[$tag] arch: $arch")
+                        logger.lifecycle("[$tag] arch: $projectArch")
                         jreList.forEach { jreVersion ->
                             val runtimeDir = File("$assetsDir/runtimes/$jreVersion")
                             logger.lifecycle("[$tag] runtimeDir: ${runtimeDir.absolutePath}")
                             runtimeDir.listFiles()?.forEach {
-                                if (arch != "all" && it.name != "version" && !it.name.contains("universal") && it.name != "bin-${arch}.tar.xz") {
+                                if (projectArch != "all" && it.name != "version" && !it.name.contains("universal") && it.name != "bin-$projectArch.tar.xz") {
                                     logger.lifecycle("[$tag] delete: $it : ${it.delete()}")
                                 }
                             }
@@ -180,6 +182,7 @@ buildKeys {
     string("LAUNCHER_SHORT_NAME", launcherShortName, true)
     string("URL_HOME", launcherUrl, true)
     string("CURSEFORGE_API", getKeyFromLocal("CURSEFORGE_API_KEY", ".curseforge_api.txt", defaultCurseForgeApiKey), true)
+    string("BUILD_ARCH", projectArch)
 }
 
 dependencies {

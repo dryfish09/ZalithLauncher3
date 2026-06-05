@@ -53,7 +53,7 @@
     <string name="terracotta_status_guest_ok_address_copy">­Copiar endereço de backup</string>
     <string name="terracotta_status_guest_ok_address_copy_toast">O endereço de backup foi copiado para a área de transferência</string>
     <string name="terracotta_status_guest_ok_address_desc">Por favor, não utilize este endereço a menos que seja necessário.</string>
-    <string name="terracotta_tutorial_host_tip">Tutorial para anfitriões:</string>
+    <string name="terracotta_tutorial_host_tip">Tutorial para Anfitriões:</string>
     <string name="terracotta_tutorial_guest_tip">Tutorial para convidados:</string>
     <string name="terracotta_tutorial_host_step_send_invite">- Envie o código de convite para seus amigos</string>
     <string name="terracotta_status_exception">Conexão perdida</string>
@@ -71,7 +71,7 @@
     <string name="terracotta_player_kind_local">Você mesmo</string>
     <string name="terracotta_player_kind_guest">Convidado</string>
     <string name="terracotta_tutorial_host_tab">Tutorial para anfitriões</string>
-    <string name="terracotta_tutorial_guest_tab">Tutorial para convidados</string>
+    <string name="terracotta_tutorial_guest_tab">Tutorial para Convidados</string>
     <string name="terracotta_tutorial_note_title">Notas:</string>
     <string name="terracotta_tutorial_step_enable_multiplayer">- Habilite o modo multijogador na página inicial do launcher após ler o aviso ao usuário</string>
     <string name="terracotta_tutorial_step_open_multiplayer_menu">- Inicie o jogo e, em seguida, encontre e abra o menu multijogador no jogo</string>

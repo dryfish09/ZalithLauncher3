@@ -348,19 +348,8 @@ class CurseForgeData(
     }
 
     override fun platformCategories(classes: PlatformClasses): List<PlatformFilterCode>? {
-        fun map(string: String): PlatformFilterCode? {
-            val mapValues = when (classes) {
-                PlatformClasses.MOD -> CurseForgeModCategory.entries
-                PlatformClasses.MOD_PACK -> CurseForgeModpackCategory.entries
-                PlatformClasses.RESOURCE_PACK -> CurseForgeResourcePackCategory.entries
-                PlatformClasses.SAVES -> CurseForgeSavesCategory.entries
-                PlatformClasses.SHADERS -> CurseForgeShadersCategory.entries
-            }
-            return mapValues.find { it.describe() == string }
-        }
-
         return categories.mapNotNull {
-            map(it.id.toString())
+            it.id.toString().mapCurseForgeCategory(classes)
         }.toSet().takeIf { it.isNotEmpty() }
             ?.sortedWith { o1, o2 -> o1.index() - o2.index() }
     }

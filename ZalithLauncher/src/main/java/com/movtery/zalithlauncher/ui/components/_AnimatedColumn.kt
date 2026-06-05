@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -50,11 +51,13 @@ fun AnimatedColumn(
     baseDelay: Int = 0,
     delayIncrement: Int = 50,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(12.dp),
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable AnimatedColumnScope.(ColumnScope) -> Unit
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = verticalArrangement
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment
     ) {
         AnimatedColumnScopeImpl(isVisible, baseDelay, delayIncrement).content(this@Column)
     }

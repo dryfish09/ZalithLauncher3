@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.terracotta
 
+import androidx.annotation.Keep
 import androidx.annotation.StringRes
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -36,14 +37,17 @@ import com.movtery.zalithlauncher.terracotta.profile.TerracottaProfile
 /**
  * [Modified from HMCL](https://github.com/HMCL-dev/HMCL/blob/bd6a6fa/HMCL/src/main/java/org/jackhuang/hmcl/terracotta/TerracottaState.java)
  */
+@Keep
 sealed class TerracottaState {
     open fun isForkOf(state: TerracottaState?): Boolean = false
 
+    @Keep
     sealed class PortSpecific(
         @Transient
         var port: Int
     ) : TerracottaState()
 
+    @Keep
     sealed class Ready(
         port: Int,
         @SerializedName("index")
@@ -55,20 +59,25 @@ sealed class TerracottaState {
         abstract fun localStringRes(): Int
     }
 
+    @Keep
     class Unknown(port: Int) : PortSpecific(port)
 
+    @Keep
     class Waiting(port: Int, index: Int, state: String) : Ready(port, index, state) {
         override fun localStringRes(): Int = error("No op.")
     }
 
+    @Keep
     class HostScanning(port: Int, index: Int, state: String) : Ready(port, index, state) {
         override fun localStringRes(): Int = R.string.terracotta_status_host_scanning
     }
 
+    @Keep
     class HostStarting(port: Int, index: Int, state: String) : Ready(port, index, state) {
         override fun localStringRes(): Int = R.string.terracotta_status_host_starting
     }
 
+    @Keep
     class HostOK(
         port: Int,
         index: Int,
@@ -87,10 +96,12 @@ sealed class TerracottaState {
             state is HostOK && (this.index - state.index) <= profileIndex
     }
 
+    @Keep
     class GuestConnecting(port: Int, index: Int, state: String) : Ready(port, index, state) {
         override fun localStringRes(): Int = R.string.terracotta_status_guest_starting
     }
 
+    @Keep
     class GuestStarting(
         port: Int,
         index: Int,
@@ -98,6 +109,7 @@ sealed class TerracottaState {
         @SerializedName("difficulty")
         val difficulty: Difficulty
     ) : Ready(port, index, state) {
+        @Keep
         enum class Difficulty(val textRes: Int) {
             /** 不应该使用这个枚举的[textRes] */
             UNKNOWN(-1),
@@ -110,6 +122,7 @@ sealed class TerracottaState {
         override fun localStringRes(): Int = R.string.terracotta_status_guest_starting
     }
 
+    @Keep
     class GuestOK(
         port: Int,
         index: Int,
@@ -128,7 +141,9 @@ sealed class TerracottaState {
             state is GuestOK && (this.index - state.index) <= profileIndex
     }
 
+    @Keep
     class Exception(port: Int, index: Int, state: String, val type: Int) : Ready(port, index, state) {
+        @Keep
         enum class Type(val textRes: Int) {
             PING_HOST_FAIL(R.string.terracotta_status_exception_desc_ping_host_fail),
             PING_HOST_RST(R.string.terracotta_status_exception_desc_ping_host_rst),
