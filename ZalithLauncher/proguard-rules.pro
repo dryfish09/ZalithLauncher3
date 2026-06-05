@@ -49,3 +49,6 @@
 -keep class com.movtery.zalithlauncher.game.input.CriticalNativeTest {
     *;
 }
+
+# Libraries
+-keep class com.github.steveice10.opennbt.** { *; }

@@ -20,7 +20,10 @@ package com.movtery.zalithlauncher.game.download.assets.platform.curseforge.mode
 
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
+import com.movtery.zalithlauncher.game.download.assets.platform.UnsupportedClassesException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -43,11 +46,26 @@ class CurseForgeProject(
 
     override fun platformTitle(): String = data.name
 
-    override fun platformSummary(): String? = data.summary
+    override fun platformSummary(): String = data.summary
 
-    override fun platformAuthor(): String? = data.authors[0].name
+    override fun platformAuthor(): String = data.authors[0].name
 
     override fun platformDownloadCount(): Long = data.downloadCount
+
+    override fun platformFollows(): Long? = null
+
+    override fun platformModLoaders(): List<PlatformDisplayLabel>? {
+        return data.platformModLoaders()
+    }
+
+    override fun checkClasses() {
+        val classId = data.classId
+        if (CurseForgeClassID.entries.none { id -> classId == id.classID }) throw UnsupportedClassesException(classId)
+    }
+
+    override fun platformCategories(classes: PlatformClasses): List<PlatformFilterCode>? {
+        return data.platformCategories(classes)
+    }
 
     override fun platformUrls(defaultClasses: PlatformClasses): PlatformProject.Urls {
         val classes = data.getPlatformClassesOrNull() ?: defaultClasses

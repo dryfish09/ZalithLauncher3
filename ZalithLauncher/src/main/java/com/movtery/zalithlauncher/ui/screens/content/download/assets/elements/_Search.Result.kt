@@ -391,7 +391,7 @@ private fun ResultList(
             val modloaders = remember(item) { item.platformModLoaders() }
             val categories = remember(item, classes) { item.platformCategories(classes) }
 
-            ResultItemLayout(
+            ResultProjectLayout(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 6.dp),
@@ -413,11 +413,12 @@ private fun ResultList(
 }
 
 @Composable
-private fun ResultItemLayout(
+fun ResultProjectLayout(
     modifier: Modifier = Modifier,
     platform: Platform,
     title: String,
     description: String,
+    classes: PlatformClasses? = null,
     iconUrl: String? = null,
     author: String? = null,
     downloads: Long = 0L,
@@ -523,28 +524,40 @@ private fun ResultItemLayout(
                     }
                 }
 
-                //标签栏
                 Row(
-                    modifier = Modifier
-                        .basicMarquee(Int.MAX_VALUE)
-                        .alpha(0.7f),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    modloaders?.let {
-                        it.forEach { modloader ->
-                            Text(
-                                text = modloader.getDisplayName(),
-                                style = MaterialTheme.typography.labelSmall
-                            )
+                    //标签栏
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .basicMarquee(Int.MAX_VALUE)
+                            .alpha(0.7f),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        modloaders?.let {
+                            it.forEach { modloader ->
+                                Text(
+                                    text = modloader.getDisplayName(),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                        categories?.let {
+                            it.forEach { category ->
+                                Text(
+                                    text = stringResource(category.getDisplayName()),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
                         }
                     }
-                    categories?.let {
-                        it.forEach { category ->
-                            Text(
-                                text = stringResource(category.getDisplayName()),
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                        }
+
+                    //资源的类别
+                    if (classes != null) {
+                        ClassesIdentifier(classes = classes)
                     }
                 }
             }

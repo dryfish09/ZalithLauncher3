@@ -20,7 +20,10 @@ package com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models
 
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
+import com.movtery.zalithlauncher.game.download.assets.platform.UnsupportedClassesException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -88,7 +91,7 @@ class ModrinthSingleProject(
 
     /** 项目的项目类型 */
     @SerialName("project_type")
-    val projectType: ModrinthProjectType,
+    val projectType: String,
 
     /** 项目的下载总数 */
     @SerialName("downloads")
@@ -147,7 +150,7 @@ class ModrinthSingleProject(
 
     /** 关注项目的用户总数 */
     @SerialName("followers")
-    val followers: Int,
+    val followers: Long,
 
     /** 项目的许可证 */
     @SerialName("license")
@@ -241,7 +244,9 @@ class ModrinthSingleProject(
 
     override fun platformId(): String = id
 
-    override fun platformClasses(defaultClasses: PlatformClasses): PlatformClasses = projectType.platform
+    override fun platformClasses(defaultClasses: PlatformClasses): PlatformClasses {
+        return projectType.mapModrinthType()?.platform ?: defaultClasses
+    }
 
     override fun platformSlug(): String = slug
 
@@ -255,9 +260,35 @@ class ModrinthSingleProject(
 
     override fun platformDownloadCount(): Long = downloads
 
+    override fun platformFollows(): Long = followers
+
+    override fun platformModLoaders(): List<PlatformDisplayLabel>? {
+        val modloaders = loaders.mapNotNull { string ->
+                ModrinthModLoaderCategory.entries.find { it.facetValue() == string }
+            }.toSet().takeIf { it.isNotEmpty() }
+
+        return modloaders?.sortedWith { o1, o2 -> o1.index() - o2.index() }
+    }
+
+    override fun checkClasses() {
+        //fixme: 插件类、数据包类项目被标为模组类别
+        if (projectType.mapModrinthType() == null) throw UnsupportedClassesException(projectType)
+    }
+
+    override fun platformCategories(classes: PlatformClasses): List<PlatformFilterCode>? {
+        return categories.take(4) //没有主要类别，则展示前4个
+            .mapNotNull { string ->
+                string.mapModrinthCategory(classes)
+            }
+            .toSet()
+            .takeIf { it.isNotEmpty() }
+            ?.sortedWith { o1, o2 -> o1.index() - o2.index() }
+    }
+
     override fun platformUrls(defaultClasses: PlatformClasses): PlatformProject.Urls {
+        val classes = projectType.mapModrinthType()?.platform ?: defaultClasses
         return PlatformProject.Urls(
-            projectUrl = "https://modrinth.com/${projectType.platform.modrinth!!.facetValue()}/${slug}",
+            projectUrl = "https://modrinth.com/${classes.modrinth!!.facetValue()}/${slug}",
             sourceUrl = sourceUrl,
             issuesUrl = issuesUrl,
             wikiUrl = wikiUrl

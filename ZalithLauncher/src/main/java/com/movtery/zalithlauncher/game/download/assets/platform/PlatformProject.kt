@@ -68,6 +68,26 @@ interface PlatformProject {
     fun platformDownloadCount(): Long
 
     /**
+     * 在平台上的收藏数量（Modrinth）
+     */
+    fun platformFollows(): Long?
+
+    /**
+     * 在平台上标注的模组加载器信息
+     */
+    fun platformModLoaders(): List<PlatformDisplayLabel>?
+
+    /**
+     * 检查项目类别是否受支持
+     */
+    fun checkClasses()
+
+    /**
+     * 在平台上标注的类别信息
+     */
+    fun platformCategories(classes: PlatformClasses): List<PlatformFilterCode>?
+
+    /**
      * 该项目的所有相关链接
      */
     fun platformUrls(defaultClasses: PlatformClasses): Urls

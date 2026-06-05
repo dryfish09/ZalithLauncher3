@@ -23,7 +23,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class ModrinthProjectType(val platform: PlatformClasses) {
+enum class ModrinthProjectType(val platform: PlatformClasses?) {
     @SerialName("mod")
     MOD(PlatformClasses.MOD),
 
@@ -34,5 +34,13 @@ enum class ModrinthProjectType(val platform: PlatformClasses) {
     RESOURCEPACK(PlatformClasses.RESOURCE_PACK),
 
     @SerialName("shader")
-    SHADER(PlatformClasses.SHADERS)
+    SHADER(PlatformClasses.SHADERS),
+}
+
+fun String.mapModrinthType(): ModrinthProjectType? = when (this) {
+    "mod" -> ModrinthProjectType.MOD
+    "modpack" -> ModrinthProjectType.MODPACK
+    "resourcepack" -> ModrinthProjectType.RESOURCEPACK
+    "shader" -> ModrinthProjectType.SHADER
+    else -> null
 }

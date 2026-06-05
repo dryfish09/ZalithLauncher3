@@ -20,9 +20,11 @@ package com.movtery.zalithlauncher.utils.logging
 
 import android.content.Context
 import android.util.Log
+import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.file.zipDirectory
+import com.movtery.zalithlauncher.utils.printLauncherInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -69,7 +71,20 @@ object Logger : CoroutineScope {
             //所以清理旧的日志的工作需要放到初始化阶段
             deleteOldLogs()
             setupLogWriter()
+
+            printLauncherInfo()
+
             processEvents()
+        }
+    }
+
+    private suspend fun printLauncherInfo() {
+        logWriter?.apply {
+            withContext(Dispatchers.IO) {
+                println("================ ${BuildKeys.LAUNCHER_IDENTIFIER} Log ================")
+                printLauncherInfo { println(it) }
+                println("====================================================")
+            }
         }
     }
 

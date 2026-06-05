@@ -180,6 +180,7 @@
     <string name="download_category_resource_pack">资源包</string>
     <string name="download_category_saves">存档</string>
     <string name="download_category_shaders">光影包</string>
+    <string name="download_category_by_id">搜索ID</string>
     <string name="download_game_failed_to_get_versions">获取版本失败：%s，点击重试。</string>
     <string name="download_game_type_release">正式版</string>
     <string name="download_game_type_snapshot">快照版</string>
@@ -263,6 +264,10 @@
     <string name="download_assets_install_progress_downloading">下载安装资源中\n%1$s\n (%2$s / %3$s)</string>
     <string name="download_assets_install_progress_installing">安装资源中\n%s</string>
     <string name="download_assets_install_failed">安装资源失败！</string>
+    <string name="download_assets_id_holder">项目 ID</string>
+    <string name="download_assets_id_tip">根据项目 ID 快速获取对应项目</string>
+    <string name="download_assets_id_not_found">未找到该项目！</string>
+    <string name="download_assets_id_unsupported">不支持该项目！</string>
     <string name="download_modpack_warning1">在安装前，您需要理解，绝大多数整合包都是为电脑端制作的，当您尝试启动时会有极大概率出现崩溃或是其他问题，这往往不是在启动器层面上能够解决的问题。</string>
     <string name="download_modpack_warning2">您需要自己了解相关知识后尝试自己解决，或是寻求其他人帮忙。</string>
     <string name="download_modpack_warning3">注：启动器开发者通常不会受理整合包带来的任何问题。</string>
@@ -398,7 +403,7 @@
     <string name="game_button_mouse_left">鼠标左键</string>
     <string name="game_button_mouse_right">鼠标右键</string>
     <string name="game_dialog_force_close_message">您确定要强制关闭，并返回主界面吗？</string>
-    <string name="game_loading">游戏正在运行，等待游戏画面出现中</string>
+    <string name="game_loading">游戏正在运行，等待游戏画面出现中…</string>
     <string name="game_loading_version_name">游戏版本：%s</string>
     <string name="game_loading_version_info">游戏信息：%s</string>
     <string name="game_menu_title">游戏菜单</string>
@@ -438,9 +443,8 @@
     <string name="game_styles_joystick_hide_when_gamepad">在手柄操作时隐藏</string>
     <string name="game_styles_save_failed">保存样式失败</string>
     <string name="game_saponsorship_finished_game">启动器已经成功运行了 %s 次游戏！如果您觉得好用的话，可以考虑赞助支持一下作者喔！qwq</string>
-
     <string name="game_vulkan_check_title">Vulkan 检测</string>
-    <string name="game_vulkan_check_text">检查您的设备是否支持使用 Vulkan 运行 Minecraft 26.2+，结果仅供参考</string>
+    <string name="game_vulkan_check_text">检查您的设备是否支持使用 Vulkan 运行 Minecraft 26.2+，结果仅供参考。</string>
     <string name="game_vulkan_check_version">Vulkan 版本：%s</string>
     <string name="game_vulkan_check_turnip">使用 Turnip：%s</string>
     <string name="game_vulkan_check_extensions">依赖的扩展：</string>

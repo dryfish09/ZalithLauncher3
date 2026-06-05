@@ -1226,58 +1226,14 @@
     <string name="settings_launcher_home_page_type_warning">Özel ana sayfalar üçüncü taraf içeriktir. Başlatıcı, bu içerikler için herhangi bir garanti vermez. Tanıdık olmayan ana sayfaları kabul ederken lütfen dikkatli olun!</string>
     <string name="settings_launcher_home_page_url">Ana Sayfa İndirme Bağlantısı:</string>
     <string name="settings_launcher_home_page_loading">Ana Sayfa Yükleniyor</string>
-    <string name="account_change_cape_reset">Pelerini Sıfırla</string>
-
-    <!-- Custom Cape Upload -->
-    <string name="account_change_cape_upload">Pelerin Değiştir</string>
-    <string name="account_change_cape_invalid">Geçersiz pelerin dosyası! Pelerinler 64\'e 32 PNG dosyaları olmalıdır..</string>
-    <string name="account_change_cape_failed_to_import">Pelerin yüklenemedi: %s</string>
-    <string name="account_change_cape_apply_custom_success">Özel pelerin uygulandı!</string>
-
-    <!-- Rank and Play Time -->
-    <string name="rank_novice">Çaylak</string>
-    <string name="rank_player">Oyuncu</string>
-    <string name="rank_experienced">Deneyimli</string>
-    <string name="rank_veteran">Gazi</string>
-    <string name="rank_master">Usta</string>
-    <string name="rank_legend">Efsane</string>
-    <string name="play_time_format">Oynama Süresi: %s Saat</string>
-    <string name="settings_chroma_name_title">Chroma Kullanıcı Adı</string>
-    <string name="chroma_mode_red_blue">Kırmızı ve Mavi</string>
-    <string name="chroma_mode_sunset">Gün Batımı</string>
-    <string name="chroma_mode_ocean">Okyanus</string>
-    <string name="chroma_mode_forest">Orman</string>
-    <string name="chroma_mode_neon">Neon</string>
-    <string name="settings_tip_import_export">Ayarları başlatıcı ayarlarından dışa aktarabilir veya içe aktarabilirsiniz.</string>
-    <string name="settings_import">Ayarları İçe Aktar</string>
-    <string name="settings_export">Ayarları Dışa Aktar</string>
-    <string name="settings_import_accounts">Hesapları İçe Aktar</string>
-    <string name="settings_export_accounts">Hesapları Dışa Aktar</string>
-    <string name="settings_import_success">İçe aktarma başarılı!</string>
-    <string name="settings_import_failed">İçe aktarma başarısız!</string>
-    <string name="settings_export_success">Dışa aktarıldı: %s</string>
-    <string name="settings_export_failed">Dışa aktarma başarısız!</string>
-    <string name="storage_permission_request_title">Depolama İzni Gerekli</string>
-    <string name="storage_permission_request_message">Ayarları/Hesapları genel depolama alanına aktarmak için depolama iznine ihtiyacımız var.</string>
-    <string name="settings_renderer_download_turnip">Turnip Sürücüsünü İndir</string>
-    <string name="settings_renderer_download_turnip_summary">Bir Turnip sürücü sürümü seç ve GitHub\'dan indir</string>
-    <string name="settings_renderer_turnip_downloading">Turnip Sürücüsü İndiriliyor...</string>
-    <string name="settings_renderer_turnip_extracting">Turnip Sürücüsü Çıkarılıyor...</string>
-    <string name="settings_renderer_turnip_success">Turnip Sürücüsü başarıyla yüklendi</string>
-    <!-- Game Stats -->
-    <string name="stats_game_stats">Oyun İstatistikleri</string>
-    <string name="stats_play_time_graph">Oyun Süresi (Son 7 Gün)</string>
-    <string name="stats_daily_hours">Bugünkü Oyun Süresi</string>
-    <string name="stats_daily_hours_value">Bugün %s</string>
-    <string name="stats_per_version">Versiyona Göre Süre</string>
-    <string name="stats_last_log">Son Oyun Kaydı</string>
-    <string name="stats_no_log">Henüz kayıt yok</string>
-    <string name="stats_no_data">Henüz veri yok</string>
-    <string name="stats_view_all">Tümünü Gör</string>
-    <string name="stats_today_header">BUGÜNKÜ İSTATİSTİKLER</string>
-    <!-- Play time units -->
-    <string name="play_time_last_played">Son oynama: %s</string>
-    <string name="play_time_total">Oyun süresi: %s</string>
-    <string name="play_time_hours_minutes">%1$d sa %2$d dk</string>
-    <string name="play_time_minutes">%d dk</string>
+    <string name="game_vulkan_check_title">Vulkan Kontrolü</string>
+    <string name="game_vulkan_check_text">Cihazınızın Minecraft 26.2+ sürümünü Vulkan ile çalıştırmayı destekleyip desteklemediğini kontrol edin. Sonuçlar yalnızca referans amaçlıdır.</string>
+    <string name="game_vulkan_check_version">Vulkan sürümü: %s</string>
+    <string name="game_vulkan_check_turnip">Turnip Kullanımı: %s</string>
+    <string name="game_vulkan_check_extensions">Gerekli eklentiler:</string>
+    <string name="game_vulkan_check_missing_extensions">Eksik uzantılar:</string>
+    <string name="game_vulkan_check_features">Gerekli özellikler:</string>
+    <string name="game_vulkan_check_missing_features">Eksik özellikler:</string>
+    <string name="game_vulkan_check_unsupp">Cihazınız Minecraft 26.2+ sürümünü Vulkan ile çalıştırmayı desteklemiyor.</string>
+    <string name="game_vulkan_check_supp">Cihazınız Minecraft 26.2+ sürümünü Vulkan ile çalıştırmayı destekliyor.</string>
 </resources>

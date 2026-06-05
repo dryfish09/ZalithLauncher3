@@ -52,7 +52,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -77,7 +76,6 @@ import com.movtery.zalithlauncher.game.versioninfo.filterRelease
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.CheckChip
-import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
@@ -88,14 +86,13 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.As
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsVersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsState
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsVersionLoading
+import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.ProjectUrlsContent
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.ScreenshotItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.VersionInfoMap
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.initAll
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.mapWithVersions
 import com.movtery.zalithlauncher.ui.theme.onCardColor
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import com.movtery.zalithlauncher.utils.isChinese
-import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.async
@@ -623,55 +620,13 @@ private fun ProjectInfo(
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
-                                urls.projectUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
-                                    IconTextButton(
-                                        onClick = { openLink(url) },
-                                        iconSize = 18.dp,
-                                        painter = when (platform) {
-                                            Platform.CURSEFORGE -> painterResource(R.drawable.img_platform_curseforge)
-                                            Platform.MODRINTH -> painterResource(R.drawable.img_platform_modrinth)
-                                        },
-                                        text = stringResource(R.string.download_assets_project_link)
-                                    )
-                                }
-                                urls.sourceUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
-                                    IconTextButton(
-                                        onClick = { openLink(url) },
-                                        iconSize = 18.dp,
-                                        painter = painterResource(R.drawable.ic_code),
-                                        text = stringResource(R.string.download_assets_source_link)
-                                    )
-                                }
-                                urls.issuesUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
-                                    IconTextButton(
-                                        onClick = { openLink(url) },
-                                        iconSize = 18.dp,
-                                        painter = painterResource(R.drawable.ic_chat_info),
-                                        text = stringResource(R.string.download_assets_issues_link)
-                                    )
-                                }
-                                urls.wikiUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
-                                    IconTextButton(
-                                        onClick = { openLink(url) },
-                                        iconSize = 18.dp,
-                                        painter = painterResource(R.drawable.ic_import_contacts_outlined),
-                                        text = stringResource(R.string.download_assets_wiki_link)
-                                    )
-                                }
-                                mcmod?.takeIf {
-                                    isChinese(context)
-                                }?.let {
-                                    mod.getMcmodUrl(it)
-                                }?.takeIf {
-                                    it.isNotEmptyOrBlank()
-                                }?.let { url ->
-                                    IconTextButton(
-                                        onClick = { openLink(url) },
-                                        iconSize = 18.dp,
-                                        painter = painterResource(R.drawable.ic_link),
-                                        text = "MC 百科" //品牌名不需要翻译，硬编码
-                                    )
-                                }
+                                ProjectUrlsContent(
+                                    platform = platform,
+                                    urls = urls,
+                                    mcmod = mcmod,
+                                    mod = mod,
+                                    openLink = openLink,
+                                )
                             }
                         }
                     }
