@@ -6,7 +6,7 @@ group = "org.lwjgl.glfw"
 
 val fatJarDeps by configurations.creating {
     isCanBeResolved = true
-    isCanBeConsumed = false
+    extendsFrom(configurations.runtimeClasspath.get())
 }
 
 tasks.jar {
@@ -40,6 +40,6 @@ java {
 }
 
 dependencies {
-    fatJarDeps(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    fatJarDeps(fileTree(mapOf("dir" to "compileOnly", "include" to listOf("*.jar"))))
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    compileOnly(fileTree(mapOf("dir" to "compileOnly", "include" to listOf("*.jar"))))
 }

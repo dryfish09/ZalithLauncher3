@@ -1431,6 +1431,12 @@ public class GLFW
         yscale.put(0, 1);
     }
 
+    /** {@code char const * glfwGetMonitorName(GLFWmonitor * monitor)} */
+    @NativeType("char const *")
+    public static String glfwGetMonitorName(@NativeType("GLFWwindow *") long window) {
+        return "Monitor";
+    }
+
     /** Array version of: {@link #glfwGetWindowPos GetWindowPos} */
     public static void glfwGetWindowPos(@NativeType("GLFWwindow *") long window, @Nullable @NativeType("int *") int[] xpos, @Nullable @NativeType("int *") int[] ypos) {
         if (CHECKS) {
