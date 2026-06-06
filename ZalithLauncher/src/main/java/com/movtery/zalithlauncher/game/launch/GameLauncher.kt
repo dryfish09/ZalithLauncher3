@@ -43,8 +43,8 @@ import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.support.touch_controller.ControllerProxy
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.version.installed.VersionInfoParser
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.game.version.installed.getGameManifest
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
@@ -88,7 +88,11 @@ class GameLauncher(
             VersionsManager.getVersion(inheritsFrom)?.getClientJar()
         } ?: version.getClientJar()
 
-        gameManifest = getGameManifest(version, gameManifest = manifest)
+        gameManifest = VersionInfoParser(version)
+            .setManifest(manifest)
+            .setInheriting()
+            .build()
+
         CallbackBridge.nativeSetUseInputStackQueue(gameManifest.arguments != null)
 
         val currentAccount = AccountsManager.currentAccountFlow.value!!

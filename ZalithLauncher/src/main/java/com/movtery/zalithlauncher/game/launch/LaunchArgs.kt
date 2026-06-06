@@ -35,7 +35,7 @@ import com.movtery.zalithlauncher.game.version.download.filterLibrary
 import com.movtery.zalithlauncher.game.version.download.getLibraryReplacement
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
-import com.movtery.zalithlauncher.game.version.installed.getGameManifest
+import com.movtery.zalithlauncher.game.version.installed.VersionInfoParser
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
@@ -215,7 +215,7 @@ class LaunchArgs(
     }
 
     private fun getMinecraftJVMArgs(): Array<String> {
-        val gameManifest1 = getGameManifest(version, skipInheriting = true)
+        val gameManifest1 = VersionInfoParser(version).build()
 
 //        // Parse Forge 1.17+ additional JVM Arguments
 //        if (versionInfo.inheritsFrom == null || versionInfo.arguments == null || versionInfo.arguments.jvm == null) {
@@ -299,18 +299,8 @@ class LaunchArgs(
         val libs = LinkedHashMap<GameManifest.Library, String>()
 
         for (libItem in gameManifest.libraries) {
-            if (!GameManifest.Rule.checkRules(libItem.rules)) {
-                Logger.debug(TAG, "Library ignored due to unmatched rules: ${libItem.name}")
-                continue
-            }
-            if (libItem.isNative) {
-                Logger.debug(TAG, "Library ignored because it is a native library: ${libItem.name}")
-                continue
-            }
-            val path = libItem.progressLibrary() ?: run {
-                Logger.debug(TAG, "Library ignored due to library filtering: ${libItem.name}")
-                continue
-            }
+            if (!(GameManifest.Rule.checkRules(libItem.rules) && !libItem.isNative)) continue
+            val path = libItem.progressLibrary() ?: continue
             with(libSortFix) {
                 libs.insertLib(libItem, getLibrariesHome() + "/" + path)
             }

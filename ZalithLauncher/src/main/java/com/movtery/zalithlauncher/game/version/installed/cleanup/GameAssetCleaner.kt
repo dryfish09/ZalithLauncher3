@@ -27,8 +27,8 @@ import com.movtery.zalithlauncher.coroutine.addTask
 import com.movtery.zalithlauncher.coroutine.buildPhase
 import com.movtery.zalithlauncher.game.path.getAssetsHome
 import com.movtery.zalithlauncher.game.version.download.BaseMinecraftDownloader
+import com.movtery.zalithlauncher.game.version.installed.VersionInfoParser
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.game.version.installed.getGameManifest
 import com.movtery.zalithlauncher.utils.file.collectFiles
 import com.movtery.zalithlauncher.utils.file.findRedundantFiles
 import com.movtery.zalithlauncher.utils.file.formatFileSize
@@ -151,7 +151,11 @@ class GameAssetCleaner(
 
                         task.updateMessage(R.string.versions_manage_cleanup_progress_next_version, version.getVersionName())
 
-                        val gameManifest = getGameManifest(version) //已启动游戏时所需的依赖为准
+                        //已启动游戏时所需的依赖为准
+                        val gameManifest = VersionInfoParser(version)
+                            .setInheriting(skipIfNotExists = true)
+                            .build()
+
                         val index = downloader.createAssetIndex(downloader.assetIndexTarget, gameManifest)
 
                         fun addGameFile(file: File) {
