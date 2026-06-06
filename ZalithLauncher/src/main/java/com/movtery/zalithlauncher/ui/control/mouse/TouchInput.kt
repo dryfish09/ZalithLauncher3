@@ -36,6 +36,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -50,6 +51,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 拖动状态数据类
@@ -150,10 +152,13 @@ fun TouchpadLayout(
                         try {
                             while (true) {
                                 val event = awaitPointerEvent()
-
                                 event.changes
                                     .filter { it.changedToDown() }
                                     .forEach { change ->
+                                        if (change.type != PointerType.Touch) {
+                                            return@forEach
+                                        }
+
                                         //刚触摸到屏幕时，触发触摸事件回调
                                         currentOnTouch()
 
@@ -194,7 +199,7 @@ fun TouchpadLayout(
                                                         } else {
                                                             viewConfiguration.longPressTimeoutMillis
                                                         }
-                                                    delay(timeout)
+                                                    delay(timeout.milliseconds)
 
                                                     //检查是否仍在处理此指针且未开始拖动
                                                     if (activePointer == pointerId && dragStates[pointerId]?.isDragging != true) {
@@ -505,7 +510,6 @@ private fun Modifier.mouseEventModifier(
         dispatchButton(MotionEvent.BUTTON_TERTIARY)
         dispatchButton(MotionEvent.BUTTON_BACK)
         dispatchButton(MotionEvent.BUTTON_FORWARD)
-        dispatchButton(MotionEvent.BUTTON_STYLUS_PRIMARY)
         dispatchButton(MotionEvent.BUTTON_STYLUS_SECONDARY)
 
         lastButtons = buttons
@@ -514,8 +518,23 @@ private fun Modifier.mouseEventModifier(
             MotionEvent.ACTION_HOVER_MOVE,
             MotionEvent.ACTION_MOVE -> {
                 currentOnMouseMove(
-                    Offset(x = event.rawX, y = event.rawY)
+                    Offset(x = event.x, y = event.y)
                 )
+            }
+
+            //检查并处理触控笔按下
+            MotionEvent.ACTION_DOWN,
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                if (isStylus) {
+                    currentOnMouseButton(MotionEvent.BUTTON_PRIMARY, true)
+                }
+            }
+            //检查并处理触控笔抬起
+            MotionEvent.ACTION_UP,
+            MotionEvent.ACTION_POINTER_UP -> {
+                if (isStylus) {
+                    currentOnMouseButton(MotionEvent.BUTTON_PRIMARY, false)
+                }
             }
 
             MotionEvent.ACTION_SCROLL -> {
