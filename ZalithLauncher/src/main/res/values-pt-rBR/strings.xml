@@ -1229,4 +1229,9 @@
     <string name="game_menu_option_hotbar_double_click">Toque duas vezes para trocar o item com a outra mão</string>
     <string name="game_menu_option_hotbar_long_click">Pressione e segure para soltar o item selecionado</string>
     <string name="game_menu_option_hotbar_long_click_delay">Atraso de ativação da barra de atalhos ao pressionar e segurar</string>
+    <string name="download_category_by_id">Pesquisar por ID</string>
+    <string name="download_assets_id_holder">ID do Projeto</string>
+    <string name="download_assets_id_tip">Obtenha rapidamente o projeto correspondente pelo ID do projeto</string>
+    <string name="download_assets_id_not_found">Projeto não encontrado!</string>
+    <string name="download_assets_id_unsupported">Projeto não suportado!</string>
 </resources>
