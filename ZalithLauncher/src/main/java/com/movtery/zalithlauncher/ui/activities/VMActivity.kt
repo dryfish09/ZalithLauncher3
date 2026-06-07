@@ -188,7 +188,7 @@ class VMViewModel : ViewModel() {
                         if (duration > 0) {
                             val currentPlayTime = AllSettings.playTime.getValue()
                             AllSettings.playTime.save(currentPlayTime + duration)
-                            PlayTimeRepository.recordSession(version.getVersionName(), startTime, endTime)
+                            PlayTimeRepository.recordSession(config.version.getVersionName(), startTime, endTime)
                         }
 
                         if (code == 0) {

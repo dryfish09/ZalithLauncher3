@@ -608,7 +608,11 @@ private fun ResourcePackList(
                 modifier = modifier,
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
-                items(list) { pack ->
+                items(
+                    items = list,
+                    key = { it.file.absolutePath },
+                    contentType = { "pack" }
+                ) { pack ->
                     ResourcePackItemLayout(
                         modifier = Modifier
                             .fillMaxWidth()

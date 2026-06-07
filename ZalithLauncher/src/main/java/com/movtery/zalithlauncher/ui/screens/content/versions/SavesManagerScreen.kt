@@ -522,7 +522,11 @@ private fun SavesList(
                 contentPadding = PaddingValues(all = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(list) { saveData ->
+                items(
+                    items = list,
+                    key = { it.saveFile.absolutePath },
+                    contentType = { "save" }
+                ) { saveData ->
                     SaveItemLayout(
                         modifier = Modifier.fillMaxWidth(),
                         saveData = saveData,

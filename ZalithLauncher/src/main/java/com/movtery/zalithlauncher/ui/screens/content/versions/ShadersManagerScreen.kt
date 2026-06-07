@@ -581,7 +581,11 @@ private fun ShadersList(
                 modifier = modifier,
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
-                items(list) { info ->
+                items(
+                    items = list,
+                    key = { it.file.absolutePath },
+                    contentType = { "shader" }
+                ) { info ->
                     ShaderPackItem(
                         modifier = Modifier
                             .fillMaxWidth()

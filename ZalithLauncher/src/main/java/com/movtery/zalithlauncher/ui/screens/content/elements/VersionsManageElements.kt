@@ -49,6 +49,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -72,10 +73,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.ImageLoader
 import coil3.compose.AsyncImage
-import coil3.gif.GifDecoder
-import coil3.svg.SvgDecoder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.path.GamePath
@@ -671,23 +669,28 @@ fun CleanupOperation(
     }
 }
 
+@Stable
+class VersionItemCallbacks(
+    val submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    val onSelected: () -> Unit,
+    val onSettingsClick: () -> Unit,
+    val onRenameClick: () -> Unit,
+    val onCopyClick: () -> Unit,
+    val onExportClick: () -> Unit,
+    val onDeleteClick: () -> Unit,
+    val onPinned: () -> Unit,
+    val onAddShortcutClick: () -> Unit
+)
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VersionItemLayout(
     version: Version,
     selected: Boolean,
-    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    callbacks: VersionItemCallbacks,
     modifier: Modifier = Modifier,
     color: Color = itemColor(),
-    contentColor: Color = onItemColor(),
-    onSelected: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
-    onRenameClick: () -> Unit = {},
-    onCopyClick: () -> Unit = {},
-    onExportClick: () -> Unit = {},
-    onDeleteClick: () -> Unit = {},
-    onPinned: () -> Unit = {},
-    onAddShortcutClick: () -> Unit = {}
+    contentColor: Color = onItemColor()
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
@@ -700,7 +703,7 @@ fun VersionItemLayout(
         shape = MaterialTheme.shapes.large,
         onClick = {
             if (selected) return@Surface
-            onSelected()
+            callbacks.onSelected()
         }
     ) {
         Row(
@@ -714,7 +717,7 @@ fun VersionItemLayout(
                 selected = selected,
                 onClick = {
                     if (selected) return@RadioButton
-                    onSelected()
+                    callbacks.onSelected()
                 }
             )
             CommonVersionInfoLayout(
@@ -730,14 +733,14 @@ fun VersionItemLayout(
                         version.setPinnedAndSave(!currentValue)
                     }.onFailure { e ->
                         Logger.error(TAG, "Failed to save version config!", e)
-                        submitError(
+                        callbacks.submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = saveFailedText,
                                 message = e.getMessageOrToString()
                             )
                         )
                     }.onSuccess {
-                        onPinned()
+                        callbacks.onPinned()
                     }
                 },
                 enabled = version.isValid()
@@ -759,7 +762,7 @@ fun VersionItemLayout(
             }
 
             IconButton(
-                onClick = onSettingsClick,
+                onClick = callbacks.onSettingsClick,
                 enabled = version.isValid()
             ) {
                 Icon(
@@ -796,7 +799,7 @@ fun VersionItemLayout(
                             )
                         },
                         onClick = {
-                            onRenameClick()
+                            callbacks.onRenameClick()
                             menuExpanded = false
                         }
                     )
@@ -810,7 +813,7 @@ fun VersionItemLayout(
                             )
                         },
                         onClick = {
-                            onCopyClick()
+                            callbacks.onCopyClick()
                             menuExpanded = false
                         }
                     )
@@ -824,7 +827,7 @@ fun VersionItemLayout(
                             )
                         },
                         onClick = {
-                            onExportClick()
+                            callbacks.onExportClick()
                             menuExpanded = false
                         }
                     )
@@ -838,7 +841,7 @@ fun VersionItemLayout(
                             )
                         },
                         onClick = {
-                            onAddShortcutClick()
+                            callbacks.onAddShortcutClick()
                             menuExpanded = false
                         }
                     )
@@ -852,7 +855,7 @@ fun VersionItemLayout(
                             )
                         },
                         onClick = {
-                            onDeleteClick()
+                            callbacks.onDeleteClick()
                             menuExpanded = false
                         }
                     )
@@ -1018,16 +1021,6 @@ fun VersionIconImage(
     }
     val defaultIcon = painterResource(defaultIconRes)
 
-    val context = LocalContext.current
-    val loader = remember(version, refreshKey) {
-        ImageLoader.Builder(context)
-            .components {
-                add(GifDecoder.Factory())
-                add(SvgDecoder.Factory())
-            }
-            .build()
-    }
-
     val model = remember(version, refreshKey) {
         version?.let {
             val iconFile = VersionsManager.getVersionIconFile(it)
@@ -1048,7 +1041,6 @@ fun VersionIconImage(
         else -> {
             AsyncImage(
                 model = model,
-                imageLoader = loader,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = modifier

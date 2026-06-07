@@ -683,7 +683,11 @@ private fun ServerListBody(
                 contentPadding = PaddingValues(all = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(list) { server ->
+                items(
+                    items = list,
+                    key = { it.name + ":" + it.originIp },
+                    contentType = { "server" }
+                ) { server ->
                     ServerItem(
                         modifier = Modifier.fillMaxWidth(),
                         item = server,

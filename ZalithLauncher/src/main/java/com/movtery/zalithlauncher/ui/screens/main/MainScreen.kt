@@ -505,30 +505,35 @@ private fun NavigationUI(
 
     if (backStack.isNotEmpty()) {
         /** 导航至版本详细信息屏幕 */
-        val navigateToVersions: (Version) -> Unit = { version ->
-            screenBackStackModel.mainScreen.navigateTo(
-                screenKey = NestedNavKey.VersionSettings(version),
-                useClassEquality = true
-            )
+        val navigateToVersions: (Version) -> Unit = remember(screenBackStackModel) {
+            { version ->
+                screenBackStackModel.mainScreen.navigateTo(
+                    screenKey = NestedNavKey.VersionSettings(version),
+                    useClassEquality = true
+                )
+            }
         }
         /** 导航至整合包导出屏幕 */
-        val navigateToExport: (Version) -> Unit = { version ->
-            screenBackStackModel.mainScreen.removeAndNavigateTo(
-                remove = NestedNavKey.VersionSettings::class,
-                screenKey = NestedNavKey.VersionExport(version),
-                useClassEquality = true
-            )
+        val navigateToExport: (Version) -> Unit = remember(screenBackStackModel) {
+            { version ->
+                screenBackStackModel.mainScreen.removeAndNavigateTo(
+                    remove = NestedNavKey.VersionSettings::class,
+                    screenKey = NestedNavKey.VersionExport(version),
+                    useClassEquality = true
+                )
+            }
         }
 
-        NavDisplay(
-            backStack = backStack,
-            modifier = modifier,
-            onBack = {
-                onBack(backStack)
-            },
-            transitionSpec = rememberTransitionSpec(),
-            popTransitionSpec = rememberTransitionSpec(),
-            entryProvider = entryProvider {
+        val provider = remember(
+            screenBackStackModel,
+            toMainScreen,
+            eventViewModel,
+            modpackImportViewModel,
+            submitError,
+            navigateToVersions,
+            navigateToExport
+        ) {
+            entryProvider {
                 entry<NormalNavKey.LauncherMain> {
                     LauncherScreen(
                         backStackViewModel = screenBackStackModel,
@@ -656,6 +661,17 @@ private fun NavigationUI(
                     )
                 }
             }
+        }
+
+        NavDisplay(
+            backStack = backStack,
+            modifier = modifier,
+            onBack = {
+                onBack(backStack)
+            },
+            transitionSpec = rememberTransitionSpec(),
+            popTransitionSpec = rememberTransitionSpec(),
+            entryProvider = provider
         )
     } else {
         Box(modifier)
@@ -730,7 +746,11 @@ private fun TaskMenu(
                         .weight(1f),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    items(tasks) { task ->
+                    items(
+                        items = tasks,
+                        key = { it.id },
+                        contentType = { "task" }
+                    ) { task ->
                         TaskItem(
                             taskProgress = task.currentProgress,
                             taskMessageRes = task.currentMessageRes,

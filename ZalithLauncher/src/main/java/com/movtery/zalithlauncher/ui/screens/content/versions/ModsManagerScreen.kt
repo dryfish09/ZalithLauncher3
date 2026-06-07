@@ -72,6 +72,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -1035,34 +1036,33 @@ private fun ModsList(
             }
 
             val list = modsList ?: emptyList()
-            items(list) { mod ->
+            items(
+                items = list,
+                key = { it.localMod.file.absolutePath },
+                contentType = { "mod" }
+            ) { mod ->
+                val callbacks = remember(mod) {
+                    ModItemCallbacks(
+                        onLoad = { onLoad(mod) },
+                        onForceRefresh = { onForceRefresh(mod) },
+                        onClick = {
+                            //仅加载了项目信息的模组允许被选择
+                            if (selectedMods.contains(mod)) {
+                                removeFromSelected(mod)
+                            } else {
+                                addToSelected(mod)
+                            }
+                        },
+                        onEnable = { onEnable(mod) },
+                        onDisable = { onDisable(mod) },
+                        onSwapMoreInfo = onSwapMoreInfo,
+                        onDelete = { onDelete(mod) }
+                    )
+                }
                 ModItemLayout(
                     modifier = Modifier.fillMaxWidth(),
                     mod = mod,
-                    onLoad = {
-                        onLoad(mod)
-                    },
-                    onForceRefresh = {
-                        onForceRefresh(mod)
-                    },
-                    onClick = {
-                        //仅加载了项目信息的模组允许被选择
-                        if (selectedMods.contains(mod)) {
-                            removeFromSelected(mod)
-                        } else {
-                            addToSelected(mod)
-                        }
-                    },
-                    onEnable = {
-                        onEnable(mod)
-                    },
-                    onDisable = {
-                        onDisable(mod)
-                    },
-                    onSwapMoreInfo = onSwapMoreInfo,
-                    onDelete = {
-                        onDelete(mod)
-                    },
+                    callbacks = callbacks,
                     selected = selectedMods.contains(mod)
                 )
             }
@@ -1084,18 +1084,23 @@ private fun ModsList(
     }
 }
 
+@Stable
+class ModItemCallbacks(
+    val onLoad: () -> Unit,
+    val onForceRefresh: () -> Unit,
+    val onClick: () -> Unit,
+    val onEnable: () -> Unit,
+    val onDisable: () -> Unit,
+    val onSwapMoreInfo: (id: String, Platform) -> Unit,
+    val onDelete: () -> Unit
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ModItemLayout(
     modifier: Modifier = Modifier,
     mod: RemoteMod,
-    onLoad: () -> Unit = {},
-    onForceRefresh: () -> Unit = {},
-    onClick: () -> Unit = {},
-    onEnable: () -> Unit,
-    onDisable: () -> Unit,
-    onSwapMoreInfo: (id: String, Platform) -> Unit,
-    onDelete: () -> Unit,
+    callbacks: ModItemCallbacks,
     selected: Boolean,
     itemColor: Color = itemColor(),
     itemContentColor: Color = onItemColor(),
@@ -1117,7 +1122,7 @@ private fun ModItemLayout(
 
     LaunchedEffect(mod) {
         //尝试加载该模组文件在平台上所属的项目
-        onLoad()
+        callbacks.onLoad()
     }
 
     Surface(
@@ -1128,7 +1133,7 @@ private fun ModItemLayout(
                 color = borderColor,
                 shape = shape
             ),
-        onClick = onClick,
+        onClick = callbacks.onClick,
         shape = shape,
         color = itemColor,
         contentColor = itemContentColor,
@@ -1245,7 +1250,7 @@ private fun ModItemLayout(
                 } else if (mod.isLoaded) {
                     IconButton(
                         modifier = Modifier.size(38.dp),
-                        onClick = onForceRefresh
+                        onClick = callbacks.onForceRefresh
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_refresh),
@@ -1258,8 +1263,8 @@ private fun ModItemLayout(
                 Checkbox(
                     checked = mod.localMod.file.isEnabled(),
                     onCheckedChange = { checked ->
-                        if (checked) onEnable()
-                        else onDisable()
+                        if (checked) callbacks.onEnable()
+                        else callbacks.onDisable()
                     }
                 )
 
@@ -1272,7 +1277,7 @@ private fun ModItemLayout(
                     IconButton(
                         modifier = Modifier.size(38.dp),
                         onClick = {
-                            onSwapMoreInfo(projectInfo.id, projectInfo.platform)
+                            callbacks.onSwapMoreInfo(projectInfo.id, projectInfo.platform)
                         }
                     ) {
                         Icon(
@@ -1284,7 +1289,7 @@ private fun ModItemLayout(
 
                 IconButton(
                     modifier = Modifier.size(38.dp),
-                    onClick = onDelete
+                    onClick = callbacks.onDelete
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_delete_outlined),

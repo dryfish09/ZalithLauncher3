@@ -35,9 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import coil3.ImageLoader
 import coil3.compose.AsyncImage
-import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.crossfade
@@ -438,12 +436,7 @@ private fun BackgroundImage(
 ) {
     val context = LocalContext.current
 
-    val imageLoader = remember(refreshTrigger) {
-        ImageLoader.Builder(context)
-            .components { add(GifDecoder.Factory()) }
-            .build()
-    }
-    val request = remember(refreshTrigger) {
+    val request = remember(refreshTrigger, imageFile) {
         ImageRequest.Builder(context)
             .data(imageFile)
             .allowHardware(false)
@@ -454,7 +447,6 @@ private fun BackgroundImage(
     AsyncImage(
         modifier = modifier,
         model = request,
-        imageLoader = imageLoader,
         contentDescription = null,
         contentScale = ContentScale.Crop
     )
