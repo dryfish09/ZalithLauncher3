@@ -385,7 +385,7 @@
     <string name="files_select_dir">Chọn thư mục</string>
     <string name="files_current_path">Đường dẫn hiện tại: %s</string>
     <string name="files_no_selectable_content">Không có nội dung có thể lựa chọn</string>
-    <string name="file_invalid_length">Tên quá dài! (Hiện tại: %d, Tối đa: %d)</string>
+    <string name="file_invalid_length" formatted="false">Tên quá dài! (Hiện tại: %d, Tối đa: %d)</string>
     <string name="multirt_runtime_corrupt">Java Runtime bị hỏng</string>
     <string name="multirt_runtime_incompatible_arch">Kiến trúc không tương thích: %s</string>
     <string name="multirt_runtime_delete_message">Xóa Java runtime %s? Không thể hoàn tác thao tác này!</string>

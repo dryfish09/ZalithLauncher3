@@ -168,7 +168,7 @@ class PlayerSkin(
 
     fun loadCape(cape: PlayerProfile.Cape?) {
         // Store the cape id so that a later skin reset can restore it.
-        currentCapeId = cape?.takeIf { it != EmptyCape }?.id?.toString()
+        currentCapeId = cape?.takeIf { it != EmptyCape }?.id
         val path = cape?.takeIf { it != EmptyCape }?.id?.let { id ->
             AssetsUrlBuilder()
                 .append("capes")

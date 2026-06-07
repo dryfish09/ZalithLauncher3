@@ -70,7 +70,7 @@ fun PerformanceSettingsDialog(
                 InfoLayoutSliderItem(
                     modifier = Modifier.fillMaxWidth(),
                     title = stringResource(R.string.settings_renderer_resolution_scale_title),
-                    value = (AllSettings.resolutionRatio.state ?: 100).toFloat(),
+                    value = AllSettings.resolutionRatio.state.toFloat(),
                     onValueChange = { AllSettings.resolutionRatio.updateState(it.toInt()) },
                     onValueChangeFinished = { AllSettings.resolutionRatio.save() },
                     valueRange = 25f..300f,
@@ -100,7 +100,7 @@ fun PerformanceSettingsDialog(
                         modifier = Modifier.fillMaxWidth(),
                         title = stringResource(R.string.settings_renderer_fsr_quality_title),
                         options = listOf(1, 2, 3, 4),
-                        current = AllSettings.fsrQuality.state ?: 2,
+                        current = AllSettings.fsrQuality.state,
                         onClick = { quality ->
                             AllSettings.fsrQuality.save(quality)
                             FSRUtils.updateQuality(quality)

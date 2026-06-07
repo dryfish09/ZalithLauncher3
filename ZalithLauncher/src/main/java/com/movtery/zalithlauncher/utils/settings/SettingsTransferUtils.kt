@@ -131,6 +131,7 @@ object SettingsTransferUtils {
                 AllSettings.allSettings.forEach { unit ->
                     export.settings[unit.key]?.let { valueStr ->
                         try {
+                            @Suppress("UNCHECKED_CAST")
                             when (unit.defaultValue) {
                                 is Boolean -> (unit as? com.movtery.zalithlauncher.setting.unit.AbstractSettingUnit<Boolean>)?.save(valueStr.toBoolean())
                                 is Int -> (unit as? com.movtery.zalithlauncher.setting.unit.AbstractSettingUnit<Int>)?.save(valueStr.toInt())

@@ -76,7 +76,7 @@ object TurnipDownloader {
             val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
             if (!response.isSuccessful) break
 
-            val body = response.body?.string() ?: break
+            val body = response.body.string()
             val releases = json.decodeFromString<List<GithubReleaseApi>>(body)
 
             if (releases.isEmpty()) {
@@ -116,9 +116,8 @@ object TurnipDownloader {
                 withContext(Dispatchers.IO) {
                     client.newCall(downloadRequest).execute().use { downloadResponse ->
                         if (!downloadResponse.isSuccessful) throw Exception("Failed to download driver")
-                        val source = downloadResponse.body?.source() ?: throw Exception("Empty download body")
-                        val totalSize = downloadResponse.body?.contentLength() ?: -1L
-
+                        val source = downloadResponse.body.source()
+                        val totalSize = downloadResponse.body.contentLength()
                         downloadFile.sink().buffer().use { sink ->
                             val buffer = ByteArray(8192)
                             var bytesRead: Long = 0
@@ -201,8 +200,8 @@ object TurnipDownloader {
                         val request = Request.Builder().url(downloadUrl).build()
                         client.newCall(request).execute().use { response ->
                             if (!response.isSuccessful) throw Exception("Failed to download driver")
-                            val source = response.body?.source() ?: throw Exception("Empty download body")
-                            val totalSize = response.body?.contentLength() ?: -1L
+                            val source = response.body.source()
+                            val totalSize = response.body.contentLength()
 
                             downloadFile.sink().buffer().use { sink ->
                                 val buffer = ByteArray(8192)

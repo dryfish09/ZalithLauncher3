@@ -82,7 +82,7 @@ fun AboutDialog(
                     modifier = Modifier.alpha(0.7f)
                 )
 
-                Divider()
+                HorizontalDivider()
 
                 Text(
                     text = stringResource(R.string.about_launcher_author_movtery_title),

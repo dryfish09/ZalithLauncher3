@@ -263,7 +263,7 @@ class SplashActivity : BaseAppCompatActivity(refreshData = false) {
         val uri: Uri? = when (source.action) {
             Intent.ACTION_SEND -> {
                 source.clipData?.getItemAt(0)?.uri
-                    ?: source.getParcelableExtra(Intent.EXTRA_STREAM)
+                    ?: @Suppress("DEPRECATION") source.getParcelableExtra(Intent.EXTRA_STREAM)
             }
             Intent.ACTION_VIEW -> source.data
             else -> null

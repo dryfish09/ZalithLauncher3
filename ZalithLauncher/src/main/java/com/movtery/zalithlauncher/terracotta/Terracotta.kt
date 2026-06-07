@@ -158,6 +158,7 @@ object Terracotta {
     @Deprecated("This API is exposed for debug purpose.")
     fun testNativePanic() {
         if (!initialized) return
+        @Suppress("DEPRECATION")
         TerracottaAndroidAPI.panic()
     }
 
