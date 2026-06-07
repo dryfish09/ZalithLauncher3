@@ -955,6 +955,7 @@
     <string name="settings_gamepad_config_no_items">尚未建立任何設定，無法切換</string>
     <string name="settings_launcher_color_theme_title">顏色主題</string>
     <string name="settings_launcher_color_theme_summary">變更啟動器的整體顏色主題</string>
+    <string name="settings_launcher_color_theme_style">配色風格</string>
     <string name="settings_launcher_dark_mode_title">深色模式</string>
     <string name="settings_launcher_language">語言</string>
     <string name="settings_launcher_full_screen_title">頁面全螢幕化</string>

@@ -23,17 +23,28 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -41,6 +52,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,6 +70,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.materialkolor.PaletteStyle
+import com.movtery.colorpicker.ColorPickerController
+import com.movtery.colorpicker.components.HueBarPicker
 import com.movtery.colorpicker.rememberColorPickerController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.contract.MediaPickerContract
@@ -74,12 +91,17 @@ import com.movtery.zalithlauncher.setting.enums.applyLanguage
 import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
-import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
 import com.movtery.zalithlauncher.ui.components.IconTextButton
+import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
+import com.movtery.zalithlauncher.ui.components.RadioCard
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.components.WarningCard
+import com.movtery.zalithlauncher.ui.components.fadeEdge
+import com.movtery.zalithlauncher.ui.components.toColorOrNull
+import com.movtery.zalithlauncher.ui.components.toHex
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
@@ -91,6 +113,8 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCa
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
+import com.movtery.zalithlauncher.ui.theme.cardColor
+import com.movtery.zalithlauncher.ui.theme.onCardColor
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.checkStoragePermissions
@@ -688,27 +712,257 @@ private fun CustomColorOperation(
             var tempColor by remember {
                 mutableStateOf(Color(AllSettings.launcherCustomColor.getValue()))
             }
-            val colorController = rememberColorPickerController(initialColor = tempColor)
+            //配色主题临时状态
+            val originalStyle = remember { AllSettings.launcherCustomPaletteStyle.getValue() }
+            var paletteStyle by remember {
+                mutableStateOf(originalStyle)
+            }
 
+            val colorController = rememberColorPickerController(initialColor = tempColor)
             val currentColor by remember(colorController) { colorController.color }
 
-            ColorPickerDialog(
+            CustomThemeDialog(
                 colorController = colorController,
+                paletteStyle = paletteStyle,
+                onPaletteStyleChange = { style ->
+                    paletteStyle = style
+                    AllSettings.launcherCustomPaletteStyle.updateState(style)
+                },
                 onChangeFinished = {
                     AllSettings.launcherCustomColor.updateState(currentColor.toArgb())
                 },
                 onCancel = {
-                    //还原颜色
+                    //还原颜色、配色主题
                     AllSettings.launcherCustomColor.updateState(colorController.getOriginalColor().toArgb())
+                    AllSettings.launcherCustomPaletteStyle.updateState(originalStyle)
                     updateOperation(CustomColorOperation.None)
                 },
                 onConfirm = { selectedColor ->
                     AllSettings.launcherCustomColor.save(selectedColor.toArgb())
+                    AllSettings.launcherCustomPaletteStyle.save(paletteStyle)
                     updateOperation(CustomColorOperation.None)
                 },
-                showAlpha = false
             )
         }
+    }
+}
+
+@Composable
+private fun CustomThemeDialog(
+    colorController: ColorPickerController,
+    paletteStyle: PaletteStyle,
+    onPaletteStyleChange: (PaletteStyle) -> Unit,
+    onChangeFinished: () -> Unit = {},
+    onCancel: () -> Unit,
+    onConfirm: (Color) -> Unit,
+) {
+    val selectedColor by colorController.color
+    val selectedHex = remember(selectedColor) {
+        selectedColor.toHex()
+    }
+
+    /**
+     * 是否开启编辑Hex对话框
+     */
+    var editHex by remember {
+        mutableStateOf(false)
+    }
+
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth(0.55f)
+                .fillMaxHeight(),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier
+                    .padding(all = 16.dp)
+                    .heightIn(max = maxHeight - 32.dp)
+                    .wrapContentHeight(),
+                shadowElevation = 3.dp,
+                color = cardColor(false),
+                contentColor = onCardColor(),
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                Column(
+                    modifier = Modifier.padding(all = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_launcher_color_theme_title),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val scrollState = rememberLazyListState()
+                            //颜色风格
+                            LazyColumn(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fadeEdge(scrollState),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                state = scrollState,
+                            ) {
+                                //标题
+                                item {
+                                    Text(
+                                        text = stringResource(R.string.settings_launcher_color_theme_style),
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+
+                                items(PaletteStyle.entries) { style ->
+                                    RadioCard(
+                                        selected = paletteStyle == style,
+                                        text = style.name,
+                                        onClick = {
+                                            onPaletteStyleChange(style)
+                                        }
+                                    )
+                                }
+                            }
+
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                HueBarPicker(
+                                    modifier = Modifier
+                                        .height(30.dp)
+                                        .fillMaxWidth(),
+                                    controller = colorController,
+                                    onChangeFinished = onChangeFinished
+                                )
+
+                                //颜色预览
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    val originalColor = remember {
+                                        colorController.getOriginalColor()
+                                    }
+
+                                    //初始颜色
+                                    Text(
+                                        text = originalColor.toHex(),
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(30.dp)
+                                            .background(color = originalColor)
+                                    )
+                                }
+
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    //当前颜色
+                                    Text(
+                                        text = selectedHex,
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(30.dp)
+                                                .background(color = selectedColor)
+                                        )
+                                        //手动编辑Hex
+                                        IconButton(
+                                            modifier = Modifier.size(36.dp),
+                                            onClick = { editHex = true }
+                                        ) {
+                                            Icon(
+                                                painter = painterResource(R.drawable.ic_edit_outlined),
+                                                contentDescription = stringResource(R.string.theme_color_picker_edit_hex)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        FilledTonalButton(
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                onChangeFinished()
+                                onCancel()
+                            }
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_cancel))
+                        }
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                onConfirm(selectedColor)
+                            }
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_confirm))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (editHex) {
+        var value by remember {
+            mutableStateOf(selectedHex)
+        }
+        val newColor = remember(value) {
+            //尝试转换为颜色对象
+            value.toColorOrNull()
+        }
+
+        SimpleEditDialog(
+            title = stringResource(R.string.theme_color_picker_edit_hex),
+            value = value,
+            onValueChange = { new ->
+                value = new
+            },
+            isError = newColor == null,
+            supportingText = {
+                if (newColor == null) {
+                    Text(text = stringResource(R.string.theme_color_picker_edit_hex_invalid))
+                }
+            },
+            onDismissRequest = { editHex = false },
+            onConfirm = {
+                if (newColor != null) {
+                    colorController.setColor(newColor.copy(alpha = 1f))
+                    editHex = false
+                }
+            }
+        )
     }
 }
 

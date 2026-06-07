@@ -22,6 +22,7 @@ import android.os.Build
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.materialkolor.PaletteStyle
 import com.movtery.layer_controller.data.POSITION_RANGE
 import com.movtery.layer_controller.utils.snap.SnapMode
 import com.movtery.zalithlauncher.BuildKeys
@@ -343,6 +344,11 @@ object AllSettings : SettingsRegistry() {
      * 自定义颜色主题色
      */
     val launcherCustomColor = intSetting("launcherCustomColor", Color.Blue.toArgb())
+
+    /**
+     * 自定义颜色配色风格
+     */
+    val launcherCustomPaletteStyle = enumSetting("launcherCustomPaletteStyle", PaletteStyle.TonalSpot)
 
     /**
      * 启动器UI深色主题

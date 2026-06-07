@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.theme
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialExpressiveTheme
@@ -35,12 +34,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import com.google.android.material.color.utilities.CorePalette
-import com.google.android.material.color.utilities.DynamicScheme
-import com.google.android.material.color.utilities.Hct
-import com.google.android.material.color.utilities.Variant
+import com.materialkolor.PaletteStyle
+import com.materialkolor.dynamicColorScheme
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.ui.theme.components.activeMaskView
@@ -581,115 +577,25 @@ private val verdantDawnDark = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark.verdantDawn,
 )
 
-@SuppressLint("RestrictedApi")
-private fun customLight(color: Color): ColorScheme {
-    val hct = Hct.fromInt(color.toArgb())
-    val palettes = CorePalette.of(color.toArgb())
-
-    val scheme = DynamicScheme(
-        hct,
-        Variant.TONAL_SPOT,
-        false,
-        0.0,
-        palettes.a1,
-        palettes.a2,
-        palettes.a3,
-        palettes.n1,
-        palettes.n2
-    )
-
-    return lightColorScheme(
-        primary = Color(scheme.primary),
-        onPrimary = Color(scheme.onPrimary),
-        primaryContainer = Color(scheme.primaryContainer),
-        onPrimaryContainer = Color(scheme.onPrimaryContainer),
-        secondary = Color(scheme.secondary),
-        onSecondary = Color(scheme.onSecondary),
-        secondaryContainer = Color(scheme.secondaryContainer),
-        onSecondaryContainer = Color(scheme.onSecondaryContainer),
-        tertiary = Color(scheme.tertiary),
-        onTertiary = Color(scheme.onTertiary),
-        tertiaryContainer = Color(scheme.tertiaryContainer),
-        onTertiaryContainer = Color(scheme.onTertiaryContainer),
-        error = Color(scheme.error),
-        onError = Color(scheme.onError),
-        errorContainer = Color(scheme.errorContainer),
-        onErrorContainer = Color(scheme.onErrorContainer),
-        background = Color(scheme.background),
-        onBackground = Color(scheme.onBackground),
-        surface = Color(scheme.surface),
-        onSurface = Color(scheme.onSurface),
-        surfaceVariant = Color(scheme.surfaceVariant),
-        onSurfaceVariant = Color(scheme.onSurfaceVariant),
-        outline = Color(scheme.outline),
-        outlineVariant = Color(scheme.outlineVariant),
-        scrim = Color(scheme.scrim),
-        inverseSurface = Color(scheme.inverseSurface),
-        inverseOnSurface = Color(scheme.inverseOnSurface),
-        inversePrimary = Color(scheme.inversePrimary),
-        surfaceDim = Color(scheme.surfaceDim),
-        surfaceBright = Color(scheme.surfaceBright),
-        surfaceContainerLowest = Color(scheme.surfaceContainerLowest),
-        surfaceContainerLow = Color(scheme.surfaceContainerLow),
-        surfaceContainer = Color(scheme.surfaceContainer),
-        surfaceContainerHigh = Color(scheme.surfaceContainerHigh),
-        surfaceContainerHighest = Color(scheme.surfaceContainerHighest)
+private fun customLight(
+    color: Color,
+    style: PaletteStyle,
+): ColorScheme {
+    return dynamicColorScheme(
+        primary = color,
+        isDark = false,
+        style = style,
     )
 }
 
-@SuppressLint("RestrictedApi")
-private fun customDark(color: Color): ColorScheme {
-    val hct = Hct.fromInt(color.toArgb())
-    val palettes = CorePalette.of(color.toArgb())
-
-    val scheme = DynamicScheme(
-        hct,
-        Variant.TONAL_SPOT,
-        true,
-        0.0,
-        palettes.a1,
-        palettes.a2,
-        palettes.a3,
-        palettes.n1,
-        palettes.n2
-    )
-
-    return darkColorScheme(
-        primary = Color(scheme.primary),
-        onPrimary = Color(scheme.onPrimary),
-        primaryContainer = Color(scheme.primaryContainer),
-        onPrimaryContainer = Color(scheme.onPrimaryContainer),
-        secondary = Color(scheme.secondary),
-        onSecondary = Color(scheme.onSecondary),
-        secondaryContainer = Color(scheme.secondaryContainer),
-        onSecondaryContainer = Color(scheme.onSecondaryContainer),
-        tertiary = Color(scheme.tertiary),
-        onTertiary = Color(scheme.onTertiary),
-        tertiaryContainer = Color(scheme.tertiaryContainer),
-        onTertiaryContainer = Color(scheme.onTertiaryContainer),
-        error = Color(scheme.error),
-        onError = Color(scheme.onError),
-        errorContainer = Color(scheme.errorContainer),
-        onErrorContainer = Color(scheme.onErrorContainer),
-        background = Color(scheme.background),
-        onBackground = Color(scheme.onBackground),
-        surface = Color(scheme.surface),
-        onSurface = Color(scheme.onSurface),
-        surfaceVariant = Color(scheme.surfaceVariant),
-        onSurfaceVariant = Color(scheme.onSurfaceVariant),
-        outline = Color(scheme.outline),
-        outlineVariant = Color(scheme.outlineVariant),
-        scrim = Color(scheme.scrim),
-        inverseSurface = Color(scheme.inverseSurface),
-        inverseOnSurface = Color(scheme.inverseOnSurface),
-        inversePrimary = Color(scheme.inversePrimary),
-        surfaceDim = Color(scheme.surfaceDim),
-        surfaceBright = Color(scheme.surfaceBright),
-        surfaceContainerLowest = Color(scheme.surfaceContainerLowest),
-        surfaceContainerLow = Color(scheme.surfaceContainerLow),
-        surfaceContainer = Color(scheme.surfaceContainer),
-        surfaceContainerHigh = Color(scheme.surfaceContainerHigh),
-        surfaceContainerHighest = Color(scheme.surfaceContainerHighest)
+private fun customDark(
+    color: Color,
+    style: PaletteStyle,
+): ColorScheme {
+    return dynamicColorScheme(
+        primary = color,
+        isDark = true,
+        style = style,
     )
 }
 
@@ -705,10 +611,11 @@ fun ZalithLauncherTheme(
     val colorTheme = AllSettings.launcherColorTheme.state
     val customColorInt = AllSettings.launcherCustomColor.state
     val customColor = Color(customColorInt)
+    val customPaletteStyle = AllSettings.launcherCustomPaletteStyle.state
 
     val context = LocalContext.current
 
-    val targetColorScheme = remember(darkTheme, dynamicColor, colorTheme, customColor) {
+    val targetColorScheme = remember(darkTheme, dynamicColor, colorTheme, customColor, customPaletteStyle) {
         when {
             dynamicColor && colorTheme == ColorThemeType.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                 if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
@@ -722,7 +629,10 @@ fun ZalithLauncherTheme(
                 ColorThemeType.VERDANTFIELD -> verdantFieldDark
                 ColorThemeType.URBAN_ASH -> urbanAshDark
                 ColorThemeType.VERDANT_DAWN -> verdantDawnDark
-                ColorThemeType.CUSTOM -> customDark(customColor)
+                ColorThemeType.CUSTOM -> customDark(
+                    color = customColor,
+                    style = customPaletteStyle
+                )
                 else -> embermireDark
             }
 
@@ -734,7 +644,10 @@ fun ZalithLauncherTheme(
                 ColorThemeType.VERDANTFIELD -> verdantFieldLight
                 ColorThemeType.URBAN_ASH -> urbanAshLight
                 ColorThemeType.VERDANT_DAWN -> verdantDawnLight
-                ColorThemeType.CUSTOM -> customLight(customColor)
+                ColorThemeType.CUSTOM -> customLight(
+                    color = customColor,
+                    style = customPaletteStyle
+                )
                 else -> embermireLight
             }
         }

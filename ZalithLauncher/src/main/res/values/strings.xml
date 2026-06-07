@@ -1069,6 +1069,7 @@
     <string name="settings_gamepad_config_no_items">No configurations created, unable to switch</string>
     <string name="settings_launcher_color_theme_title">Color Theme</string>
     <string name="settings_launcher_color_theme_summary">Customize launcher colors</string>
+    <string name="settings_launcher_color_theme_style">Palette Style</string>
     <string name="settings_launcher_dark_mode_title">Dark Mode</string>
     <string name="settings_launcher_language">Language</string>
     <string name="settings_launcher_full_screen_title">Fullscreen Mode</string>

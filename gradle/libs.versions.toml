@@ -24,7 +24,7 @@ composeBom = "2026.05.01"
 lunarcalendar = "4.0.7"
 material = "1.14.0"
 material3 = "1.5.0-alpha20"
-materialColorUtilities = "4.1.1"
+materialKolor = "4.1.1"
 mavenArtifact = "3.9.16"
 media3Exoplayer = "1.10.1"
 minidnsHla = "1.1.1"
@@ -103,7 +103,8 @@ ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negoti
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 lunarcalendar = { module = "com.xhinliang:LunarCalendar", version.ref = "lunarcalendar" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-material-color-utilities = { module = "com.materialkolor:material-color-utilities", version.ref = "materialColorUtilities" }
+material-color-utilities = { module = "com.materialkolor:material-color-utilities", version.ref = "materialKolor" }
+materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 maven-artifact = { module = "org.apache.maven:maven-artifact", version.ref = "mavenArtifact" }
 minidns-hla = { module = "org.minidns:minidns-hla", version.ref = "minidnsHla" }
 mmkv = { module = "com.tencent:mmkv", version.ref = "mmkv" }
