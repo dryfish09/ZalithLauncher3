@@ -598,16 +598,6 @@ private fun customLight(color: Color): ColorScheme {
         palettes.n2
     )
 
-    val hctNeutral = Hct.fromInt(scheme.surface)
-    //https://github.com/flutter/flutter/issues/137679
-    val surfaceDim               = Hct.from(hctNeutral.hue, hctNeutral.chroma, 87.0).toInt()
-    val surfaceBright            = Hct.from(hctNeutral.hue, hctNeutral.chroma, 98.0).toInt()
-    val surfaceContainerLowest   = Hct.from(hctNeutral.hue, hctNeutral.chroma, 100.0).toInt()
-    val surfaceContainerLow      = Hct.from(hctNeutral.hue, hctNeutral.chroma, 96.0).toInt()
-    val surfaceContainer         = Hct.from(hctNeutral.hue, hctNeutral.chroma, 94.0).toInt()
-    val surfaceContainerHigh     = Hct.from(hctNeutral.hue, hctNeutral.chroma, 92.0).toInt()
-    val surfaceContainerHighest  = Hct.from(hctNeutral.hue, hctNeutral.chroma, 90.0).toInt()
-
     return lightColorScheme(
         primary = Color(scheme.primary),
         onPrimary = Color(scheme.onPrimary),
@@ -637,13 +627,13 @@ private fun customLight(color: Color): ColorScheme {
         inverseSurface = Color(scheme.inverseSurface),
         inverseOnSurface = Color(scheme.inverseOnSurface),
         inversePrimary = Color(scheme.inversePrimary),
-        surfaceDim = Color(surfaceDim),
-        surfaceBright = Color(surfaceBright),
-        surfaceContainerLowest = Color(surfaceContainerLowest),
-        surfaceContainerLow = Color(surfaceContainerLow),
-        surfaceContainer = Color(surfaceContainer),
-        surfaceContainerHigh = Color(surfaceContainerHigh),
-        surfaceContainerHighest = Color(surfaceContainerHighest)
+        surfaceDim = Color(scheme.surfaceDim),
+        surfaceBright = Color(scheme.surfaceBright),
+        surfaceContainerLowest = Color(scheme.surfaceContainerLowest),
+        surfaceContainerLow = Color(scheme.surfaceContainerLow),
+        surfaceContainer = Color(scheme.surfaceContainer),
+        surfaceContainerHigh = Color(scheme.surfaceContainerHigh),
+        surfaceContainerHighest = Color(scheme.surfaceContainerHighest)
     )
 }
 
@@ -663,15 +653,6 @@ private fun customDark(color: Color): ColorScheme {
         palettes.n1,
         palettes.n2
     )
-
-    val hctNeutral = Hct.fromInt(scheme.surface)
-    val surfaceDim                = Hct.from(hctNeutral.hue, hctNeutral.chroma, 6.0).toInt()
-    val surfaceBright             = Hct.from(hctNeutral.hue, hctNeutral.chroma, 24.0).toInt()
-    val surfaceContainerLowest    = Hct.from(hctNeutral.hue, hctNeutral.chroma, 4.0).toInt()
-    val surfaceContainerLow       = Hct.from(hctNeutral.hue, hctNeutral.chroma, 10.0).toInt()
-    val surfaceContainer          = Hct.from(hctNeutral.hue, hctNeutral.chroma, 12.0).toInt()
-    val surfaceContainerHigh      = Hct.from(hctNeutral.hue, hctNeutral.chroma, 17.0).toInt()
-    val surfaceContainerHighest   = Hct.from(hctNeutral.hue, hctNeutral.chroma, 22.0).toInt()
 
     return darkColorScheme(
         primary = Color(scheme.primary),
@@ -702,13 +683,13 @@ private fun customDark(color: Color): ColorScheme {
         inverseSurface = Color(scheme.inverseSurface),
         inverseOnSurface = Color(scheme.inverseOnSurface),
         inversePrimary = Color(scheme.inversePrimary),
-        surfaceDim = Color(surfaceDim),
-        surfaceBright = Color(surfaceBright),
-        surfaceContainerLowest = Color(surfaceContainerLowest),
-        surfaceContainerLow = Color(surfaceContainerLow),
-        surfaceContainer = Color(surfaceContainer),
-        surfaceContainerHigh = Color(surfaceContainerHigh),
-        surfaceContainerHighest = Color(surfaceContainerHighest)
+        surfaceDim = Color(scheme.surfaceDim),
+        surfaceBright = Color(scheme.surfaceBright),
+        surfaceContainerLowest = Color(scheme.surfaceContainerLowest),
+        surfaceContainerLow = Color(scheme.surfaceContainerLow),
+        surfaceContainer = Color(scheme.surfaceContainer),
+        surfaceContainerHigh = Color(scheme.surfaceContainerHigh),
+        surfaceContainerHighest = Color(scheme.surfaceContainerHighest)
     )
 }
 
