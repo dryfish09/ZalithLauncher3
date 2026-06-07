@@ -65,6 +65,7 @@ import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.coroutine.DataBridge
+import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.CharacterSenderStrategy
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
@@ -73,6 +74,7 @@ import com.movtery.zalithlauncher.game.launch.GameLauncher
 import com.movtery.zalithlauncher.game.launch.GameService
 import com.movtery.zalithlauncher.game.launch.JvmLaunchInfo
 import com.movtery.zalithlauncher.game.launch.JvmLauncher
+import com.movtery.zalithlauncher.game.launch.LaunchConfig
 import com.movtery.zalithlauncher.game.launch.Launcher
 import com.movtery.zalithlauncher.game.launch.handler.AbstractHandler
 import com.movtery.zalithlauncher.game.launch.handler.GameHandler
@@ -112,7 +114,7 @@ import android.graphics.Color as NativeColor
 
 private const val INTENT_RUN_GAME = "BUNDLE_RUN_GAME"
 private const val INTENT_RUN_JAR = "INTENT_RUN_JAR"
-private const val INTENT_VERSION = "INTENT_VERSION"
+private const val INTENT_GAME_CONFIG = "INTENT_GAME_CONFIG"
 private const val INTENT_JAR_INFO = "INTENT_JAR_INFO"
 
 data class LaunchSession(
@@ -174,12 +176,12 @@ class VMViewModel : ViewModel() {
 
         _session = when {
             bundle.getBoolean(INTENT_RUN_GAME) -> {
-                val version: Version = bundle.getParcelableSafely(INTENT_VERSION, Version::class.java)
-                    ?: throw IllegalStateException("No launch version has been set.")
+                val config: LaunchConfig = bundle.getParcelableSafely(INTENT_GAME_CONFIG, LaunchConfig::class.java)
+                    ?: throw IllegalStateException("No launch config has been set.")
 
                 val launcher = GameLauncher(
                     activity = activity,
-                    version = version,
+                    config = config,
                     onExit = { code, isSignal ->
                         val endTime = System.currentTimeMillis()
                         val duration = endTime - startTime
@@ -210,7 +212,7 @@ class VMViewModel : ViewModel() {
                     launcher = launcher,
                     handler = GameHandler(
                         activity = activity,
-                        version = version,
+                        config = config,
                         errorViewModel = errorViewModel,
                         eventViewModel = eventViewModel,
                         gamepadViewModel = gamepadViewModel,
@@ -755,10 +757,14 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
  * 让VMActivity进入运行游戏模式
  * @param version 指定版本
  */
-fun runGame(context: Context, version: Version) {
+fun runGame(
+    context: Context,
+    version: Version,
+    account: Account,
+) {
     val intent = Intent(context, VMActivity::class.java).apply {
         putExtra(INTENT_RUN_GAME, true)
-        putExtra(INTENT_VERSION, version)
+        putExtra(INTENT_GAME_CONFIG, LaunchConfig(version, account))
     }
     context.startActivity(intent)
 }

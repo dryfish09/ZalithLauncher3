@@ -28,16 +28,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.bridge.ZLBridge
-import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.game.input.EfficientAndroidLWJGLKeycode
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.GameLauncher
+import com.movtery.zalithlauncher.game.launch.LaunchConfig
 import com.movtery.zalithlauncher.game.launch.MCOptions
 import com.movtery.zalithlauncher.game.launch.loadLanguage
 import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
-import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.utils.isLowerVer
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.terracotta.Terracotta
@@ -56,7 +55,7 @@ import org.lwjgl.glfw.CallbackBridge
 
 class GameHandler(
     val activity: Activity,
-    private val version: Version,
+    config: LaunchConfig,
     errorViewModel: ErrorViewModel,
     eventViewModel: EventViewModel,
     private val gamepadViewModel: GamepadViewModel,
@@ -69,6 +68,9 @@ class GameHandler(
     launcher = gameLauncher,
     onExit = onExit
 ) {
+    private val version = config.version
+    private val account = config.account
+
     private val _inputArea = MutableStateFlow<IntRect?>(null)
     override val inputArea = _inputArea.asStateFlow()
 
@@ -216,9 +218,7 @@ class GameHandler(
             textInputMode = textInputMode,
             isTouchProxyEnabled = version.enableTouchProxy,
             onInputAreaRectUpdated = { _inputArea.value = it },
-            getAccountName = {
-                AccountsManager.currentAccountFlow.value?.username //不太可能为空，启动前拦截了这个情况
-            },
+            getAccountName = { account.username },
             eventViewModel = eventViewModel,
             gamepadViewModel = gamepadViewModel,
             submitError = {

@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.game.account
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
@@ -31,12 +32,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
+import kotlinx.parcelize.Parcelize
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.UUID
 
 private const val TAG = "Account"
 
+@Parcelize
 @Entity(tableName = "accounts")
 @Serializable
 data class Account(
@@ -57,7 +60,7 @@ data class Account(
     var otherPassword: String? = null,
     var accountType: String? = null,
     var skinModelType: SkinModelType = SkinModelType.NONE
-) {
+): Parcelable {
     val hasSkinFile: Boolean
         get() = getSkinFile().exists()
 
