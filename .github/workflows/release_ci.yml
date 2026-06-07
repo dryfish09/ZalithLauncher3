@@ -37,20 +37,14 @@ jobs:
           
           find ./artifacts -name "*.apk" -type f -exec cp {} ./apks/ \;
           
-          # 检查是否有APK文件
-          if [ -z "$(ls -A ./apks/)" ]; then
-            echo "No APK files found to upload!"
+          # 复制所有 mapping 压缩包
+          find ./artifacts -name "mapping*.zip" -type f -exec cp {} ./mappings/ \;
+          
+          # 检查是否有文件
+          if [ -z "$(ls -A ./apks/)" ] && [ -z "$(ls -A ./mappings/)" ]; then
+            echo "No APK or Mapping files found to upload!"
             exit 1
           fi
-          
-          # 处理映射文件 区分架构
-          for mapping_dir in ./artifacts/mapping\ \(*\)/; do
-            if [ -d "$mapping_dir" ] && [ -f "${mapping_dir}mapping.txt" ]; then
-              dirname=$(basename "$mapping_dir")
-              cp "${mapping_dir}mapping.txt" "./mappings/${dirname}.txt"
-              echo "Copied: ${dirname}.txt"
-            fi
-          done
           
           echo "Found $(ls ./apks/ | wc -l) APK file(s)"
           echo "Found $(ls ./mappings/ | wc -l) Mapping file(s)"
@@ -61,5 +55,5 @@ jobs:
           tag_name: ${{ github.event.release.tag_name }}
           files: |
             ./apks/*.apk
-            ./mappings/*.txt
+            ./mappings/*.zip
           fail_on_unmatched_files: true
