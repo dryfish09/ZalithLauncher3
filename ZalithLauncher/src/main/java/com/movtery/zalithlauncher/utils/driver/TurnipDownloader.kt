@@ -29,6 +29,9 @@ import com.movtery.zalithlauncher.upgrade.GithubReleaseApi
 import com.movtery.zalithlauncher.utils.file.extractFromZip
 import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -48,6 +51,13 @@ object TurnipDownloader {
     private val client = OkHttpClient()
     private val json = Json { ignoreUnknownKeys = true }
     private const val REPO_API = "https://api.github.com/repos/K11MCH1/AdrenoToolsDrivers/releases"
+
+    private val _driverChanges = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val driverChanges: SharedFlow<Unit> = _driverChanges.asSharedFlow()
+
+    fun notifyDriverChanged() {
+        _driverChanges.tryEmit(Unit)
+    }
 
     private fun parseVersion(tag: String): Int {
         val digits = tag.removePrefix("V").takeWhile { it.isDigit() || it == '.' }
@@ -143,6 +153,7 @@ object TurnipDownloader {
 
                 withContext(Dispatchers.Main) {
                     DriverPluginManager.scanExternalDrivers(context)
+                    notifyDriverChanged()
                     Toast.makeText(context, R.string.settings_renderer_turnip_success, Toast.LENGTH_SHORT).show()
                 }
             },
@@ -220,6 +231,7 @@ object TurnipDownloader {
 
                     withContext(Dispatchers.Main) {
                         DriverPluginManager.scanExternalDrivers(context)
+                        notifyDriverChanged()
                         Toast.makeText(context, R.string.settings_renderer_turnip_success, Toast.LENGTH_SHORT).show()
                     }
                 } finally {

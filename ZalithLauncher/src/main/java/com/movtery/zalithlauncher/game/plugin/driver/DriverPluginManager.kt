@@ -71,25 +71,29 @@ object DriverPluginManager: ApkPluginManager() {
      */
     fun scanExternalDrivers(context: Context) {
         val driversDir = com.movtery.zalithlauncher.path.PathManager.DIR_DRIVERS
-        if (!driversDir.exists()) return
-        
+        if (!driversDir.exists()) {
+            driverList.removeAll { it.isExternal }
+            return
+        }
+
+        // 先清掉所有外部驱动条目，磁盘上仍然存在的会再被加回来
+        driverList.removeAll { it.isExternal }
+
         driversDir.listFiles()?.forEach { file ->
             if (file.isDirectory) {
                 // 如果文件夹内存在 .so 文件，则认为是一个驱动
                 val soFiles = file.listFiles { f -> f.extension == "so" }
                 if (soFiles != null && soFiles.isNotEmpty()) {
-                    val driver = Driver(
-                        id = "external_${file.name}",
-                        name = file.name,
-                        path = file.absolutePath,
-                        isLauncher = false,
-                        isExternal = true,
-                        summary = context.getString(R.string.settings_renderer_external_driver)
+                    driverList.add(
+                        Driver(
+                            id = "external_${file.name}",
+                            name = file.name,
+                            path = file.absolutePath,
+                            isLauncher = false,
+                            isExternal = true,
+                            summary = context.getString(R.string.settings_renderer_external_driver)
+                        )
                     )
-                    // 避免重复添加
-                    if (driverList.none { it.id == driver.id }) {
-                        driverList.add(driver)
-                    }
                 }
             }
         }

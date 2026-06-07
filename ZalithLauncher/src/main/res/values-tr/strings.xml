@@ -1236,4 +1236,96 @@
     <string name="game_vulkan_check_missing_features">Eksik özellikler:</string>
     <string name="game_vulkan_check_unsupp">Cihazınız Minecraft 26.2+ sürümünü Vulkan ile çalıştırmayı desteklemiyor.</string>
     <string name="game_vulkan_check_supp">Cihazınız Minecraft 26.2+ sürümünü Vulkan ile çalıştırmayı destekliyor.</string>
+    <string name="account_change_cape_upload">Pelerini Değiştir</string>
+    <string name="account_change_cape_reset">Pelerini Sıfırla</string>
+    <string name="account_change_cape_invalid">Geçersiz pelerin dosyası! Pelerin 64x32 piksel PNG olmalıdır.</string>
+    <string name="account_change_cape_failed_to_import">Pelerin içe aktarılamadı: %s</string>
+    <string name="account_local_uuid" translatable="false">UUID</string>
+    <string name="cape_name_builder">İnşaatçı</string>
+    <string name="cape_name_crafter">Usta</string>
+    <string name="chroma_mode_forest">Orman</string>
+    <string name="chroma_mode_neon">Neon</string>
+    <string name="chroma_mode_ocean">Okyanus</string>
+    <string name="chroma_mode_red_blue">Kırmızı &amp; Mavi</string>
+    <string name="chroma_mode_sunset">Gün Batımı</string>
+    <string name="download_assets_id_holder">Proje Kimliği</string>
+    <string name="download_assets_id_tip">Proje kimliği ile ilgili projeye hızlıca ulaşın</string>
+    <string name="download_assets_id_not_found">Proje bulunamadı!</string>
+    <string name="download_assets_id_unsupported">Proje desteklenmiyor!</string>
+    <string name="download_category_by_id">Kimlik ile ara</string>
+    <string name="empty_holder" translatable="false">%s</string>
+    <string name="error_bad_request">(%s) Sunucu isteği anlayamadı</string>
+    <string name="error_forbidden">(%s) Bu kaynağa erişim izniniz yok</string>
+    <string name="error_not_acceptable">(%s) Kabul Edilemez</string>
+    <string name="error_request_timeout">(%s) Sunucu isteği beklerken zaman aşımına uğradı</string>
+    <string name="error_conflict">(%s) İstek mevcut durumla çelişiyor</string>
+    <string name="error_gone">(%s) İstenen kaynak artık kullanılamıyor</string>
+    <string name="error_too_many_requests">(%s) Lütfen daha sonra tekrar deneyin</string>
+    <string name="error_internal_server_error">(%s) Sunucu beklenmedik bir durumla karşılaştı</string>
+    <string name="error_bad_gateway">(%s) Sunucu, üst sunucudan geçersiz bir yanıt aldı</string>
+    <string name="error_service_unavailable">(%s) Sunucu geçici olarak isteği işleyemiyor</string>
+    <string name="error_gateway_timeout">(%s) Sunucu zamanında yanıt alamadı</string>
+    <string name="game_menu_option_hotbar_double_click">Eşyayı diğer ele değiştirmek için çift dokunun</string>
+    <string name="game_menu_option_hotbar_long_click">Seçili eşyayı düşürmek için uzun basın</string>
+    <string name="game_menu_option_hotbar_long_click_delay">Yuva çubuğu uzun basma gecikmesi</string>
+    <string name="language_arabic" translatable="false">اَلْعَرَبِيَّةُ</string>
+    <string name="language_brazilian_portuguese" translatable="false">Português (Brasil)</string>
+    <string name="language_english" translatable="false">English</string>
+    <string name="language_filipino" translatable="false">Filipino</string>
+    <string name="language_indonesian" translatable="false">Indonesia</string>
+    <string name="language_italian" translatable="false">Italiano</string>
+    <string name="language_japanese" translatable="false">日本語</string>
+    <string name="language_korean" translatable="false">한국어</string>
+    <string name="language_portuguese" translatable="false">Português</string>
+    <string name="language_russian" translatable="false">Русский</string>
+    <string name="language_simplified_chinese" translatable="false">简体中文</string>
+    <string name="language_spanish" translatable="false">Español</string>
+    <string name="language_thai" translatable="false">ไทย</string>
+    <string name="language_traditional_chinese" translatable="false">繁體中文</string>
+    <string name="language_turkish" translatable="false">Türkçe</string>
+    <string name="language_uyghur" translatable="false">ۋىغرۇچە</string>
+    <string name="language_vietnamese" translatable="false">Tiếng Việt</string>
+    <string name="launcher_fps_display">FPS: %d</string>
+    <string name="launcher_ram_usage">RAM: %1$dMB / %2$dMB</string>
+    <string name="play_time_format">Oynama Süresi: %s Saat</string>
+    <string name="play_time_hours_minutes">%1$ds %2$dk</string>
+    <string name="play_time_minutes">%dd</string>
+    <string name="play_time_last_played">Son oynanma: %s</string>
+    <string name="play_time_total">Toplam oynama süresi: %s</string>
+    <string name="rank_novice">Acemi</string>
+    <string name="rank_player">Oyuncu</string>
+    <string name="rank_experienced">Deneyimli</string>
+    <string name="rank_veteran">Kıdemli</string>
+    <string name="rank_master">Usta</string>
+    <string name="rank_legend">Efsane</string>
+    <string name="settings_chroma_name_title">Kroma Kullanıcı Adı</string>
+    <string name="settings_export">Ayarları Dışa Aktar</string>
+    <string name="settings_export_accounts">Hesapları Dışa Aktar</string>
+    <string name="settings_export_failed">Dışa aktarım başarısız!</string>
+    <string name="settings_export_success">Şuraya dışa aktarıldı: %s</string>
+    <string name="settings_import">Ayarları İçe Aktar</string>
+    <string name="settings_import_accounts">Hesapları İçe Aktar</string>
+    <string name="settings_import_failed">İçe aktarım başarısız!</string>
+    <string name="settings_import_success">İçe aktarım başarılı!</string>
+    <string name="settings_launcher_background_blur_summary">Arka plan bulanıklık efektini ayarlayın. Bu seçenek önemli ölçüde performans tüketir.</string>
+    <string name="settings_renderer_external_driver">Harici Sürücü</string>
+    <string name="settings_renderer_download_turnip">Turnip Sürücüsünü İndir</string>
+    <string name="settings_renderer_download_turnip_summary">Bir Turnip sürücü sürümü seçin ve GitHub\'dan indirin</string>
+    <string name="settings_renderer_turnip_downloading">Turnip Sürücüsü İndiriliyor...</string>
+    <string name="settings_renderer_turnip_extracting">Turnip Sürücüsü Çıkarılıyor...</string>
+    <string name="settings_renderer_turnip_success">Turnip Sürücüsü başarıyla yüklendi</string>
+    <string name="settings_tip_import_export">Ayarları başlatıcı ayarlarından dışa aktarabilir veya içe aktarabilirsiniz.</string>
+    <string name="settings_title_blur">Bulanıklık Efekti</string>
+    <string name="stats_daily_hours">Bugünkü Oynama Süresi</string>
+    <string name="stats_daily_hours_value">Bugün %s</string>
+    <string name="stats_game_stats">Oyun İstatistikleri</string>
+    <string name="stats_last_log">Son Oyun Günlüğü</string>
+    <string name="stats_no_data">Henüz veri yok</string>
+    <string name="stats_no_log">Henüz günlük yok</string>
+    <string name="stats_per_version">Sürüme Göre Oynama Süresi</string>
+    <string name="stats_play_time_graph">Oynama Süresi (Son 7 Gün)</string>
+    <string name="stats_today_header">BUGÜNÜN İSTATİSTİKLERİ</string>
+    <string name="stats_view_all">Tümünü Gör</string>
+    <string name="storage_permission_request_title">Depolama İzni Gerekli</string>
+    <string name="storage_permission_request_message">Ayarları/hesapları herkese açık depolamaya aktarmak için depolama iznine ihtiyacımız var.</string>
 </resources>

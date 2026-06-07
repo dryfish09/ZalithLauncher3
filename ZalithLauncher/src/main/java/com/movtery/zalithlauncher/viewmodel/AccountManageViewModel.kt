@@ -724,7 +724,6 @@ class AccountManageViewModel @Inject constructor(
                     capeFile.copyTo(targetCape, overwrite = true)
                     FileUtils.deleteQuietly(capeFile)
                     AccountsManager.refreshWardrobe()
-                    emitToast(R.string.account_change_cape_apply_custom_success)
                 } else {
                     FileUtils.deleteQuietly(capeFile)
                     emitError(

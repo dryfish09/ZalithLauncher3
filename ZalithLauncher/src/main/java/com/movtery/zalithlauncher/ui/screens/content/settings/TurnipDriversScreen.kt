@@ -50,6 +50,11 @@ import java.io.File
 
 private data class TurnipEntry(val release: TurnipRelease, val asset: GithubReleaseApi.Asset)
 
+private fun scanInstalledDrivers(): List<File> =
+    PathManager.DIR_DRIVERS
+        .listFiles { f -> f.isDirectory && f.listFiles { sf -> sf.extension == "so" }?.isNotEmpty() == true }
+        ?.toList() ?: emptyList()
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TurnipDriversScreen(
@@ -66,17 +71,17 @@ fun TurnipDriversScreen(
         var entries by remember { mutableStateOf<List<TurnipEntry>?>(null) }
         var loading by remember { mutableStateOf(true) }
         var error by remember { mutableStateOf<String?>(null) }
-        var installedDrivers by remember { mutableStateOf(listOf<File>()) }
+        var installedDrivers by remember { mutableStateOf(emptyList<File>()) }
         var driverToDelete by remember { mutableStateOf<File?>(null) }
 
-        fun refreshInstalled() {
-            installedDrivers = PathManager.DIR_DRIVERS
-                .listFiles { f -> f.isDirectory && f.listFiles { sf -> sf.extension == "so" }?.isNotEmpty() == true }
-                ?.toList() ?: emptyList()
+        LaunchedEffect(Unit) {
+            installedDrivers = scanInstalledDrivers()
+            TurnipDownloader.driverChanges.collect {
+                installedDrivers = scanInstalledDrivers()
+            }
         }
 
         LaunchedEffect(Unit) {
-            refreshInstalled()
             try {
                 val releases = TurnipDownloader.fetchAllReleases()
                 entries = releases.flatMap { release ->
@@ -103,9 +108,13 @@ fun TurnipDriversScreen(
                 text = stringResource(R.string.turnip_driver_delete_confirm, driver.name),
                 confirmText = stringResource(R.string.generic_delete),
                 onConfirm = {
-                    driver.deleteRecursively()
-                    DriverPluginManager.scanExternalDrivers(context)
-                    refreshInstalled()
+                    val deleted = driver.deleteRecursively()
+                    if (deleted) {
+                        DriverPluginManager.scanExternalDrivers(context)
+                        installedDrivers = scanInstalledDrivers()
+                    } else {
+                        error = context.getString(R.string.generic_error)
+                    }
                     driverToDelete = null
                 },
                 onDismiss = { driverToDelete = null }
