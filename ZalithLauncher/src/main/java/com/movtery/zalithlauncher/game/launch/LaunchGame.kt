@@ -43,9 +43,9 @@ import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.readText
 import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.isNetworkAvailable
+import com.movtery.zalithlauncher.utils.network.toLocal
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.ConnectException
@@ -77,6 +77,7 @@ object LaunchGame {
         val downloadTask = createDownloadTask(
             context = context,
             version = version,
+            account = account,
             exitActivity = exitActivity,
             waitForVulkanChecker = waitForVulkanChecker,
             submitError = submitError
@@ -108,6 +109,7 @@ object LaunchGame {
     private fun createDownloadTask(
         context: Context,
         version: Version,
+        account: Account,
         exitActivity: () -> Unit,
         waitForVulkanChecker: suspend () -> Unit,
         submitError: (ErrorViewModel.ThrowableMessage) -> Unit
@@ -124,7 +126,7 @@ object LaunchGame {
                 task.updateMessage(R.string.game_vulkan_check_title)
                 checkVulkanCapabilities(version, waitForVulkanChecker)
 
-                runGame(context, version)
+                runGame(context, version, account)
                 exitActivity()
             },
             onError = { message ->
@@ -216,15 +218,7 @@ object LaunchGame {
                         is HttpRequestTimeoutException -> context.getString(R.string.error_timeout)
                         is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
                         is ConnectException -> context.getString(R.string.error_connection_failed)
-                        is io.ktor.client.plugins.ResponseException -> {
-                            val statusCode = error.response.status
-                            val res = when (statusCode) {
-                                HttpStatusCode.Unauthorized -> R.string.error_unauthorized
-                                HttpStatusCode.NotFound -> R.string.error_notfound
-                                else -> R.string.error_client_error
-                            }
-                            context.getString(res, statusCode)
-                        }
+                        is io.ktor.client.plugins.ResponseException -> error.toLocal(context)
                         else -> {
                             Logger.error(TAG, "An unknown exception was caught!", error)
                             val errorMessage = error.localizedMessage ?: error.message ?: error::class.qualifiedName ?: "Unknown error"

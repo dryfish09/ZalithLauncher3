@@ -41,10 +41,10 @@ import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.logging.Logger
+import com.movtery.zalithlauncher.utils.network.toLocal
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -154,15 +154,7 @@ fun microsoftLogin(
                 is XboxLoginException -> th.toLocal(context)
                 is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
                 is ConnectException -> context.getString(R.string.error_connection_failed)
-                is ResponseException -> {
-                    val statusCode = th.response.status
-                    val res = when (statusCode) {
-                        HttpStatusCode.Unauthorized -> R.string.error_unauthorized
-                        HttpStatusCode.NotFound -> R.string.error_notfound
-                        else -> R.string.error_client_error
-                    }
-                    context.getString(res, statusCode)
-                }
+                is ResponseException -> th.toLocal(context)
                 is CancellationException -> { null }
                 else -> {
                     val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"

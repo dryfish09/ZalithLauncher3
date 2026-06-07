@@ -55,6 +55,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -69,13 +70,16 @@ import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
+import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.rememberMaxHeight
@@ -85,6 +89,8 @@ import com.movtery.zalithlauncher.ui.theme.onCardColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.formatNumberByLocale
 import com.movtery.zalithlauncher.utils.getTimeAgo
+import com.movtery.zalithlauncher.utils.isChinese
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import org.jackhuang.hmcl.util.versioning.GameVersionNumber
 
 sealed interface DownloadAssetsState<T> {
@@ -461,12 +467,76 @@ private fun AssetsVersionListItem(
 }
 
 /**
+ * 项目相关链接UI
+ */
+@Composable
+fun ProjectUrlsContent(
+    platform: Platform,
+    urls: PlatformProject.Urls,
+    mcmod: ModTranslations.McMod?,
+    mod: ModTranslations,
+    openLink: (String) -> Unit,
+) {
+    urls.projectUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
+        IconTextButton(
+            onClick = { openLink(url) },
+            iconSize = 18.dp,
+            painter = when (platform) {
+                Platform.CURSEFORGE -> painterResource(R.drawable.img_platform_curseforge)
+                Platform.MODRINTH -> painterResource(R.drawable.img_platform_modrinth)
+            },
+            text = stringResource(R.string.download_assets_project_link)
+        )
+    }
+    urls.sourceUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
+        IconTextButton(
+            onClick = { openLink(url) },
+            iconSize = 18.dp,
+            painter = painterResource(R.drawable.ic_code),
+            text = stringResource(R.string.download_assets_source_link)
+        )
+    }
+    urls.issuesUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
+        IconTextButton(
+            onClick = { openLink(url) },
+            iconSize = 18.dp,
+            painter = painterResource(R.drawable.ic_chat_info),
+            text = stringResource(R.string.download_assets_issues_link)
+        )
+    }
+    urls.wikiUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
+        IconTextButton(
+            onClick = { openLink(url) },
+            iconSize = 18.dp,
+            painter = painterResource(R.drawable.ic_import_contacts_outlined),
+            text = stringResource(R.string.download_assets_wiki_link)
+        )
+    }
+    val context = LocalContext.current
+    mcmod?.takeIf {
+        isChinese(context)
+    }?.let {
+        mod.getMcmodUrl(it)
+    }?.takeIf {
+        it.isNotEmptyOrBlank()
+    }?.let { url ->
+        IconTextButton(
+            onClick = { openLink(url) },
+            iconSize = 18.dp,
+            painter = painterResource(R.drawable.ic_link),
+            text = "MC 百科" //品牌名不需要翻译，硬编码
+        )
+    }
+}
+
+/**
  * 屏幕截图与描述UI
  */
 @Composable
 fun ScreenshotItemLayout(
+    screenshot: PlatformProject.Screenshot,
     modifier: Modifier = Modifier,
-    screenshot: PlatformProject.Screenshot
+    shape: Shape = RectangleShape,
 ) {
     val context = LocalContext.current
 
@@ -501,6 +571,7 @@ fun ScreenshotItemLayout(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp)
+                        .clip(shape)
                 )
             }
             is AsyncImagePainter.State.Success -> {
@@ -512,6 +583,7 @@ fun ScreenshotItemLayout(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(painter.intrinsicSize.width / painter.intrinsicSize.height)
+                        .clip(shape)
                 )
             }
         }

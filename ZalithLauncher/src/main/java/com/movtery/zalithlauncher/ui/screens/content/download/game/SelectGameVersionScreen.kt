@@ -91,11 +91,11 @@ import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.classes.Quadruple
 import com.movtery.zalithlauncher.utils.formatDate
 import com.movtery.zalithlauncher.utils.logging.Logger
+import com.movtery.zalithlauncher.utils.network.toLocal
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.net.ConnectException
@@ -181,15 +181,7 @@ private class VersionsViewModel: ViewModel() {
                     is HttpRequestTimeoutException -> R.string.error_timeout to null
                     is UnknownHostException, is UnresolvedAddressException -> R.string.error_network_unreachable to null
                     is ConnectException -> R.string.error_connection_failed to null
-                    is ResponseException -> {
-                        val statusCode = e.response.status
-                        val res = when (statusCode) {
-                            HttpStatusCode.Unauthorized -> R.string.error_unauthorized
-                            HttpStatusCode.NotFound -> R.string.error_notfound
-                            else -> R.string.error_client_error
-                        }
-                        res to arrayOf(statusCode)
-                    }
+                    is ResponseException -> e.toLocal()
                     else -> {
                         Logger.error(TAG, "An unknown exception was caught!", e)
                         val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"

@@ -190,43 +190,10 @@ fun SearchFilter(
 
         if (enablePlatform) {
             item {
-                FilterListLayout(
+                PlatformListLayout(
                     modifier = Modifier.fillMaxWidth(),
-                    items = Platform.entries,
-                    selectionMode = FilterSelectionMode.Single,
-                    selectedItems = listOfNotNull(searchPlatform),
-                    onSelectionChange = { new ->
-                        new.first().takeIf { it != searchPlatform }?.let { value ->
-                            onPlatformChange(value)
-                        }
-                    },
-                    getItemLabel = { item ->
-                        item.displayName
-                    },
-                    selectedLabel = { item ->
-                        PlatformIdentifier(
-                            platform = item,
-                            shape = MaterialTheme.shapes.small
-                        )
-                    },
-                    itemLayout = { platform ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(14.dp),
-                                painter = painterResource(platform.getDrawable()),
-                                contentDescription = platform.displayName
-                            )
-                            Text(
-                                text = platform.displayName,
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        }
-                    },
-                    title = stringResource(R.string.download_assets_filter_search_platform),
-                    cancelable = false
+                    searchPlatform = searchPlatform,
+                    onPlatformChange = onPlatformChange,
                 )
             }
         }
@@ -438,7 +405,7 @@ fun BaseFilterLayout(
  * 列表过滤器UI
  */
 @Composable
-private fun <E> FilterListLayout(
+fun <E> FilterListLayout(
     title: String,
     items: List<E>,
     selectionMode: FilterSelectionMode,
@@ -527,6 +494,52 @@ private fun <E> FilterListLayout(
             }
         }
     }
+}
+
+@Composable
+fun PlatformListLayout(
+    searchPlatform: Platform,
+    onPlatformChange: (Platform) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FilterListLayout(
+        modifier = modifier,
+        items = Platform.entries,
+        selectionMode = FilterSelectionMode.Single,
+        selectedItems = listOfNotNull(searchPlatform),
+        onSelectionChange = { new ->
+            new.first().takeIf { it != searchPlatform }?.let { value ->
+                onPlatformChange(value)
+            }
+        },
+        getItemLabel = { item ->
+            item.displayName
+        },
+        selectedLabel = { item ->
+            PlatformIdentifier(
+                platform = item,
+                shape = MaterialTheme.shapes.small
+            )
+        },
+        itemLayout = { platform ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    modifier = Modifier.size(14.dp),
+                    painter = painterResource(platform.getDrawable()),
+                    contentDescription = platform.displayName
+                )
+                Text(
+                    text = platform.displayName,
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+        },
+        title = stringResource(R.string.download_assets_filter_search_platform),
+        cancelable = false
+    )
 }
 
 @Composable

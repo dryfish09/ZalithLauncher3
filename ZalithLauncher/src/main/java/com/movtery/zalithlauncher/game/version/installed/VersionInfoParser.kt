@@ -28,24 +28,68 @@ import java.io.File
 
 private const val TAG = "VersionInfoParser"
 
+class VersionInfoParser(private val version: Version) {
+    private var gameManifest: GameManifest? = null
+    private var inherit: Boolean? = null
+    private var skipIfNotExists: Boolean = false
+
+    /**
+     * 设置预先加载的 [GameManifest]
+     */
+    fun setManifest(manifest: GameManifest): VersionInfoParser {
+        this.gameManifest = manifest
+        return this
+    }
+
+    /**
+     * 启用版本继承
+     * @param skipIfNotExists 若 [GameManifest.inheritsFrom] 对应的 JSON 文件不存在，则静默跳过继承
+     */
+    fun setInheriting(skipIfNotExists: Boolean = false): VersionInfoParser {
+        this.inherit = true
+        this.skipIfNotExists = skipIfNotExists
+        return this
+    }
+
+    /**
+     * 构建并返回最终合并后的 [GameManifest]
+     */
+    fun build(): GameManifest {
+        val manifest = gameManifest ?: GSON.fromJson(
+            File(version.getVersionPath(), "${version.getVersionName()}.json").readText(),
+            GameManifest::class.java
+        )
+
+        val inheritsManifest = if (inherit == true && manifest.inheritsFrom != null) {
+            val inherits = manifest.inheritsFrom
+            File(version.getVersionsFolder()).child(inherits).child("${inherits}.json")
+                .let { inheritsFile ->
+                    if (skipIfNotExists && !inheritsFile.exists()) null
+                    else {
+                        GSON.fromJson(inheritsFile.readText(), GameManifest::class.java)
+                    }
+                }
+        } else null
+
+        return getGameManifest(
+            gameManifest = manifest,
+            inheritsManifest = inheritsManifest
+        )
+    }
+}
+
 /**
  * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L885-L979)
  */
-fun getGameManifest(
-    version: Version,
-    gameManifest: GameManifest = GSON.fromJson(File(version.getVersionPath(), "${version.getVersionName()}.json").readText(), GameManifest::class.java),
-    skipInheriting: Boolean = false
+private fun getGameManifest(
+    gameManifest: GameManifest,
+    inheritsManifest: GameManifest?,
 ): GameManifest {
     var gameManifest0 = gameManifest
-    if (!skipInheriting && gameManifest0.inheritsFrom != null) {
-        val inheritsManifest = run {
-            val inherits = gameManifest0.inheritsFrom
-            GSON.fromJson(File(version.getVersionsFolder()).child(inherits).child("${inherits}.json").readText(), GameManifest::class.java)
-        }
-        insertSafety(
-            target = inheritsManifest,
+    if (inheritsManifest != null && gameManifest0.inheritsFrom != null) {
+        mergeManifest(
             from = gameManifest0,
-            "assetIndex", "assets", "id", "mainClass", "minecraftArguments", "releaseTime", "time", "type"
+            target = inheritsManifest,
         )
 
         // Go through the libraries, remove the ones overridden by the custom version
@@ -128,26 +172,33 @@ fun getGameManifest(
     return gameManifest0
 }
 
-/**
- * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L982-L996)
- */
-// Prevent NullPointerException
-private fun insertSafety(
-    target: GameManifest,
-    from: GameManifest,
-    vararg keyArr: String
+private inline fun <T> mergeField(
+    getter: () -> T?,
+    setter: (T) -> Unit
 ) {
-    keyArr.forEach { key ->
-        var value: Any? = null
-        runCatching {
-            val fieldA = from.javaClass.getDeclaredField(key).apply { isAccessible = true }
-            value = fieldA.get(from)
-            if (((value is String) && (value as String).isNotEmpty()) || value != null) {
-                val fieldB = target.javaClass.getDeclaredField(key).apply { isAccessible = true }
-                fieldB.set(target, value)
+    when (val value = getter()) {
+        null -> return
+
+        is String -> {
+            if (value.isNotEmpty()) {
+                setter(value)
             }
-        }.onFailure {
-            Logger.warning(TAG, "Unable to insert $key = $value", it)
         }
+
+        else -> setter(value)
     }
+}
+
+private fun mergeManifest(
+    from: GameManifest,
+    target: GameManifest,
+) {
+    mergeField(from::getRawAssetIndex, target::setAssetIndex)
+    mergeField(from::getAssets, target::setAssets)
+    mergeField(from::getId, target::setId)
+    mergeField(from::getMainClass, target::setMainClass)
+    mergeField(from::getMinecraftArguments, target::setMinecraftArguments)
+    mergeField(from::getReleaseTime, target::setReleaseTime)
+    mergeField(from::getTime, target::setTime)
+    mergeField(from::getType, target::setType)
 }

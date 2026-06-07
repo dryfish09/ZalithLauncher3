@@ -33,20 +33,27 @@ jobs:
       - name: Organize Artifacts
         run: |
           mkdir -p ./apks
+          mkdir -p ./mappings
           
           find ./artifacts -name "*.apk" -type f -exec cp {} ./apks/ \;
           
-          # 检查是否有APK文件
-          if [ -z "$(ls -A ./apks/)" ]; then
-            echo "No APK files found to upload!"
+          # 复制所有 mapping 压缩包
+          find ./artifacts -name "mapping*.zip" -type f -exec cp {} ./mappings/ \;
+          
+          # 检查是否有文件
+          if [ -z "$(ls -A ./apks/)" ] && [ -z "$(ls -A ./mappings/)" ]; then
+            echo "No APK or Mapping files found to upload!"
             exit 1
           fi
           
           echo "Found $(ls ./apks/ | wc -l) APK file(s)"
+          echo "Found $(ls ./mappings/ | wc -l) Mapping file(s)"
 
       - name: Upload To Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.release.tag_name }}
-          files: ./apks/*.apk
+          files: |
+            ./apks/*.apk
+            ./mappings/*.zip
           fail_on_unmatched_files: true

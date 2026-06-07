@@ -37,10 +37,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -53,6 +55,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.utils.logging.Logger
@@ -72,6 +75,78 @@ fun PlatformIdentifier(
     shape: Shape = MaterialTheme.shapes.large,
     textStyle: TextStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
 ) {
+    BasicIdentifier(
+        painter = painterResource(platform.getDrawable()),
+        text = platform.displayName,
+        modifier = modifier,
+        iconSize = iconSize,
+        color = color,
+        contentColor = contentColor,
+        shape = shape,
+        textStyle = textStyle,
+    )
+}
+
+/**
+ * 获取平台的LOGO
+ */
+fun Platform.getDrawable() = when (this) {
+    Platform.CURSEFORGE -> R.drawable.img_platform_curseforge
+    Platform.MODRINTH -> R.drawable.img_platform_modrinth
+}
+
+/**
+ * 资源类型标识元素
+ */
+@Composable
+fun ClassesIdentifier(
+    classes: PlatformClasses,
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 12.dp,
+    color: Color = MaterialTheme.colorScheme.tertiary,
+    contentColor: Color = MaterialTheme.colorScheme.onTertiary,
+    shape: Shape = MaterialTheme.shapes.large,
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+) {
+    BasicIdentifier(
+        painter = painterResource(classes.getDrawable()),
+        text = stringResource(classes.getText()),
+        modifier = modifier,
+        iconSize = iconSize,
+        color = color,
+        contentColor = contentColor,
+        shape = shape,
+        textStyle = textStyle,
+    )
+}
+
+private fun PlatformClasses.getDrawable() = when (this) {
+    PlatformClasses.MOD -> R.drawable.ic_extension_outlined
+    PlatformClasses.MOD_PACK -> R.drawable.ic_package_2_outlined
+    PlatformClasses.RESOURCE_PACK -> R.drawable.ic_format_paint_outlined
+    PlatformClasses.SAVES -> R.drawable.ic_public
+    PlatformClasses.SHADERS -> R.drawable.ic_lightbulb
+}
+
+private fun PlatformClasses.getText() = when (this) {
+    PlatformClasses.MOD -> R.string.download_category_mod
+    PlatformClasses.MOD_PACK -> R.string.download_category_modpack
+    PlatformClasses.RESOURCE_PACK -> R.string.download_category_resource_pack
+    PlatformClasses.SAVES -> R.string.download_category_saves
+    PlatformClasses.SHADERS -> R.string.download_category_shaders
+}
+
+@Composable
+private fun BasicIdentifier(
+    painter: Painter,
+    text: String,
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 12.dp,
+    color: Color = MaterialTheme.colorScheme.tertiary,
+    contentColor: Color = MaterialTheme.colorScheme.onTertiary,
+    shape: Shape = MaterialTheme.shapes.large,
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+) {
     Surface(
         modifier = modifier,
         color = color,
@@ -85,23 +160,15 @@ fun PlatformIdentifier(
         ) {
             Icon(
                 modifier = Modifier.size(iconSize),
-                painter = painterResource(platform.getDrawable()),
-                contentDescription = platform.displayName
+                painter = painter,
+                contentDescription = text
             )
             Text(
-                text = platform.displayName,
+                text = text,
                 style = textStyle
             )
         }
     }
-}
-
-/**
- * 获取平台的LOGO
- */
-fun Platform.getDrawable() = when (this) {
-    Platform.CURSEFORGE -> R.drawable.img_platform_curseforge
-    Platform.MODRINTH -> R.drawable.img_platform_modrinth
 }
 
 /**

@@ -310,33 +310,38 @@ fun LaunchGameOperation(
     }
 }
 
+/**
+ * 启动器背景图片/视频层
+ */
 @Composable
 fun Background(
     viewModel: BackgroundViewModel,
     modifier: Modifier = Modifier,
     allowVideo: Boolean = true
 ) {
-    Box(
-        modifier = modifier.backgroundBlur(
-            blur = AllSettings.backgroundBlur.state,
-            hazeState = viewModel.hazeState,
-        )
-    ) {
-        when {
-            viewModel.isVideo && allowVideo -> {
-                VideoPlayer(
-                    videoUri = Uri.fromFile(viewModel.backgroundFile),
-                    modifier = Modifier.fillMaxSize(),
-                    refreshTrigger = viewModel.refreshTrigger,
-                    volume = AllSettings.videoBackgroundVolume.state / 100f
-                )
-            }
-            viewModel.isImage -> {
-                BackgroundImage(
-                    modifier = Modifier.fillMaxSize(),
-                    imageFile = viewModel.backgroundFile,
-                    refreshTrigger = viewModel.refreshTrigger
-                )
+    if (viewModel.isValid) {
+        Box(
+            modifier = modifier.backgroundBlur(
+                blur = AllSettings.backgroundBlur.state,
+                hazeState = viewModel.hazeState,
+            )
+        ) {
+            when {
+                viewModel.isVideo && allowVideo -> {
+                    VideoPlayer(
+                        videoUri = Uri.fromFile(viewModel.backgroundFile),
+                        modifier = Modifier.fillMaxSize(),
+                        refreshTrigger = viewModel.refreshTrigger,
+                        volume = AllSettings.videoBackgroundVolume.state / 100f
+                    )
+                }
+                viewModel.isImage -> {
+                    BackgroundImage(
+                        modifier = Modifier.fillMaxSize(),
+                        imageFile = viewModel.backgroundFile,
+                        refreshTrigger = viewModel.refreshTrigger
+                    )
+                }
             }
         }
     }

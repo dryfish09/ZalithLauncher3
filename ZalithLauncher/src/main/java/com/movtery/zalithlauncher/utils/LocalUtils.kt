@@ -447,6 +447,15 @@ private fun isChinaTimeZone(): Boolean {
     }
 }
 
+fun printLauncherInfo(
+    println: (String) -> Unit
+) {
+    println("▷ Device: ${Build.PRODUCT} ${Build.MODEL}")
+    println("▷ Arch: ${Architecture.archAsString(Architecture.getDeviceArchitecture())}")
+    println("▷ Android Version: ${Build.VERSION.RELEASE}")
+    println("▷ Launcher Version: ${BuildConfig.VERSION_NAME}, build: ${BuildKeys.BUILD_ARCH}")
+}
+
 /**
  * 将崩溃报告写入指定文件
  */
@@ -457,14 +466,11 @@ fun writeCrashFile(
 ) {
     runCatching {
         PrintStream(file).use { stream ->
-            stream.append("================ ${BuildKeys.LAUNCHER_IDENTIFIER} Crash Report ================\n")
-            stream.append("▷ Time: ${DateFormat.getDateTimeInstance().format(Date())}\n")
-            stream.append("▷ Device: ${Build.PRODUCT} ${Build.MODEL}\n")
-            stream.append("▷ Arch: ${Architecture.archAsString(Architecture.getDeviceArchitecture())}\n")
-            stream.append("▷ Android Version: ${Build.VERSION.RELEASE}\n")
-            stream.append("▷ Launcher Version: ${BuildConfig.VERSION_NAME}\n")
-            stream.append("===================== Crash Stack Trace =====================\n")
-            stream.append(Log.getStackTraceString(throwable))
+            stream.println("================ ${BuildKeys.LAUNCHER_IDENTIFIER} Crash Report ================")
+            stream.println("▷ Time: ${DateFormat.getDateTimeInstance().format(Date())}")
+            printLauncherInfo { stream.println(it) }
+            stream.println("===================== Crash Stack Trace =====================")
+            stream.println(Log.getStackTraceString(throwable))
         }
     }.onFailure(onFailure)
 }

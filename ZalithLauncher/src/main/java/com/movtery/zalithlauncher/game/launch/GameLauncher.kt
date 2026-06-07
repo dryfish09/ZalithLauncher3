@@ -20,6 +20,7 @@ package com.movtery.zalithlauncher.game.launch
 
 import android.app.Activity
 import android.os.Build
+import android.os.Parcelable
 import android.widget.Toast
 import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.BuildConfig
@@ -33,7 +34,6 @@ import com.movtery.zalithlauncher.utils.fsr.FSRUtils
 import com.movtery.zalithlauncher.utils.settings.MobileGluesConfig
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
-import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.offline.OfflineYggdrasilServer
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.game.parseLibraryComponents
@@ -45,8 +45,8 @@ import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.support.touch_controller.ControllerProxy
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.version.installed.VersionInfoParser
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.game.version.installed.getGameManifest
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
@@ -58,6 +58,7 @@ import com.movtery.zalithlauncher.utils.file.ensureDirectorySilently
 import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isEqualTo
+import kotlinx.parcelize.Parcelize
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import javax.microedition.khronos.egl.EGL10
@@ -66,14 +67,30 @@ import javax.microedition.khronos.egl.EGLContext
 
 private const val TAG = "GameLauncher"
 
+@Parcelize
+class LaunchConfig(
+    val version: Version,
+    val account: Account,
+): Parcelable
+
 class GameLauncher(
     private val activity: Activity,
-    private val version: Version,
+    config: LaunchConfig,
     onExit: (code: Int, isSignal: Boolean) -> Unit,
     openPath: (folder: File) -> Unit
 ) : Launcher(onExit, openPath) {
     private lateinit var gameManifest: GameManifest
     private val offlineServer = OfflineYggdrasilServer(0)
+
+    private val version = config.version
+    private val usingAccount = if (version.offlineAccountLogin) {
+        //使用临时离线账号启动游戏
+        config.account.copy(
+            accountType = AccountType.LOCAL.tag
+        )
+    } else {
+        config.account
+    }
 
     override fun exit() {
         offlineServer.stop()
@@ -90,33 +107,26 @@ class GameLauncher(
             VersionsManager.getVersion(inheritsFrom)?.getClientJar()
         } ?: version.getClientJar()
 
-        gameManifest = getGameManifest(version, gameManifest = manifest)
+        gameManifest = VersionInfoParser(version)
+            .setManifest(manifest)
+            .setInheriting()
+            .build()
+
         CallbackBridge.nativeSetUseInputStackQueue(gameManifest.arguments != null)
 
-        val currentAccount = AccountsManager.currentAccountFlow.value!!
-        val account = if (version.offlineAccountLogin) {
-            //使用临时离线账号启动游戏
-            currentAccount.copy(
-                accountType = AccountType.LOCAL.tag
-            )
-        } else {
-            currentAccount
-        }
         val customArgs = version.getJvmArgs().takeIf { it.isNotBlank() } ?: AllSettings.jvmArgs.getValue()
         val javaRuntime = getRuntime()
 
         printLauncherInfo(
             javaArguments = customArgs.takeIf { it.isNotEmpty() } ?: "NONE",
             javaRuntime = javaRuntime,
-            account = account
         )
 
         return launchGame(
             screenSize = screenSize,
-            account = account,
             clientJar = clientJar,
             javaRuntime = javaRuntime,
-            customArgs = customArgs
+            customArgs = customArgs,
         )
     }
 
@@ -196,7 +206,6 @@ class GameLauncher(
 
     private suspend fun launchGame(
         screenSize: IntSize,
-        account: Account,
         clientJar: File,
         javaRuntime: String,
         customArgs: String
@@ -213,7 +222,7 @@ class GameLauncher(
 
         val launchArgs = LaunchArgs(
             runtimeLibraryPath = runtimeLibraryPath,
-            account = account,
+            account = usingAccount,
             offlineServer = offlineServer,
             gameDirPath = gameDirPath,
             version = version,
@@ -250,7 +259,6 @@ class GameLauncher(
     private fun printLauncherInfo(
         javaArguments: String,
         javaRuntime: String,
-        account: Account
     ) {
         var mcInfo = version.getVersionName()
         version.getVersionInfo()?.let { info -> mcInfo = info.getInfoString() }
@@ -270,7 +278,7 @@ class GameLauncher(
         append("▷ Game Path: ${version.getGameDir().absolutePath} (Isolation: ${version.isIsolation()})")
         append("▷ Custom Java arguments: $javaArguments")
         append("▷ Java Runtime: $javaRuntime")
-        append("▷ Account: ${account.username} (${account.accountType})")
+        append("▷ Account: ${usingAccount.username} (${usingAccount.accountType})")
     }
 
     /**
