@@ -91,6 +91,7 @@ class ErrorActivity : BaseAppCompatActivity(refreshData = false) {
         super.onCreate(savedInstanceState)
 
         val extras = intent.extras ?: return runFinish()
+        extras.classLoader = javaClass.classLoader
 
         val exitType = extras.getString(BUNDLE_EXIT_TYPE, EXIT_LAUNCHER)
 

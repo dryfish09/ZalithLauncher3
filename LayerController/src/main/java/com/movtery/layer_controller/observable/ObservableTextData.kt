@@ -44,6 +44,9 @@ open class ObservableTextData(data: TextData) : ObservableWidget() {
     var textUnderline by mutableStateOf(data.textUnderline)
     var visibilityType by mutableStateOf(data.visibilityType)
 
+    override val behavior: InteractionBehavior
+        get() = InteractionBehavior.Press //展示控件不参与触控
+
     override val internalRenderPosition: ButtonPosition
         get() = position
 
