@@ -37,14 +37,19 @@ jobs:
           
           find ./artifacts -name "*.apk" -type f -exec cp {} ./apks/ \;
           
-          # 复制所有 mapping 压缩包
-          find ./artifacts -name "mapping*.zip" -type f -exec cp {} ./mappings/ \;
+          for dir in ./artifacts/*/; do
+            dir_name=$(basename "$dir")
           
-          # 检查是否有文件
-          if [ -z "$(ls -A ./apks/)" ] && [ -z "$(ls -A ./mappings/)" ]; then
-            echo "No APK or Mapping files found to upload!"
-            exit 1
-          fi
+            # 跳过 APK
+            if [[ "$dir_name" == *"release apk"* ]]; then
+              continue
+            fi
+          
+            if [[ "$dir_name" == mapping* ]]; then
+              (cd "$dir" && zip -r "../${dir_name}.zip" .)
+              mv "./artifacts/${dir_name}.zip" ./mappings/
+            fi
+          done
           
           echo "Found $(ls ./apks/ | wc -l) APK file(s)"
           echo "Found $(ls ./mappings/ | wc -l) Mapping file(s)"
