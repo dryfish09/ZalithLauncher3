@@ -1230,4 +1230,10 @@
     <string name="game_menu_option_hotbar_double_click">Ketuk dua kali untuk menukar item dengan off-hand</string>
     <string name="game_menu_option_hotbar_long_click">Tekan lama untuk menjatuhkan item terpilih</string>
     <string name="game_menu_option_hotbar_long_click_delay">Jeda tekan lama hotbar</string>
+    <string name="download_category_by_id">Cari berdasarkan ID</string>
+    <string name="download_assets_id_holder">ID Project</string>
+    <string name="download_assets_id_tip">Cari project berdasarkan ID</string>
+    <string name="download_assets_id_not_found">Project tidak ditemukan!</string>
+    <string name="download_assets_id_unsupported">Project tidak didukung!</string>
+    <string name="settings_launcher_color_theme_style">Gaya Palet</string>
 </resources>
