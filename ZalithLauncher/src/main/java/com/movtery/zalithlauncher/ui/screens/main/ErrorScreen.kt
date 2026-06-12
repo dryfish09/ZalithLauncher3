@@ -18,8 +18,10 @@
 
 package com.movtery.zalithlauncher.ui.screens.main
 
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -43,6 +45,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,6 +78,7 @@ fun ErrorScreen(
     onUploadClick: () -> Unit = {},
     onRestartClick: () -> Unit = {},
     onExitClick: () -> Unit = {},
+    onOrientationChanged: (Int) -> Unit = {},
     body: @Composable ColumnScope.() -> Unit
 ) {
     //获取方向信息，展示两套不同的UI
@@ -91,6 +95,9 @@ fun ErrorScreen(
             onUploadClick = onUploadClick,
             onRestartClick = onRestartClick,
             onExitClick = onExitClick,
+            onRotateClick = {
+                onOrientationChanged(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+            },
             body = body
         )
     } else {
@@ -103,6 +110,9 @@ fun ErrorScreen(
             onUploadClick = onUploadClick,
             onRestartClick = onRestartClick,
             onExitClick = onExitClick,
+            onRotateClick = {
+                onOrientationChanged(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
+            },
             body = body
         )
     }
@@ -121,16 +131,37 @@ private fun ErrorScreenLandscape(
     onUploadClick: () -> Unit,
     onRestartClick: () -> Unit,
     onExitClick: () -> Unit,
+    onRotateClick: () -> Unit,
     body: @Composable ColumnScope.() -> Unit
 ) {
     Scaffold(
         topBar = {
-            TopBar(
+            val text = when (crashType) {
+                //在启动器崩溃的时候，显示一个较为严重的标题
+                CrashType.LAUNCHER_CRASH -> stringResource(R.string.crash_launcher_title, BuildKeys.LAUNCHER_NAME)
+                //游戏运行崩溃了，大概和启动器关系不大，仅展示应用标题
+                CrashType.GAME_CRASH -> BuildKeys.LAUNCHER_NAME
+            }
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(40.dp),
-                crashType = crashType,
-            )
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = text)
+                //旋转竖屏
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 12.dp),
+                    onClick = onRotateClick
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_fullscreen_exit),
+                        contentDescription = null
+                    )
+                }
+            }
         },
         modifier = Modifier.fillMaxSize(),
         containerColor = backgroundColor(),
@@ -182,6 +213,7 @@ private fun ErrorScreenPortrait(
     onUploadClick: () -> Unit,
     onRestartClick: () -> Unit,
     onExitClick: () -> Unit,
+    onRotateClick: () -> Unit,
     body: @Composable ColumnScope.() -> Unit
 ) {
     //控制下拉菜单的显示状态
@@ -190,69 +222,82 @@ private fun ErrorScreenPortrait(
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
                 title = {
-                    Text(
-                        text = stringResource(
-                            R.string.crash_type,
-                            stringResource(crashType.textRes)
-                        )
-                    )
+                    //应用标题
+                    Text(text = BuildKeys.LAUNCHER_NAME)
                 },
                 actions = {
+                    //旋转横屏
                     IconButton(
-                        onClick = { showMenu = true }
+                        onClick = onRotateClick
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_more_vert),
-                            contentDescription = stringResource(R.string.generic_more)
+                            painter = painterResource(R.drawable.ic_mobile_rotate_filled),
+                            contentDescription = null
                         )
                     }
 
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
-                    ) {
-                        if (canUpload) {
-                            DropdownMenuItem(
-                                text = {
-                                    MarqueeText(text = stringResource(R.string.crash_link_share_button))
-                                },
-                                onClick = {
-                                    showMenu = false
-                                    onUploadClick()
-                                }
+                    Row {
+                        IconButton(
+                            onClick = { showMenu = true }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_more_vert),
+                                contentDescription = stringResource(R.string.generic_more)
                             )
                         }
-                        DropdownMenuItem(
-                            text = {
-                                MarqueeText(text = stringResource(R.string.crash_share_logs))
-                            },
-                            onClick = {
-                                showMenu = false
-                                onShareLogsClick()
-                            },
-                            enabled = shareLogs
-                        )
-                        if (canRestart) {
-                            DropdownMenuItem(
-                                text = {
-                                    MarqueeText(text = stringResource(R.string.crash_restart))
-                                },
-                                onClick = {
-                                    showMenu = false
-                                    onRestartClick()
-                                }
-                            )
-                        }
-                        DropdownMenuItem(
-                            text = {
-                                MarqueeText(text = stringResource(R.string.crash_exit))
-                            },
-                            onClick = {
-                                showMenu = false
-                                onExitClick()
+
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            if (canUpload) {
+                                DropdownMenuItem(
+                                    text = {
+                                        MarqueeText(text = stringResource(R.string.crash_link_share_button))
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onUploadClick()
+                                    }
+                                )
                             }
-                        )
+                            DropdownMenuItem(
+                                text = {
+                                    MarqueeText(text = stringResource(R.string.crash_share_logs))
+                                },
+                                onClick = {
+                                    showMenu = false
+                                    onShareLogsClick()
+                                },
+                                enabled = shareLogs
+                            )
+                            if (canRestart) {
+                                DropdownMenuItem(
+                                    text = {
+                                        MarqueeText(text = stringResource(R.string.crash_restart))
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onRestartClick()
+                                    }
+                                )
+                            }
+                            DropdownMenuItem(
+                                text = {
+                                    MarqueeText(text = stringResource(R.string.crash_exit))
+                                },
+                                onClick = {
+                                    showMenu = false
+                                    onExitClick()
+                                }
+                            )
+                        }
                     }
                 }
             )
@@ -266,6 +311,14 @@ private fun ErrorScreenPortrait(
                 .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            //崩溃类型
+            Text(
+                text = stringResource(
+                    R.string.crash_type,
+                    stringResource(crashType.textRes)
+                )
+            )
+
             if (crashType == CrashType.LAUNCHER_CRASH) {
                 //仅在启动器崩溃时，才显示这行略显严重的文本
                 Column(
@@ -284,28 +337,6 @@ private fun ErrorScreenPortrait(
                 body()
             }
         }
-    }
-}
-
-@Composable
-private fun TopBar(
-    modifier: Modifier = Modifier,
-    crashType: CrashType,
-) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center
-    ) {
-        val text = when (crashType) {
-            //在启动器崩溃的时候，显示一个较为严重的标题
-            CrashType.LAUNCHER_CRASH -> stringResource(R.string.crash_launcher_title, BuildKeys.LAUNCHER_NAME)
-            //游戏运行崩溃了，大概和启动器关系不大，仅展示应用标题
-            CrashType.GAME_CRASH -> BuildKeys.LAUNCHER_NAME
-        }
-        Text(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = text
-        )
     }
 }
 
