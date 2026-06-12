@@ -103,7 +103,6 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
@@ -112,8 +111,10 @@ import com.movtery.zalithlauncher.game.version.mod.LocalMod
 import com.movtery.zalithlauncher.game.version.mod.RemoteMod
 import com.movtery.zalithlauncher.game.version.mod.isDisabled
 import com.movtery.zalithlauncher.game.version.mod.isEnabled
-import com.movtery.zalithlauncher.game.version.mod.update.ModData
+import com.movtery.zalithlauncher.game.version.mod.update.ModManifest
 import com.movtery.zalithlauncher.game.version.mod.update.ModUpdater
+import com.movtery.zalithlauncher.game.version.mod.update.SelectableModManifest
+import com.movtery.zalithlauncher.game.version.mod.update.toSelectableList
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
@@ -423,19 +424,19 @@ private class ModsUpdaterViewModel(
         private set
 
     //等待用户确认模组更新
-    private var waitingUserContinuation: (Continuation<Boolean>)? = null
-    suspend fun waitingForUserConfirm(map: Map<ModData, PlatformVersion>): Boolean {
+    private var waitingUserContinuation: (Continuation<List<SelectableModManifest>>)? = null
+    suspend fun waitingForUserConfirm(list: List<ModManifest>): List<SelectableModManifest> {
         return suspendCancellableCoroutine { cont ->
             waitingUserContinuation = cont
-            modsConfirmOperation = ModsConfirmOperation.WaitingConfirm(map)
+            modsConfirmOperation = ModsConfirmOperation.WaitingConfirm(list.toSelectableList())
         }
     }
 
     /**
      * 用户确认更新模组
      */
-    fun modsUserConfirm(confirm: Boolean) {
-        waitingUserContinuation?.resume(confirm)
+    fun modsUserConfirm(manifests: List<SelectableModManifest>) {
+        waitingUserContinuation?.resume(manifests)
         waitingUserContinuation = null
         modsConfirmOperation = ModsConfirmOperation.None
     }
@@ -609,10 +610,10 @@ fun ModsManagerScreen(
         ModsConfirmOperation(
             operation = updaterViewModel.modsConfirmOperation,
             onCancel = {
-                updaterViewModel.modsUserConfirm(false)
+                updaterViewModel.modsUserConfirm(emptyList())
             },
-            onConfirm = {
-                updaterViewModel.modsUserConfirm(true)
+            onConfirm = { manifests ->
+                updaterViewModel.modsUserConfirm(manifests)
             }
         )
 
