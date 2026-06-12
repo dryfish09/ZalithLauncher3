@@ -29,6 +29,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,10 +52,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -70,6 +71,7 @@ import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.scrollbar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -168,6 +170,7 @@ import java.io.File
 import java.util.LinkedList
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+import kotlin.time.Duration.Companion.milliseconds
 
 private class ModsManageViewModel(
     modsDir: File
@@ -355,7 +358,7 @@ private class ModsManageViewModel(
                 val task = queueMutex.withLock {
                     loadQueue.poll()
                 } ?: run {
-                    delay(100)
+                    delay(100.milliseconds)
                     continue
                 }
 
@@ -1018,10 +1021,17 @@ private fun ModsList(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
+        val scrollState = rememberLazyListState()
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .scrollbar(
+                    state = scrollState.scrollIndicatorState,
+                    orientation = Orientation.Vertical,
+                ),
             contentPadding = PaddingValues(all = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            state = scrollState,
         ) {
             if (!hasModLoader) {
                 item(key = "warning_no_modloader") {
@@ -1421,10 +1431,7 @@ private fun LocalModInfoTooltip(
                 title = { Text(text = stringResource(R.string.mods_manage_info)) },
                 shadowElevation = 3.dp
             ) {
-                Column(
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                ) {
+                Column {
                     //文件大小
                     Text(text = stringResource(R.string.generic_file_size, formatFileSize(mod.fileSize)))
                     //模组版本
