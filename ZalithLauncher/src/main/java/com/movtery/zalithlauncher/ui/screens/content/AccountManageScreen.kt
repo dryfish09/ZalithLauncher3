@@ -760,6 +760,23 @@ private fun AccountsLayout(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            scope.launch {
+                val success = SettingsTransferUtils.importData(context, it)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        if (success) R.string.settings_import_success else R.string.settings_import_failed,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
     AccountOperation(accountOperation, actions)
 
     AccountSkinOperation(
