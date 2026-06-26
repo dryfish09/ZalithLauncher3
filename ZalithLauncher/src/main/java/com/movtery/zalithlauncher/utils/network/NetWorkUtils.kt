@@ -122,7 +122,7 @@ fun downloadFileWithHttp(
 
             val request = Request.Builder()
                 .url(url)
-                .header("User-Agent", "Mozilla/5.0/$URL_USER_AGENT")
+                .header("User-Agent", URL_USER_AGENT)
                 .build()
 
             DOWNLOAD_OKHTTP_CLIENT
