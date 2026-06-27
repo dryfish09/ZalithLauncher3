@@ -22,8 +22,8 @@ This fork aims to enhance and customize the original Zalith Launcher 2 experienc
 - [x] Config UI remake
 
 **Soon:**
-- [ ] Friend system
-- [ ] First ever performance update
+- [ ] Friend system (still working on it)
+- [ ] First ever performance update (not planned soon)
 
 
 ## 🔗 Upstream Project
