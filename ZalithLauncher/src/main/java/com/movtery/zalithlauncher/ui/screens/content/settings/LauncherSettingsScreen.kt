@@ -305,7 +305,8 @@ fun LauncherSettingsScreen(
                                     ),
                                     onClick = {
                                         unit.save(state.switch())
-                                    }
+                                    },
+                                    enabled = backgroundViewModel.isValid,
                                 ) {
                                     Crossfade(
                                         targetState = state
