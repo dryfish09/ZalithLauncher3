@@ -1264,6 +1264,7 @@
     <string name="stats_no_data">Henüz veri yok</string>
     <string name="stats_view_all">Tümünü Gör</string>
     <string name="stats_today_header">BUGÜNÜN İSTATİSTİKLERİ</string>
+    <string name="stats_suggested_video">⭐ ÖNERİLEN VİDEO - İÇERİK ÜRETİCİ</string>
     <string name="error_client_error">(%s) İstemci hatası</string>
     <string name="error_unknown">(%s) Bilinmeyen hata</string>
     <string name="settings_renderer_external_driver">Harici Sürücü</string>

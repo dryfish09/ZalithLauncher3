@@ -406,7 +406,7 @@ private fun VideoCard(
                     .padding(horizontal = 6.dp, vertical = 3.dp)
             ) {
                 Text(
-                    text = "⭐ ÖNERİLEN VİDEO - İÇERİK ÜRETİCİ",
+                    text = stringResource(R.string.stats_suggested_video),
                     color = Color.White,
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = 9.sp,
