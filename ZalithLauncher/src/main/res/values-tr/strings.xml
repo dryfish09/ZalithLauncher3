@@ -1276,7 +1276,7 @@
     <string name="error_unknown">(%s) Bilinmeyen hata</string>
     <string name="settings_renderer_external_driver">Harici Sürücü</string>
     <string name="settings_renderer_download_turnip">Turnip Sürücüsü İndir</string>
-    <string name="settings_renderer_download_turnip_summary">Bir Turnip sürücü sürümü seçin ve GitHub üzerinden indirin</string>
+    <string name="settings_renderer_download_turnip_summary">Bir Turnip surucu surumu secin</string>
     <string name="settings_renderer_turnip_downloading">Turnip Sürücüsü İndiriliyor...</string>
     <string name="settings_renderer_turnip_extracting">Turnip Sürücüsü Çıkarılıyor...</string>
     <string name="settings_renderer_turnip_success">Turnip Sürücüsü başarıyla yüklendi</string>
