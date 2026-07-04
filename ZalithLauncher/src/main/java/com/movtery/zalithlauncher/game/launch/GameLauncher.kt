@@ -30,8 +30,6 @@ import com.movtery.zalithlauncher.bridge.LoggerBridge.append
 import com.movtery.zalithlauncher.bridge.LoggerBridge.appendTitle
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.context.readAssetFile
-import com.movtery.zalithlauncher.utils.fsr.FSRUtils
-import com.movtery.zalithlauncher.utils.settings.MobileGluesConfig
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.offline.OfflineYggdrasilServer
@@ -180,12 +178,6 @@ class GameLauncher(
     override fun dlopenEngine() {
         super.dlopenEngine()
         appendTitle("DLOPEN Renderer")
-
-        FSRUtils.load()
-
-        if (Renderers.isCurrentRendererValid() && Renderers.getCurrentRenderer().getRendererName() == "MobileGlues") {
-            MobileGluesConfig.syncGlobalFsrToMgConfig()
-        }
 
         RendererPluginManager.selectedRendererPlugin?.let { renderer ->
             renderer.dlopen.forEach { lib -> ZLBridge.dlopen("${renderer.path}/$lib") }

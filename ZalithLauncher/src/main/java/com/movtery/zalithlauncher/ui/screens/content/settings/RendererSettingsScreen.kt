@@ -56,7 +56,6 @@ import com.movtery.zalithlauncher.path.URL_CLOUD_RENDERER_PLUGINS
 import com.movtery.zalithlauncher.path.URL_GITHUB_DRIVER_PLUGINS
 import com.movtery.zalithlauncher.path.URL_GITHUB_RENDERER_PLUGINS
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.utils.fsr.FSRUtils
 import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
@@ -260,64 +259,6 @@ fun RendererSettingsScreen(
                             }
                         }
                     )
-
-                    SwitchSettingsCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
-                        unit = AllSettings.fsrEnabled,
-                        title = stringResource(R.string.settings_renderer_fsr_title),
-                        summary = stringResource(R.string.settings_renderer_fsr_summary),
-                        onCheckedChange = { enabled ->
-                            if (enabled) {
-                                val ratio = FSRUtils.qualityToResolutionRatio(AllSettings.fsrQuality.getValue())
-                                AllSettings.resolutionRatio.updateState(ratio)
-                                AllSettings.resolutionRatio.save()
-                            } else {
-                                AllSettings.resolutionRatio.updateState(100)
-                                AllSettings.resolutionRatio.save()
-                            }
-                        }
-                    )
-
-                    if (AllSettings.fsrEnabled.state) {
-                        SettingsCardColumn(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            val fsrQualityLabels = listOf(
-                                1 to stringResource(R.string.settings_renderer_fsr_quality_ultra),
-                                2 to stringResource(R.string.settings_renderer_fsr_quality_quality),
-                                3 to stringResource(R.string.settings_renderer_fsr_quality_balanced),
-                                4 to stringResource(R.string.settings_renderer_fsr_quality_performance)
-                            )
-
-                            ListSettingsCard(
-                                modifier = Modifier.fillMaxWidth(),
-                                position = CardPosition.Middle,
-                                items = fsrQualityLabels,
-                                currentId = AllSettings.fsrQuality.state.toString(),
-                                defaultId = AllSettings.fsrQuality.defaultValue.toString(),
-                                title = stringResource(R.string.settings_renderer_fsr_quality_title),
-                                summary = stringResource(R.string.settings_renderer_fsr_quality_summary),
-                                getItemText = { it.second },
-                                getItemId = { it.first.toString() },
-                                getItemSummary = {
-                                    when (it.first) {
-                                        1 -> "1.33x (1080p → 1440p)"
-                                        2 -> "1.5x (720p → 1080p)"
-                                        3 -> "1.7x (632p → 1080p)"
-                                        4 -> "2.0x (540p → 1080p)"
-                                        else -> ""
-                                    }
-                                },
-                                onValueChange = { item ->
-                                    AllSettings.fsrQuality.save(item.first)
-                                    if (AllSettings.fsrEnabled.getValue()) {
-                                        FSRUtils.updateQuality(item.first)
-                                    }
-                                }
-                            )
-                        }
-                    }
 
                     IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),

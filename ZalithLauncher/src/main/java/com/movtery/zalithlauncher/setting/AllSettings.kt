@@ -65,7 +65,7 @@ object AllSettings : SettingsRegistry() {
     /**
      * 分辨率
      */
-    val resolutionRatio = intSetting("resolutionRatio", 100, 25..300)
+    val resolutionRatio = intSetting("resolutionRatio", 70, 25..300)
 
     /**
      * 游戏页面全屏化
@@ -678,7 +678,4 @@ object AllSettings : SettingsRegistry() {
      */
     val autoVulkanChecker = boolSetting("autoVulkanChecker", true)
 
-    //FSR
-    val fsrEnabled = boolSetting("fsrEnabled", false)
-    val fsrQuality = intSetting("fsrQuality", 2, 1..4) // 1=UltraQuality, 2=Quality, 3=Balanced, 4=Performance
 }

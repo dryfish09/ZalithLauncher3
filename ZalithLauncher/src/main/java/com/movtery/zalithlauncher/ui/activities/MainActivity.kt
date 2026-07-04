@@ -791,6 +791,13 @@ class MainActivity : BaseAppCompatActivity() {
         ControlManager.checkDefaultAndRefresh(this@MainActivity)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing) {
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }
+    }
+
     @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (isCaptureKey) {

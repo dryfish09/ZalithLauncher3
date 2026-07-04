@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.utils.fsr.FSRUtils
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
@@ -78,47 +77,7 @@ fun PerformanceSettingsDialog(
                     suffix = "%"
                 )
 
-                InfoLayoutSwitchItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    title = stringResource(R.string.settings_renderer_fsr_title),
-                    value = AllSettings.fsrEnabled.state,
-                    onValueChange = { enabled ->
-                        AllSettings.fsrEnabled.save(enabled)
-                        if (enabled) {
-                            val ratio = FSRUtils.qualityToResolutionRatio(AllSettings.fsrQuality.getValue())
-                            AllSettings.resolutionRatio.updateState(ratio)
-                            AllSettings.resolutionRatio.save()
-                        } else {
-                            AllSettings.resolutionRatio.updateState(100)
-                            AllSettings.resolutionRatio.save()
-                        }
-                    }
-                )
 
-                if (AllSettings.fsrEnabled.state) {
-                    InfoLayoutSelectItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.settings_renderer_fsr_quality_title),
-                        options = listOf(1, 2, 3, 4),
-                        current = AllSettings.fsrQuality.state,
-                        onClick = { quality ->
-                            AllSettings.fsrQuality.save(quality)
-                            FSRUtils.updateQuality(quality)
-                        },
-                        label = { quality ->
-                            Text(
-                                text = when (quality) {
-                                    1 -> stringResource(R.string.settings_renderer_fsr_quality_ultra)
-                                    2 -> stringResource(R.string.settings_renderer_fsr_quality_quality)
-                                    3 -> stringResource(R.string.settings_renderer_fsr_quality_balanced)
-                                    4 -> stringResource(R.string.settings_renderer_fsr_quality_performance)
-                                    else -> ""
-                                },
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                        }
-                    )
-                }
             }
         }
         PerformanceSettingsOperation.Ram -> {

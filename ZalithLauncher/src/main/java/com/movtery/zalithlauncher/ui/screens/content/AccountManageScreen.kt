@@ -41,6 +41,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialExpressiveTheme
@@ -243,7 +244,7 @@ fun AccountManageScreen(
 }
 
 /**
- * 账号管理界面的实际内容布局
+ * 账号管理界面的实际内容布局 - tek panel
  */
 @Composable
 private fun AccountManageContent(
@@ -253,185 +254,288 @@ private fun AccountManageContent(
     operationUiState: AccountManageViewModel.OperationUiState,
     actions: AccountActions
 ) {
-    Row(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        ActionsLayout(
-            isVisible = isVisible,
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(all = 12.dp)
-                .weight(3f),
-            currentAccount = profileUiState.currentAccount,
-            isOffline = profileUiState.isOffline,
-            actions = actions
-        )
+    val refreshWardrobe by AccountsManager.refreshWardrobe.collectAsStateWithLifecycle()
+    val currentAccount = profileUiState.currentAccount
+    val isOffline = profileUiState.isOffline
+    val context = LocalContext.current
 
-        AccountsLayout(
-            isVisible = isVisible,
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(top = 12.dp, end = 12.dp, bottom = 12.dp)
-                .weight(7f),
-            accounts = profileUiState.accounts,
-            currentAccount = profileUiState.currentAccount,
-            isOffline = profileUiState.isOffline,
-            accountOperation = operationUiState.accountOp,
-            accountSkinOperation = operationUiState.accountSkinOp,
-            accountSkinDialogState = operationUiState.accountSkinDialogState,
-            accountCapes = profileUiState.accountCapeOpMap,
-            actions = actions
-        )
+    val accountSkin = remember(currentAccount, refreshWardrobe) {
+        currentAccount?.getSkinFile()?.takeIf { it.exists() }
+    }
+    val accountCape = remember(currentAccount, refreshWardrobe) {
+        currentAccount?.getCapeFile()?.takeIf { it.exists() }
+    }
+    val playerSkin = remember { PlayerSkin(context) }
+    var pageFinished by remember { mutableStateOf(false) }
+
+    DisposableEffect(Unit) {
+        onDispose { playerSkin.destroy() }
     }
 
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        BackgroundCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(12.dp),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Player model preview (compact)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AndroidView(
+                        modifier = Modifier.fillMaxSize(),
+                        factory = { ctx ->
+                            playerSkin.loadWebView(
+                                context = ctx,
+                                onPageFinished = {
+                                    pageFinished = true
+                                    playerSkin.startAnim(ModelAnimation.NewIdle)
+                                    playerSkin.setAzimuthAndPitch(-35, 10)
+                                }
+                            )
+                        },
+                        update = {
+                            if (pageFinished) {
+                                runCatching {
+                                    accountSkin?.inputStream().use { inputStream ->
+                                        playerSkin.loadSkin(inputStream, currentAccount?.skinModelType)
+                                    }
+                                }
+                                runCatching {
+                                    accountCape?.inputStream().use { inputStream ->
+                                        playerSkin.loadCape(inputStream)
+                                    }
+                                }
+                            }
+                        }
+                    )
+                    if (!pageFinished) {
+                        LoadingIndicator()
+                    }
+                }
+
+                HorizontalDivider(modifier = Modifier.alpha(0.2f))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ScalingActionButton(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            if (isOffline) {
+                                actions.onIntent(AccountManageIntent.UpdateMicrosoftLoginOp(MicrosoftLoginOperation.Tip))
+                            } else {
+                                actions.onIntent(AccountManageIntent.UpdateLoginMenuOp(LoginMenuOperation.Login))
+                            }
+                        }
+                    ) {
+                        MarqueeText(text = stringResource(R.string.account_add_new_account))
+                    }
+
+                    var showChromaSelector by remember { mutableStateOf(false) }
+                    FilledTonalButton(
+                        onClick = { showChromaSelector = true }
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_styler),
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.size(4.dp))
+                        Text(stringResource(R.string.settings_chroma_name_title), style = MaterialTheme.typography.labelMedium)
+                    }
+
+                    if (showChromaSelector) {
+                        val modes = ChromaMode.entries
+                        SimpleListDialog(
+                            title = stringResource(R.string.settings_chroma_name_title),
+                            items = modes,
+                            itemTextProvider = { mode ->
+                                when (mode) {
+                                    ChromaMode.NONE -> context.getString(R.string.generic_none)
+                                    ChromaMode.RGB -> "RGB (Classic)"
+                                    ChromaMode.RED_BLUE -> context.getString(R.string.chroma_mode_red_blue)
+                                    ChromaMode.SUNSET -> context.getString(R.string.chroma_mode_sunset)
+                                    ChromaMode.OCEAN -> context.getString(R.string.chroma_mode_ocean)
+                                    ChromaMode.FOREST -> context.getString(R.string.chroma_mode_forest)
+                                    ChromaMode.NEON -> context.getString(R.string.chroma_mode_neon)
+                                }
+                            },
+                            onItemSelected = { mode ->
+                                AllSettings.chromaMode.save(mode)
+                                showChromaSelector = false
+                            },
+                            current = AllSettings.chromaMode.state,
+                            onDismissRequest = { showChromaSelector = false }
+                        )
+                    }
+                }
+
+                HorizontalDivider(modifier = Modifier.alpha(0.2f))
+
+                // Account list
+                AccountListSection(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    accounts = profileUiState.accounts,
+                    currentAccount = currentAccount,
+                    accountSkinOperation = operationUiState.accountSkinOp,
+                    accountSkinDialogState = operationUiState.accountSkinDialogState,
+                    accountCapes = profileUiState.accountCapeOpMap,
+                    actions = actions
+                )
+
+                // Import/Export buttons
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val scope = rememberCoroutineScope()
+                    val importLauncher = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.GetContent()
+                    ) { uri ->
+                        uri?.let {
+                            scope.launch {
+                                val success = SettingsTransferUtils.importData(context, it)
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        if (success) R.string.settings_import_success else R.string.settings_import_failed,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    }
+
+                    FilledTonalButton(
+                        onClick = {
+                            val activity = context as? android.app.Activity ?: return@FilledTonalButton
+                            checkStoragePermissions(
+                                activity = activity,
+                                title = R.string.storage_permission_request_title,
+                                message = context.getString(R.string.storage_permission_request_message),
+                                hasPermission = {
+                                    scope.launch {
+                                        val file = SettingsTransferUtils.exportAccounts(context)
+                                        withContext(Dispatchers.Main) {
+                                            if (file != null) {
+                                                Toast.makeText(context, context.getString(R.string.settings_export_success, file.absolutePath), Toast.LENGTH_LONG).show()
+                                            } else {
+                                                Toast.makeText(context, R.string.settings_export_failed, Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    ) {
+                        Icon(painter = painterResource(R.drawable.ic_share_filled), contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.size(4.dp))
+                        Text(stringResource(R.string.settings_export_accounts), style = MaterialTheme.typography.labelMedium)
+                    }
+                    Spacer(Modifier.size(8.dp))
+                    FilledTonalButton(onClick = { importLauncher.launch("application/json") }) {
+                        Icon(painter = painterResource(R.drawable.ic_upload), contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.size(4.dp))
+                        Text(stringResource(R.string.settings_import_accounts), style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+            }
+        }
+    }
+
+    AccountOperation(operationUiState.accountOp, actions)
     LoginMenuOperation(loginUiState.menuOp, actions, profileUiState.authServers)
     MicrosoftLoginOperation(loginUiState.microsoftOp, actions)
     LocalLoginOperation(loginUiState.localOp, actions)
     OtherLoginOperation(loginUiState.otherOp, actions)
     ServerTypeOperation(operationUiState.serverOp, actions)
+    AccountSkinOperation(
+        accountSkinOperation = operationUiState.accountSkinOp,
+        skinDialogState = operationUiState.accountSkinDialogState,
+        accountCapes = profileUiState.accountCapeOpMap,
+        actions = actions
+    )
 }
 
-/**
- * 左侧登录方式菜单组件
- */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ActionsLayout(
-    isVisible: Boolean,
+private fun AccountListSection(
     modifier: Modifier = Modifier,
+    accounts: List<Account>,
     currentAccount: Account?,
-    isOffline: Boolean,
+    accountSkinOperation: AccountSkinOperation,
+    accountSkinDialogState: AccountManageViewModel.AccountSkinDialogState,
+    accountCapes: Map<String, List<PlayerProfile.Cape>>,
     actions: AccountActions
 ) {
-    val xOffset by swapAnimateDpAsState(
-        targetValue = (-40).dp,
-        swapIn = isVisible,
-        isHorizontal = true
-    )
+    val context = LocalContext.current
 
-    Column(
-        modifier = modifier
-            .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
-            .fillMaxHeight()
-    ) {
-        //玩家模型预览
-        val refreshWardrobe by AccountsManager.refreshWardrobe.collectAsStateWithLifecycle()
-        val accountSkin = remember(currentAccount, refreshWardrobe) {
-            currentAccount?.getSkinFile()?.takeIf { it.exists() }
-        }
-        val accountCape = remember(currentAccount, refreshWardrobe) {
-            currentAccount?.getCapeFile()?.takeIf { it.exists() }
-        }
-        val context = LocalContext.current
-        val playerSkin = remember {
-            PlayerSkin(context)
-        }
-        var pageFinished by remember { mutableStateOf(false) }
-
-        DisposableEffect(Unit) {
-            onDispose {
-                playerSkin.destroy()
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center
+    if (accounts.isNotEmpty()) {
+        val scrollState = rememberLazyListState()
+        LazyColumn(
+            modifier = modifier,
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+            state = scrollState
         ) {
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { context ->
-                    playerSkin.loadWebView(
-                        context = context,
-                        onPageFinished = {
-                            pageFinished = true
-                            playerSkin.startAnim(ModelAnimation.NewIdle)
-                            playerSkin.setAzimuthAndPitch(-35, 10)
+            items(accounts, key = { it.uniqueUUID }) { account ->
+                AccountItem(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    currentAccount = currentAccount,
+                    account = account,
+                    enabled = true,
+                    onSelected = { AccountsManager.setCurrentAccount(it) },
+                    openChangeSkinDialog = {
+                        if (!account.isAuthServerAccount()) {
+                            actions.onIntent(
+                                AccountManageIntent.UpdateAccountSkinOp(
+                                    AccountSkinOperation.ChangeSkin(account)
+                                )
+                            )
                         }
-                    )
-                },
-                update = {
-                    if (pageFinished) {
-                        runCatching {
-                            accountSkin?.inputStream().use { inputStream ->
-                                playerSkin.loadSkin(inputStream, currentAccount?.skinModelType)
-                            }
-                        }
-                        runCatching {
-                            accountCape?.inputStream().use { inputStream ->
-                                playerSkin.loadCape(inputStream)
-                            }
-                        }
+                    },
+                    onRefreshClick = {
+                        actions.onIntent(AccountManageIntent.RefreshAccount(account))
+                    },
+                    onCopyUUID = {
+                        copyText(COPY_LABEL_ACCOUNT_UUID, account.profileId, context, false)
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.account_local_uuid_copied, account.username),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onDeleteClick = {
+                        actions.onIntent(
+                            AccountManageIntent.UpdateAccountOp(AccountOperation.Delete(account))
+                        )
                     }
-                }
-            )
-            if (!pageFinished) {
-                LoadingIndicator()
-            }
-        }
-
-        //添加账号
-        ScalingActionButton(
-            modifier = Modifier
-                .fillMaxWidth(),
-            onClick = {
-                if (isOffline) {
-                    //非正版状态下，只允许创建微软账号
-                    actions.onIntent(AccountManageIntent.UpdateMicrosoftLoginOp(MicrosoftLoginOperation.Tip))
-                } else {
-                    actions.onIntent(AccountManageIntent.UpdateLoginMenuOp(LoginMenuOperation.Login))
-                }
-            }
-        ) {
-            MarqueeText(text = stringResource(R.string.account_add_new_account))
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Chroma toggle
-        var showChromaSelector by remember { mutableStateOf(false) }
-        
-        InfoLayoutTextItem(
-            modifier = Modifier.fillMaxWidth(),
-            title = stringResource(R.string.settings_chroma_name_title),
-            icon = {
-                Icon(
-                    modifier = Modifier.size(22.dp),
-                    painter = painterResource(R.drawable.ic_styler),
-                    contentDescription = null
                 )
-            },
-            onClick = {
-                showChromaSelector = true
             }
-        )
-
-        if (showChromaSelector) {
-            val modes = ChromaMode.entries
-            SimpleListDialog(
-                title = stringResource(R.string.settings_chroma_name_title),
-                items = modes,
-                itemTextProvider = { mode ->
-                    when (mode) {
-                        ChromaMode.NONE -> context.getString(R.string.generic_none)
-                        ChromaMode.RGB -> "RGB (Classic)"
-                        ChromaMode.RED_BLUE -> context.getString(R.string.chroma_mode_red_blue)
-                        ChromaMode.SUNSET -> context.getString(R.string.chroma_mode_sunset)
-                        ChromaMode.OCEAN -> context.getString(R.string.chroma_mode_ocean)
-                        ChromaMode.FOREST -> context.getString(R.string.chroma_mode_forest)
-                        ChromaMode.NEON -> context.getString(R.string.chroma_mode_neon)
-                    }
-                },
-                onItemSelected = { mode ->
-                    AllSettings.chromaMode.save(mode)
-                    showChromaSelector = false
-                },
-                current = AllSettings.chromaMode.state,
-                onDismissRequest = {
-                    showChromaSelector = false
-                }
+        }
+    } else {
+        Box(modifier = modifier) {
+            ScalingLabel(
+                modifier = Modifier.align(Alignment.Center),
+                text = stringResource(R.string.account_no_account)
             )
         }
     }
@@ -740,258 +844,7 @@ private fun ServerTypeOperation(
     }
 }
 
-/**
- * 账号列表组件
- */
-@Composable
-private fun AccountsLayout(
-    isVisible: Boolean,
-    modifier: Modifier = Modifier,
-    accounts: List<Account>,
-    currentAccount: Account?,
-    isOffline: Boolean,
-    accountOperation: AccountOperation,
-    accountSkinOperation: AccountSkinOperation,
-    accountSkinDialogState: AccountManageViewModel.AccountSkinDialogState,
-    accountCapes: Map<String, List<PlayerProfile.Cape>>,
-    actions: AccountActions
-) {
-    val yOffset by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible)
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
-    val importLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            scope.launch {
-                val success = SettingsTransferUtils.importData(context, it)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        if (success) R.string.settings_import_success else R.string.settings_import_failed,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
-
-    AccountOperation(accountOperation, actions)
-
-    AccountSkinOperation(
-        accountSkinOperation = accountSkinOperation,
-        skinDialogState = accountSkinDialogState,
-        accountCapes = accountCapes,
-        actions = actions
-    )
-
-    BackgroundCard(
-        modifier = modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        if (accounts.isNotEmpty()) {
-            val scrollState = rememberLazyListState()
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .scrollbar(
-                        state = scrollState.scrollIndicatorState,
-                        orientation = Orientation.Vertical,
-                    )
-                    .clip(MaterialTheme.shapes.extraLarge),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                state = scrollState,
-            ) {
-                items(accounts, key = { it.uniqueUUID }) { account ->
-                    AccountItem(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        currentAccount = currentAccount,
-                        account = account,
-                        enabled = !isOffline, //非正版状态下不允许选择任何状态
-                        onSelected = { AccountsManager.setCurrentAccount(it) },
-                        openChangeSkinDialog = {
-                            if (!account.isAuthServerAccount()) {
-                                actions.onIntent(
-                                    AccountManageIntent.UpdateAccountSkinOp(
-                                        AccountSkinOperation.ChangeSkin(account)
-                                    )
-                                )
-                            }
-                        },
-                        onRefreshClick = {
-                            actions.onIntent(
-                                AccountManageIntent.RefreshAccount(
-                                    account
-                                )
-                            )
-                        },
-                        onCopyUUID = {
-                            copyText(COPY_LABEL_ACCOUNT_UUID, account.profileId, context, false)
-                            Toast.makeText(
-                                context,
-                                context.getString(
-                                    R.string.account_local_uuid_copied,
-                                    account.username
-                                ),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        },
-                        onDeleteClick = {
-                            actions.onIntent(
-                                AccountManageIntent.UpdateAccountOp(
-                                    AccountOperation.Delete(account)
-                                )
-                            )
-                        }
-                    )
-                }
-            }
-        }
-    }
-
-    Column(
-        modifier = modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
-    ) {
-        if (AllSettings.showSettingsTip.state) {
-            WarningCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                title = stringResource(R.string.generic_info),
-                text = { Text(stringResource(R.string.settings_tip_import_export)) },
-                onDismiss = { AllSettings.showSettingsTip.save(false) }
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            BackgroundCard(
-                modifier = Modifier.fillMaxSize(),
-                shape = MaterialTheme.shapes.extraLarge
-            ) {
-                if (accounts.isNotEmpty()) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(MaterialTheme.shapes.extraLarge),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        items(accounts, key = { it.uniqueUUID }) { account ->
-                            AccountItem(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 6.dp),
-                                currentAccount = currentAccount,
-                                account = account,
-                                enabled = !isOffline, //非正版状态下不允许选择任何状态
-                                onSelected = { AccountsManager.setCurrentAccount(it) },
-                                openChangeSkinDialog = {
-                                    if (!account.isAuthServerAccount()) {
-                                        actions.onIntent(
-                                            AccountManageIntent.UpdateAccountSkinOp(
-                                                AccountSkinOperation.ChangeSkin(account)
-                                            )
-                                        )
-                                    }
-                                },
-                                onRefreshClick = {
-                                    actions.onIntent(
-                                        AccountManageIntent.RefreshAccount(
-                                            account
-                                        )
-                                    )
-                                },
-                                onCopyUUID = {
-                                    copyText(COPY_LABEL_ACCOUNT_UUID, account.profileId, context, false)
-                                    android.widget.Toast.makeText(
-                                        context,
-                                        context.getString(
-                                            R.string.account_local_uuid_copied,
-                                            account.username
-                                        ),
-                                        android.widget.Toast.LENGTH_SHORT
-                                    ).show()
-                                },
-                                onDeleteClick = {
-                                    actions.onIntent(
-                                        AccountManageIntent.UpdateAccountOp(
-                                            AccountOperation.Delete(account)
-                                        )
-                                    )
-                                }
-                            )
-                        }
-                    }
-                } else {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        ScalingLabel(
-                            modifier = Modifier.align(Alignment.Center),
-                            text = stringResource(R.string.account_no_account)
-                        )
-                    }
-                }
-            }
-
-            // Import/Export buttons at bottom right
-            Row(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                FilledTonalButton(
-                    onClick = {
-                        val activity = context as? android.app.Activity ?: return@FilledTonalButton
-                        checkStoragePermissions(
-                            activity = activity,
-                            title = R.string.storage_permission_request_title,
-                            message = context.getString(R.string.storage_permission_request_message),
-                            hasPermission = {
-                                scope.launch {
-                                    val file = SettingsTransferUtils.exportAccounts(context)
-                                    withContext(Dispatchers.Main) {
-                                        if (file != null) {
-                                            Toast.makeText(context, context.getString(R.string.settings_export_success, file.absolutePath), Toast.LENGTH_LONG).show()
-                                        } else {
-                                            Toast.makeText(context, R.string.settings_export_failed, Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                }
-                            }
-                        )
-                    }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_share_filled),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.size(4.dp))
-                    Text(stringResource(R.string.settings_export_accounts), style = MaterialTheme.typography.labelMedium)
-                }
-                FilledTonalButton(
-                    onClick = {
-                        importLauncher.launch("application/json")
-                    }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_upload),
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.size(4.dp))
-                    Text(stringResource(R.string.settings_import_accounts), style = MaterialTheme.typography.labelMedium)
-                }
-            }
-        }
-    }
-}
 
 /**
  * 账号皮肤操作逻辑处理

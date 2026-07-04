@@ -18,7 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -95,6 +95,7 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.ui.screens.addIfEmpty
 import com.movtery.zalithlauncher.ui.screens.clearWith
+import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.AboutDialog
@@ -303,7 +304,12 @@ private fun ContentMenu(
     }
 }
 
-// ── Stats 2×2 grid with header ──────────────────────────────────────────────
+private val VIDEO_URLS = listOf(
+    "QYLWApiTaQE" to "https://youtu.be/QYLWApiTaQE",
+    "cPrtCZX4mII" to "https://youtu.be/cPrtCZX4mII",
+    "pX3-DLIeDWQ" to "https://youtu.be/pX3-DLIeDWQ",
+    "LDosCkeT-2I" to "https://youtu.be/LDosCkeT-2I"
+)
 
 @Composable
 private fun StatsGrid(
@@ -311,6 +317,10 @@ private fun StatsGrid(
     onNavigateToStats: () -> Unit,
     onNavigateToLog: (String) -> Unit,
 ) {
+    val selectedVideos = remember {
+        VIDEO_URLS.shuffled().take(3)
+    }
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -322,316 +332,73 @@ private fun StatsGrid(
                 .padding(horizontal = 4.dp)
                 .alpha(0.5f)
         )
-        // Row 1 — graph + daily hours
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            PlayTimeGraphCard(modifier = Modifier.weight(1f).fillMaxHeight())
-            DailyPlayTimeCard(modifier = Modifier.weight(1f).fillMaxHeight())
+            VideoCard(
+                videoId = selectedVideos[0].first,
+                videoUrl = selectedVideos[0].second,
+                modifier = Modifier.weight(1f).fillMaxHeight()
+            )
+            VideoCard(
+                videoId = selectedVideos[1].first,
+                videoUrl = selectedVideos[1].second,
+                modifier = Modifier.weight(1f).fillMaxHeight()
+            )
         }
-        // Row 2 — per-version + last log
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            VersionPlayRateCard(
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                onNavigateToStats = onNavigateToStats
+            VideoCard(
+                videoId = selectedVideos[2].first,
+                videoUrl = selectedVideos[2].second,
+                modifier = Modifier.weight(1f).fillMaxHeight()
             )
-            LastLogCard(
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                onNavigateToLog = onNavigateToLog
-            )
+            Box(modifier = Modifier.weight(1f).fillMaxHeight())
         }
     }
 }
 
-// ── Stat Card 1: Bar graph of daily play time ───────────────────────────────
-
-private val DAY_NAMES = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-
 @Composable
-private fun PlayTimeGraphCard(modifier: Modifier = Modifier) {
-    val versions = remember { VersionsManager.versions.map { it.getVersionName() } }
-    // oldest → newest, 7 days ending today
-    val days = remember { PlayTimeRepository.lastNDays(7).reversed() }
-    val barData = remember(versions, days) {
-        days.map { date ->
-            PlayTimeUtils.getPlayHours(PlayTimeRepository.getDailyTotalPlayTime(date, versions)).toFloat()
-        }
-    }
-    val maxVal = remember(barData) { barData.maxOrNull()?.takeIf { it > 0f } ?: 1f }
-    // Day-of-week labels: derive from the date string (yyyy-MM-dd → parse weekday)
-    val dayLabels = remember(days) {
-        days.map { date ->
-            try {
-                val cal = java.util.Calendar.getInstance()
-                val parts = date.split("-")
-                cal.set(parts[0].toInt(), parts[1].toInt() - 1, parts[2].toInt())
-                // Calendar.DAY_OF_WEEK: 1=Sun,2=Mon,...7=Sat
-                val dow = cal.get(java.util.Calendar.DAY_OF_WEEK)
-                DAY_NAMES[(dow + 5) % 7] // shift so Mon=0
-            } catch (e: Exception) { date.takeLast(2) }
-        }
-    }
-    val barColor = MaterialTheme.colorScheme.primary
-    val labelColor = MaterialTheme.colorScheme.onSurface
-
-    BackgroundCard(modifier = modifier, shape = MaterialTheme.shapes.extraLarge) {
-        CardTitleLayout {
-            Text(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                text = stringResource(R.string.stats_play_time_graph),
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            // Day name labels at top
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                dayLabels.forEach { label ->
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = labelColor,
-                        modifier = Modifier.alpha(0.55f)
-                    )
-                }
-            }
-            // Bar chart fills remaining space
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val barCount = barData.size
-                val gap = size.width * 0.03f
-                val barWidth = (size.width - gap * (barCount + 1)) / barCount
-                val cornerR = barWidth * 0.25f
-                barData.forEachIndexed { i, hours ->
-                    val barHeight = ((hours / maxVal) * size.height).coerceAtLeast(2f)
-                    val x = gap + i * (barWidth + gap)
-                    val y = size.height - barHeight
-                    drawRoundRect(
-                        color = barColor,
-                        topLeft = Offset(x, y),
-                        size = androidx.compose.ui.geometry.Size(barWidth, barHeight),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerR)
-                    )
-                }
-            }
-        }
-    }
-}
-
-// ── Stat Card 2: Today's hours + rank ───────────────────────────────────────
-
-@Composable
-private fun DailyPlayTimeCard(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val versions = remember { VersionsManager.versions.map { it.getVersionName() } }
-    val today = remember { PlayTimeRepository.today() }
-    val todayMs = remember(today, versions) {
-        PlayTimeRepository.getDailyTotalPlayTime(today, versions)
-    }
-    val globalMs = remember { AllSettings.playTime.getValue() }
-    val rank = remember(globalMs) { PlayTimeUtils.getRankName(context, globalMs) }
-    val todayFormatted = remember(todayMs) { PlayTimeUtils.formatPlayTime(context, todayMs) }
-
-    BackgroundCard(modifier = modifier, shape = MaterialTheme.shapes.extraLarge) {
-        CardTitleLayout {
-            Text(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                text = stringResource(R.string.stats_daily_hours),
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = todayFormatted,
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = rank,
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.alpha(0.65f)
-            )
-        }
-    }
-}
-
-// ── Stat Card 3: Per-version play rate ──────────────────────────────────────
-
-@Composable
-private fun VersionPlayRateCard(
-    modifier: Modifier = Modifier,
-    onNavigateToStats: () -> Unit
+private fun VideoCard(
+    videoId: String,
+    videoUrl: String,
+    modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val versions = remember { VersionsManager.versions }
-    data class VersionStat(val name: String, val version: Version, val totalMs: Long)
-    val stats = remember(versions) {
-        versions
-            .map { v -> VersionStat(v.getVersionName(), v, PlayTimeRepository.getTotalPlayTime(v.getVersionName())) }
-            .sortedByDescending { it.totalMs }
-            .take(3)
-    }
-    val maxMs = remember(stats) { stats.firstOrNull()?.totalMs?.takeIf { it > 0 } ?: 1L }
-    val hasData = stats.any { it.totalMs > 0L }
+    val uriHandler = LocalUriHandler.current
 
     BackgroundCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.extraLarge,
-        onClick = onNavigateToStats
+        onClick = { uriHandler.openUri(videoUrl) }
     ) {
-        CardTitleLayout {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.stats_per_version),
-                    style = MaterialTheme.typography.labelMedium
-                )
-                Text(
-                    text = stringResource(R.string.stats_view_all),
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.alpha(0.55f)
-                )
-            }
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            if (!hasData) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(R.string.stats_no_data),
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.alpha(0.55f)
-                    )
-                }
-            } else {
-                stats.forEach { stat ->
-                    if (stat.totalMs == 0L) return@forEach
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            VersionIconImage(version = stat.version, modifier = Modifier.size(16.dp))
-                            Text(
-                                text = stat.name,
-                                style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = PlayTimeUtils.formatPlayTime(context, stat.totalMs),
-                                style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier.alpha(0.65f)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(2.dp))
-                        LinearProgressIndicator(
-                            progress = { stat.totalMs.toFloat() / maxMs },
-                            modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-// ── Stat Card 4: Last game log ───────────────────────────────────────────────
-
-@Composable
-private fun LastLogCard(
-    modifier: Modifier = Modifier,
-    onNavigateToLog: (String) -> Unit
-) {
-    val currentVersion by VersionsManager.currentVersion.collectAsStateWithLifecycle()
-    val logFile = remember(currentVersion) {
-        currentVersion?.let { VersionsManager.getLatestLog(it) }
-    }
-    val logExists = remember(logFile) { logFile?.exists() == true }
-    // Read as many lines as available; UI clips to card height naturally
-    val logLines = remember(logFile, logExists) {
-        if (logExists && logFile != null) {
-            try { logFile.readLines().takeLast(40) } catch (e: Exception) { emptyList() }
-        } else emptyList()
-    }
-
-    BackgroundCard(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.extraLarge,
-        onClick = { if (logExists) logFile?.absolutePath?.let { onNavigateToLog(it) } },
-        enabled = logExists
-    ) {
-        CardTitleLayout {
-            Text(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                text = stringResource(R.string.stats_last_log),
-                style = MaterialTheme.typography.labelMedium
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = "https://img.youtube.com/vi/$videoId/hqdefault.jpg",
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
             )
-        }
-        if (!logExists || logLines.isEmpty()) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp),
+                    .align(Alignment.Center)
+                    .size(48.dp)
+                    .clip(MaterialTheme.shapes.extraLarge)
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = stringResource(R.string.stats_no_log),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.alpha(0.55f)
+                Icon(
+                    painter = painterResource(R.drawable.ic_play_arrow_filled),
+                    contentDescription = stringResource(R.string.generic_open_link),
+                    modifier = Modifier.size(32.dp),
+                    tint = MaterialTheme.colorScheme.primary
                 )
-            }
-        } else {
-            // Show lines from the bottom up, clipped by card height — no scroll
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                logLines.forEach { line ->
-                    Text(
-                        text = line,
-                        style = MaterialTheme.typography.labelSmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .alpha(0.75f)
-                    )
-                }
             }
         }
     }
