@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.ui.screens.content
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,8 +38,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -46,7 +45,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -60,11 +58,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
@@ -74,27 +71,23 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.game.version.installed.PlayTimeRepository
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
-import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.defaultRichTextStyle
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
-import com.movtery.zalithlauncher.ui.screens.addIfEmpty
-import com.movtery.zalithlauncher.ui.screens.clearWith
 import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoLayout
@@ -107,7 +100,6 @@ import com.movtery.zalithlauncher.ui.screens.main.custom_home.MarkdownBlock
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.customHomePage
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.removeAndNavigateTo
-import com.movtery.zalithlauncher.utils.PlayTimeUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.HomePageState
 import com.movtery.zalithlauncher.viewmodel.LocalHomePageViewModel
@@ -360,7 +352,10 @@ private fun StatsGrid(
                 videoUrl = selectedVideos[2].second,
                 modifier = Modifier.weight(1f).fillMaxHeight()
             )
-            Box(modifier = Modifier.weight(1f).fillMaxHeight())
+            LastLogCard(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                onNavigateToLog = onNavigateToLog
+            )
         }
     }
 }
@@ -399,6 +394,105 @@ private fun VideoCard(
                     modifier = Modifier.size(32.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
+            }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(6.dp)
+                    .background(
+                        color = Color(0xFF1976D2).copy(alpha = 0.85f),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(horizontal = 6.dp, vertical = 3.dp)
+            ) {
+                Text(
+                    text = "⭐ ÖNERİLEN VİDEO - İÇERİK ÜRETİCİ",
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 9.sp,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LastLogCard(
+    modifier: Modifier = Modifier,
+    onNavigateToLog: (String) -> Unit
+) {
+    val currentVersion by VersionsManager.currentVersion.collectAsStateWithLifecycle()
+    val logFile = remember(currentVersion) {
+        currentVersion?.let { VersionsManager.getLatestLog(it) }
+    }
+    val logExists = remember(logFile) { logFile?.exists() == true }
+
+    BackgroundCard(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.extraLarge,
+        onClick = {
+            if (logExists) logFile?.absolutePath?.let { onNavigateToLog(it) }
+        },
+        enabled = logExists
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = stringResource(R.string.stats_last_log),
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1
+                    )
+                    if (!logExists || logFile == null) {
+                        Text(
+                            text = stringResource(R.string.stats_no_log),
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.alpha(0.6f)
+                        )
+                    } else {
+                        Text(
+                            text = logFile.name,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.alpha(0.7f),
+                            maxLines = 1
+                        )
+                        Text(
+                            text = remember(logFile) {
+                                try {
+                                    logFile.useLines { lines ->
+                                        lines.firstOrNull() ?: ""
+                                    }.take(80)
+                                } catch (e: Exception) { "" }
+                            },
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 2,
+                            modifier = Modifier.alpha(0.5f)
+                        )
+                    }
+                }
+            }
+            if (logExists) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp)
+                        .size(32.dp)
+                        .clip(MaterialTheme.shapes.extraLarge)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_play_arrow_filled),
+                        contentDescription = stringResource(R.string.generic_open_link),
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
