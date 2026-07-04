@@ -321,6 +321,7 @@ private fun AccountManageContent(
                         }
                     )
                     if (!pageFinished) {
+                        @OptIn(ExperimentalMaterial3Api::class)
                         LoadingIndicator()
                     }
                 }
