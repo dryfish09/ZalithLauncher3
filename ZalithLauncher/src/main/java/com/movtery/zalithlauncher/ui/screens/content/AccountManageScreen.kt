@@ -22,7 +22,10 @@ import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,29 +36,27 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.scrollbar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,8 +71,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -80,8 +81,8 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.COPY_LABEL_ACCOUNT_UUID
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.isAuthServerAccount
+import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
 import com.movtery.zalithlauncher.setting.AllSettings
@@ -93,40 +94,33 @@ import com.movtery.zalithlauncher.ui.components.ModelAnimation
 import com.movtery.zalithlauncher.ui.components.PlayerSkin
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
-import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
-import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
-import com.movtery.zalithlauncher.ui.components.WarningCard
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.elements.AccountItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
-import com.movtery.zalithlauncher.ui.screens.content.elements.ChangeSkinDialog
-import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginOperation
-import com.movtery.zalithlauncher.ui.screens.content.elements.LoginMenuDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.LoginMenuOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
-import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginTipDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperation
-import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDialog
+import com.movtery.zalithlauncher.ui.screens.content.elements.PlayerFace
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
-import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
+import com.movtery.zalithlauncher.utils.PlayTimeUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.checkStoragePermissions
 import com.movtery.zalithlauncher.utils.copyText
-import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.settings.SettingsTransferUtils
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.AccountManageEffect
 import com.movtery.zalithlauncher.viewmodel.AccountManageIntent
 import com.movtery.zalithlauncher.viewmodel.AccountManageViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
-import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
+import sh.calvin.reorderable.draggableHandle
 
 /**
  * 封装账号界面 UI 交互的回调函数
@@ -246,7 +240,7 @@ fun AccountManageScreen(
 }
 
 /**
- * 账号管理界面的实际内容布局 - tek panel
+ * 账号管理界面的实际内容布局 - iki panel
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -275,191 +269,309 @@ private fun AccountManageContent(
         onDispose { playerSkin.destroy() }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        BackgroundCard(
+        // ── Left panel: skin preview + add account ──
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(12.dp),
-            shape = MaterialTheme.shapes.extraLarge
+                .weight(0.35f)
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                // Player model preview (compact)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AndroidView(
-                        modifier = Modifier.fillMaxSize(),
-                        factory = { ctx ->
-                            playerSkin.loadWebView(
-                                context = ctx,
-                                onPageFinished = {
-                                    pageFinished = true
-                                    playerSkin.startAnim(ModelAnimation.NewIdle)
-                                    playerSkin.setAzimuthAndPitch(-35, 10)
-                                }
-                            )
-                        },
-                        update = {
-                            if (pageFinished) {
-                                runCatching {
-                                    accountSkin?.inputStream().use { inputStream ->
-                                        playerSkin.loadSkin(inputStream, currentAccount?.skinModelType)
-                                    }
-                                }
-                                runCatching {
-                                    accountCape?.inputStream().use { inputStream ->
-                                        playerSkin.loadCape(inputStream)
-                                    }
-                                }
-                            }
-                        }
-                    )
-                    if (!pageFinished) {
-                        @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-                        LoadingIndicator()
-                    }
-                }
-
-                HorizontalDivider(modifier = Modifier.alpha(0.2f))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ScalingActionButton(
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            if (isOffline) {
-                                actions.onIntent(AccountManageIntent.UpdateMicrosoftLoginOp(MicrosoftLoginOperation.Tip))
-                            } else {
-                                actions.onIntent(AccountManageIntent.UpdateLoginMenuOp(LoginMenuOperation.Login))
-                            }
-                        }
+            BackgroundCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    // 3D skin preview
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
                     ) {
-                        MarqueeText(text = stringResource(R.string.account_add_new_account))
-                    }
-
-                    var showChromaSelector by remember { mutableStateOf(false) }
-                    FilledTonalButton(
-                        onClick = { showChromaSelector = true }
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_styler),
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(Modifier.size(4.dp))
-                        Text(stringResource(R.string.settings_chroma_name_title), style = MaterialTheme.typography.labelMedium)
-                    }
-
-                    if (showChromaSelector) {
-                        val modes = ChromaMode.entries
-                        SimpleListDialog(
-                            title = stringResource(R.string.settings_chroma_name_title),
-                            items = modes,
-                            itemTextProvider = { mode ->
-                                when (mode) {
-                                    ChromaMode.NONE -> context.getString(R.string.generic_none)
-                                    ChromaMode.RGB -> "RGB (Classic)"
-                                    ChromaMode.RED_BLUE -> context.getString(R.string.chroma_mode_red_blue)
-                                    ChromaMode.SUNSET -> context.getString(R.string.chroma_mode_sunset)
-                                    ChromaMode.OCEAN -> context.getString(R.string.chroma_mode_ocean)
-                                    ChromaMode.FOREST -> context.getString(R.string.chroma_mode_forest)
-                                    ChromaMode.NEON -> context.getString(R.string.chroma_mode_neon)
-                                }
+                        AndroidView(
+                            modifier = Modifier.fillMaxSize(),
+                            factory = { ctx ->
+                                playerSkin.loadWebView(
+                                    context = ctx,
+                                    onPageFinished = {
+                                        pageFinished = true
+                                        playerSkin.startAnim(ModelAnimation.NewIdle)
+                                        playerSkin.setAzimuthAndPitch(-35, 10)
+                                    }
+                                )
                             },
-                            onItemSelected = { mode ->
-                                AllSettings.chromaMode.save(mode)
-                                showChromaSelector = false
-                            },
-                            current = AllSettings.chromaMode.state,
-                            onDismissRequest = { showChromaSelector = false }
-                        )
-                    }
-                }
-
-                HorizontalDivider(modifier = Modifier.alpha(0.2f))
-
-                // Account list
-                AccountListSection(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    accounts = profileUiState.accounts,
-                    currentAccount = currentAccount,
-                    accountSkinOperation = operationUiState.accountSkinOp,
-                    accountSkinDialogState = operationUiState.accountSkinDialogState,
-                    accountCapes = profileUiState.accountCapeOpMap,
-                    actions = actions
-                )
-
-                // Import/Export buttons
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val scope = rememberCoroutineScope()
-                    val importLauncher = rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.GetContent()
-                    ) { uri ->
-                        uri?.let {
-                            scope.launch {
-                                val success = SettingsTransferUtils.importData(context, it)
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        context,
-                                        if (success) R.string.settings_import_success else R.string.settings_import_failed,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        }
-                    }
-
-                    FilledTonalButton(
-                        onClick = {
-                            val activity = context as? android.app.Activity ?: return@FilledTonalButton
-                            checkStoragePermissions(
-                                activity = activity,
-                                title = R.string.storage_permission_request_title,
-                                message = context.getString(R.string.storage_permission_request_message),
-                                hasPermission = {
-                                    scope.launch {
-                                        val file = SettingsTransferUtils.exportAccounts(context)
-                                        withContext(Dispatchers.Main) {
-                                            if (file != null) {
-                                                Toast.makeText(context, context.getString(R.string.settings_export_success, file.absolutePath), Toast.LENGTH_LONG).show()
-                                            } else {
-                                                Toast.makeText(context, R.string.settings_export_failed, Toast.LENGTH_SHORT).show()
-                                            }
+                            update = {
+                                if (pageFinished) {
+                                    runCatching {
+                                        accountSkin?.inputStream().use { inputStream ->
+                                            playerSkin.loadSkin(inputStream, currentAccount?.skinModelType)
+                                        }
+                                    }
+                                    runCatching {
+                                        accountCape?.inputStream().use { inputStream ->
+                                            playerSkin.loadCape(inputStream)
                                         }
                                     }
                                 }
+                            }
+                        )
+                        if (!pageFinished) {
+                            LoadingIndicator()
+                        }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.alpha(0.2f))
+
+                    // Account info + chroma
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        if (currentAccount != null) {
+                            Text(
+                                text = currentAccount.username,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = getAccountTypeName(context, currentAccount),
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.alpha(0.7f)
+                            )
+                            val totalMs = AllSettings.playTime.getValue()
+                            val rank = PlayTimeUtils.getRankName(context, totalMs)
+                            Text(
+                                text = rank,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(R.string.account_no_account),
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.alpha(0.6f)
                             )
                         }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.alpha(0.2f))
+
+                    // Chroma selector
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Icon(painter = painterResource(R.drawable.ic_share_filled), contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.size(4.dp))
-                        Text(stringResource(R.string.settings_export_accounts), style = MaterialTheme.typography.labelMedium)
+                        var showChromaSelector by remember { mutableStateOf(false) }
+                        FilledTonalButton(
+                            onClick = { showChromaSelector = true }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_styler),
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.size(4.dp))
+                            Text(stringResource(R.string.settings_chroma_name_title), style = MaterialTheme.typography.labelMedium)
+                        }
+
+                        if (showChromaSelector) {
+                            val modes = ChromaMode.entries
+                            SimpleListDialog(
+                                title = stringResource(R.string.settings_chroma_name_title),
+                                items = modes,
+                                itemTextProvider = { mode ->
+                                    when (mode) {
+                                        ChromaMode.NONE -> context.getString(R.string.generic_none)
+                                        ChromaMode.RGB -> "RGB (Classic)"
+                                        ChromaMode.RED_BLUE -> context.getString(R.string.chroma_mode_red_blue)
+                                        ChromaMode.SUNSET -> context.getString(R.string.chroma_mode_sunset)
+                                        ChromaMode.OCEAN -> context.getString(R.string.chroma_mode_ocean)
+                                        ChromaMode.FOREST -> context.getString(R.string.chroma_mode_forest)
+                                        ChromaMode.NEON -> context.getString(R.string.chroma_mode_neon)
+                                    }
+                                },
+                                onItemSelected = { mode ->
+                                    AllSettings.chromaMode.save(mode)
+                                    showChromaSelector = false
+                                },
+                                current = AllSettings.chromaMode.state,
+                                onDismissRequest = { showChromaSelector = false }
+                            )
+                        }
                     }
-                    Spacer(Modifier.size(8.dp))
-                    FilledTonalButton(onClick = { importLauncher.launch("application/json") }) {
-                        Icon(painter = painterResource(R.drawable.ic_upload), contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.size(4.dp))
-                        Text(stringResource(R.string.settings_import_accounts), style = MaterialTheme.typography.labelMedium)
+                }
+            }
+
+            // Add account button at bottom of left panel
+            ScalingActionButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    if (isOffline) {
+                        actions.onIntent(AccountManageIntent.UpdateMicrosoftLoginOp(MicrosoftLoginOperation.Tip))
+                    } else {
+                        actions.onIntent(AccountManageIntent.UpdateLoginMenuOp(LoginMenuOperation.Login))
                     }
+                }
+            ) {
+                MarqueeText(text = stringResource(R.string.account_add_new_account))
+            }
+
+            // Import/Export buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val scope = rememberCoroutineScope()
+                val importLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.GetContent()
+                ) { uri ->
+                    uri?.let {
+                        scope.launch {
+                            val success = SettingsTransferUtils.importData(context, it)
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    context,
+                                    if (success) R.string.settings_import_success else R.string.settings_import_failed,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                }
+
+                FilledTonalButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        val activity = context as? android.app.Activity ?: return@FilledTonalButton
+                        checkStoragePermissions(
+                            activity = activity,
+                            title = R.string.storage_permission_request_title,
+                            message = context.getString(R.string.storage_permission_request_message),
+                            hasPermission = {
+                                scope.launch {
+                                    val file = SettingsTransferUtils.exportAccounts(context)
+                                    withContext(Dispatchers.Main) {
+                                        if (file != null) {
+                                            Toast.makeText(context, context.getString(R.string.settings_export_success, file.absolutePath), Toast.LENGTH_LONG).show()
+                                        } else {
+                                            Toast.makeText(context, R.string.settings_export_failed, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                    }
+                ) {
+                    Icon(painter = painterResource(R.drawable.ic_share_filled), contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.size(4.dp))
+                    Text(stringResource(R.string.settings_export_accounts), style = MaterialTheme.typography.labelMedium)
+                }
+                FilledTonalButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = { importLauncher.launch("application/json") }
+                ) {
+                    Icon(painter = painterResource(R.drawable.ic_upload), contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.size(4.dp))
+                    Text(stringResource(R.string.settings_import_accounts), style = MaterialTheme.typography.labelMedium)
+                }
+            }
+        }
+
+        // ── Right panel: account cards with drag-and-drop ──
+        BackgroundCard(
+            modifier = Modifier
+                .weight(0.65f)
+                .fillMaxHeight(),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            val accounts = profileUiState.accounts
+            if (accounts.isNotEmpty()) {
+                val scrollState = rememberLazyListState()
+                val reorderableState = rememberReorderableLazyListState(
+                    lazyListState = scrollState,
+                    onMove = { from, to ->
+                        actions.onIntent(AccountManageIntent.ReorderAccount(from.index, to.index))
+                    }
+                )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .scrollbar(
+                            state = scrollState.scrollIndicatorState,
+                            orientation = androidx.compose.foundation.gestures.Orientation.Vertical,
+                        ),
+                    state = scrollState,
+                    contentPadding = PaddingValues(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(accounts, key = { it.uniqueUUID }) { account ->
+                        ReorderableItem(
+                            state = reorderableState,
+                            key = account.uniqueUUID
+                        ) { isDragging ->
+                            val elevation by animateDpAsState(
+                                targetValue = if (isDragging) 6.dp else 0.dp,
+                                animationSpec = spring(),
+                                label = "cardElevation"
+                            )
+                            AccountCard(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                account = account,
+                                currentAccount = currentAccount,
+                                elevation = elevation,
+                                onSelected = { AccountsManager.setCurrentAccount(account) },
+                                openChangeSkinDialog = {
+                                    if (!account.isAuthServerAccount()) {
+                                        actions.onIntent(
+                                            AccountManageIntent.UpdateAccountSkinOp(
+                                                AccountSkinOperation.ChangeSkin(account)
+                                            )
+                                        )
+                                    }
+                                },
+                                onRefreshClick = {
+                                    actions.onIntent(AccountManageIntent.RefreshAccount(account))
+                                },
+                                onCopyUUID = {
+                                    copyText(COPY_LABEL_ACCOUNT_UUID, account.profileId, context, false)
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.account_local_uuid_copied, account.username),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                },
+                                onDeleteClick = {
+                                    actions.onIntent(
+                                        AccountManageIntent.UpdateAccountOp(AccountOperation.Delete(account))
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+            } else {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    ScalingLabel(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(R.string.account_no_account)
+                    )
                 }
             }
         }
@@ -480,69 +592,135 @@ private fun AccountManageContent(
 }
 
 @Composable
-private fun AccountListSection(
+private fun AccountCard(
     modifier: Modifier = Modifier,
-    accounts: List<Account>,
+    account: Account,
     currentAccount: Account?,
-    accountSkinOperation: AccountSkinOperation,
-    accountSkinDialogState: AccountManageViewModel.AccountSkinDialogState,
-    accountCapes: Map<String, List<PlayerProfile.Cape>>,
-    actions: AccountActions
+    elevation: Dp = 0.dp,
+    onSelected: () -> Unit,
+    openChangeSkinDialog: () -> Unit,
+    onRefreshClick: () -> Unit,
+    onCopyUUID: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
+    val isSelected = currentAccount?.uniqueUUID == account.uniqueUUID
     val context = LocalContext.current
 
-    if (accounts.isNotEmpty()) {
-        val scrollState = rememberLazyListState()
-        LazyColumn(
-            modifier = modifier,
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-            state = scrollState
+    BackgroundCard(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        onClick = onSelected,
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(accounts, key = { it.uniqueUUID }) { account ->
-                AccountItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    currentAccount = currentAccount,
+            // Drag handle + profile head
+            Box(
+                modifier = Modifier.draggableHandle(),
+                contentAlignment = Alignment.Center
+            ) {
+                PlayerFace(
+                    modifier = Modifier.size(44.dp),
                     account = account,
-                    enabled = true,
-                    onSelected = { AccountsManager.setCurrentAccount(it) },
-                    openChangeSkinDialog = {
-                        if (!account.isAuthServerAccount()) {
-                            actions.onIntent(
-                                AccountManageIntent.UpdateAccountSkinOp(
-                                    AccountSkinOperation.ChangeSkin(account)
-                                )
-                            )
-                        }
-                    },
-                    onRefreshClick = {
-                        actions.onIntent(AccountManageIntent.RefreshAccount(account))
-                    },
-                    onCopyUUID = {
-                        copyText(COPY_LABEL_ACCOUNT_UUID, account.profileId, context, false)
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.account_local_uuid_copied, account.username),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    },
-                    onDeleteClick = {
-                        actions.onIntent(
-                            AccountManageIntent.UpdateAccountOp(AccountOperation.Delete(account))
-                        )
-                    }
+                    avatarSize = 44.dp
                 )
             }
-        }
-    } else {
-        Box(modifier = modifier) {
-            ScalingLabel(
-                modifier = Modifier.align(Alignment.Center),
-                text = stringResource(R.string.account_no_account)
-            )
+
+            // Account info
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = account.username,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    if (isSelected) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_check),
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+                Text(
+                    text = getAccountTypeName(context, account),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            }
+
+            // Action buttons
+            Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                if (!account.isAuthServerAccount()) {
+                    IconButton(
+                        modifier = Modifier.size(36.dp),
+                        onClick = openChangeSkinDialog
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_checkroom),
+                            contentDescription = stringResource(R.string.account_change_skin),
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+                if (!account.isLocalAccount()) {
+                    IconButton(
+                        modifier = Modifier.size(36.dp),
+                        onClick = onRefreshClick
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_refresh),
+                            contentDescription = stringResource(R.string.generic_refresh),
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+                IconButton(
+                    modifier = Modifier.size(36.dp),
+                    onClick = onCopyUUID
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_copy_all_outlined),
+                        contentDescription = stringResource(R.string.account_local_uuid_copy),
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                }
+                IconButton(
+                    modifier = Modifier.size(36.dp),
+                    onClick = onDeleteClick
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_delete_outlined),
+                        contentDescription = stringResource(R.string.generic_delete),
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                    )
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun getAccountTypeName(context: Context, account: Account): String {
+    return com.movtery.zalithlauncher.game.account.getAccountTypeName(account)
 }
 
 @Composable
