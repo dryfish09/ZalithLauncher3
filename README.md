@@ -22,14 +22,13 @@ This fork aims to enhance and customize the original Zalith Launcher 2 experienc
 - [x] Config UI remake
 
 Next Update: 
-Install dependencies button for mods
+Install dependencies button for mods:
 
-Translations fix
+- Translations fix
 
-Remove AMD FSR because its already implemented on most used renderers and basically was experimental
+- Remove AMD FSR because its already implemented on most used renderers and basically was experimental
 
-Information about resolution is set to 70-100 depended on your device when game starts (only snapdragon): ADRENO6XX: 80%, 7XX: 90%, 8XX: 100% (If you dont want just click NO)
-
+- Information about resolution is set to 70-100 depended on your device when game starts (only snapdragon): ADRENO6XX: 80%, 7XX: 90%, 8XX: 100% (If you dont want just click NO)
 
 **Soon:**
 - [ ] Friend system (still working on it)
