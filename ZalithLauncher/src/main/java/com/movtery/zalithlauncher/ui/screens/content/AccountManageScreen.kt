@@ -248,7 +248,7 @@ fun AccountManageScreen(
 /**
  * 账号管理界面的实际内容布局 - tek panel
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AccountManageContent(
     isVisible: Boolean,
@@ -321,6 +321,7 @@ private fun AccountManageContent(
                         }
                     )
                     if (!pageFinished) {
+                        @OptIn(ExperimentalMaterial3ExpressiveApi::class)
                         LoadingIndicator()
                     }
                 }
