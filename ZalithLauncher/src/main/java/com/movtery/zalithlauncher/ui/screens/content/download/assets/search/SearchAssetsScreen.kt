@@ -48,6 +48,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.previousPage
 import com.movtery.zalithlauncher.game.download.assets.platform.searchAssets
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.searchMcMods
+import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersion
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.game.versioninfo.popularVersions
@@ -359,6 +360,9 @@ fun SearchAssetsScreen(
             )
             val searchedMcMods by viewModel.searchedMcMods.collectAsStateWithLifecycle()
             val searchedVersions by viewModel.searchedVersions.collectAsStateWithLifecycle()
+            val installedGameVersions = remember {
+                VersionsManager.versions.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct().sorted()
+            }
             SearchFilter(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -408,7 +412,8 @@ fun SearchAssetsScreen(
                         viewModel.searchFilter.copy(modloader = it)
                     )
                 },
-                extraFilter = extraFilter
+                extraFilter = extraFilter,
+                installedGameVersions = installedGameVersions
             )
         }
     }

@@ -25,6 +25,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -60,9 +61,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -80,6 +83,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCo
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSortField
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.ui.components.CheckChip
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.screens.content.elements.backgroundGlass
@@ -128,7 +132,8 @@ fun SearchFilter(
     modloaders: List<PlatformDisplayLabel> = emptyList(),
     modloader: PlatformDisplayLabel? = null,
     onModLoaderChange: (PlatformDisplayLabel?) -> Unit = {},
-    extraFilter: (LazyListScope.() -> Unit)? = null
+    extraFilter: (LazyListScope.() -> Unit)? = null,
+    installedGameVersions: List<String> = emptyList()
 ) {
     LazyColumn(
         modifier = modifier,
@@ -167,23 +172,67 @@ fun SearchFilter(
         }
 
         item {
-            SuggestionsText(
-                value = gameVersion,
-                onValueChange = onGameVersionChange,
-                label = stringResource(R.string.download_assets_filter_game_version),
-                onSearch = onSearch,
-                suggestions = searchedVersions,
-                suggestionLabel = { item ->
+            if (installedGameVersions.isNotEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     Text(
-                        text = item,
-                        style = MaterialTheme.typography.labelMedium
+                        text = stringResource(R.string.download_assets_filter_game_version),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
                     )
-                },
-                onSuggestionClick = { item ->
-                    onGameVersionChange(item)
-                    onSearch()
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clipToBounds()
+                            .horizontalScroll(rememberScrollState()),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        CheckChip(
+                            selected = gameVersion.isEmpty(),
+                            onClick = {
+                                onGameVersionChange("")
+                                onSearch()
+                            },
+                            label = {
+                                Text(text = stringResource(R.string.generic_all))
+                            }
+                        )
+                        installedGameVersions.forEach { version ->
+                            CheckChip(
+                                selected = gameVersion == version,
+                                onClick = {
+                                    onGameVersionChange(version)
+                                    onSearch()
+                                },
+                                label = {
+                                    Text(text = version)
+                                }
+                            )
+                        }
+                    }
                 }
-            )
+            } else {
+                SuggestionsText(
+                    value = gameVersion,
+                    onValueChange = onGameVersionChange,
+                    label = stringResource(R.string.download_assets_filter_game_version),
+                    onSearch = onSearch,
+                    suggestions = searchedVersions,
+                    suggestionLabel = { item ->
+                        Text(
+                            text = item,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    },
+                    onSuggestionClick = { item ->
+                        onGameVersionChange(item)
+                        onSearch()
+                    }
+                )
+            }
         }
 
         extraFilter?.invoke(this@LazyColumn)

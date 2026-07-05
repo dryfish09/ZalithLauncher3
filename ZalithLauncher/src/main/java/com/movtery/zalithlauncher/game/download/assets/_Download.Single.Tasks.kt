@@ -205,7 +205,7 @@ suspend fun downloadDependenciesBatch(
 
             val targetGameVer = gameVersions.firstOrNull()?.getVersionInfo()?.minecraftVersion
             val matchingVersion = versions.firstOrNull { ver ->
-                targetGameVer == null || ver.platformGameVersions().any { it == targetGameVer }
+                targetGameVer == null || ver.platformGameVersion().any { it == targetGameVer }
             } ?: run {
                 onEachError(dep.projectId, "No matching version found for $targetGameVer")
                 return@forEach

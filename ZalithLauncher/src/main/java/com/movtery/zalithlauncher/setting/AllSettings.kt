@@ -450,6 +450,11 @@ object AllSettings : SettingsRegistry() {
      */
     val assetDownloadSource = enumSetting("assetDownloadSource", MirrorSourceType.OFFICIAL_FIRST)
 
+    /**
+     * 是否使用旧版版本选择器（仅正式版，无搜索框）
+     */
+    val classicVersionPicker = boolSetting("classicVersionPicker", true)
+
     //Control
     /**
      * 全局默认控制布局文件名
