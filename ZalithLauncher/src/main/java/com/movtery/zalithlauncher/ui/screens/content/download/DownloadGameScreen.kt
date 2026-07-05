@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -52,6 +53,7 @@ import com.movtery.zalithlauncher.game.download.game.optifine.CantFetchingOptiFi
 import com.movtery.zalithlauncher.game.download.jvm_server.JvmCrashException
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.NotificationCheck
@@ -226,11 +228,18 @@ fun DownloadGameScreen(
             popTransitionSpec = rememberTransitionSpec(),
             entryProvider = entryProvider {
                 entry<NormalNavKey.DownloadGame.SelectGameVersion> {
+                    val installedVersions = VersionsManager.versions
+                    val installedVersionIds = remember(installedVersions) {
+                        installedVersions.mapNotNull { it.getVersionInfo()?.minecraftVersion }.toSet()
+                    }
+
                     SelectGameVersionScreen(
                         mainScreenKey = mainScreenKey,
                         downloadScreenKey = downloadScreenKey,
                         downloadGameScreenKey = downloadGameScreenKey,
                         eventViewModel = eventViewModel,
+                        classicMode = AllSettings.classicVersionPicker.getValue(),
+                        installedVersionIds = installedVersionIds,
                     ) { versionString ->
                         backStack.navigateTo(
                             NormalNavKey.DownloadGame.Addons(versionString)

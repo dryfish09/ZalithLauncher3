@@ -245,6 +245,56 @@ fun DownloadGameWithAddonScreen(
         AddonsViewModel(key.gameVersion, loaderSupports)
     }
 
+    //自动选择已安装版本使用的Mod加载器
+    LaunchedEffect(viewModel.addonList) {
+        val installedLoader = VersionsManager.versions
+            .firstOrNull { it.getVersionInfo()?.minecraftVersion == key.gameVersion }
+            ?.getVersionInfo()?.loaderInfo?.loader
+        if (installedLoader != null) {
+            val addonList = viewModel.addonList
+            val current = viewModel.currentAddon
+            when (installedLoader) {
+                ModLoader.OPTIFINE -> addonList.optifineList?.firstOrNull()?.let {
+                    current.optifineVersion.value = it
+                }
+                ModLoader.FORGE -> addonList.forgeList?.firstOrNull()?.let {
+                    current.forgeVersion.value = it
+                }
+                ModLoader.NEOFORGE -> addonList.neoforgeList?.firstOrNull()?.let {
+                    current.neoforgeVersion.value = it
+                }
+                ModLoader.FABRIC -> {
+                    addonList.fabricList?.firstOrNull()?.let {
+                        current.fabricVersion.value = it
+                    }
+                    addonList.fabricAPIList?.firstOrNull()?.let {
+                        current.fabricAPIVersion.value = it
+                    }
+                }
+                ModLoader.LEGACY_FABRIC -> {
+                    addonList.legacyFabricList?.firstOrNull()?.let {
+                        current.legacyFabricVersion.value = it
+                    }
+                    addonList.legacyFabricAPIList?.firstOrNull()?.let {
+                        current.legacyFabricAPIVersion.value = it
+                    }
+                }
+                ModLoader.QUILT -> {
+                    addonList.quiltList?.firstOrNull()?.let {
+                        current.quiltVersion.value = it
+                    }
+                    addonList.quiltAPIList?.firstOrNull()?.let {
+                        current.quiltAPIVersion.value = it
+                    }
+                }
+                ModLoader.CLEANROOM -> addonList.cleanroomList?.firstOrNull()?.let {
+                    current.cleanroomVersion.value = it
+                }
+                else -> {}
+            }
+        }
+    }
+
     BaseScreen(
         listOf(
             Pair(NestedNavKey.Download::class.java, mainScreenKey),

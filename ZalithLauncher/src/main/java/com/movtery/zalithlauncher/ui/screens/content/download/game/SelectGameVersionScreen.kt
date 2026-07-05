@@ -150,10 +150,13 @@ private data class VersionFilter(
     val snapshot: Boolean = false,
     val aprilFools: Boolean = false,
     val old: Boolean = false,
-    val id: String = ""
+    val id: String = "",
+    val classicMode: Boolean = true,
 )
 
-private class VersionsViewModel: ViewModel() {
+private class VersionsViewModel(
+    private val installedVersionIds: Set<String> = emptySet()
+) : ViewModel() {
     var versionState by mutableStateOf<VersionState>(VersionState.Loading)
         private set
 
@@ -166,7 +169,7 @@ private class VersionsViewModel: ViewModel() {
         viewModelScope.launch {
             val allVersions = MinecraftVersions.allVersions.value
             versionState = VersionState.None(
-                versions = allVersions.filterVersions(versionFilter)
+                versions = allVersions.filterVersions(versionFilter, installedVersionIds)
             )
         }
     }
@@ -177,7 +180,7 @@ private class VersionsViewModel: ViewModel() {
             versionState = runCatching {
                 MinecraftVersions.refreshVersions(forceReload)
                 val allVersions = MinecraftVersions.allVersions.value
-                VersionState.None(allVersions.filterVersions(versionFilter))
+                VersionState.None(allVersions.filterVersions(versionFilter, installedVersionIds))
             }.getOrElse { e ->
                 Logger.warning(TAG, "Failed to get version manifest!", e)
                 val message: Pair<Int, Array<Any>?> = when(e) {
@@ -197,7 +200,6 @@ private class VersionsViewModel: ViewModel() {
     }
 
     init {
-        //初始化后，刷新版本列表
         refresh()
     }
 
@@ -212,12 +214,28 @@ fun SelectGameVersionScreen(
     downloadScreenKey: TitledNavKey?,
     downloadGameScreenKey: TitledNavKey?,
     eventViewModel: EventViewModel,
+    classicMode: Boolean = true,
+    installedVersionIds: Set<String> = emptySet(),
     onVersionSelect: (String) -> Unit = {}
 ) {
     val viewModel = viewModel(
         key = NormalNavKey.DownloadGame.SelectGameVersion.toString()
     ) {
-        VersionsViewModel()
+        VersionsViewModel(installedVersionIds)
+    }
+
+    //自动选择：如果只安装了一个版本，直接跳到附加组件页面
+    LaunchedEffect(installedVersionIds) {
+        if (installedVersionIds.size == 1) {
+            onVersionSelect(installedVersionIds.first())
+        }
+    }
+
+    //初次启动时应用经典模式
+    LaunchedEffect(Unit) {
+        if (classicMode && !viewModel.versionFilter.classicMode) {
+            viewModel.filterWith(viewModel.versionFilter.copy(classicMode = true))
+        }
     }
 
     BaseScreen(
@@ -299,21 +317,30 @@ fun SelectGameVersionScreen(
 }
 
 /**
- * 简易过滤器，过滤特定类型的版本
+ * 简易过滤器，过滤特定类型的版本，已安装的排在最前
  */
 private fun List<MinecraftVersion>.filterVersions(
-    versionFilter: VersionFilter
-) = this.filter { version ->
-    version.isType(
-        release = versionFilter.release,
-        snapshot = versionFilter.snapshot,
-        aprilFools = versionFilter.aprilFools,
-        old = versionFilter.old
-    )
-}.filter { version ->
-    //Fix：单独过滤版本名称
-    val versionId = versionFilter.id
-    versionId.isEmptyOrBlank() || version.version.id.contains(versionId)
+    versionFilter: VersionFilter,
+    installedVersionIds: Set<String> = emptySet()
+): List<MinecraftVersion> {
+    val filtered = if (versionFilter.classicMode) {
+        //经典模式：只显示正式版，忽略过滤器状态
+        this.filter { it.type == MinecraftVersion.Type.Release }
+    } else {
+        //新模式：根据过滤器状态显示版本
+        this.filter { version ->
+            version.isType(
+                release = versionFilter.release,
+                snapshot = versionFilter.snapshot,
+                aprilFools = versionFilter.aprilFools,
+                old = versionFilter.old
+            )
+        }.filter { version ->
+            val versionId = versionFilter.id
+            versionId.isEmptyOrBlank() || version.version.id.contains(versionId)
+        }
+    }
+    return filtered.sortedByDescending { it.version.id in installedVersionIds }
 }
 
 @Composable
@@ -331,47 +358,49 @@ private fun VersionHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                val scrollState = rememberScrollState()
-                Row(
-                    modifier = Modifier
-                        .fadeEdge(
-                            state = scrollState,
-                            direction = EdgeDirection.Horizontal
+                if (!versionFilter.classicMode) {
+                    val scrollState = rememberScrollState()
+                    Row(
+                        modifier = Modifier
+                            .fadeEdge(
+                                state = scrollState,
+                                direction = EdgeDirection.Horizontal
+                            )
+                            .widthIn(max = this@BoxWithConstraints.maxWidth / 5 * 3) //3/5
+                            .horizontalScroll(scrollState),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        //版本筛选条件
+                        VersionTypeItem(
+                            selected = versionFilter.release,
+                            onClick = {
+                                onVersionFilterChange(versionFilter.copy(release = versionFilter.release.not()))
+                            },
+                            text = stringResource(R.string.download_game_type_release)
                         )
-                        .widthIn(max = this@BoxWithConstraints.maxWidth / 5 * 3) //3/5
-                        .horizontalScroll(scrollState),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    //版本筛选条件
-                    VersionTypeItem(
-                        selected = versionFilter.release,
-                        onClick = {
-                            onVersionFilterChange(versionFilter.copy(release = versionFilter.release.not()))
-                        },
-                        text = stringResource(R.string.download_game_type_release)
-                    )
-                    VersionTypeItem(
-                        selected = versionFilter.snapshot,
-                        onClick = {
-                            onVersionFilterChange(versionFilter.copy(snapshot = versionFilter.snapshot.not()))
-                        },
-                        text = stringResource(R.string.download_game_type_snapshot)
-                    )
-                    VersionTypeItem(
-                        selected = versionFilter.aprilFools,
-                        onClick = {
-                            onVersionFilterChange(versionFilter.copy(aprilFools = versionFilter.aprilFools.not()))
-                        },
-                        text = stringResource(R.string.download_game_type_april_fools)
-                    )
-                    VersionTypeItem(
-                        selected = versionFilter.old,
-                        onClick = {
-                            onVersionFilterChange(versionFilter.copy(old = versionFilter.old.not()))
-                        },
-                        text = stringResource(R.string.download_game_type_old)
-                    )
+                        VersionTypeItem(
+                            selected = versionFilter.snapshot,
+                            onClick = {
+                                onVersionFilterChange(versionFilter.copy(snapshot = versionFilter.snapshot.not()))
+                            },
+                            text = stringResource(R.string.download_game_type_snapshot)
+                        )
+                        VersionTypeItem(
+                            selected = versionFilter.aprilFools,
+                            onClick = {
+                                onVersionFilterChange(versionFilter.copy(aprilFools = versionFilter.aprilFools.not()))
+                            },
+                            text = stringResource(R.string.download_game_type_april_fools)
+                        )
+                        VersionTypeItem(
+                            selected = versionFilter.old,
+                            onClick = {
+                                onVersionFilterChange(versionFilter.copy(old = versionFilter.old.not()))
+                            },
+                            text = stringResource(R.string.download_game_type_old)
+                        )
+                    }
                 }
 
                 //搜索、刷新
@@ -380,20 +409,37 @@ private fun VersionHeader(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SimpleTextInputField(
-                        modifier = Modifier.weight(1f),
-                        value = versionFilter.id,
-                        onValueChange = { onVersionFilterChange(versionFilter.copy(id = it)) },
-                        color = itemContainerColor,
-                        contentColor = itemContentColor,
-                        singleLine = true,
-                        hint = {
-                            Text(
-                                text = stringResource(R.string.generic_search),
-                                style = TextStyle(color = itemContentColor).copy(fontSize = 12.sp)
-                            )
+                    if (!versionFilter.classicMode) {
+                        SimpleTextInputField(
+                            modifier = Modifier.weight(1f),
+                            value = versionFilter.id,
+                            onValueChange = { onVersionFilterChange(versionFilter.copy(id = it)) },
+                            color = itemContainerColor,
+                            contentColor = itemContentColor,
+                            singleLine = true,
+                            hint = {
+                                Text(
+                                    text = stringResource(R.string.generic_search),
+                                    style = TextStyle(color = itemContentColor).copy(fontSize = 12.sp)
+                                )
+                            }
+                        )
+                    }
+
+                    IconButton(
+                        modifier = Modifier.size(38.dp),
+                        onClick = {
+                            onVersionFilterChange(versionFilter.copy(
+                                classicMode = !versionFilter.classicMode,
+                                id = if (versionFilter.classicMode) versionFilter.id else ""
+                            ))
                         }
-                    )
+                    ) {
+                        Icon(
+                            painter = painterResource(if (versionFilter.classicMode) R.drawable.ic_filter_alt_outlined else R.drawable.ic_close),
+                            contentDescription = stringResource(R.string.download_game_classic_picker)
+                        )
+                    }
 
                     IconButton(
                         onClick = onRefreshClick
