@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -58,6 +59,7 @@ import com.movtery.zalithlauncher.path.URL_GITHUB_RENDERER_PLUGINS
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.utils.settings.MobileGluesConfig
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.verticalScrollWithBar
@@ -135,8 +137,20 @@ fun RendererSettingsScreen(
                         summary = stringResource(R.string.settings_renderer_global_renderer_summary),
                         getItemText = { it.getRendererName() },
                         getItemId = { it.getUniqueIdentifier() },
-                        getItemSummary = {
-                            RendererSummaryLayout(it)
+                        getItemSummary = { renderer ->
+                            Column {
+                                RendererSummaryLayout(renderer)
+                                if (renderer.getRendererName() == "MobileGlues") {
+                                    val hasConfig = remember { MobileGluesConfig.load() != null }
+                                    if (hasConfig) {
+                                        Text(
+                                            text = "✓ Configured",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+                            }
                         },
                         getItemTrailing = { renderer ->
                             if (renderer.getRendererName() == "MobileGlues") {

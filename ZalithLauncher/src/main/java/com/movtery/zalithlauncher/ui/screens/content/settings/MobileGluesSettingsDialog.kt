@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -63,6 +65,7 @@ import com.movtery.zalithlauncher.utils.settings.MobileGluesConfig
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
+    val context = LocalContext.current
     val config = remember {
         MobileGluesConfig.load() ?: MobileGluesConfig()
     }
@@ -187,6 +190,7 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
                         config.angleDepthClearFixMode = angleDepthClearFixMode
                         config.customGLVersion = customGLVersion
                         config.save()
+                        Toast.makeText(context, "MobileGlues settings saved", Toast.LENGTH_SHORT).show()
                         onDismissRequest()
                     }
                 ) {
