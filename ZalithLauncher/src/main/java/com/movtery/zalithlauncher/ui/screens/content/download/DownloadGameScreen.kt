@@ -240,6 +240,9 @@ fun DownloadGameScreen(
                         eventViewModel = eventViewModel,
                         classicMode = AllSettings.classicVersionPicker.getValue(),
                         installedVersionIds = installedVersionIds,
+                        onClassicModeChange = { newValue ->
+                            AllSettings.classicVersionPicker.saveValue(newValue)
+                        }
                     ) { versionString ->
                         backStack.navigateTo(
                             NormalNavKey.DownloadGame.Addons(versionString)

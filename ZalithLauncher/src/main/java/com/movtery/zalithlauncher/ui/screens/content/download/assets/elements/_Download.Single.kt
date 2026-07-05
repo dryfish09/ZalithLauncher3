@@ -148,7 +148,7 @@ fun DownloadSingleOperation(
                     changeOperation(DownloadSingleOperation.None)
                     onDependencyClicked(dependency, classes)
                 },
-                onDownloadAllDependencies = { deps, versions ->
+                onDownloadAllDependencies = { deps, versions, _ ->
                     changeOperation(DownloadSingleOperation.None)
                     onDownloadAllDependencies(deps, versions, classes)
                 }

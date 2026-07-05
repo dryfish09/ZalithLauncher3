@@ -216,7 +216,8 @@ fun SelectGameVersionScreen(
     eventViewModel: EventViewModel,
     classicMode: Boolean = true,
     installedVersionIds: Set<String> = emptySet(),
-    onVersionSelect: (String) -> Unit = {}
+    onVersionSelect: (String) -> Unit = {},
+    onClassicModeChange: (Boolean) -> Unit = {}
 ) {
     val viewModel = viewModel(
         key = NormalNavKey.DownloadGame.SelectGameVersion.toString()
@@ -429,10 +430,12 @@ private fun VersionHeader(
                     IconButton(
                         modifier = Modifier.size(38.dp),
                         onClick = {
+                            val newClassicMode = !versionFilter.classicMode
                             onVersionFilterChange(versionFilter.copy(
-                                classicMode = !versionFilter.classicMode,
-                                id = if (versionFilter.classicMode) versionFilter.id else ""
+                                classicMode = newClassicMode,
+                                id = if (newClassicMode) versionFilter.id else ""
                             ))
+                            onClassicModeChange(newClassicMode)
                         }
                     ) {
                         Icon(
