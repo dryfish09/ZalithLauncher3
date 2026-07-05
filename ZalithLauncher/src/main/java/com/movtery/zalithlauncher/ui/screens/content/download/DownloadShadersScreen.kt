@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +33,7 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.movtery.zalithlauncher.game.download.assets.downloadDependenciesBatch
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -46,6 +48,7 @@ import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.utils.network.isUsingMobileData
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun DownloadShadersScreen(
@@ -64,6 +67,7 @@ fun DownloadShadersScreen(
     }
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     //下载资源操作
     var operation by remember { mutableStateOf<DownloadSingleOperation>(DownloadSingleOperation.None) }
@@ -84,10 +88,14 @@ fun DownloadShadersScreen(
                 NormalNavKey.DownloadAssets(dep.platform, dep.projectId, classes)
             )
         },
-        onDownloadAllDependencies = { deps, _, classes ->
-            deps.forEach { dep ->
-                backStack.navigateTo(
-                    NormalNavKey.DownloadAssets(dep.platform, dep.projectId, classes)
+        onDownloadAllDependencies = { deps, gameVersions, classes ->
+            scope.launch {
+                downloadDependenciesBatch(
+                    context = context,
+                    deps = deps,
+                    gameVersions = gameVersions,
+                    folder = classes.versionFolder.folderName,
+                    submitError = submitError
                 )
             }
         }

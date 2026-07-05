@@ -23,6 +23,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
+import com.movtery.zalithlauncher.game.download.assets.platform.getVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.mcim.mapMCIMMirrorUrls
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
@@ -176,6 +177,49 @@ fun mapExceptionToMessage(e: Throwable): Pair<Int, Array<Any>?> {
         else -> {
             val errorMessage = e.localizedMessage ?: e::class.simpleName ?: "Unknown error"
             Pair(R.string.empty_holder, arrayOf(errorMessage))
+        }
+    }
+}
+
+/**
+ * 批量下载依赖资源
+ * @param deps 需要下载的依赖
+ * @param gameVersions 安装到的游戏版本
+ * @param folder 目标文件夹
+ * @param onEachError 每个依赖下载失败时的回调
+ */
+suspend fun downloadDependenciesBatch(
+    context: Context,
+    deps: List<PlatformVersion.PlatformDependency>,
+    gameVersions: List<Version>,
+    folder: String,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    onEachError: (name: String, error: String) -> Unit = { _, _ -> }
+) {
+    deps.forEach { dep ->
+        try {
+            val versions = getVersions(
+                projectID = dep.projectId,
+                platform = dep.platform
+            ) as List<PlatformVersion>
+
+            val targetGameVer = gameVersions.firstOrNull()?.getVersionInfo()?.minecraftVersion
+            val matchingVersion = versions.firstOrNull { ver ->
+                targetGameVer == null || ver.platformGameVersions().any { it == targetGameVer }
+            } ?: run {
+                onEachError(dep.projectId, "No matching version found for $targetGameVer")
+                return@forEach
+            }
+
+            downloadSingleForVersions(
+                context = context,
+                version = matchingVersion,
+                versions = gameVersions,
+                folder = folder,
+                submitError = submitError
+            )
+        } catch (e: Exception) {
+            onEachError(dep.projectId, e.message ?: e.javaClass.simpleName)
         }
     }
 }
