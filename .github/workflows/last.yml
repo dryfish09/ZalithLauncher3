@@ -22,7 +22,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ./release-artifacts
-          # ÇÖZÜM: archive:false ile gelen dağınık dosyaları alt klasör açmadan düz bir şekilde indirir
+          # ÇÖZÜM: archive:false ile gelen dağınık dosyaları sorunsuz indirir
           merge-multiple: true
 
       - name: Upload to Release
@@ -34,6 +34,7 @@ jobs:
             ./release-artifacts/*.apk
             ./release-artifacts/*aarch*
           prerelease: true
+          generate_release_notes: true
           generate_release_notes: true
           files: |
             ./release-artifacts/*.apk
