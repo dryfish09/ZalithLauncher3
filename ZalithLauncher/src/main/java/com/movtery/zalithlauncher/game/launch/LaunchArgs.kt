@@ -236,7 +236,7 @@ class LaunchArgs(
         fun Any.processJvmArg(): String? = (this as? String)?.let { argument ->
             if (argument.startsWith("-Djava.library.path=")) {
                 //26.2+ Mojang 更改到了具体的路径，需要手动重定向
-                return@let $$"-Djava.library.path=${natives_directory}"
+                return@let $$"-Djava.library.path=${natives_directory}:${PathManager.DIR_NATIVE_LIB}"
             }
             when {
                 argument.startsWith("-DignoreList=") -> {
