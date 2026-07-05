@@ -113,7 +113,7 @@ void load_vulkan() {
     }
 
     printf("OSMDroid: Loading Vulkan regularly...\n");
-    void* vulkanPtr = dlopen("libvulkan.so", RTLD_LAZY | RTLD_LOCAL);
+    void* vulkanPtr = dlopen("libvulkan.so", RTLD_LAZY | RTLD_GLOBAL);
     printf("OSMDroid: Loaded Vulkan, ptr=%p\n", vulkanPtr);
     set_vulkan_ptr(vulkanPtr);
 }
@@ -124,6 +124,12 @@ int pojavInitOpenGL() {
     if (!strncmp("opengles", renderer, 8) || !strcmp(renderer, "mobileglues"))
     {
         pojav_environ->config_renderer = RENDERER_GL4ES;
+        if (!strcmp(renderer, "opengles3_desktopgl_zink_kopper")) {
+            load_vulkan();
+            setenv("MESA_LOADER_DRIVER_OVERRIDE", "zink", 1);
+            setenv("GALLIUM_DRIVER", "zink", 1);
+            setenv("MESA_ANDROID_NO_KMS_SWRAST", "1", 1);
+        }
         set_gl_bridge_tbl();
     }
 
