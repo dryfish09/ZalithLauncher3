@@ -79,9 +79,10 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
     var multidrawMode by remember { mutableIntStateOf(config.multidrawMode) }
     var angleDepthClearFixMode by remember { mutableIntStateOf(config.angleDepthClearFixMode) }
     var customGLVersion by remember { mutableIntStateOf(config.customGLVersion) }
-    val glVersions = remember {
+    val disabledLabel = stringResource(R.string.mobileglues_gl_disabled)
+    val glVersions = remember(disabledLabel) {
         listOf(
-            0 to stringResource(R.string.mobileglues_gl_disabled),
+            0 to disabledLabel,
             32 to "OpenGL 3.2", 33 to "OpenGL 3.3",
             40 to "OpenGL 4.0", 41 to "OpenGL 4.1", 42 to "OpenGL 4.2",
             43 to "OpenGL 4.3", 44 to "OpenGL 4.4", 45 to "OpenGL 4.5",
@@ -238,13 +239,12 @@ private fun SettingsSwitchRow(
 
 @Composable
 private fun ANGLEPicker(value: Int, onValueChange: (Int) -> Unit) {
-    val options = remember {
-        listOf(
-            stringResource(R.string.mobileglues_angle_disable) to 0,
-            stringResource(R.string.mobileglues_angle_auto) to 1,
-            stringResource(R.string.mobileglues_angle_force) to 2,
-            stringResource(R.string.mobileglues_angle_compatible) to 3
-        )
+    val disable = stringResource(R.string.mobileglues_angle_disable)
+    val auto = stringResource(R.string.mobileglues_angle_auto)
+    val force = stringResource(R.string.mobileglues_angle_force)
+    val compatible = stringResource(R.string.mobileglues_angle_compatible)
+    val options = remember(disable, auto, force, compatible) {
+        listOf(disable to 0, auto to 1, force to 2, compatible to 3)
     }
     DropdownSettingRow(
         label = stringResource(R.string.mobileglues_angle_mode),
@@ -256,13 +256,12 @@ private fun ANGLEPicker(value: Int, onValueChange: (Int) -> Unit) {
 
 @Composable
 private fun NoErrorPicker(value: Int, onValueChange: (Int) -> Unit) {
-    val options = remember {
-        listOf(
-            stringResource(R.string.mobileglues_no_error_strict) to 0,
-            stringResource(R.string.mobileglues_no_error_moderate) to 1,
-            stringResource(R.string.mobileglues_no_error_relaxed) to 2,
-            stringResource(R.string.mobileglues_no_error_ignore_all) to 3
-        )
+    val strict = stringResource(R.string.mobileglues_no_error_strict)
+    val moderate = stringResource(R.string.mobileglues_no_error_moderate)
+    val relaxed = stringResource(R.string.mobileglues_no_error_relaxed)
+    val ignoreAll = stringResource(R.string.mobileglues_no_error_ignore_all)
+    val options = remember(strict, moderate, relaxed, ignoreAll) {
+        listOf(strict to 0, moderate to 1, relaxed to 2, ignoreAll to 3)
     }
     DropdownSettingRow(
         label = stringResource(R.string.mobileglues_no_error_mode),
@@ -276,12 +275,11 @@ private fun NoErrorPicker(value: Int, onValueChange: (Int) -> Unit) {
 private fun MultidrawModeSegmented(value: Int, onValueChange: (Int) -> Unit) {
     Text(stringResource(R.string.mobileglues_multidraw_mode), style = MaterialTheme.typography.bodyMedium)
     Spacer(modifier = Modifier.height(4.dp))
-    val options = remember {
-        listOf(
-            stringResource(R.string.mobileglues_multidraw_auto) to 0,
-            stringResource(R.string.mobileglues_multidraw_basevertex) to 1,
-            stringResource(R.string.mobileglues_multidraw_compute) to 2
-        )
+    val auto = stringResource(R.string.mobileglues_multidraw_auto)
+    val baseVertex = stringResource(R.string.mobileglues_multidraw_basevertex)
+    val compute = stringResource(R.string.mobileglues_multidraw_compute)
+    val options = remember(auto, baseVertex, compute) {
+        listOf(auto to 0, baseVertex to 1, compute to 2)
     }
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
         options.forEachIndexed { index, (label, v) ->
@@ -297,12 +295,11 @@ private fun MultidrawModeSegmented(value: Int, onValueChange: (Int) -> Unit) {
 
 @Composable
 private fun AngleClearPicker(value: Int, onValueChange: (Int) -> Unit) {
-    val options = remember {
-        listOf(
-            stringResource(R.string.mobileglues_angle_clear_off) to 0,
-            stringResource(R.string.mobileglues_angle_clear_mode1) to 1,
-            stringResource(R.string.mobileglues_angle_clear_mode2) to 2
-        )
+    val off = stringResource(R.string.mobileglues_angle_clear_off)
+    val mode1 = stringResource(R.string.mobileglues_angle_clear_mode1)
+    val mode2 = stringResource(R.string.mobileglues_angle_clear_mode2)
+    val options = remember(off, mode1, mode2) {
+        listOf(off to 0, mode1 to 1, mode2 to 2)
     }
     DropdownSettingRow(
         label = stringResource(R.string.mobileglues_angle_depth_clear_fix),
