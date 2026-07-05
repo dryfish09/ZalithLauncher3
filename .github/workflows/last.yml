@@ -22,18 +22,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ./release-artifacts
-          # ÇÖZÜM: archive:false ile gelen ham/dağınık dosyaları 
-          # alt klasör karmaşasına sokmadan doğrudan tek dizine çeker ve çökmeyi önler.
+          # ÇÖZÜM: archive:false ile gelen dağınık dosyaları alt klasör açmadan düz bir şekilde indirir
           merge-multiple: true
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
-          # Build numarasını kullanarak benzersiz tag oluşturur
           tag_name: build-${{ github.run_number }}
           name: "Release Build #${{ github.run_number }}"
-          # merge-multiple kullandığımız için dosyalar artık alt klasörde değil,
-          # doğrudan release-artifacts klasörünün içinde yer alacak.
+          files: |
+            ./release-artifacts/*.apk
+            ./release-artifacts/*aarch*
+          prerelease: true
+          generate_release_notes: true
           files: |
             ./release-artifacts/*.apk
             ./release-artifacts/*aarch*
