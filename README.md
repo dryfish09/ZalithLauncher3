@@ -20,19 +20,7 @@ This fork aims to enhance and customize the original Zalith Launcher 2 experienc
 - [x] Importing/exporting accounts along with capes and skins, chroma names
 - [x] Implemented mobileglues with config
 - [x] Config UI remake
-
-Next Update: 
-Install dependencies button for mods:
-
-- Translations fix
-
-- Remove AMD FSR because its already implemented on most used renderers and basically was experimental
-
-- Information about resolution is set to 70-100 depended on your device when game starts (only snapdragon): ADRENO6XX: 80%, 7XX: 90%, 8XX: 100% (If you dont want just click NO)
-
-**Soon:**
-- [ ] Friend system (still working on it)
-- [ ] First ever performance update (not planned soon)
+more that i cant count...
 
 
 ## 🔗 Upstream Project
