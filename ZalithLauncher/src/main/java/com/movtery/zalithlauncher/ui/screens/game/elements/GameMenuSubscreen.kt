@@ -417,6 +417,17 @@ private fun ControlOverview(
                 contentColor = contentColor,
             )
         }
+        //加载时隐藏控制布局
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Hide Controls During Loading",
+                switch = AllSettings.hideControlsDuringLoading.state,
+                onSwitch = { AllSettings.hideControlsDuringLoading.save(it) },
+                color = color,
+                contentColor = contentColor
+            )
+        }
 
         //管理摇杆
         item {

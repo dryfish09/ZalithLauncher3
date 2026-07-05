@@ -149,6 +149,11 @@ object AllSettings : SettingsRegistry() {
     val showLogAutomatic = boolSetting("showLogAutomatic", false)
 
     /**
+     * 游戏加载时隐藏控制布局
+     */
+    val hideControlsDuringLoading = boolSetting("hideControlsDuringLoading", true)
+
+    /**
      * 日志字体大小
      */
     val logTextSize = intSetting("logTextSize", 15, 5..20)

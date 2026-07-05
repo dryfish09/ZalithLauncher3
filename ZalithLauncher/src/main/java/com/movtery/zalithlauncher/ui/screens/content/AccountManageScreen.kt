@@ -91,7 +91,6 @@ import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.setting.enums.ChromaMode
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -379,53 +378,6 @@ private fun AccountManageContent(
                         }
                     }
 
-                    HorizontalDivider(modifier = Modifier.alpha(0.2f))
-
-                    // Chroma selector
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        var showChromaSelector by remember { mutableStateOf(false) }
-                        FilledTonalButton(
-                            onClick = { showChromaSelector = true }
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_styler),
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(Modifier.size(4.dp))
-                            Text(stringResource(R.string.settings_chroma_name_title), style = MaterialTheme.typography.labelMedium)
-                        }
-
-                        if (showChromaSelector) {
-                            val modes = ChromaMode.entries
-                            SimpleListDialog(
-                                title = stringResource(R.string.settings_chroma_name_title),
-                                items = modes,
-                                itemTextProvider = { mode ->
-                                    when (mode) {
-                                        ChromaMode.NONE -> context.getString(R.string.generic_none)
-                                        ChromaMode.RGB -> "RGB (Classic)"
-                                        ChromaMode.RED_BLUE -> context.getString(R.string.chroma_mode_red_blue)
-                                        ChromaMode.SUNSET -> context.getString(R.string.chroma_mode_sunset)
-                                        ChromaMode.OCEAN -> context.getString(R.string.chroma_mode_ocean)
-                                        ChromaMode.FOREST -> context.getString(R.string.chroma_mode_forest)
-                                        ChromaMode.NEON -> context.getString(R.string.chroma_mode_neon)
-                                    }
-                                },
-                                onItemSelected = { mode ->
-                                    AllSettings.chromaMode.save(mode)
-                                    showChromaSelector = false
-                                },
-                                current = AllSettings.chromaMode.state,
-                                onDismissRequest = { showChromaSelector = false }
-                            )
-                        }
-                    }
                 }
             }
 

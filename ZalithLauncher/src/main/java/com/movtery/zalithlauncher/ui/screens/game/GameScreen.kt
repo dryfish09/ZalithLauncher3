@@ -613,7 +613,8 @@ fun GameScreen(
             }
 
             //控制布局层
-            ControlBoxLayout(
+            val hideControls = showGameInfo && AllSettings.hideControlsDuringLoading.state
+            if (!hideControls) ControlBoxLayout(
                 modifier = Modifier.fillMaxSize(),
                 observedLayout = viewModel.observableLayout,
                 eventHandler = viewModel.eventHandler,
@@ -646,7 +647,7 @@ fun GameScreen(
             }
 
             //物品栏触发层
-            MinecraftHotbar(
+            if (!hideControls) MinecraftHotbar(
                 screenSize = screenSize,
                 rule = AllSettings.hotbarRule.state,
                 widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
@@ -663,7 +664,7 @@ fun GameScreen(
             //摇杆控制层
             viewModel.observableLayout?.let { layout ->
                 val special by layout.special.collectAsStateWithLifecycle()
-                JoystickControlLayout(
+                if (!hideControls) JoystickControlLayout(
                     screenSize = screenSize,
                     isGrabbing = isGrabbing,
                     special = special,
