@@ -127,6 +127,7 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.accountUUID
+import com.movtery.zalithlauncher.game.account.auth_server.ELY_BY_AUTH_SERVER_URL
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
@@ -583,6 +584,21 @@ fun LoginMenuDialog(
                                 title = stringResource(R.string.account_type_local),
                                 onClick = {
                                     onLocalLogin()
+                                    onDismissRequest()
+                                }
+                            )
+                            //Ely.by登录
+                            LoginItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = stringResource(R.string.account_type_ely_by),
+                                onClick = {
+                                    onAuthServerLogin(
+                                        AuthServer(
+                                            baseUrl = ELY_BY_AUTH_SERVER_URL,
+                                            serverName = "Ely.by",
+                                            register = "https://account.ely.by/register"
+                                        )
+                                    )
                                     onDismissRequest()
                                 }
                             )

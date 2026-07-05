@@ -43,6 +43,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -85,6 +87,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.COPY_LABEL_ACCOUNT_UUID
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.account.auth_server.ELY_BY_AUTH_SERVER_URL
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.isAuthServerAccount
 import com.movtery.zalithlauncher.game.account.isLocalAccount
@@ -948,6 +951,19 @@ private fun ServerTypeOperation(
                 onValueChange = { serverUrl = it.trim() },
                 label = { Text(text = stringResource(R.string.account_label_server_url)) },
                 singleLine = true,
+                extraBody = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        //快速填入Ely.by的authlib-injector地址，方便用户一键添加Ely.by验证服务器
+                        AssistChip(
+                            onClick = { serverUrl = ELY_BY_AUTH_SERVER_URL },
+                            label = { Text(text = stringResource(R.string.account_add_server_quick_ely_by)) },
+                            colors = AssistChipDefaults.assistChipColors()
+                        )
+                    }
+                },
                 onDismissRequest = {
                     actions.onIntent(
                         AccountManageIntent.UpdateServerOp(

@@ -161,6 +161,7 @@
     <string name="account_logging_not_purchased_minecraft">Владение Minecraft не подтверждено. Купите игру на официальном сайте Mojang.</string>
     <string name="account_type_microsoft">Microsoft</string>
     <string name="account_type_local">Оффлайн</string>
+    <string name="account_type_ely_by">Ely.by</string>
     <string name="account_add_new_server">Добавить сервер авторизации</string>
     <string name="account_add_new_server_button">Добавить сервер</string>
     <string name="account_add_new_account">Добавить аккаунт</string>
@@ -1095,6 +1096,7 @@
     <string name="plugin_download_title">Скачать плагин</string>
     <string name="plugin_download_summary">Скачайте плагин и установите его как приложение. Просто перезапустите лаунчер, и он загрузится автоматически!</string>
     <string name="account_label_server_url">Введите адрес сервера</string>
+    <string name="account_add_server_quick_ely_by">Быстро добавить: Ely.by</string>
     <string name="account_change_skin_arm_style">Тип модели рук</string>
     <string name="account_change_skin_arm_wide">Широкие руки (Classic)</string>
     <string name="account_change_skin_arm_slim">Тонкие руки (Slim)</string>

@@ -481,11 +481,13 @@
     <string name="account_logging_not_purchased_minecraft">未检查到 Minecraft 配置信息，请前往 Minecraft 的官方网站购买。</string>
     <string name="account_type_microsoft">微软账号</string>
     <string name="account_type_local">离线账号</string>
+    <string name="account_type_ely_by">Ely.by</string>
     <string name="account_add_new_server">添加认证服务器</string>
     <string name="account_add_new_server_button">添加认证服务器</string>
     <string name="account_add_new_account">添加账号</string>
     <string name="account_label_username">填写用户名</string>
     <string name="account_label_server_url">填写服务器地址</string>
+    <string name="account_add_server_quick_ely_by">快速添加：Ely.by</string>
     <string name="account_label_email">填写邮箱或用户名</string>
     <string name="account_label_password">填写密码</string>
     <string name="account_change_skin">更换皮肤</string>
