@@ -217,56 +217,11 @@ fun SearchFilter(
                             )
                         }
                     }
-                    val allMinecraftVersions by MinecraftVersions.allVersions.collectAsState()
-                    val allVersionIds = remember(allMinecraftVersions) {
-                        allMinecraftVersions.map { it.version.id }
-                    }
-                    var versionExpanded by remember { mutableStateOf(false) }
-                    ExposedDropdownMenuBox(
-                        expanded = versionExpanded,
-                        onExpandedChange = { versionExpanded = it }
-                    ) {
-                        BaseFilterLayout(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { versionExpanded = true }
-                                    .padding(16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = gameVersion.ifEmpty { stringResource(R.string.download_assets_filter_game_version) },
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = if (gameVersion.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
-                                )
-                                Icon(
-                                    painter = painterResource(if (versionExpanded) R.drawable.ic_arrow_drop_up_rounded else R.drawable.ic_arrow_drop_down_rounded),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        ExposedDropdownMenu(
-                            expanded = versionExpanded,
-                            onDismissRequest = { versionExpanded = false }
-                        ) {
-                            allVersionIds.forEach { versionId ->
-                                DropdownMenuItem(
-                                    text = { Text(versionId) },
-                                    onClick = {
-                                        onGameVersionChange(versionId)
-                                        onSearch()
-                                        versionExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    VersionDropdown(
+                        gameVersion = gameVersion,
+                        onGameVersionChange = onGameVersionChange,
+                        onSearch = onSearch
+                    )
                 }
             } else if (installedGameVersions.isNotEmpty()) {
                 Column(
@@ -309,24 +264,17 @@ fun SearchFilter(
                             )
                         }
                     }
+                    VersionDropdown(
+                        gameVersion = gameVersion,
+                        onGameVersionChange = onGameVersionChange,
+                        onSearch = onSearch
+                    )
                 }
             } else {
-                SuggestionsText(
-                    value = gameVersion,
-                    onValueChange = onGameVersionChange,
-                    label = stringResource(R.string.download_assets_filter_game_version),
-                    onSearch = onSearch,
-                    suggestions = searchedVersions,
-                    suggestionLabel = { item ->
-                        Text(
-                            text = item,
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    onSuggestionClick = { item ->
-                        onGameVersionChange(item)
-                        onSearch()
-                    }
+                VersionDropdown(
+                    gameVersion = gameVersion,
+                    onGameVersionChange = onGameVersionChange,
+                    onSearch = onSearch
                 )
             }
         }
@@ -500,6 +448,65 @@ private fun <E> SuggestionsText(
                     onClick = {
                         onSuggestionClick(item)
                         focusManager.clearFocus(false)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VersionDropdown(
+    gameVersion: String,
+    onGameVersionChange: (String) -> Unit,
+    onSearch: () -> Unit
+) {
+    val allMinecraftVersions by MinecraftVersions.allVersions.collectAsState()
+    val allVersionIds = remember(allMinecraftVersions) {
+        allMinecraftVersions.map { it.version.id }
+    }
+    var versionExpanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = versionExpanded,
+        onExpandedChange = { versionExpanded = it }
+    ) {
+        BaseFilterLayout(
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { versionExpanded = true }
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = gameVersion.ifEmpty { stringResource(R.string.download_assets_filter_game_version) },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (gameVersion.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    painter = painterResource(if (versionExpanded) R.drawable.ic_arrow_drop_up_rounded else R.drawable.ic_arrow_drop_down_rounded),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        ExposedDropdownMenu(
+            expanded = versionExpanded,
+            onDismissRequest = { versionExpanded = false }
+        ) {
+            allVersionIds.forEach { versionId ->
+                DropdownMenuItem(
+                    text = { Text(versionId) },
+                    onClick = {
+                        onGameVersionChange(versionId)
+                        onSearch()
+                        versionExpanded = false
                     }
                 )
             }
