@@ -203,11 +203,26 @@ suspend fun downloadDependenciesBatch(
                 platform = dep.platform
             ) as List<PlatformVersion>
 
-            val targetGameVer = gameVersions.firstOrNull()?.getVersionInfo()?.minecraftVersion
-            val matchingVersion = versions.firstOrNull { ver ->
-                targetGameVer == null || ver.platformGameVersion().any { it == targetGameVer }
-            } ?: run {
-                onEachError(dep.projectId, "No matching version found for $targetGameVer")
+            val targetGameVers = gameVersions.mapNotNull { it.getVersionInfo()?.minecraftVersion }
+
+            //先尝试初始化每个候选版本，未初始化的版本无法读取文件名、下载链接等信息，
+            //之前这里直接调用 platformGameVersion()/platformFileName() 而未初始化，会导致
+            //lateinit 属性未初始化异常，被下方的 catch 静默吞掉，看起来就像“点击后什么也没下载”
+            val initializedVersions = versions.mapNotNull { ver ->
+                runCatching {
+                    if (ver.initFile(dep.projectId)) ver else null
+                }.getOrNull()
+            }
+
+            if (initializedVersions.isEmpty()) {
+                onEachError(dep.projectId, "No downloadable file found for this dependency")
+                return@forEach
+            }
+
+            val matchingVersion = initializedVersions.firstOrNull { ver ->
+                targetGameVers.isEmpty() || ver.platformGameVersion().any { it in targetGameVers }
+            } ?: initializedVersions.firstOrNull() ?: run {
+                onEachError(dep.projectId, "No matching version found for ${targetGameVers.joinToString()}")
                 return@forEach
             }
 
@@ -219,6 +234,7 @@ suspend fun downloadDependenciesBatch(
                 submitError = submitError
             )
         } catch (e: Exception) {
+            Logger.warning(TAG, "Failed to download dependency ${dep.projectId} while batch downloading all dependencies.", e)
             onEachError(dep.projectId, e.message ?: e.javaClass.simpleName)
         }
     }

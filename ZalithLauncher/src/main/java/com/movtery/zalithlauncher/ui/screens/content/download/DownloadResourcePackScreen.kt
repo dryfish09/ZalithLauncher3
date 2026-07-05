@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.downloadDependenciesBatch
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
@@ -90,13 +91,27 @@ fun DownloadResourcePackScreen(
         },
         onDownloadAllDependencies = { deps, gameVersions, classes ->
             scope.launch {
+                val failedDependencies = mutableListOf<String>()
                 downloadDependenciesBatch(
                     context = context,
                     deps = deps,
                     gameVersions = gameVersions,
                     folder = classes.versionFolder.folderName,
-                    submitError = submitError
+                    submitError = submitError,
+                    onEachError = { name, error ->
+                        failedDependencies += "$name: $error"
+                    }
                 )
+                //之前这里没有把 onEachError 接到任何界面反馈上，
+                //导致依赖初始化/下载失败时用户完全无感知，看起来就像点了按钮却什么也没发生
+                if (failedDependencies.isNotEmpty()) {
+                    submitError(
+                        ErrorViewModel.ThrowableMessage(
+                            title = context.getString(R.string.download_assets_install_failed),
+                            message = failedDependencies.joinToString("\n")
+                        )
+                    )
+                }
             }
         }
     )
