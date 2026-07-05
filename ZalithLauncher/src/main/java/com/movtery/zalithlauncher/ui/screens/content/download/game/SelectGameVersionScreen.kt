@@ -299,7 +299,8 @@ fun SelectGameVersionScreen(
                             itemContentColor = onCardColor(),
                             onRefreshClick = {
                                 viewModel.refresh(true)
-                            }
+                            },
+                            onClassicModeChange = onClassicModeChange
                         )
 
                         VersionList(
@@ -351,7 +352,8 @@ private fun VersionHeader(
     onVersionFilterChange: (VersionFilter) -> Unit,
     itemContainerColor: Color,
     itemContentColor: Color,
-    onRefreshClick: () -> Unit = {}
+    onRefreshClick: () -> Unit = {},
+    onClassicModeChange: (Boolean) -> Unit = {}
 ) {
     Column(modifier = modifier) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
