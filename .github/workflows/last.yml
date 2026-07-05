@@ -21,8 +21,10 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          # Build.yml içinde artifact adı neyse onu yazmalısın (Genelde 'app' veya 'release')
           path: ./release-artifacts
+          # ÇÖZÜM: archive:false ile gelen ham/dağınık dosyaları 
+          # alt klasör karmaşasına sokmadan doğrudan tek dizine çeker ve çökmeyi önler.
+          merge-multiple: true
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
@@ -30,9 +32,12 @@ jobs:
           # Build numarasını kullanarak benzersiz tag oluşturur
           tag_name: build-${{ github.run_number }}
           name: "Release Build #${{ github.run_number }}"
-          # Tüm alt klasörlerdeki apk ve aarch dosyalarını bulur
+          # merge-multiple kullandığımız için dosyalar artık alt klasörde değil,
+          # doğrudan release-artifacts klasörünün içinde yer alacak.
           files: |
-            ./release-artifacts/**/*.apk
-            ./release-artifacts/**/*aarch*
+            ./release-artifacts/*.apk
+            ./release-artifacts/*aarch*
+          prerelease: true
+          generate_release_notes: true
           prerelease: true
           generate_release_notes: true
