@@ -1347,28 +1347,26 @@ private fun ModIcon(
         )
 
         val projectInfo = mod.projectInfo
-        if (projectInfo == null) {
-            if (mod.localMod.icon == null) {
-                ModLoaderIcon(
-                    modifier = Modifier.size(iconSize),
-                    modloader = mod.localMod.loader,
-                    defaultIcon = R.drawable.ic_unknown_pack,
-                    colorFilter = ColorFilter.colorMatrix(colorMatrix),
-
-                )
-            } else {
-                ByteArrayIcon(
-                    modifier = Modifier.size(iconSize),
-                    triggerRefresh = mod,
-                    icon = mod.localMod.icon,
-                    colorFilter = ColorFilter.colorMatrix(colorMatrix),
-                )
-            }
-        } else {
+        val localIcon = mod.localMod.icon
+        if (localIcon != null) {
+            ByteArrayIcon(
+                modifier = Modifier.size(iconSize),
+                triggerRefresh = mod,
+                icon = localIcon,
+                colorFilter = ColorFilter.colorMatrix(colorMatrix),
+            )
+        } else if (projectInfo?.iconUrl != null) {
             AssetsIcon(
                 iconUrl = projectInfo.iconUrl,
                 size = iconSize,
                 colorFilter = ColorFilter.colorMatrix(colorMatrix)
+            )
+        } else {
+            ModLoaderIcon(
+                modifier = Modifier.size(iconSize),
+                modloader = mod.localMod.loader,
+                defaultIcon = R.drawable.ic_unknown_pack,
+                colorFilter = ColorFilter.colorMatrix(colorMatrix),
             )
         }
 
