@@ -70,6 +70,7 @@ class LaunchArgs(
         argsList.addAll(getJavaArgs())
         argsList.addAll(getMinecraftJVMArgs())
         argsList.addAll(NativePluginManager.getJVMEnv())
+        argsList.add("-Dzstd.lib.path=${PathManager.DIR_NATIVE_LIB}/libzstd-jni-1.5.7-6-dhcompat.so")
 
         if (runtime.javaVersion > 8) {
             argsList.add("--add-exports")
