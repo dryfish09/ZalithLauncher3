@@ -196,8 +196,9 @@ val mobileGluesLibs by tasks.registering {
 
         ZipFile(apkFile).use { zip ->
             abis.forEach { abi ->
-                val entryName = "lib/$abi/libMobileGlues.so"
-                val entry = zip.getEntry(entryName)
+                // Actual APK entry is lowercase; we extract and rename to match renderer
+                val realEntryName = "lib/$abi/libmobileglues.so"
+                val entry = zip.getEntry(realEntryName)
                 if (entry != null) {
                     val outDir = file("$jniLibsDir/$abi")
                     outDir.mkdirs()
@@ -206,9 +207,9 @@ val mobileGluesLibs by tasks.registering {
                             input.copyTo(output)
                         }
                     }
-                    logger.lifecycle("Extracted $entryName")
+                    logger.lifecycle("Extracted $realEntryName -> libMobileGlues.so")
                 } else {
-                    logger.warn("$entryName not found in APK")
+                    logger.warn("$realEntryName not found in APK")
                 }
             }
         }
