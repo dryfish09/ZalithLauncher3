@@ -56,6 +56,18 @@ object PlayTimeRepository {
         }
     }
 
+    /** Sum of daily totals across all versions for the last N days. */
+    fun getLastNDaysTotal(versionNames: List<String>, n: Int): Long =
+        lastNDays(n).sumOf { date -> getDailyTotalPlayTime(date, versionNames) }
+
+    /** Most-played version name and total time. */
+    fun getMostPlayedVersion(versionNames: List<String>): Pair<String, Long>? {
+        return versionNames
+            .map { name -> name to getTotalPlayTime(name) }
+            .filter { it.second > 0 }
+            .maxByOrNull { it.second }
+    }
+
     fun recordSession(versionName: String, sessionStartMs: Long, sessionEndMs: Long) {
         val duration = sessionEndMs - sessionStartMs
         if (duration <= 0) return

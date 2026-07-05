@@ -94,6 +94,12 @@
     <string name="stats_view_all">View All</string>
     <string name="stats_today_header">TODAY\'S STATISTICS</string>
     <string name="stats_suggested_video">⭐ SUGGESTED VIDEO - CREATOR</string>
+    <string name="stats_play_time">Play Time</string>
+    <string name="stats_today">Today</string>
+    <string name="stats_month">This Month</string>
+    <string name="stats_all_time">All Time</string>
+    <string name="stats_most_played">Most Played</string>
+    <string name="stats_play_time_title">Play Time Statistics</string>
     <string name="empty_holder" translatable="false">%s</string>
     <!-- Sort By -->
     <string name="sort_by">Sort By</string>

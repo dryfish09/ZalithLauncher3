@@ -1265,6 +1265,12 @@
     <string name="stats_view_all">Tümünü Gör</string>
     <string name="stats_today_header">BUGÜNÜN İSTATİSTİKLERİ</string>
     <string name="stats_suggested_video">⭐ ÖNERİLEN VİDEO - İÇERİK ÜRETİCİ</string>
+    <string name="stats_play_time">Oyun Süresi</string>
+    <string name="stats_today">Bugün</string>
+    <string name="stats_month">Bu Ay</string>
+    <string name="stats_all_time">Tüm Zamanlar</string>
+    <string name="stats_most_played">En Çok Oynanan</string>
+    <string name="stats_play_time_title">Oyun Süresi İstatistikleri</string>
     <string name="error_client_error">(%s) İstemci hatası</string>
     <string name="error_unknown">(%s) Bilinmeyen hata</string>
     <string name="settings_renderer_external_driver">Harici Sürücü</string>

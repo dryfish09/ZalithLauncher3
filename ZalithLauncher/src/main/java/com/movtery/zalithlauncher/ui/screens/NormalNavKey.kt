@@ -200,6 +200,11 @@ sealed interface NormalNavKey : TitledNavKey {
         override val title: Int = R.string.stats_game_stats
     }
 
+    /** 游戏时间统计屏幕 */
+    @Serializable data object PlayTimeStats : NormalNavKey {
+        override val title: Int = R.string.stats_play_time_title
+    }
+
     /** 协议展示屏幕 */
     @Serializable data class License(
         val raw: Int

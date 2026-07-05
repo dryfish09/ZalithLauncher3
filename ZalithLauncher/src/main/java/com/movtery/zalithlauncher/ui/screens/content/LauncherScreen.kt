@@ -113,6 +113,7 @@ fun LauncherScreen(
     onOpenLink: (String) -> Unit,
     onHomePageEvent: (MarkdownBlock.Button.Event) -> Unit,
     onNavigateToStats: () -> Unit = {},
+    onNavigateToPlayTimeStats: () -> Unit = {},
     onNavigateToLog: (String) -> Unit = {},
 ) {
     BaseScreen(
@@ -164,6 +165,7 @@ fun LauncherScreen(
                     isVisible = isVisible,
                     onHomePageEvent = onHomePageEvent,
                     onNavigateToStats = onNavigateToStats,
+                    onNavigateToPlayTimeStats = onNavigateToPlayTimeStats,
                     onNavigateToLog = onNavigateToLog
                 )
             }
@@ -206,6 +208,7 @@ private fun ContentMenu(
     isVisible: Boolean,
     onHomePageEvent: (MarkdownBlock.Button.Event) -> Unit,
     onNavigateToStats: () -> Unit,
+    onNavigateToPlayTimeStats: () -> Unit = {},
     onNavigateToLog: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -255,6 +258,7 @@ private fun ContentMenu(
         StatsGrid(
             modifier = Modifier.weight(1f),
             onNavigateToStats = onNavigateToStats,
+            onNavigateToPlayTimeStats = onNavigateToPlayTimeStats,
             onNavigateToLog = onNavigateToLog
         )
 
@@ -307,10 +311,11 @@ private val VIDEO_URLS = listOf(
 private fun StatsGrid(
     modifier: Modifier = Modifier,
     onNavigateToStats: () -> Unit,
+    onNavigateToPlayTimeStats: () -> Unit = {},
     onNavigateToLog: (String) -> Unit,
 ) {
     val selectedVideos = remember {
-        VIDEO_URLS.shuffled().take(3)
+        VIDEO_URLS.shuffled().take(2)
     }
 
     Column(
@@ -347,10 +352,9 @@ private fun StatsGrid(
                 .weight(1f),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            VideoCard(
-                videoId = selectedVideos[2].first,
-                videoUrl = selectedVideos[2].second,
-                modifier = Modifier.weight(1f).fillMaxHeight()
+            PlayTimeStatsButton(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                onClick = onNavigateToPlayTimeStats
             )
             LastLogCard(
                 modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -749,6 +753,49 @@ private fun VersionManagerLayout(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PlayTimeStatsButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    BackgroundCard(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.extraLarge,
+        onClick = onClick
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = stringResource(R.string.stats_play_time),
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = stringResource(R.string.stats_today_header),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.alpha(0.6f),
+                        maxLines = 1
+                    )
+                }
+            }
+            Icon(
+                painter = painterResource(R.drawable.ic_dashboard_filled),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(12.dp)
+                    .size(32.dp),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+            )
         }
     }
 }

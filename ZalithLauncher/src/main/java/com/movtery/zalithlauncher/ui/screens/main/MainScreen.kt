@@ -96,6 +96,7 @@ import com.movtery.zalithlauncher.ui.screens.content.HomePageEditorScreen
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.content.LicenseScreen
 import com.movtery.zalithlauncher.ui.screens.content.GameStatsScreen
+import com.movtery.zalithlauncher.ui.screens.content.PlayTimeStatsScreen
 import com.movtery.zalithlauncher.ui.screens.content.LogViewScreen
 import com.movtery.zalithlauncher.ui.screens.content.MultiplayerScreen
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreen
@@ -552,6 +553,9 @@ private fun NavigationUI(
                         onNavigateToStats = {
                             backStack.navigateTo(NormalNavKey.GameStats)
                         },
+                        onNavigateToPlayTimeStats = {
+                            backStack.navigateTo(NormalNavKey.PlayTimeStats)
+                        },
                         onNavigateToLog = { logPath ->
                             backStack.navigateTo(NormalNavKey.LogView(logPath))
                         }
@@ -657,6 +661,11 @@ private fun NavigationUI(
                 }
                 entry<NormalNavKey.GameStats> {
                     GameStatsScreen(
+                        backStackViewModel = screenBackStackModel,
+                    )
+                }
+                entry<NormalNavKey.PlayTimeStats> {
+                    PlayTimeStatsScreen(
                         backStackViewModel = screenBackStackModel,
                     )
                 }
