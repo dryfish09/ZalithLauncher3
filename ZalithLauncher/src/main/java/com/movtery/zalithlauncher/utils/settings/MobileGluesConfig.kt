@@ -18,10 +18,10 @@
 
 package com.movtery.zalithlauncher.utils.settings
 
-import android.os.Environment
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.movtery.zalithlauncher.path.PathManager
 import java.io.File
 
 class MobileGluesConfig private constructor(private var isInitializing: Boolean) {
@@ -98,11 +98,11 @@ class MobileGluesConfig private constructor(private var isInitializing: Boolean)
     )
 
     companion object {
-        private const val CONFIG_DIR = "/MG"
+        private const val CONFIG_SUBDIR = "MG"
         private const val CONFIG_FILE = "config.json"
 
         val CONFIG_FILE_PATH: String
-            get() = "${Environment.getExternalStorageDirectory().absolutePath}$CONFIG_DIR/$CONFIG_FILE"
+            get() = "${PathManager.DIR_GAME.absolutePath}/$CONFIG_SUBDIR/$CONFIG_FILE"
 
         fun load(): MobileGluesConfig? {
             val configFile = File(CONFIG_FILE_PATH)
