@@ -53,10 +53,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.scrollbar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,6 +75,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -81,6 +85,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.COPY_LABEL_ACCOUNT_UUID
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.isAuthServerAccount
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
@@ -90,6 +95,8 @@ import com.movtery.zalithlauncher.setting.enums.ChromaMode
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.ModelAnimation
 import com.movtery.zalithlauncher.ui.components.PlayerSkin
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
@@ -98,10 +105,15 @@ import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.ChangeSkinDialog
+import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.LoginMenuDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.LoginMenuOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginTipDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.PlayerFace
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.PlayTimeUtils
@@ -114,13 +126,13 @@ import com.movtery.zalithlauncher.viewmodel.AccountManageEffect
 import com.movtery.zalithlauncher.viewmodel.AccountManageIntent
 import com.movtery.zalithlauncher.viewmodel.AccountManageViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
-import sh.calvin.reorderable.draggableHandle
 
 /**
  * 封装账号界面 UI 交互的回调函数
@@ -530,12 +542,13 @@ private fun AccountManageContent(
                                 animationSpec = spring(),
                                 label = "cardElevation"
                             )
+                            val dragHandleModifier = Modifier.draggableHandle()
                             AccountCard(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth(),
                                 account = account,
                                 currentAccount = currentAccount,
                                 elevation = elevation,
+                                dragHandleModifier = dragHandleModifier,
                                 onSelected = { AccountsManager.setCurrentAccount(account) },
                                 openChangeSkinDialog = {
                                     if (!account.isAuthServerAccount()) {
@@ -597,6 +610,7 @@ private fun AccountCard(
     account: Account,
     currentAccount: Account?,
     elevation: Dp = 0.dp,
+    dragHandleModifier: Modifier = Modifier,
     onSelected: () -> Unit,
     openChangeSkinDialog: () -> Unit,
     onRefreshClick: () -> Unit,
@@ -621,7 +635,7 @@ private fun AccountCard(
         ) {
             // Drag handle + profile head
             Box(
-                modifier = Modifier.draggableHandle(),
+                modifier = dragHandleModifier,
                 contentAlignment = Alignment.Center
             ) {
                 PlayerFace(
