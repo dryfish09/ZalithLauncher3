@@ -587,21 +587,7 @@ fun LoginMenuDialog(
                                     onDismissRequest()
                                 }
                             )
-                            //Ely.by登录
-                            LoginItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = stringResource(R.string.account_type_ely_by),
-                                onClick = {
-                                    onAuthServerLogin(
-                                        AuthServer(
-                                            baseUrl = ELY_BY_AUTH_SERVER_URL,
-                                            serverName = "Ely.by",
-                                            register = "https://account.ely.by/register"
-                                        )
-                                    )
-                                    onDismissRequest()
-                                }
-                            )
+                            // NOT: Ely.by buradan kesildi!
                         }
 
                         LazyColumn(
@@ -622,6 +608,24 @@ fun LoginMenuDialog(
                                     showArrow = true,
                                     onClick = {
                                         onAddAuthServer()
+                                        onDismissRequest()
+                                    }
+                                )
+                            }
+
+                            // Ely.by BURAYA EKLENDİ! (Kimlik ekle butonunun tam altına geliyor)
+                            item {
+                                LoginItem(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    title = stringResource(R.string.account_type_ely_by),
+                                    onClick = {
+                                        onAuthServerLogin(
+                                            AuthServer(
+                                                baseUrl = ELY_BY_AUTH_SERVER_URL,
+                                                serverName = "Ely.by",
+                                                register = "https://account.ely.by/register"
+                                            )
+                                        )
                                         onDismissRequest()
                                     }
                                 )
@@ -666,6 +670,7 @@ fun LoginMenuDialog(
         }
     }
 }
+
 
 @Preview(showBackground = true, widthDp = 800, heightDp = 480)
 @Composable
