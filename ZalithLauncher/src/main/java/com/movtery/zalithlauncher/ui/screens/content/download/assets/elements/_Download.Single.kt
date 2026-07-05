@@ -106,7 +106,8 @@ fun DownloadSingleOperation(
     operation: DownloadSingleOperation,
     changeOperation: (DownloadSingleOperation) -> Unit,
     doInstall: (PlatformClasses, PlatformVersion, List<Version>) -> Unit,
-    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit = { _, _ -> }
+    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit = { _, _ -> },
+    onDownloadAllDependencies: (List<PlatformVersion.PlatformDependency>, List<Version>, PlatformClasses) -> Unit = { _, _, _ -> }
 ) {
     when (operation) {
         DownloadSingleOperation.None -> {}
@@ -146,6 +147,10 @@ fun DownloadSingleOperation(
                 onDependencyClicked = { dependency, classes ->
                     changeOperation(DownloadSingleOperation.None)
                     onDependencyClicked(dependency, classes)
+                },
+                onDownloadAllDependencies = { deps, versions ->
+                    changeOperation(DownloadSingleOperation.None)
+                    onDownloadAllDependencies(deps, versions, classes)
                 }
             )
         }
@@ -162,7 +167,8 @@ private fun DownloadDialog(
     classes: PlatformClasses,
     onDismiss: () -> Unit,
     onInstall: (List<Version>) -> Unit,
-    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit
+    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit,
+    onDownloadAllDependencies: (List<PlatformVersion.PlatformDependency>, List<Version>, PlatformClasses) -> Unit = { _, _, _ -> }
 ) {
     val versions = remember { VersionsManager.versions.filter { it.isValid() } }
     val version by VersionsManager.currentVersion.collectAsStateWithLifecycle()
@@ -303,6 +309,21 @@ private fun DownloadDialog(
                                 onClick = onDismiss
                             ) {
                                 MarqueeText(text = stringResource(R.string.generic_cancel))
+                            }
+                            if (dependencies.isNotEmpty()) {
+                                FilledTonalButton(
+                                    onClick = {
+                                        if (selectedVersions.isNotEmpty()) {
+                                            onDownloadAllDependencies(
+                                                dependencies.map { it.first },
+                                                selectedVersions.toList(),
+                                                classes
+                                            )
+                                        }
+                                    }
+                                ) {
+                                    MarqueeText(text = stringResource(R.string.download_assets_download_all_deps))
+                                }
                             }
                             Button(
                                 modifier = Modifier.weight(0.5f),

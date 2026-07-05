@@ -211,6 +211,12 @@ private class ModsManageViewModel(
         private set
 
     /**
+     * 是否存在可检查远端的模组（用于更新全部按钮）
+     */
+    var canUpdateAll by mutableStateOf(false)
+        private set
+
+    /**
      * 删除所有已选择模组的操作流程
      */
     var deleteAllOperation by mutableStateOf<DeleteAllOperation>(DeleteAllOperation.None)
@@ -245,6 +251,7 @@ private class ModsManageViewModel(
             modsState = LoadingState.Loading
             selectedMods.clear() //清空所有已选择的模组
             canUpdate = false
+            canUpdateAll = false
 
             if (checkCount) modsCount.checkDir()
             try {
@@ -332,6 +339,7 @@ private class ModsManageViewModel(
                     -value
                 }
             }
+        checkCanUpdate()
     }
 
     fun selectAllMods() {
@@ -351,8 +359,38 @@ private class ModsManageViewModel(
     }
 
     fun checkCanUpdate() {
-        // 寻找列表中是否存在能够检查远端的模组
         canUpdate = selectedMods.any { it.localMod.checkRemote }
+        canUpdateAll = allMods.any { it.localMod.checkRemote }
+    }
+
+    fun enableSelectedMods() {
+        doInScope {
+            withContext(Dispatchers.IO) {
+                selectedMods.forEach { mod ->
+                    if (mod.localMod.file.isDisabled()) mod.localMod.enable()
+                }
+            }
+            withContext(Dispatchers.Main) {
+                refreshCounter()
+                selectedMods.clear()
+                canUpdate = false
+            }
+        }
+    }
+
+    fun disableSelectedMods() {
+        doInScope {
+            withContext(Dispatchers.IO) {
+                selectedMods.forEach { mod ->
+                    if (mod.localMod.file.isEnabled()) mod.localMod.disable()
+                }
+            }
+            withContext(Dispatchers.Main) {
+                refreshCounter()
+                selectedMods.clear()
+                canUpdate = false
+            }
+        }
     }
 
     /** 在ViewModel的生命周期协程内调用 */
@@ -713,11 +751,27 @@ fun ModsManagerScreen(
                             },
                             isModsSelected = viewModel.selectedMods.isNotEmpty(),
                             canUpdate = viewModel.canUpdate,
+                            canUpdateAll = viewModel.canUpdateAll,
                             onSelectAll = {
                                 viewModel.selectAllMods()
                             },
                             onClearModsSelected = {
                                 viewModel.clearSelected()
+                            },
+                            onEnableAll = {
+                                viewModel.enableSelectedMods()
+                            },
+                            onDisableAll = {
+                                viewModel.disableSelectedMods()
+                            },
+                            onUpdateAllMods = {
+                                if (
+                                    updaterViewModel.modsUpdateOperation == ModsUpdateOperation.None &&
+                                    viewModel.deleteAllOperation == DeleteAllOperation.None
+                                ) {
+                                    val allUpdatableMods = viewModel.allMods.filter { it.localMod.checkRemote }
+                                    updaterViewModel.modsUpdateOperation = ModsUpdateOperation.Warning(allUpdatableMods)
+                                }
                             },
                             swapToDownload = swapToDownload,
                             refresh = { viewModel.refresh(context) },
@@ -809,6 +863,10 @@ private fun ModsActionsHeader(
     canUpdate: Boolean,
     onSelectAll: () -> Unit,
     onClearModsSelected: () -> Unit,
+    onEnableAll: () -> Unit = {},
+    onDisableAll: () -> Unit = {},
+    onUpdateAllMods: () -> Unit = {},
+    canUpdateAll: Boolean = false,
     swapToDownload: () -> Unit,
     refresh: () -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit = {},
@@ -958,6 +1016,26 @@ private fun ModsActionsHeader(
                             )
                         }
 
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        IconButton(
+                            onClick = onEnableAll
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_visibility_outlined),
+                                contentDescription = null
+                            )
+                        }
+
+                        IconButton(
+                            onClick = onDisableAll
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_visibility_off_outlined),
+                                contentDescription = null
+                            )
+                        }
+
                         Spacer(modifier = Modifier.width(6.dp))
 
                         VerticalDivider(
@@ -986,6 +1064,17 @@ private fun ModsActionsHeader(
                         .horizontalScroll(scrollState),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    if (canUpdateAll && hasModLoader) {
+                        IconButton(
+                            onClick = onUpdateAllMods
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_autorenew),
+                                contentDescription = stringResource(R.string.mods_update_all)
+                            )
+                        }
+                    }
+
                     val taskBuilder = rememberMultipleUriImportTaskBuilder(
                         id = "ContentManager.Mods.Import",
                         targetDir = modsDir,

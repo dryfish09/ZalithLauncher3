@@ -272,6 +272,7 @@
     <string name="download_assets_search_mc_versions">Search MC Versions</string>
     <string name="download_assets_dependency_projects">Dependencies</string>
     <string name="download_assets_optional_projects">Optional Projects</string>
+    <string name="download_assets_download_all_deps">Download All Dependencies</string>
     <string name="download_assets_loading_page_data">Starting to load paged data</string>
     <string name="download_assets_loaded_chunk_page">Paged data loaded, chunk %1$d, page %2$d</string>
     <string name="download_assets_loading_dep_project">Loading and caching dependency project, ID: %s</string>
@@ -803,6 +804,7 @@
     <string name="mods_manage_no_mods">No mods for this version</string>
     <string name="mods_manage_no_loader">No mod loader for the current version, mods cannot be used</string>
     <string name="mods_update">Update Mods</string>
+    <string name="mods_update_all">Update All Mods</string>
     <string name="mods_update_warning_1">Before checking for mod updates, please note that updating a large number of mods at once may cause compatibility issues, making a previously working game suddenly unusable.</string>
     <string name="mods_update_warning_2">The launcher currently does not provide a mod changelog feature. You need to review mod update details yourself to ensure functionality after updating.</string>
     <string name="mods_update_warning_3">The launcher only updates mods in bulk to the latest version, and this action is irreversible. Please carefully select which mods to update.</string>

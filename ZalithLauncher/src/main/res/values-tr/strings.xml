@@ -183,6 +183,7 @@
     <string name="download_assets_search_mc_versions">MC Sürümlerini Ara</string>
     <string name="download_assets_dependency_projects">Bağımlılıklar</string>
     <string name="download_assets_optional_projects">İsteğe Bağlı Projeler</string>
+    <string name="download_assets_download_all_deps">Tüm Bağımlılıkları İndir</string>
     <string name="download_assets_loading_page_data">Sayfalanmış veriler yükleniyor</string>
     <string name="download_assets_loaded_chunk_page">Sayfalanmış veri yüklendi, chunk %1$d, sayfa %2$d</string>
     <string name="download_assets_loading_dep_project">Bağımlılık projesi yükleniyor ve önbelleğe alınıyor, Kimlik (ID): %s</string>
@@ -848,6 +849,7 @@
     <string name="mods_manage_no_mods">Hiç mod bulunamadı</string>
     <string name="mods_manage_no_loader">Mod yükleyici bulunamadı</string>
     <string name="mods_update">Modları Güncelle</string>
+    <string name="mods_update_all">Tüm Modları Güncelle</string>
     <string name="mods_update_warning_1">Çok sayıda modu aynı anda güncellemek uyumluluk sorunlarına yol açabilir ve düzgün çalışan oyununuzun bozulmasına neden olabilir.</string>
     <string name="mods_update_warning_2">Başlatıcı mod güncelleme günlükleri sağlamaz. Güncellemelerin neler getirdiğini kendiniz kontrol etmeli ve güncelleme sonrası oynanışın düzgün olacağından emin olmalısınız.</string>
     <string name="mods_update_warning_3">Başlatıcı yalnızca modları toplu olarak en son sürüme günceller ve bu işlem geri alınamaz. Lütfen hangi modları güncelleyeceğinizi dikkatlice seçin.</string>

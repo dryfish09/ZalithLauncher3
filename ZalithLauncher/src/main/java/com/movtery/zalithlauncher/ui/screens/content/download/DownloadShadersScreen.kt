@@ -83,6 +83,13 @@ fun DownloadShadersScreen(
             backStack.navigateTo(
                 NormalNavKey.DownloadAssets(dep.platform, dep.projectId, classes)
             )
+        },
+        onDownloadAllDependencies = { deps, _, classes ->
+            deps.forEach { dep ->
+                backStack.navigateTo(
+                    NormalNavKey.DownloadAssets(dep.platform, dep.projectId, classes)
+                )
+            }
         }
     )
 
