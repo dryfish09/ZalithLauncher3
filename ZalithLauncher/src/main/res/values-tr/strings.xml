@@ -1309,4 +1309,39 @@
     <string name="settings_export_failed">Dışa aktarma başarısız!</string>
     <string name="storage_permission_request_title">Depolama İzni Gerekli</string>
     <string name="storage_permission_request_message">Ayarları/hesapları genel depolamaya aktarmak için depolama iznine ihtiyacımız var.</string>
+
+    <!-- MobileGlues Settings -->
+    <string name="mobileglues_settings_title">MobileGlues Ayarları</string>
+    <string name="mobileglues_section_rendering">İşleme</string>
+    <string name="mobileglues_section_extensions">Uzantılar</string>
+    <string name="mobileglues_section_cache">Önbellek</string>
+    <string name="mobileglues_angle_mode">ANGLE Modu</string>
+    <string name="mobileglues_angle_disable">Devre Dışı</string>
+    <string name="mobileglues_angle_auto">Otomatik</string>
+    <string name="mobileglues_angle_force">Zorla</string>
+    <string name="mobileglues_angle_compatible">Uyumlu</string>
+    <string name="mobileglues_no_error_mode">Hata Modu Yok</string>
+    <string name="mobileglues_no_error_strict">Katı</string>
+    <string name="mobileglues_no_error_moderate">Ilımlı</string>
+    <string name="mobileglues_no_error_relaxed">Rahat</string>
+    <string name="mobileglues_no_error_ignore_all">Tümünü Yoksay</string>
+    <string name="mobileglues_multidraw_mode">Çoklu Çizim Modu</string>
+    <string name="mobileglues_multidraw_auto">Otomatik</string>
+    <string name="mobileglues_multidraw_basevertex">BaseVertex</string>
+    <string name="mobileglues_multidraw_compute">Compute</string>
+    <string name="mobileglues_angle_depth_clear_fix">ANGLE Derinlik Temizleme Düzeltmesi</string>
+    <string name="mobileglues_angle_clear_off">Kapalı</string>
+    <string name="mobileglues_angle_clear_mode1">Mod 1</string>
+    <string name="mobileglues_angle_clear_mode2">Mod 2</string>
+    <string name="mobileglues_custom_gl_version">Özel GL Sürümü</string>
+    <string name="mobileglues_gl_disabled">Devre Dışı</string>
+    <string name="mobileglues_compute_shader">Compute Shader</string>
+    <string name="mobileglues_compute_shader_summary">EXT_compute_shader\'ı etkinleştir</string>
+    <string name="mobileglues_timer_query">Zamanlayıcı Sorgulama</string>
+    <string name="mobileglues_timer_query_summary">EXT_timer_query\'yı etkinleştir (ters: kapalı = etkin)</string>
+    <string name="mobileglues_direct_state_access">Doğrudan Durum Erişimi</string>
+    <string name="mobileglues_direct_state_access_summary">EXT_direct_state_access\'i etkinleştir</string>
+    <string name="mobileglues_cache_size_label">GLSL Önbellek Boyutu (MB)</string>
+    <string name="mobileglues_cache_size_supporting">Önbelleği temizlemek için -1; varsayılan için 0 (32) ayarlayın</string>
+    <string name="mobileglues_saved_toast">MobileGlues ayarları kaydedildi</string>
 </resources>

@@ -79,12 +79,15 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
     var multidrawMode by remember { mutableIntStateOf(config.multidrawMode) }
     var angleDepthClearFixMode by remember { mutableIntStateOf(config.angleDepthClearFixMode) }
     var customGLVersion by remember { mutableIntStateOf(config.customGLVersion) }
-    val glVersions = listOf(
-        0 to "Disabled", 32 to "OpenGL 3.2", 33 to "OpenGL 3.3",
-        40 to "OpenGL 4.0", 41 to "OpenGL 4.1", 42 to "OpenGL 4.2",
-        43 to "OpenGL 4.3", 44 to "OpenGL 4.4", 45 to "OpenGL 4.5",
-        46 to "OpenGL 4.6"
-    )
+    val glVersions = remember {
+        listOf(
+            0 to stringResource(R.string.mobileglues_gl_disabled),
+            32 to "OpenGL 3.2", 33 to "OpenGL 3.3",
+            40 to "OpenGL 4.0", 41 to "OpenGL 4.1", 42 to "OpenGL 4.2",
+            43 to "OpenGL 4.3", 44 to "OpenGL 4.4", 45 to "OpenGL 4.5",
+            46 to "OpenGL 4.6"
+        )
+    }
 
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
@@ -103,13 +106,13 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "MobileGlues Settings",
+                    text = stringResource(R.string.mobileglues_settings_title),
                     style = MaterialTheme.typography.titleLarge
                 )
 
                 HorizontalDivider()
 
-                SectionHeader("Rendering")
+                SectionHeader(stringResource(R.string.mobileglues_section_rendering))
 
                 ANGLEPicker(
                     value = enableANGLE,
@@ -139,38 +142,38 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
 
                 HorizontalDivider()
 
-                SectionHeader("Extensions")
+                SectionHeader(stringResource(R.string.mobileglues_section_extensions))
 
                 SettingsSwitchRow(
-                    title = "Compute Shader",
-                    summary = "Enable EXT_compute_shader",
+                    title = stringResource(R.string.mobileglues_compute_shader),
+                    summary = stringResource(R.string.mobileglues_compute_shader_summary),
                     checked = enableExtComputeShader,
                     onCheckedChange = { enableExtComputeShader = it }
                 )
 
                 SettingsSwitchRow(
-                    title = "Timer Query",
-                    summary = "Enable EXT_timer_query (inverted: off = enabled)",
+                    title = stringResource(R.string.mobileglues_timer_query),
+                    summary = stringResource(R.string.mobileglues_timer_query_summary),
                     checked = enableExtTimerQuery,
                     onCheckedChange = { enableExtTimerQuery = it }
                 )
 
                 SettingsSwitchRow(
-                    title = "Direct State Access",
-                    summary = "Enable EXT_direct_state_access",
+                    title = stringResource(R.string.mobileglues_direct_state_access),
+                    summary = stringResource(R.string.mobileglues_direct_state_access_summary),
                     checked = enableExtDirectStateAccess,
                     onCheckedChange = { enableExtDirectStateAccess = it }
                 )
 
                 HorizontalDivider()
-                SectionHeader("Cache")
+                SectionHeader(stringResource(R.string.mobileglues_section_cache))
 
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = maxGlslCacheSize,
                     onValueChange = { maxGlslCacheSize = it },
-                    label = { Text("GLSL Cache Size (MB)") },
-                    supportingText = { Text("Set -1 to clear cache; 0 uses default (32)") },
+                    label = { Text(stringResource(R.string.mobileglues_cache_size_label)) },
+                    supportingText = { Text(stringResource(R.string.mobileglues_cache_size_supporting)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true
                 )
@@ -190,7 +193,7 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
                         config.angleDepthClearFixMode = angleDepthClearFixMode
                         config.customGLVersion = customGLVersion
                         config.save()
-                        Toast.makeText(context, "MobileGlues settings saved", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.mobileglues_saved_toast), Toast.LENGTH_SHORT).show()
                         onDismissRequest()
                     }
                 ) {
@@ -235,9 +238,16 @@ private fun SettingsSwitchRow(
 
 @Composable
 private fun ANGLEPicker(value: Int, onValueChange: (Int) -> Unit) {
-    val options = listOf("Disable" to 0, "Auto" to 1, "Force" to 2, "Compatible" to 3)
+    val options = remember {
+        listOf(
+            stringResource(R.string.mobileglues_angle_disable) to 0,
+            stringResource(R.string.mobileglues_angle_auto) to 1,
+            stringResource(R.string.mobileglues_angle_force) to 2,
+            stringResource(R.string.mobileglues_angle_compatible) to 3
+        )
+    }
     DropdownSettingRow(
-        label = "ANGLE Mode",
+        label = stringResource(R.string.mobileglues_angle_mode),
         options = options,
         selectedValue = value,
         onValueChange = onValueChange
@@ -246,9 +256,16 @@ private fun ANGLEPicker(value: Int, onValueChange: (Int) -> Unit) {
 
 @Composable
 private fun NoErrorPicker(value: Int, onValueChange: (Int) -> Unit) {
-    val options = listOf("Strict" to 0, "Moderate" to 1, "Relaxed" to 2, "Ignore All" to 3)
+    val options = remember {
+        listOf(
+            stringResource(R.string.mobileglues_no_error_strict) to 0,
+            stringResource(R.string.mobileglues_no_error_moderate) to 1,
+            stringResource(R.string.mobileglues_no_error_relaxed) to 2,
+            stringResource(R.string.mobileglues_no_error_ignore_all) to 3
+        )
+    }
     DropdownSettingRow(
-        label = "No Error Mode",
+        label = stringResource(R.string.mobileglues_no_error_mode),
         options = options,
         selectedValue = value,
         onValueChange = onValueChange
@@ -257,10 +274,17 @@ private fun NoErrorPicker(value: Int, onValueChange: (Int) -> Unit) {
 
 @Composable
 private fun MultidrawModeSegmented(value: Int, onValueChange: (Int) -> Unit) {
-    Text("Multidraw Mode", style = MaterialTheme.typography.bodyMedium)
+    Text(stringResource(R.string.mobileglues_multidraw_mode), style = MaterialTheme.typography.bodyMedium)
     Spacer(modifier = Modifier.height(4.dp))
+    val options = remember {
+        listOf(
+            stringResource(R.string.mobileglues_multidraw_auto) to 0,
+            stringResource(R.string.mobileglues_multidraw_basevertex) to 1,
+            stringResource(R.string.mobileglues_multidraw_compute) to 2
+        )
+    }
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-        listOf("Auto" to 0, "BaseVertex" to 1, "Compute" to 2).forEachIndexed { index, (label, v) ->
+        options.forEachIndexed { index, (label, v) ->
             SegmentedButton(
                 selected = value == v,
                 onClick = { onValueChange(v) },
@@ -273,9 +297,15 @@ private fun MultidrawModeSegmented(value: Int, onValueChange: (Int) -> Unit) {
 
 @Composable
 private fun AngleClearPicker(value: Int, onValueChange: (Int) -> Unit) {
-    val options = listOf("Off" to 0, "Mode 1" to 1, "Mode 2" to 2)
+    val options = remember {
+        listOf(
+            stringResource(R.string.mobileglues_angle_clear_off) to 0,
+            stringResource(R.string.mobileglues_angle_clear_mode1) to 1,
+            stringResource(R.string.mobileglues_angle_clear_mode2) to 2
+        )
+    }
     DropdownSettingRow(
-        label = "ANGLE Depth Clear Fix",
+        label = stringResource(R.string.mobileglues_angle_depth_clear_fix),
         options = options,
         selectedValue = value,
         onValueChange = onValueChange
@@ -290,9 +320,9 @@ private fun GLVersionDropdown(
     onValueChange: (Int) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val selectedLabel = options.find { it.first == value }?.second ?: "Disabled"
+    val selectedLabel = options.find { it.first == value }?.second ?: stringResource(R.string.mobileglues_gl_disabled)
 
-    Text("Custom GL Version", style = MaterialTheme.typography.bodyMedium)
+    Text(stringResource(R.string.mobileglues_custom_gl_version), style = MaterialTheme.typography.bodyMedium)
     Spacer(modifier = Modifier.height(4.dp))
 
     ExposedDropdownMenuBox(

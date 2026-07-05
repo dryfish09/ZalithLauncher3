@@ -1367,4 +1367,39 @@
     <string name="settings_export_failed">Export failed!</string>
     <string name="storage_permission_request_title">Storage Permission Required</string>
     <string name="storage_permission_request_message">To export settings/accounts to public storage, we need storage permission.</string>
+
+    <!-- MobileGlues Settings -->
+    <string name="mobileglues_settings_title">MobileGlues Settings</string>
+    <string name="mobileglues_section_rendering">Rendering</string>
+    <string name="mobileglues_section_extensions">Extensions</string>
+    <string name="mobileglues_section_cache">Cache</string>
+    <string name="mobileglues_angle_mode">ANGLE Mode</string>
+    <string name="mobileglues_angle_disable">Disable</string>
+    <string name="mobileglues_angle_auto">Auto</string>
+    <string name="mobileglues_angle_force">Force</string>
+    <string name="mobileglues_angle_compatible">Compatible</string>
+    <string name="mobileglues_no_error_mode">No Error Mode</string>
+    <string name="mobileglues_no_error_strict">Strict</string>
+    <string name="mobileglues_no_error_moderate">Moderate</string>
+    <string name="mobileglues_no_error_relaxed">Relaxed</string>
+    <string name="mobileglues_no_error_ignore_all">Ignore All</string>
+    <string name="mobileglues_multidraw_mode">Multidraw Mode</string>
+    <string name="mobileglues_multidraw_auto">Auto</string>
+    <string name="mobileglues_multidraw_basevertex">BaseVertex</string>
+    <string name="mobileglues_multidraw_compute">Compute</string>
+    <string name="mobileglues_angle_depth_clear_fix">ANGLE Depth Clear Fix</string>
+    <string name="mobileglues_angle_clear_off">Off</string>
+    <string name="mobileglues_angle_clear_mode1">Mode 1</string>
+    <string name="mobileglues_angle_clear_mode2">Mode 2</string>
+    <string name="mobileglues_custom_gl_version">Custom GL Version</string>
+    <string name="mobileglues_gl_disabled">Disabled</string>
+    <string name="mobileglues_compute_shader">Compute Shader</string>
+    <string name="mobileglues_compute_shader_summary">Enable EXT_compute_shader</string>
+    <string name="mobileglues_timer_query">Timer Query</string>
+    <string name="mobileglues_timer_query_summary">Enable EXT_timer_query (inverted: off = enabled)</string>
+    <string name="mobileglues_direct_state_access">Direct State Access</string>
+    <string name="mobileglues_direct_state_access_summary">Enable EXT_direct_state_access</string>
+    <string name="mobileglues_cache_size_label">GLSL Cache Size (MB)</string>
+    <string name="mobileglues_cache_size_supporting">Set -1 to clear cache; 0 uses default (32)</string>
+    <string name="mobileglues_saved_toast">MobileGlues settings saved</string>
 </resources>
