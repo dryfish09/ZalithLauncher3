@@ -129,6 +129,12 @@ int pojavInitOpenGL() {
             setenv("MESA_LOADER_DRIVER_OVERRIDE", "zink", 1);
             setenv("GALLIUM_DRIVER", "zink", 1);
             setenv("MESA_ANDROID_NO_KMS_SWRAST", "1", 1);
+            //Zink 在没有显式指定版本时，即使硬件/驱动支持更高版本，也会保守地只上报 GL 3.1，
+            //导致 Iris 等要求 GLSL 1.50（对应 OpenGL 3.2 core）的着色器编译失败
+            //（"could not preload blit shader" / "GLSL 1.50 is not supported"）。
+            //这里强制让 Mesa 上报更高的版本，让这些着色器能够正常编译。
+            setenv("MESA_GL_VERSION_OVERRIDE", "4.3", 1);
+            setenv("MESA_GLSL_VERSION_OVERRIDE", "430", 1);
         }
         set_gl_bridge_tbl();
     }
