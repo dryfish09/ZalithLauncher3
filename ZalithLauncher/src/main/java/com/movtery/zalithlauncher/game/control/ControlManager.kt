@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.game.control
 
 import android.content.Context
+import android.util.DisplayMetrics
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.layout.loadLayoutFromFile
 import com.movtery.layer_controller.layout.loadLayoutFromFileUncheck
@@ -65,6 +66,11 @@ object ControlManager {
     /** 是否正在刷新控制布局 */
     val isRefreshing = _isRefreshing.asStateFlow()
 
+    private var cachedContext: Context? = null
+
+    private val displayMetrics: DisplayMetrics?
+        get() = cachedContext?.resources?.displayMetrics
+
     /**
      * 获取一个新的布局文件文件，名称随机
      */
@@ -75,6 +81,7 @@ object ControlManager {
      * @param context 访问assets的上下文
      */
     fun checkDefaultAndRefresh(context: Context) {
+        cachedContext = context
         scope.launch(Dispatchers.IO) {
             val files = (PathManager.DIR_CONTROL_LAYOUTS.listFiles() ?: emptyArray())
                 .filter { file ->
@@ -93,6 +100,7 @@ object ControlManager {
             _isRefreshing.update { true }
 
             _dataList.update { emptyList() }
+
             PathManager.DIR_CONTROL_LAYOUTS.listFiles()?.mapNotNull { file ->
                 if (!(file.isFile && file.exists() && file.extension.equals("json", true))) return@mapNotNull null
 
@@ -105,10 +113,9 @@ object ControlManager {
                         loadLayoutFromFileUncheck(file)
                     }.onFailure { e ->
                         Logger.warning(TAG, "Failed to load control layout! file = $file", e)
-                    }.getOrNull() ?: return@mapNotNull null
-                } catch (e: Exception) {
-                    Logger.warning(TAG, "Failed to load control layout! file = $file", e)
-                    return@mapNotNull null
+                    }.getOrNull() ?: tryPojavConvert(file, displayMetrics) ?: return@mapNotNull null
+                } catch (_: Exception) {
+                    tryPojavConvert(file, displayMetrics) ?: return@mapNotNull null
                 }
 
                 ControlData(
@@ -158,6 +165,18 @@ object ControlManager {
             context.copyAssetFile(fileName = "default_layout.json", output = file, overwrite = false)
         } catch (e: Exception) {
             Logger.warning(TAG, "Failed to unpack default control layout", e)
+        }
+    }
+
+    private fun tryPojavConvert(file: File, displayMetrics: DisplayMetrics?): ControlLayout? {
+        if (displayMetrics == null) return null
+        return try {
+            val text = file.readText()
+            if (!isPojavFormat(text)) return null
+            convertPojavToZalith(text, displayMetrics)
+        } catch (e: Exception) {
+            Logger.warning(TAG, "Failed to convert Pojav layout! file = $file", e)
+            null
         }
     }
 
