@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.combinedClickable
@@ -78,6 +79,7 @@ import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.version.installed.PlayTimeRepository
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -100,6 +102,7 @@ import com.movtery.zalithlauncher.ui.screens.main.custom_home.MarkdownBlock
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.customHomePage
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.removeAndNavigateTo
+import com.movtery.zalithlauncher.utils.PlayTimeUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.HomePageState
 import com.movtery.zalithlauncher.viewmodel.LocalHomePageViewModel
@@ -314,9 +317,7 @@ private fun StatsGrid(
     onNavigateToPlayTimeStats: () -> Unit = {},
     onNavigateToLog: (String) -> Unit,
 ) {
-    val selectedVideos = remember {
-        VIDEO_URLS.shuffled().take(2)
-    }
+    val isTurkey = remember { java.util.Locale.getDefault().country == "TR" }
 
     Column(
         modifier = modifier,
@@ -329,36 +330,209 @@ private fun StatsGrid(
                 .padding(horizontal = 4.dp)
                 .alpha(0.5f)
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            VideoCard(
-                videoId = selectedVideos[0].first,
-                videoUrl = selectedVideos[0].second,
-                modifier = Modifier.weight(1f).fillMaxHeight()
-            )
-            VideoCard(
-                videoId = selectedVideos[1].first,
-                videoUrl = selectedVideos[1].second,
-                modifier = Modifier.weight(1f).fillMaxHeight()
-            )
+        if (isTurkey) {
+            val selectedVideos = remember {
+                VIDEO_URLS.shuffled().take(2)
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                VideoCard(
+                    videoId = selectedVideos[0].first,
+                    videoUrl = selectedVideos[0].second,
+                    modifier = Modifier.weight(1f).fillMaxHeight()
+                )
+                VideoCard(
+                    videoId = selectedVideos[1].first,
+                    videoUrl = selectedVideos[1].second,
+                    modifier = Modifier.weight(1f).fillMaxHeight()
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                PlayTimeStatsButton(
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    onClick = onNavigateToPlayTimeStats
+                )
+                LastLogCard(
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    onNavigateToLog = onNavigateToLog
+                )
+            }
+        } else {
+            val versions = remember { VersionsManager.versions }
+            val versionNames = remember(versions) { versions.map { it.getVersionName() } }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                WeeklyPlayTimeChart(
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    versionNames = versionNames
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                DailyPlayTimeCard(
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    versionNames = versionNames
+                )
+                LastLogCard(
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    onNavigateToLog = onNavigateToLog
+                )
+            }
         }
-        Row(
+    }
+}
+
+@Composable
+private fun WeeklyPlayTimeChart(
+    modifier: Modifier = Modifier,
+    versionNames: List<String>
+) {
+    val weekData = remember(versionNames) {
+        val dates = PlayTimeRepository.lastNDays(7)
+        dates.map { date ->
+            date to PlayTimeRepository.getDailyTotalPlayTime(date, versionNames)
+        }
+    }
+
+    val maxMs = remember(weekData) { weekData.maxOfOrNull { it.second } ?: 1L }
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val primaryColor = MaterialTheme.colorScheme.primary
+
+    val dayLabels = remember(weekData) {
+        val sdf = java.text.SimpleDateFormat("EEE", java.util.Locale.getDefault())
+        weekData.map { (date, _) ->
+            try {
+                val d = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(date)
+                sdf.format(d!!)
+            } catch (_: Exception) { date.takeLast(5) }
+        }
+    }
+
+    BackgroundCard(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                .fillMaxSize()
+                .padding(12.dp)
         ) {
-            PlayTimeStatsButton(
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                onClick = onNavigateToPlayTimeStats
+            val barCount = weekData.size
+            val labelHeightDp = 16.dp
+            val spacingDp = 4.dp
+
+            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = labelHeightDp + spacingDp)
+                ) {
+                    val canvasW = size.width
+                    val canvasH = size.height
+                    val barWidth = (canvasW / barCount) * 0.6f
+                    val gapWidth = (canvasW / barCount) * 0.4f
+
+                    weekData.forEachIndexed { i, (_, ms) ->
+                        val barH = if (maxMs > 0) (ms.toFloat() / maxMs) * canvasH else 0f
+                        val x = i * (barWidth + gapWidth) + gapWidth / 2
+                        val y = canvasH - barH
+
+                        drawRect(
+                            color = primaryColor.copy(alpha = 0.7f),
+                            topLeft = androidx.compose.ui.geometry.Offset(x, y),
+                            size = androidx.compose.ui.geometry.Size(barWidth, barH.coerceAtLeast(2f))
+                        )
+
+                        val hours = PlayTimeUtils.getPlayHours(ms)
+                        if (hours > 0) {
+                            drawContext.canvas.nativeCanvas.drawText(
+                                "%.1f".format(hours),
+                                x + barWidth / 2,
+                                y - 8f,
+                                android.graphics.Paint().apply {
+                                    color = textColor.hashCode()
+                                    textSize = 24f
+                                    textAlign = android.graphics.Paint.Align.CENTER
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(labelHeightDp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                dayLabels.forEach { label ->
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.alpha(0.6f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DailyPlayTimeCard(
+    modifier: Modifier = Modifier,
+    versionNames: List<String>
+) {
+    val todayMs = remember(versionNames) {
+        PlayTimeRepository.getDailyTotalPlayTime(PlayTimeRepository.today(), versionNames)
+    }
+    val hours = PlayTimeUtils.getPlayHours(todayMs)
+
+    BackgroundCard(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_schedule_outlined),
+                contentDescription = null,
+                modifier = Modifier.size(28.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
-            LastLogCard(
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                onNavigateToLog = onNavigateToLog
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.stats_today),
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.alpha(0.7f)
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = "%.1f h".format(hours),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                fontSize = 22.sp
             )
         }
     }
