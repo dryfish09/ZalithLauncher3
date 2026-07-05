@@ -134,7 +134,8 @@ fun SearchFilter(
     modloader: PlatformDisplayLabel? = null,
     onModLoaderChange: (PlatformDisplayLabel?) -> Unit = {},
     extraFilter: (LazyListScope.() -> Unit)? = null,
-    installedGameVersions: List<String> = emptyList()
+    installedGameVersions: List<String> = emptyList(),
+    alwaysShowVersionChips: Boolean = false
 ) {
     LazyColumn(
         modifier = modifier,
@@ -173,7 +174,66 @@ fun SearchFilter(
         }
 
         item {
-            if (installedGameVersions.isNotEmpty()) {
+            if (alwaysShowVersionChips) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.download_assets_filter_game_version),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clipToBounds()
+                            .horizontalScroll(rememberScrollState()),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        CheckChip(
+                            selected = gameVersion.isEmpty(),
+                            onClick = {
+                                onGameVersionChange("")
+                                onSearch()
+                            },
+                            label = {
+                                Text(text = stringResource(R.string.generic_all))
+                            }
+                        )
+                        installedGameVersions.forEach { version ->
+                            CheckChip(
+                                selected = gameVersion == version,
+                                onClick = {
+                                    onGameVersionChange(version)
+                                    onSearch()
+                                },
+                                label = {
+                                    Text(text = version)
+                                }
+                            )
+                        }
+                    }
+                    SuggestionsText(
+                        value = gameVersion,
+                        onValueChange = onGameVersionChange,
+                        label = stringResource(R.string.download_assets_filter_game_version),
+                        onSearch = onSearch,
+                        suggestions = searchedVersions,
+                        suggestionLabel = { item ->
+                            Text(
+                                text = item,
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        },
+                        onSuggestionClick = { item ->
+                            onGameVersionChange(item)
+                            onSearch()
+                        }
+                    )
+                }
+            } else if (installedGameVersions.isNotEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(4.dp)

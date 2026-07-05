@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.game.control
 
 import android.util.DisplayMetrics
 import androidx.compose.ui.graphics.Color
-import com.movtery.layer_controller.EDITOR_VERSION
 import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.ButtonShape
 import com.movtery.layer_controller.data.ButtonSize
@@ -13,15 +12,19 @@ import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.layout.ControlLayer
 import com.movtery.layer_controller.layout.ControlLayout
-import com.movtery.layer_controller.utils.randomUUID
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.long
+import java.util.UUID
 
 private const val POJAV_MARGIN_DP = 2f
+private const val EDITOR_VERSION = 11
+
+private fun randomUUID(length: Int = 12): String =
+    UUID.randomUUID().toString().replace("-", "").take(length)
 
 fun isPojavFormat(jsonString: String): Boolean {
     return jsonString.contains("\"mControlDataList\"")
@@ -168,36 +171,44 @@ private fun evaluateSimple(expr: String): Float {
         }
         if (current.isNotEmpty()) tokens.add(current.toString())
 
-        var idx = 0
-        fun parseExpr(): Float {
-            var result = parseTerm()
-            while (idx < tokens.size && (tokens[idx] == "+" || tokens[idx] == "-")) {
-                val op = tokens[idx++]
-                val rhs = parseTerm()
-                result = if (op == "+") result + rhs else result - rhs
-            }
-            return result
-        }
-        fun parseTerm(): Float {
-            var result = parseFactor()
-            while (idx < tokens.size && (tokens[idx] == "*" || tokens[idx] == "/")) {
-                val op = tokens[idx++]
-                val rhs = parseFactor()
-                result = if (op == "*") result * rhs else result / rhs
-            }
-            return result
-        }
-        fun parseFactor(): Float {
-            if (idx >= tokens.size) return 0f
-            val t = tokens[idx]
-            if (t == "(") { idx++; val v = parseExpr(); idx++; return v }
-            if (t == "-") { idx++; return -parseFactor() }
-            idx++
-            return t.toFloatOrNull() ?: 0f
-        }
-        parseExpr()
+        ExprParser(tokens).parse()
     } catch (_: Exception) {
         0f
+    }
+}
+
+private class ExprParser(private val tokens: List<String>) {
+    private var idx = 0
+
+    fun parse(): Float = parseExpr()
+
+    private fun parseExpr(): Float {
+        var result = parseTerm()
+        while (idx < tokens.size && (tokens[idx] == "+" || tokens[idx] == "-")) {
+            val op = tokens[idx++]
+            val rhs = parseTerm()
+            result = if (op == "+") result + rhs else result - rhs
+        }
+        return result
+    }
+
+    private fun parseTerm(): Float {
+        var result = parseFactor()
+        while (idx < tokens.size && (tokens[idx] == "*" || tokens[idx] == "/")) {
+            val op = tokens[idx++]
+            val rhs = parseFactor()
+            result = if (op == "*") result * rhs else result / rhs
+        }
+        return result
+    }
+
+    private fun parseFactor(): Float {
+        if (idx >= tokens.size) return 0f
+        val t = tokens[idx]
+        if (t == "(") { idx++; val v = parseExpr(); idx++; return v }
+        if (t == "-") { idx++; return -parseFactor() }
+        idx++
+        return t.toFloatOrNull() ?: 0f
     }
 }
 

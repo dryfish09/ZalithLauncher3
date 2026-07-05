@@ -270,7 +270,8 @@ fun SearchAssetsScreen(
     getModloaders: (Platform) -> List<PlatformDisplayLabel> = { emptyList() },
     mapCategories: (Platform, String) -> PlatformFilterCode?,
     swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> },
-    extraFilter: (LazyListScope.() -> Unit)? = null
+    extraFilter: (LazyListScope.() -> Unit)? = null,
+    alwaysShowVersionChips: Boolean = false
 ) {
     val viewModel: SearchScreenViewModel = rememberSearchAssetsViewModel(
         navKey = screenKey,
@@ -413,7 +414,8 @@ fun SearchAssetsScreen(
                     )
                 },
                 extraFilter = extraFilter,
-                installedGameVersions = installedGameVersions
+                installedGameVersions = installedGameVersions,
+                alwaysShowVersionChips = alwaysShowVersionChips
             )
         }
     }
