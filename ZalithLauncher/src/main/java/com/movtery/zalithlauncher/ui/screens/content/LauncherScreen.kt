@@ -374,7 +374,7 @@ private fun StatsGrid(
                     .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                WeeklyPlayTimeChart(
+                DailyPlayTimeCard(
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                     versionNames = versionNames
                 )
@@ -385,9 +385,9 @@ private fun StatsGrid(
                     .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                DailyPlayTimeCard(
+                PlayTimeStatsButton(
                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                    versionNames = versionNames
+                    onClick = onNavigateToPlayTimeStats
                 )
                 LastLogCard(
                     modifier = Modifier.weight(1f).fillMaxHeight(),
