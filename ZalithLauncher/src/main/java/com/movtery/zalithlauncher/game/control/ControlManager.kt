@@ -159,12 +159,6 @@ object ControlManager {
         } catch (e: Exception) {
             Logger.warning(TAG, "Failed to unpack default control layout", e)
         }
-        try {
-            val pojavFile = getNewRandomFile()
-            context.copyAssetFile(fileName = "default_pojav_layout.json", output = pojavFile, overwrite = false)
-        } catch (e: Exception) {
-            Logger.warning(TAG, "Failed to unpack Pojav default control layout", e)
-        }
     }
 
     /**
