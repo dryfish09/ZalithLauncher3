@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.combinedClickable
@@ -412,7 +411,6 @@ private fun WeeklyPlayTimeChart(
     }
 
     val maxMs = remember(weekData) { weekData.maxOfOrNull { it.second } ?: 1L }
-    val textColor = MaterialTheme.colorScheme.onSurface
     val primaryColor = MaterialTheme.colorScheme.primary
 
     val dayLabels = remember(weekData) {
@@ -432,65 +430,56 @@ private fun WeeklyPlayTimeChart(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            val barCount = weekData.size
-            val labelHeightDp = 16.dp
-            val spacingDp = 4.dp
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                weekData.forEach { (_, ms) ->
+                    val fraction = if (maxMs > 0) ms.toFloat() / maxMs else 0f
+                    val hours = PlayTimeUtils.getPlayHours(ms)
 
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = labelHeightDp + spacingDp)
-                ) {
-                    val canvasW = size.width
-                    val canvasH = size.height
-                    val barWidth = (canvasW / barCount) * 0.6f
-                    val gapWidth = (canvasW / barCount) * 0.4f
-
-                    weekData.forEachIndexed { i, (_, ms) ->
-                        val barH = if (maxMs > 0) (ms.toFloat() / maxMs) * canvasH else 0f
-                        val x = i * (barWidth + gapWidth) + gapWidth / 2
-                        val y = canvasH - barH
-
-                        drawRect(
-                            color = primaryColor.copy(alpha = 0.7f),
-                            topLeft = androidx.compose.ui.geometry.Offset(x, y),
-                            size = androidx.compose.ui.geometry.Size(barWidth, barH.coerceAtLeast(2f))
-                        )
-
-                        val hours = PlayTimeUtils.getPlayHours(ms)
+                    Column(
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
                         if (hours > 0) {
-                            drawContext.canvas.nativeCanvas.drawText(
-                                "%.1f".format(hours),
-                                x + barWidth / 2,
-                                y - 8f,
-                                android.graphics.Paint().apply {
-                                    color = textColor.hashCode()
-                                    textSize = 24f
-                                    textAlign = android.graphics.Paint.Align.CENTER
-                                }
+                            Text(
+                                text = "%.1f".format(hours),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = 10.sp,
+                                modifier = Modifier.alpha(0.8f)
                             )
                         }
+                        Spacer(Modifier.height(2.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.5f)
+                                .weight(fraction.coerceAtLeast(0.02f))
+                                .background(
+                                    color = primaryColor.copy(alpha = 0.7f),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                        )
                     }
                 }
             }
 
-            Row(
+            Text(
+                text = stringResource(R.string.stats_play_time_graph),
+                style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(labelHeightDp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                dayLabels.forEach { label ->
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.alpha(0.6f)
-                    )
-                }
-            }
+                    .alpha(0.5f)
+                    .padding(top = 2.dp)
+            )
         }
     }
 }
