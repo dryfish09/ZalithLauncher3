@@ -19,10 +19,8 @@
 package com.movtery.zalithlauncher.game.control
 
 import android.content.Context
-import android.util.DisplayMetrics
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.layout.loadLayoutFromFile
-import com.movtery.layer_controller.layout.loadLayoutFromFileUncheck
 import com.movtery.layer_controller.layout.loadLayoutFromString
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.utils.newRandomFileName
@@ -30,7 +28,6 @@ import com.movtery.layer_controller.utils.saveToFile
 import com.movtery.zalithlauncher.context.copyAssetFile
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.utils.file.readString
 import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,9 +65,6 @@ object ControlManager {
 
     private var cachedContext: Context? = null
 
-    private val displayMetrics: DisplayMetrics?
-        get() = cachedContext?.resources?.displayMetrics
-
     /**
      * 获取一个新的布局文件文件，名称随机
      */
@@ -104,31 +98,21 @@ object ControlManager {
             PathManager.DIR_CONTROL_LAYOUTS.listFiles()?.mapNotNull { file ->
                 if (!(file.isFile && file.exists() && file.extension.equals("json", true))) return@mapNotNull null
 
-                var isSupport = true
-                val layout: ControlLayout = try {
+                val layout = try {
                     loadLayoutFromFile(file)
-                } catch (_: IllegalArgumentException) {
-                    isSupport = false
-                    runCatching {
-                        loadLayoutFromFileUncheck(file)
-                    }.onFailure { e ->
-                        Logger.warning(TAG, "Failed to load control layout! file = $file", e)
-                    }.getOrNull() ?: tryPojavConvert(file, displayMetrics) ?: return@mapNotNull null
                 } catch (_: Exception) {
-                    tryPojavConvert(file, displayMetrics) ?: return@mapNotNull null
+                    Logger.warning(TAG, "Failed to load control layout! file = $file")
+                    return@mapNotNull null
                 }
 
                 ControlData(
                     file = file,
                     controlLayout = ObservableControlLayout(layout),
-                    isSupport = isSupport
+                    isSupport = true
                 )
             }?.let { list ->
                 _dataList.update {
-                    list.sortedBy {
-                        if (it.isSupport) it.controlLayout.info.name.default
-                        else it.file.name
-                    }
+                    list.sortedBy { it.controlLayout.info.name.default }
                 }
             }
             checkSettings()
@@ -165,20 +149,6 @@ object ControlManager {
             context.copyAssetFile(fileName = "default_layout.json", output = file, overwrite = false)
         } catch (e: Exception) {
             Logger.warning(TAG, "Failed to unpack default control layout", e)
-        }
-    }
-
-    private suspend fun tryPojavConvert(file: File, displayMetrics: DisplayMetrics?): ControlLayout? {
-        if (displayMetrics == null) return null
-        return try {
-            val text = file.readText()
-            if (!isPojavFormat(text)) return null
-            val layout = convertPojavToZalith(text, displayMetrics)
-            layout.saveToFile(file)
-            layout
-        } catch (e: Exception) {
-            Logger.warning(TAG, "Failed to convert Pojav layout! file = $file", e)
-            null
         }
     }
 
@@ -238,14 +208,7 @@ object ControlManager {
         try {
             inputStream.use { stream ->
                 val jsonString = stream.readString()
-                val layout = try {
-                    loadLayoutFromString(jsonString)
-                } catch (_: SerializationException) {
-                    val dm = displayMetrics
-                    if (dm != null && isPojavFormat(jsonString)) {
-                        convertPojavToZalith(jsonString, dm)
-                    } else throw SerializationException("Not a valid control layout")
-                }
+                val layout = loadLayoutFromString(jsonString)
                 layout.saveToFile(file)
             }
             onFinished()

@@ -134,7 +134,12 @@ fun loadLayoutFromFile(file: File): ControlLayout {
 
 fun loadLayoutFromString(jsonString: String): ControlLayout {
     val jsonObject = layoutJson.decodeFromString<JsonObject>(jsonString)
-    if (jsonObject["editorVersion"] == null) throw SerializationException("The file does not contain the key \"editorVersion\".")
+    if (jsonObject["editorVersion"] == null) {
+        if (isPojavJson(jsonString)) {
+            return parsePojavLayout(jsonString)
+        }
+        throw SerializationException("The file does not contain the key \"editorVersion\".")
+    }
     val version = jsonObject["editorVersion"]!!.jsonPrimitive.int
     if (version <= EDITOR_VERSION) {
         var layout = layoutJson.decodeFromString<ControlLayout>(jsonString)

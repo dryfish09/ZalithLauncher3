@@ -20,6 +20,7 @@ package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clipToBounds
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
@@ -659,6 +660,7 @@ private fun LastLogCard(
                             .weight(1f)
                             .fillMaxWidth()
                             .alpha(0.5f)
+                            .clipToBounds()
                             .bottomFade(36.dp, cardColor())
                     )
                     Text(
@@ -1015,6 +1017,7 @@ private fun ChangelogCard(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth()
+                                .clipToBounds()
                                 .bottomFade(48.dp, cardColor()),
                             richTextStyle = defaultRichTextStyle(),
                             bodyFontSize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else 10.sp

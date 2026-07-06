@@ -1,22 +1,20 @@
-package com.movtery.zalithlauncher.game.control
+package com.movtery.layer_controller.layout
 
 import android.util.DisplayMetrics
-import androidx.compose.ui.graphics.Color
 import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.ButtonShape
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.ButtonStyle
+import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextAlignment
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.event.ClickEvent
-import com.movtery.layer_controller.layout.ControlLayer
-import com.movtery.layer_controller.layout.ControlLayout
+import androidx.compose.ui.graphics.Color
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.long
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.util.UUID
@@ -30,8 +28,29 @@ private val DEFAULT_FG = Color.White
 private fun randomUUID(length: Int = 12): String =
     UUID.randomUUID().toString().replace("-", "").take(length)
 
-fun isPojavFormat(jsonString: String): Boolean {
-    return jsonString.contains("\"mControlDataList\"")
+fun isPojavJson(jsonString: String): Boolean =
+    jsonString.contains("\"mControlDataList\"")
+
+fun parsePojavLayout(jsonString: String): ControlLayout {
+    val dm: DisplayMetrics
+    try {
+        dm = android.content.res.Resources.getSystem().displayMetrics
+    } catch (_: Exception) {
+        return ControlLayout(
+            info = ControlLayout.Info(
+                name = TranslatableString("Pojav", emptyList()),
+                author = TranslatableString("PojavLauncherTeam", emptyList()),
+                description = TranslatableString("PojavLauncher touch controls", emptyList()),
+                versionCode = 1,
+                versionName = "1.0"
+            ),
+            layers = emptyList(),
+            styles = emptyList(),
+            special = ControlLayout.Special(),
+            editorVersion = EDITOR_VERSION
+        )
+    }
+    return convertPojavToZalith(jsonString, dm)
 }
 
 fun convertPojavToZalith(jsonString: String, displayMetrics: DisplayMetrics): ControlLayout {
@@ -46,7 +65,7 @@ fun convertPojavToZalith(jsonString: String, displayMetrics: DisplayMetrics): Co
     val infoData = root["mControlInfoDataList"]?.jsonObject
 
     val styleCache = mutableMapOf<String, ButtonStyle>()
-    val allButtons = mutableListOf<com.movtery.layer_controller.data.NormalData>()
+    val allButtons = mutableListOf<NormalData>()
 
     val preferredScale = (root["scaledAt"]?.jsonPrimitive?.int ?: 100).toFloat() / 100f
 
@@ -105,7 +124,7 @@ fun convertPojavToZalith(jsonString: String, displayMetrics: DisplayMetrics): Co
 private fun convertPojavButton(
     btnObj: JsonElement,
     sw: Float, sh: Float, scale: Float
-): Pair<com.movtery.layer_controller.data.NormalData, ButtonStyle?>? {
+): Pair<NormalData, ButtonStyle?>? {
     val btn = btnObj.jsonObject
     val name = btn["name"]?.jsonPrimitive?.content ?: return null
 
@@ -158,7 +177,7 @@ private fun convertPojavButton(
         opacity, bgColor, cornerRadius, strokeWidth, strokeColor
     )
 
-    val data = com.movtery.layer_controller.data.NormalData(
+    val data = NormalData(
         text = TranslatableString(name, emptyList()),
         uuid = randomUUID(),
         position = ButtonPosition(x = xPct, y = yPct),
@@ -227,7 +246,7 @@ private fun convertPojavButton(
 private fun convertPojavDrawer(
     drawerObj: JsonElement,
     sw: Float, sh: Float, scale: Float
-): List<Pair<com.movtery.layer_controller.data.NormalData, ButtonStyle?>>? {
+): List<Pair<NormalData, ButtonStyle?>>? {
     val drawer = drawerObj.jsonObject
     val properties = drawer["properties"]?.jsonObject ?: return null
     val orientation = drawer["orientation"]?.jsonPrimitive?.content ?: "LEFT"
@@ -242,7 +261,7 @@ private fun convertPojavDrawer(
     val dX = evalPojavExpr(dx, dw, dh, sw, sh)
     val dY = evalPojavExpr(dy, dw, dh, sw, sh)
 
-    val result = mutableListOf<Pair<com.movtery.layer_controller.data.NormalData, ButtonStyle?>>()
+    val result = mutableListOf<Pair<NormalData, ButtonStyle?>>()
 
     val drawerMain = convertPojavButton(properties, sw, sh, scale)
     if (drawerMain != null) {
@@ -281,7 +300,7 @@ private fun convertPojavDrawer(
 private fun convertPojavJoystick(
     joyObj: JsonElement,
     sw: Float, sh: Float, scale: Float
-): Pair<com.movtery.layer_controller.data.NormalData, ButtonStyle?>? {
+): Pair<NormalData, ButtonStyle?>? {
     val joy = joyObj.jsonObject
     val name = (joy["name"]?.jsonPrimitive?.content) ?: "Joystick"
 
@@ -314,7 +333,7 @@ private fun convertPojavJoystick(
 
     val styleUuid = makeStyleHash(opacity, 0x4D000000, 35f, 0f, 0L)
 
-    val data = com.movtery.layer_controller.data.NormalData(
+    val data = NormalData(
         text = TranslatableString(name, emptyList()),
         uuid = randomUUID(),
         position = ButtonPosition(x = xPct, y = yPct),
@@ -412,8 +431,6 @@ private fun parseJsonString(element: JsonElement?): String? {
         else -> null
     }
 }
-
-private val pojavMargin = POJAV_MARGIN_DP
 
 private fun evalPojavExpr(expr: String, btnW: Float, btnH: Float, sw: Float, sh: Float): Float {
     val margin = POJAV_MARGIN_DP
