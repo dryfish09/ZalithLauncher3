@@ -65,6 +65,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
@@ -1007,7 +1009,8 @@ private fun ChangelogCard(
                                 content = previewText,
                                 modifier = Modifier
                                     .weight(1f)
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth()
+                                    .bottomFade(48.dp),
                                 richTextStyle = defaultRichTextStyle()
                             )
                         }
@@ -1112,4 +1115,19 @@ private fun PlayTimeStatsButton(
             )
         }
     }
+}
+
+private fun Modifier.bottomFade(edgeHeight: androidx.compose.ui.unit.Dp): Modifier = this.drawWithContent {
+    drawContent()
+    drawRect(
+        brush = Brush.verticalGradient(
+            colors = listOf(
+                Color.Transparent,
+                Color.Black.copy(alpha = 0.65f)
+            ),
+            startY = size.height - edgeHeight.toPx(),
+            endY = size.height
+        ),
+        size = size
+    )
 }
