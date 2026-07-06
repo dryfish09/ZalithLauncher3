@@ -344,6 +344,8 @@ private fun StatsGrid(
         )
         if (isTurkey) {
             // TR region: 1 video + 1 changelog in row 1
+            val trVersions = remember { VersionsManager.versions.value }
+            val trVersionNames = remember(trVersions) { trVersions.map { it.getVersionName() } }
             val selectedVideo = remember {
                 VIDEO_URLS.shuffled().take(1)
             }
@@ -370,6 +372,7 @@ private fun StatsGrid(
             ) {
                 PlayTimeStatsButton(
                     modifier = Modifier.weight(1f).fillMaxHeight(),
+                    versionNames = trVersionNames,
                     onClick = onNavigateToPlayTimeStats
                 )
                 LastLogCard(
@@ -1057,8 +1060,14 @@ private fun ChangelogCard(
 @Composable
 private fun PlayTimeStatsButton(
     modifier: Modifier = Modifier,
+    versionNames: List<String>,
     onClick: () -> Unit
 ) {
+    val todayMs = remember(versionNames) {
+        PlayTimeRepository.getDailyTotalPlayTime(PlayTimeRepository.today(), versionNames)
+    }
+    val hours = PlayTimeUtils.getPlayHours(todayMs)
+
     BackgroundCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.extraLarge,
@@ -1076,15 +1085,15 @@ private fun PlayTimeStatsButton(
                     maxLines = 1
                 )
                 Text(
+                    text = "%.1f h".format(hours),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                    fontSize = 26.sp
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
                     text = stringResource(R.string.stats_click_for_more),
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1
-                )
-                Text(
-                    text = stringResource(R.string.stats_today_header),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.alpha(0.6f),
                     maxLines = 1
                 )
             }
