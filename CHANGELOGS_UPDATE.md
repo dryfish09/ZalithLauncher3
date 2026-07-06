@@ -2,8 +2,8 @@
 
 
 - New renderers:
--  Kopper zink,
--  MobileGlues(fixed)
+  Kopper zink,
+  MobileGlues(fixed)
 - New Main Menu UI
 - New Account Management UI
 - ely.by Login
