@@ -78,6 +78,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
@@ -515,37 +516,32 @@ private fun DailyPlayTimeCard(
         shape = MaterialTheme.shapes.extraLarge,
         onClick = onClick
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_schedule_outlined),
-                contentDescription = null,
-                modifier = Modifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = stringResource(R.string.stats_today),
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.alpha(0.7f)
-            )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = stringResource(R.string.stats_click),
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = "%.1f h".format(hours),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                fontSize = 22.sp
-            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "%.1f h".format(hours),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                    fontSize = 26.sp
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.stats_today),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.alpha(0.7f)
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    text = stringResource(R.string.stats_click_for_more),
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1
+                )
+            }
         }
     }
 }
@@ -627,48 +623,50 @@ private fun LastLogCard(
         enabled = logExists
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(12.dp)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = stringResource(R.string.stats_last_log),
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1
+                )
+                if (logExists) {
                     Text(
-                        text = stringResource(R.string.stats_last_log),
-                        style = MaterialTheme.typography.labelMedium,
+                        text = stringResource(R.string.stats_click_for_more),
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1
+                    )
+                }
+                if (!logExists || logFile == null) {
+                    Text(
+                        text = stringResource(R.string.stats_no_log),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.alpha(0.6f)
+                    )
+                } else {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = logFile.name,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.alpha(0.7f),
                         maxLines = 1
                     )
                     Text(
-                        text = stringResource(R.string.stats_click),
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary
+                        text = remember(logFile) {
+                            try {
+                                logFile.useLines { lines ->
+                                    lines.firstOrNull() ?: ""
+                                }.take(80)
+                            } catch (e: Exception) { "" }
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        maxLines = 2,
+                        modifier = Modifier.alpha(0.5f)
                     )
-                    if (!logExists || logFile == null) {
-                        Text(
-                            text = stringResource(R.string.stats_no_log),
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.alpha(0.6f)
-                        )
-                    } else {
-                        Text(
-                            text = logFile.name,
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.alpha(0.7f),
-                            maxLines = 1
-                        )
-                        Text(
-                            text = remember(logFile) {
-                                try {
-                                    logFile.useLines { lines ->
-                                        lines.firstOrNull() ?: ""
-                                    }.take(80)
-                                } catch (e: Exception) { "" }
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 2,
-                            modifier = Modifier.alpha(0.5f)
-                        )
-                    }
                 }
             }
             if (logExists) {
@@ -979,8 +977,6 @@ private fun ChangelogCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(12.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
                     text = stringResource(R.string.stats_changelog),
@@ -1005,18 +1001,30 @@ private fun ChangelogCard(
                     else -> {
                         val lines = remember(content) { content!!.lines() }
                         val previewLines = lines.take(5).joinToString("\n")
-                        MarkdownView(
-                            content = previewLines,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                         if (lines.size > 5) {
                             Text(
-                                text = stringResource(R.string.stats_click),
+                                text = stringResource(R.string.stats_click_for_more),
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(top = 4.dp)
+                                maxLines = 1
                             )
                         }
+                        MarkdownView(
+                            content = previewLines,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            richTextStyle = defaultRichTextStyle().copy(
+                                headingStyle = { level, textStyle ->
+                                    when (level) {
+                                        0 -> textStyle.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                        1 -> textStyle.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                        2 -> textStyle.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                        else -> textStyle.copy(fontSize = 12.sp)
+                                    }
+                                }
+                            )
+                        )
                     }
                 }
             }
@@ -1038,9 +1046,9 @@ private fun ChangelogCard(
                 ) {
                     Text(
                         text = stringResource(R.string.stats_changelog),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(bottom = 12.dp)
+                        style = MaterialTheme.typography.titleLarge
                     )
+                    Spacer(Modifier.height(8.dp))
                     MarkdownView(
                         content = content!!,
                         modifier = Modifier
@@ -1072,29 +1080,28 @@ private fun PlayTimeStatsButton(
         onClick = onClick
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(12.dp)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        text = stringResource(R.string.stats_play_time),
-                        style = MaterialTheme.typography.labelMedium,
-                        maxLines = 1
-                    )
-                    Text(
-                        text = stringResource(R.string.stats_click),
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = stringResource(R.string.stats_today_header),
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.alpha(0.6f),
-                        maxLines = 1
-                    )
-                }
+                Text(
+                    text = stringResource(R.string.stats_play_time),
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1
+                )
+                Text(
+                    text = stringResource(R.string.stats_click_for_more),
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1
+                )
+                Text(
+                    text = stringResource(R.string.stats_today_header),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.alpha(0.6f),
+                    maxLines = 1
+                )
             }
             Icon(
                 painter = painterResource(R.drawable.ic_dashboard_filled),

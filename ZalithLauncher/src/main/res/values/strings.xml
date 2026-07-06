@@ -103,6 +103,7 @@
     <string name="stats_changelog">Changelog</string>
     <string name="stats_click">Click</string>
     <string name="stats_changelog_loading">Loading changelog…</string>
+    <string name="stats_click_for_more">Click for more</string>
     <string name="empty_holder" translatable="false">%s</string>
     <!-- Sort By -->
     <string name="sort_by">Sort By</string>
