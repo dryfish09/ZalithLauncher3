@@ -1000,21 +1000,17 @@ private fun ChangelogCard(
                         )
                     }
                     else -> {
-                        val lines = remember(content) { content!!.lines() }
-                        val previewLines = lines.take(5).joinToString("\n")
-                        if (lines.size > 5) {
-                            Text(
-                                text = stringResource(R.string.stats_click_for_more),
-                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.primary,
-                                maxLines = 1
-                            )
-                        }
+                        Text(
+                            text = stringResource(R.string.stats_click_for_more),
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1
+                        )
                         CompositionLocalProvider(
                             LocalTextStyle provides MaterialTheme.typography.bodySmall
                         ) {
                             MarkdownView(
-                                content = previewLines,
+                                content = content!!,
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxWidth(),
