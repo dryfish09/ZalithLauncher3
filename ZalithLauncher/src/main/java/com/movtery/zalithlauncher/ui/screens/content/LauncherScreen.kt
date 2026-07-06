@@ -637,14 +637,6 @@ private fun LastLogCard(
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 1
                 )
-                if (logExists) {
-                    Text(
-                        text = stringResource(R.string.stats_click_for_more),
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 1
-                    )
-                }
                 if (!logExists || logFile == null) {
                     Text(
                         text = stringResource(R.string.stats_no_log),
@@ -663,6 +655,12 @@ private fun LastLogCard(
                             .weight(1f)
                             .fillMaxWidth()
                             .alpha(0.5f)
+                    )
+                    Text(
+                        text = stringResource(R.string.stats_click_for_more),
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1
                     )
                 }
             }
@@ -973,7 +971,7 @@ private fun ChangelogCard(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(12.dp)
+                    .padding(start = 8.dp, end = 12.dp, top = 12.dp, bottom = 12.dp)
             ) {
                 Text(
                     text = stringResource(R.string.stats_changelog),
@@ -996,23 +994,29 @@ private fun ChangelogCard(
                         )
                     }
                     else -> {
-                        Text(
-                            text = stringResource(R.string.stats_click_for_more),
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.primary,
-                            maxLines = 1
-                        )
+                        val contentText = content!!
+                        val previewText = remember(contentText) {
+                            val lines = contentText.lines()
+                            if (lines.size <= 2) contentText
+                            else lines.dropLast(2).joinToString("\n")
+                        }
                         CompositionLocalProvider(
                             LocalTextStyle provides MaterialTheme.typography.bodySmall
                         ) {
                             MarkdownView(
-                                content = content!!,
+                                content = previewText,
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxWidth(),
                                 richTextStyle = defaultRichTextStyle()
                             )
                         }
+                        Text(
+                            text = stringResource(R.string.stats_click_for_more),
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1
+                        )
                     }
                 }
             }
