@@ -49,6 +49,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -1009,22 +1010,17 @@ private fun ChangelogCard(
                                 maxLines = 1
                             )
                         }
-                        MarkdownView(
-                            content = previewLines,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                            richTextStyle = defaultRichTextStyle().copy(
-                                headingStyle = { level, textStyle ->
-                                    when (level) {
-                                        0 -> textStyle.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                        1 -> textStyle.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                        2 -> textStyle.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                                        else -> textStyle.copy(fontSize = 12.sp)
-                                    }
-                                }
+                        CompositionLocalProvider(
+                            LocalTextStyle provides MaterialTheme.typography.bodySmall
+                        ) {
+                            MarkdownView(
+                                content = previewLines,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth(),
+                                richTextStyle = defaultRichTextStyle()
                             )
-                        )
+                        }
                     }
                 }
             }
