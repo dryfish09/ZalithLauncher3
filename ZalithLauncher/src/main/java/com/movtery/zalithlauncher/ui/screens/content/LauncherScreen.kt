@@ -649,24 +649,17 @@ private fun LastLogCard(
                         modifier = Modifier.alpha(0.6f)
                     )
                 } else {
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = logFile.name,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.alpha(0.7f),
-                        maxLines = 1
-                    )
                     Text(
                         text = remember(logFile) {
                             try {
-                                logFile.useLines { lines ->
-                                    lines.firstOrNull() ?: ""
-                                }.take(80)
+                                logFile.readText().take(2000)
                             } catch (e: Exception) { "" }
                         },
-                        style = MaterialTheme.typography.labelSmall,
-                        maxLines = 2,
-                        modifier = Modifier.alpha(0.5f)
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .alpha(0.5f)
                     )
                 }
             }
