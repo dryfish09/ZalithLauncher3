@@ -1,16 +1,16 @@
 # 2.4.9Plus 1.0.0
 
-- Yeni render motorlari:
+- Yeni render motorları:
 
   Kopper zink,
-  MobileGlues (duzeltildi)
+  MobileGlues (düzeltildi)
 
-- Yeni Ana Menu Arayuzu
-- Yeni Hesap Yonetimi Arayuzu
-- ely.by Girisi
-- Bagimliliklarla Mod Indirme Butonu
-- Yeni Surum Listeleme
-- Varsayilan Cozunurluk %70 Olarak Ayarlandi
-- Oyun Yuklenirken Kontrolcuyu Gizleme Secenegi
-- Yeni Kenar Cubugu
-- Distant Horizons Destegi
+- Yeni Ana Menü Arayüzü
+- Yeni Hesap Yönetimi Arayüzü
+- ely.by Girişi
+- Bağımlılıklarla Mod İndirme Butonu
+- Yeni Sürüm Listeleme
+- Varsayılan Çözünürlük %70 Olarak Ayarlandı
+- Oyun Yüklenirken Kontrolcüyü Gizleme Seçeneği
+- Yeni Kenar Çubuğu
+- Distant Horizons Desteği
