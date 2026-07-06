@@ -112,6 +112,7 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.PerformanceSettingsDi
 import com.movtery.zalithlauncher.ui.screens.game.elements.PerformanceSettingsOperation
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.MarkdownBlock
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.customHomePage
+import com.movtery.zalithlauncher.ui.theme.cardColor
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.removeAndNavigateTo
 import com.movtery.zalithlauncher.utils.PlayTimeUtils
@@ -657,7 +658,7 @@ private fun LastLogCard(
                             .weight(1f)
                             .fillMaxWidth()
                             .alpha(0.5f)
-                            .bottomFade(36.dp)
+                            .bottomFade(36.dp, cardColor())
                     )
                     Text(
                         text = stringResource(R.string.stats_click_for_more),
@@ -1011,7 +1012,7 @@ private fun ChangelogCard(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxWidth()
-                                    .bottomFade(48.dp),
+                                    .bottomFade(48.dp, cardColor()),
                                 richTextStyle = defaultRichTextStyle()
                             )
                         }
@@ -1118,13 +1119,13 @@ private fun PlayTimeStatsButton(
     }
 }
 
-private fun Modifier.bottomFade(edgeHeight: androidx.compose.ui.unit.Dp): Modifier = this.drawWithContent {
+private fun Modifier.bottomFade(edgeHeight: androidx.compose.ui.unit.Dp, targetColor: Color = Color.Transparent): Modifier = this.drawWithContent {
     drawContent()
     drawRect(
         brush = Brush.verticalGradient(
             colors = listOf(
                 Color.Transparent,
-                Color.Black.copy(alpha = 0.65f)
+                targetColor
             ),
             startY = size.height - edgeHeight.toPx(),
             endY = size.height
