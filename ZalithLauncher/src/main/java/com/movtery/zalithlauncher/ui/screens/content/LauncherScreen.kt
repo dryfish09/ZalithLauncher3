@@ -56,6 +56,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.key
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -1012,16 +1013,21 @@ private fun ChangelogCard(
                             if (lines.size <= 2) contentText
                             else lines.dropLast(2).joinToString("\n")
                         }
-                        MarkdownView(
-                            content = previewText,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth()
-                                .clipToBounds()
-                                .bottomFade(48.dp, cardColor()),
-                            richTextStyle = defaultRichTextStyle(),
-                            bodyFontSize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else 10.sp
-                        )
+                        val cardRichTextStyle = remember {
+                            defaultRichTextStyle().copy(paragraphSpacing = 16.sp)
+                        }
+                        key(LocalConfiguration.current.screenWidthDp) {
+                            MarkdownView(
+                                content = previewText,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .clipToBounds()
+                                    .bottomFade(48.dp, cardColor()),
+                                richTextStyle = cardRichTextStyle,
+                                bodyFontSize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else 10.sp
+                            )
+                        }
                         Text(
                             text = stringResource(R.string.stats_click_for_more),
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
