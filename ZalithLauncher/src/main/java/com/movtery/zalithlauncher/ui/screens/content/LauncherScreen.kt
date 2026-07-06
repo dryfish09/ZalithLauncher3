@@ -372,7 +372,7 @@ private fun StatsGrid(
                 )
             }
         } else {
-            val versions = remember { VersionsManager.versions }
+            val versions = remember { VersionsManager.versions.value }
             val versionNames = remember(versions) { versions.map { it.getVersionName() } }
             // Non-TR: weekly chart (shrunk) + changelog in row 1
             Row(

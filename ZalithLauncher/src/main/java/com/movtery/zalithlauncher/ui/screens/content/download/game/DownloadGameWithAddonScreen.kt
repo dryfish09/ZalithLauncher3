@@ -246,7 +246,7 @@ fun DownloadGameWithAddonScreen(
 
     //自动选择已安装版本使用的Mod加载器
     LaunchedEffect(viewModel.addonList) {
-        val installedLoader = VersionsManager.versions
+        val installedLoader = VersionsManager.versions.value
             .firstOrNull { it.getVersionInfo()?.minecraftVersion == key.gameVersion }
             ?.getVersionInfo()?.loaderInfo?.loader
         if (installedLoader != null) {

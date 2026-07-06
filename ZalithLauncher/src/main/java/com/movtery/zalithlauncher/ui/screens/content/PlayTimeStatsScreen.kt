@@ -59,7 +59,7 @@ fun PlayTimeStatsScreen(
         screenKey = NormalNavKey.PlayTimeStats,
         currentKey = backStackViewModel.mainScreen.currentKey
     ) {
-        val versions = remember { VersionsManager.versions }
+        val versions = remember { VersionsManager.versions.value }
         val versionNames = remember(versions) { versions.map { it.getVersionName() } }
 
         val todayMs = remember(versionNames) {

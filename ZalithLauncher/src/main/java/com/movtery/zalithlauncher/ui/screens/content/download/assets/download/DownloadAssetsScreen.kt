@@ -405,7 +405,7 @@ private fun Versions(
             Column(modifier = modifier) {
                 //简单过滤条件：选择游戏版本
                 val installedVersions = remember {
-                    VersionsManager.versions.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct().sorted()
+                    VersionsManager.versions.value.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct().sorted()
                 }
                 Row(
                     modifier = Modifier

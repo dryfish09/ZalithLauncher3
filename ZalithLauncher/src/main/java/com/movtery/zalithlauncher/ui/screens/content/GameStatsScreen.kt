@@ -62,7 +62,7 @@ fun GameStatsScreen(
         currentKey = backStackViewModel.mainScreen.currentKey
     ) {
         val context = LocalContext.current
-        val versions = remember { VersionsManager.versions }
+        val versions = remember { VersionsManager.versions.value }
 
         data class VersionStat(val name: String, val version: com.movtery.zalithlauncher.game.version.installed.Version, val totalMs: Long)
 

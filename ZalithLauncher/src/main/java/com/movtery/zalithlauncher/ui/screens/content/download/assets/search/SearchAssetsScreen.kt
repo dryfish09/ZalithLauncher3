@@ -362,7 +362,7 @@ fun SearchAssetsScreen(
             val searchedMcMods by viewModel.searchedMcMods.collectAsStateWithLifecycle()
             val searchedVersions by viewModel.searchedVersions.collectAsStateWithLifecycle()
             val installedGameVersions = remember {
-                VersionsManager.versions.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct().sorted()
+                VersionsManager.versions.value.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct().sorted()
             }
             SearchFilter(
                 modifier = Modifier

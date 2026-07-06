@@ -32,7 +32,7 @@ object ModUpdateChecker {
     /** Run background update check for all versions. Called once at app start. */
     fun checkAllInBackground(scope: CoroutineScope = CoroutineScope(Dispatchers.IO)) {
         scope.launch(Dispatchers.IO) {
-            VersionsManager.versions.forEach { version -> checkVersion(version) }
+            VersionsManager.versions.value.forEach { version -> checkVersion(version) }
         }
     }
 
