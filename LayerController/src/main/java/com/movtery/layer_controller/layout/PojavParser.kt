@@ -17,12 +17,13 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 import java.util.UUID
 
 private const val POJAV_MARGIN_DP = 2f
 private const val EDITOR_VERSION = 11
-private val DEFAULT_BG = Color(0x4D000000)
-private val DEFAULT_PRESSED_BG = Color(0x80000000)
+private val DEFAULT_BG = Color(red = 0f, green = 0f, blue = 0f, alpha = 0.3f)
+private val DEFAULT_PRESSED_BG = Color(red = 0f, green = 0f, blue = 0f, alpha = 0.5f)
 private val DEFAULT_FG = Color.White
 
 private fun randomUUID(length: Int = 12): String =
@@ -159,10 +160,10 @@ private fun convertPojavButton(
     }
 
     val opacity = (btn["opacity"]?.jsonPrimitive?.int ?: 100).coerceIn(0, 100) / 100f
-    val bgColor = btn["bgColor"]?.jsonPrimitive?.long ?: 0x4D000000
+    val bgColor = btn["bgColor"]?.jsonPrimitive?.long ?: 0x4D000000L
     val cornerRadius = (btn["cornerRadius"]?.jsonPrimitive?.int ?: 0).toFloat()
     val strokeWidth = (btn["strokeWidth"]?.jsonPrimitive?.int ?: 0).toFloat()
-    val strokeColor = btn["strokeColor"]?.jsonPrimitive?.long ?: if (strokeWidth > 0) 0xFFFFFFFF else 0
+    val strokeColor = btn["strokeColor"]?.jsonPrimitive?.long ?: if (strokeWidth > 0) 0xFFFFFFFFL else 0L
     val isSwipeable = btn["isSwipeable"]?.jsonPrimitive?.boolean ?: false
     val isToggle = btn["isToggle"]?.jsonPrimitive?.boolean ?: false
     val isPenetrable = btn["passThruEnabled"]?.jsonPrimitive?.boolean ?: false
@@ -170,8 +171,18 @@ private fun convertPojavButton(
     val renderedRadius = cornerRadius.coerceIn(0f, 100f)
     val shape = ButtonShape(renderedRadius)
 
-    val color = Color(bgColor.toInt())
-    val borderColor = Color(strokeColor.toInt())
+    val color = Color(
+        red = ((bgColor shr 16) and 0xFF).toFloat() / 255f,
+        green = ((bgColor shr 8) and 0xFF).toFloat() / 255f,
+        blue = (bgColor and 0xFF).toFloat() / 255f,
+        alpha = ((bgColor shr 24) and 0xFF).toFloat() / 255f
+    )
+    val borderColor = Color(
+        red = ((strokeColor shr 16) and 0xFF).toFloat() / 255f,
+        green = ((strokeColor shr 8) and 0xFF).toFloat() / 255f,
+        blue = (strokeColor and 0xFF).toFloat() / 255f,
+        alpha = ((strokeColor shr 24) and 0xFF).toFloat() / 255f
+    )
 
     val styleUuid = makeStyleHash(
         opacity, bgColor, cornerRadius, strokeWidth, strokeColor
@@ -361,7 +372,7 @@ private fun convertPojavJoystick(
     )
 
     val shape = ButtonShape(35f)
-    val color = Color(0x4D000000)
+    val color = Color(red = 0f, green = 0f, blue = 0f, alpha = 0.3f)
 
     val style = ButtonStyle(
         name = name.take(16),

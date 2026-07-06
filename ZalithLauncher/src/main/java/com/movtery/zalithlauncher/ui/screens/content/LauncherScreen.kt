@@ -83,6 +83,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -1013,8 +1014,19 @@ private fun ChangelogCard(
                             if (lines.size <= 2) contentText
                             else lines.dropLast(2).joinToString("\n")
                         }
+                        val headingBodySize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize
                         val cardRichTextStyle = remember {
-                            defaultRichTextStyle().copy(paragraphSpacing = 16.sp)
+                            defaultRichTextStyle().copy(
+                                paragraphSpacing = 16.sp,
+                                headingStyle = { level, _ ->
+                                    when (level) {
+                                        0 -> TextStyle(fontSize = 20.sp, lineHeight = 26.sp, fontWeight = FontWeight.Bold)
+                                        1 -> TextStyle(fontSize = headingBodySize, lineHeight = headingBodySize * 1.3f, fontWeight = FontWeight.Bold)
+                                        2 -> TextStyle(fontSize = headingBodySize, lineHeight = headingBodySize * 1.3f, fontWeight = FontWeight.SemiBold)
+                                        else -> TextStyle(fontSize = headingBodySize, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+                            )
                         }
                         key(LocalConfiguration.current.screenWidthDp) {
                             MarkdownView(
