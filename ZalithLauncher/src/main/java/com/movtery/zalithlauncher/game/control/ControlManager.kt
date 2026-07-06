@@ -236,7 +236,14 @@ object ControlManager {
         try {
             inputStream.use { stream ->
                 val jsonString = stream.readString()
-                val layout = loadLayoutFromString(jsonString)
+                val layout = try {
+                    loadLayoutFromString(jsonString)
+                } catch (_: SerializationException) {
+                    val dm = displayMetrics
+                    if (dm != null && isPojavFormat(jsonString)) {
+                        convertPojavToZalith(jsonString, dm)
+                    } else throw SerializationException("Not a valid control layout")
+                }
                 layout.saveToFile(file)
             }
             onFinished()
