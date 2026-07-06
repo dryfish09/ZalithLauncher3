@@ -108,8 +108,9 @@ class GameHandler(
                 set("key_key.streamPauseUnpause", "0")
             }
 
-            set("overrideWidth", screenSize.width.toString())
-            set("overrideHeight", screenSize.height.toString())
+            // Force landscape: ensure width >= height (defense against native bridge reporting portrait dimensions)
+            set("overrideWidth", maxOf(screenSize.width, screenSize.height).toString())
+            set("overrideHeight", minOf(screenSize.width, screenSize.height).toString())
 
             val graphicsApi = version.getGraphicsApi()
             val graphicsOption = "preferredGraphicsBackend"

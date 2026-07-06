@@ -554,8 +554,14 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
             }
         }
 
-        val windowWidth = getDisplayPixels(screenSize.width)
-        val windowHeight = getDisplayPixels(screenSize.height)
+        var windowWidth = getDisplayPixels(screenSize.width)
+        var windowHeight = getDisplayPixels(screenSize.height)
+        // Force landscape: ensure width >= height
+        if (windowWidth < windowHeight) {
+            val temp = windowWidth
+            windowWidth = windowHeight
+            windowHeight = temp
+        }
         applySizeToSurface?.invoke(windowWidth, windowHeight)
         ZLBridgeStates.onWindowChange()
         CallbackBridge.sendUpdateWindowSize(windowWidth, windowHeight)

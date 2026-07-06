@@ -407,8 +407,8 @@ abstract class Launcher(
             map["TMPDIR"] = PathManager.DIR_CACHE.absolutePath
             map["LD_LIBRARY_PATH"] = getLibraryPath()
             map["PATH"] = path.joinToString(":")
-            map["AWTSTUB_WIDTH"] = screenSize.width.toString()
-            map["AWTSTUB_HEIGHT"] = screenSize.height.toString()
+            map["AWTSTUB_WIDTH"] = maxOf(screenSize.width, screenSize.height).toString()
+            map["AWTSTUB_HEIGHT"] = minOf(screenSize.width, screenSize.height).toString()
             map["MOD_ANDROID_RUNTIME"] = PathManager.DIR_RUNTIME_MOD?.absolutePath ?: ""
 
             if (AllSettings.dumpShaders.getValue()) map["LIBGL_VGPU_DUMP"] = "1"
