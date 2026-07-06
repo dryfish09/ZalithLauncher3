@@ -1274,6 +1274,9 @@
     <string name="stats_all_time">Tüm Zamanlar</string>
     <string name="stats_most_played">En Çok Oynanan</string>
     <string name="stats_play_time_title">Oyun Süresi İstatistikleri</string>
+    <string name="stats_changelog">Güncelleme Notları</string>
+    <string name="stats_click">TIKLAYIN</string>
+    <string name="stats_changelog_loading">Güncelleme notları yükleniyor…</string>
     <string name="error_client_error">(%s) İstemci hatası</string>
     <string name="error_unknown">(%s) Bilinmeyen hata</string>
     <string name="settings_renderer_external_driver">Harici Sürücü</string>

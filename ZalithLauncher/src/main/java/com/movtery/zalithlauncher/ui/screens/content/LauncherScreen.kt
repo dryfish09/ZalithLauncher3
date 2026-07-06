@@ -37,6 +37,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -50,6 +52,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,6 +77,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
@@ -309,6 +314,8 @@ private val VIDEO_URLS = listOf(
     "LDosCkeT-2I" to "https://youtu.be/LDosCkeT-2I"
 )
 
+private const val CHANGELOGS_URL = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/fix/CHANGELOGS_UPDATE.md"
+
 @Composable
 private fun StatsGrid(
     modifier: Modifier = Modifier,
@@ -330,8 +337,9 @@ private fun StatsGrid(
                 .alpha(0.5f)
         )
         if (isTurkey) {
-            val selectedVideos = remember {
-                VIDEO_URLS.shuffled().take(2)
+            // TR region: 1 video + 1 changelog in row 1
+            val selectedVideo = remember {
+                VIDEO_URLS.shuffled().take(1)
             }
             Row(
                 modifier = Modifier
@@ -340,13 +348,11 @@ private fun StatsGrid(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 VideoCard(
-                    videoId = selectedVideos[0].first,
-                    videoUrl = selectedVideos[0].second,
+                    videoId = selectedVideo[0].first,
+                    videoUrl = selectedVideo[0].second,
                     modifier = Modifier.weight(1f).fillMaxHeight()
                 )
-                VideoCard(
-                    videoId = selectedVideos[1].first,
-                    videoUrl = selectedVideos[1].second,
+                ChangelogCard(
                     modifier = Modifier.weight(1f).fillMaxHeight()
                 )
             }
@@ -368,15 +374,19 @@ private fun StatsGrid(
         } else {
             val versions = remember { VersionsManager.versions }
             val versionNames = remember(versions) { versions.map { it.getVersionName() } }
+            // Non-TR: weekly chart (shrunk) + changelog in row 1
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                DailyPlayTimeCard(
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                WeeklyPlayTimeChart(
+                    modifier = Modifier.weight(0.35f).fillMaxHeight(),
                     versionNames = versionNames
+                )
+                ChangelogCard(
+                    modifier = Modifier.weight(0.65f).fillMaxHeight()
                 )
             }
             Row(
@@ -385,8 +395,9 @@ private fun StatsGrid(
                     .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                PlayTimeStatsButton(
+                DailyPlayTimeCard(
                     modifier = Modifier.weight(1f).fillMaxHeight(),
+                    versionNames = versionNames,
                     onClick = onNavigateToPlayTimeStats
                 )
                 LastLogCard(
@@ -487,7 +498,8 @@ private fun WeeklyPlayTimeChart(
 @Composable
 private fun DailyPlayTimeCard(
     modifier: Modifier = Modifier,
-    versionNames: List<String>
+    versionNames: List<String>,
+    onClick: () -> Unit = {}
 ) {
     val todayMs = remember(versionNames) {
         PlayTimeRepository.getDailyTotalPlayTime(PlayTimeRepository.today(), versionNames)
@@ -497,6 +509,7 @@ private fun DailyPlayTimeCard(
     BackgroundCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.extraLarge,
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier
@@ -516,6 +529,12 @@ private fun DailyPlayTimeCard(
                 text = stringResource(R.string.stats_today),
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.alpha(0.7f)
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = stringResource(R.string.stats_click),
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.height(4.dp))
             Text(
@@ -609,11 +628,16 @@ private fun LastLogCard(
                     .fillMaxSize()
                     .padding(12.dp)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         text = stringResource(R.string.stats_last_log),
                         style = MaterialTheme.typography.labelMedium,
                         maxLines = 1
+                    )
+                    Text(
+                        text = stringResource(R.string.stats_click),
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
                     )
                     if (!logExists || logFile == null) {
                         Text(
@@ -913,6 +937,85 @@ private fun VersionManagerLayout(
                             style = MaterialTheme.typography.labelSmall,
                             maxLines = 1
                         )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChangelogCard(
+    modifier: Modifier = Modifier
+) {
+    val uriHandler = LocalUriHandler.current
+    var content by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        try {
+            val text = withContext(Dispatchers.IO) {
+                java.net.URL(CHANGELOGS_URL).readText()
+            }
+            content = text
+        } catch (_: Exception) {
+            content = null
+        }
+        isLoading = false
+    }
+
+    BackgroundCard(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.extraLarge,
+        onClick = { uriHandler.openUri(CHANGELOGS_URL) }
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.stats_changelog),
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1
+                )
+                when {
+                    isLoading -> {
+                        Text(
+                            text = stringResource(R.string.stats_changelog_loading),
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.alpha(0.6f)
+                        )
+                    }
+                    content == null -> {
+                        Text(
+                            text = stringResource(R.string.generic_error),
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.alpha(0.6f)
+                        )
+                    }
+                    else -> {
+                        val lines = remember(content) { content!!.lines() }
+                        val previewLines = lines.take(5)
+                        previewLines.forEach { line ->
+                            Text(
+                                text = line,
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 1,
+                                modifier = Modifier.alpha(0.7f)
+                            )
+                        }
+                        if (lines.size > 5) {
+                            Text(
+                                text = stringResource(R.string.stats_click),
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
                     }
                 }
             }

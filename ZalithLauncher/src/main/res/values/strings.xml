@@ -100,6 +100,9 @@
     <string name="stats_all_time">All Time</string>
     <string name="stats_most_played">Most Played</string>
     <string name="stats_play_time_title">Play Time Statistics</string>
+    <string name="stats_changelog">Changelog</string>
+    <string name="stats_click">Click</string>
+    <string name="stats_changelog_loading">Loading changelog…</string>
     <string name="empty_holder" translatable="false">%s</string>
     <!-- Sort By -->
     <string name="sort_by">Sort By</string>
