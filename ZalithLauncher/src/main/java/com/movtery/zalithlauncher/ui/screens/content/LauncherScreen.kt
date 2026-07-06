@@ -657,6 +657,7 @@ private fun LastLogCard(
                             .weight(1f)
                             .fillMaxWidth()
                             .alpha(0.5f)
+                            .bottomFade(36.dp)
                     )
                     Text(
                         text = stringResource(R.string.stats_click_for_more),
