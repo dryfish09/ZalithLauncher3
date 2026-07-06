@@ -61,6 +61,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDependencyType
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
@@ -99,6 +100,14 @@ sealed interface DownloadSingleOperation {
         val version: PlatformVersion,
         val versions: List<Version>
     ) : DownloadSingleOperation
+
+    /** 带依赖安装 */
+    data class InstallWithDependencies(
+        val classes: PlatformClasses,
+        val version: PlatformVersion,
+        val versions: List<Version>,
+        val dependencies: List<PlatformVersion.PlatformDependency>
+    ) : DownloadSingleOperation
 }
 
 @Composable
@@ -107,7 +116,8 @@ fun DownloadSingleOperation(
     changeOperation: (DownloadSingleOperation) -> Unit,
     doInstall: (PlatformClasses, PlatformVersion, List<Version>) -> Unit,
     onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit = { _, _ -> },
-    onDownloadAllDependencies: (List<PlatformVersion.PlatformDependency>, List<Version>, PlatformClasses) -> Unit = { _, _, _ -> }
+    onDownloadAllDependencies: (List<PlatformVersion.PlatformDependency>, List<Version>, PlatformClasses) -> Unit = { _, _, _ -> },
+    onInstallWithDependencies: suspend (PlatformVersion, List<PlatformVersion.PlatformDependency>, List<Version>, PlatformClasses) -> Unit = { _, _, _, _ -> }
 ) {
     when (operation) {
         DownloadSingleOperation.None -> {}
@@ -151,12 +161,38 @@ fun DownloadSingleOperation(
                 onDownloadAllDependencies = { deps, versions, _ ->
                     changeOperation(DownloadSingleOperation.None)
                     onDownloadAllDependencies(deps, versions, classes)
+                },
+                onInstallWithDependencies = { deps, versions, _ ->
+                    changeOperation(
+                        DownloadSingleOperation.InstallWithDependencies(
+                            classes = classes,
+                            version = operation.version,
+                            versions = versions,
+                            dependencies = deps
+                        )
+                    )
                 }
             )
         }
         is DownloadSingleOperation.Install -> {
             doInstall(operation.classes, operation.version, operation.versions)
             changeOperation(DownloadSingleOperation.None)
+        }
+        is DownloadSingleOperation.InstallWithDependencies -> {
+            SimpleTaskDialog(
+                title = stringResource(R.string.download_assets_install_with_deps),
+                task = {
+                    onInstallWithDependencies(
+                        operation.version,
+                        operation.dependencies,
+                        operation.versions,
+                        operation.classes
+                    )
+                },
+                onDismiss = {
+                    changeOperation(DownloadSingleOperation.None)
+                }
+            )
         }
     }
 }
@@ -168,7 +204,8 @@ private fun DownloadDialog(
     onDismiss: () -> Unit,
     onInstall: (List<Version>) -> Unit,
     onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit,
-    onDownloadAllDependencies: (List<PlatformVersion.PlatformDependency>, List<Version>, PlatformClasses) -> Unit = { _, _, _ -> }
+    onDownloadAllDependencies: (List<PlatformVersion.PlatformDependency>, List<Version>, PlatformClasses) -> Unit = { _, _, _ -> },
+    onInstallWithDependencies: (List<PlatformVersion.PlatformDependency>, List<Version>, PlatformClasses) -> Unit = { _, _, _ -> }
 ) {
     val versions = remember { VersionsManager.versions.filter { it.isValid() } }
     val version by VersionsManager.currentVersion.collectAsStateWithLifecycle()
@@ -314,7 +351,7 @@ private fun DownloadDialog(
                                 FilledTonalButton(
                                     onClick = {
                                         if (selectedVersions.isNotEmpty()) {
-                                            onDownloadAllDependencies(
+                                            onInstallWithDependencies(
                                                 dependencies.map { it.first },
                                                 selectedVersions.toList(),
                                                 classes
@@ -322,7 +359,7 @@ private fun DownloadDialog(
                                         }
                                     }
                                 ) {
-                                    MarqueeText(text = stringResource(R.string.download_assets_download_all_deps))
+                                    MarqueeText(text = stringResource(R.string.download_assets_install_with_deps))
                                 }
                             }
                             Button(

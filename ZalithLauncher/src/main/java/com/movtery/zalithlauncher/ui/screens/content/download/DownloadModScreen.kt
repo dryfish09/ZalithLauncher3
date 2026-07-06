@@ -34,6 +34,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.downloadDependenciesBatch
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
@@ -102,8 +103,6 @@ fun DownloadModScreen(
                         failedDependencies += "$name: $error"
                     }
                 )
-                //之前这里没有把 onEachError 接到任何界面反馈上，
-                //导致依赖初始化/下载失败时用户完全无感知，看起来就像点了按钮却什么也没发生
                 if (failedDependencies.isNotEmpty()) {
                     submitError(
                         ErrorViewModel.ThrowableMessage(
@@ -112,6 +111,50 @@ fun DownloadModScreen(
                         )
                     )
                 }
+            }
+        },
+        onInstallWithDependencies = { version, deps, gameVersions, classes ->
+            val failedDependencies = mutableListOf<String>()
+
+            val targetLoaders = gameVersions.mapNotNull { ver ->
+                ver.getVersionInfo()?.loaderInfo?.loader
+            }.distinct().mapNotNull { loader ->
+                when (loader) {
+                    ModLoader.FABRIC, ModLoader.LEGACY_FABRIC -> "fabric"
+                    ModLoader.NEOFORGE -> "neoforge"
+                    ModLoader.FORGE -> "forge"
+                    ModLoader.QUILT -> "quilt"
+                    else -> null
+                }
+            }.toSet()
+
+            downloadDependenciesBatch(
+                context = context,
+                deps = deps,
+                gameVersions = gameVersions,
+                folder = classes.versionFolder.folderName,
+                submitError = submitError,
+                targetLoaders = targetLoaders,
+                onEachError = { name, error ->
+                    failedDependencies += "$name: $error"
+                }
+            )
+
+            downloadSingleForVersions(
+                context = context,
+                version = version,
+                versions = gameVersions,
+                folder = classes.versionFolder.folderName,
+                submitError = submitError
+            )
+
+            if (failedDependencies.isNotEmpty()) {
+                submitError(
+                    ErrorViewModel.ThrowableMessage(
+                        title = context.getString(R.string.download_assets_install_failed),
+                        message = failedDependencies.joinToString("\n")
+                    )
+                )
             }
         }
     )
