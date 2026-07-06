@@ -168,12 +168,14 @@ object ControlManager {
         }
     }
 
-    private fun tryPojavConvert(file: File, displayMetrics: DisplayMetrics?): ControlLayout? {
+    private suspend fun tryPojavConvert(file: File, displayMetrics: DisplayMetrics?): ControlLayout? {
         if (displayMetrics == null) return null
         return try {
             val text = file.readText()
             if (!isPojavFormat(text)) return null
-            convertPojavToZalith(text, displayMetrics)
+            val layout = convertPojavToZalith(text, displayMetrics)
+            layout.saveToFile(file)
+            layout
         } catch (e: Exception) {
             Logger.warning(TAG, "Failed to convert Pojav layout! file = $file", e)
             null
