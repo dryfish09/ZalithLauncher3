@@ -74,7 +74,8 @@ fun PerformanceSettingsDialog(
                     onValueChangeFinished = { AllSettings.resolutionRatio.save() },
                     valueRange = 25f..300f,
                     decimalFormat = "#0",
-                    suffix = "%"
+                    suffix = "%",
+                    fineTuningStep = 1f
                 )
 
 
