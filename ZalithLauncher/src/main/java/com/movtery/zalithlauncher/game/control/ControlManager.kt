@@ -207,7 +207,7 @@ object ControlManager {
         val file = getNewRandomFile()
         try {
             inputStream.use { stream ->
-                val jsonString = stream.readString()
+                val jsonString = stream.bufferedReader().readText()
                 val layout = loadLayoutFromString(jsonString)
                 layout.saveToFile(file)
             }

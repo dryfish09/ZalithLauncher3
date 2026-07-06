@@ -20,7 +20,6 @@ package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.clipToBounds
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
@@ -56,7 +55,6 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.key
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -662,7 +660,6 @@ private fun LastLogCard(
                             .weight(1f)
                             .fillMaxWidth()
                             .alpha(0.5f)
-                            .clipToBounds()
                             .bottomFade(36.dp, cardColor())
                     )
                     Text(
@@ -1028,18 +1025,15 @@ private fun ChangelogCard(
                                 }
                             )
                         }
-                        key(LocalConfiguration.current.screenWidthDp) {
-                            MarkdownView(
-                                content = previewText,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth()
-                                    .clipToBounds()
-                                    .bottomFade(48.dp, cardColor()),
-                                richTextStyle = cardRichTextStyle,
-                                bodyFontSize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else 10.sp
-                            )
-                        }
+                        MarkdownView(
+                            content = previewText,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .bottomFade(48.dp, cardColor()),
+                            richTextStyle = cardRichTextStyle,
+                            bodyFontSize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else 10.sp
+                        )
                         Text(
                             text = stringResource(R.string.stats_click_for_more),
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
@@ -1144,7 +1138,9 @@ private fun PlayTimeStatsButton(
 }
 
 private fun Modifier.bottomFade(edgeHeight: androidx.compose.ui.unit.Dp, targetColor: Color = Color.Transparent): Modifier = this.drawWithContent {
-    drawContent()
+    clipRect {
+        this@drawWithContent.drawContent()
+    }
     drawRect(
         brush = Brush.verticalGradient(
             colors = listOf(
