@@ -82,6 +82,7 @@ fun defaultRichTextStyle(
     codeBackground: Color = cardColor(influencedByBackground),
 ): RichTextStyle {
     return RichTextStyle(
+        paragraphSpacing = 8.sp,
         headingStyle = { level, textStyle ->
             when (level) {
                 0 -> TextStyle(
