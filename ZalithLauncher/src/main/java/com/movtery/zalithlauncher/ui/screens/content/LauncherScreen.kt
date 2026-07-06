@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -49,7 +50,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -88,6 +91,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
+import com.movtery.zalithlauncher.ui.components.MarkdownView
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.defaultRichTextStyle
@@ -949,9 +953,9 @@ private fun VersionManagerLayout(
 private fun ChangelogCard(
     modifier: Modifier = Modifier
 ) {
-    val uriHandler = LocalUriHandler.current
     var content by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+    var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         try {
@@ -968,7 +972,7 @@ private fun ChangelogCard(
     BackgroundCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.extraLarge,
-        onClick = { uriHandler.openUri(CHANGELOGS_URL) }
+        onClick = { if (content != null) showDialog = true }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -1000,15 +1004,11 @@ private fun ChangelogCard(
                     }
                     else -> {
                         val lines = remember(content) { content!!.lines() }
-                        val previewLines = lines.take(5)
-                        previewLines.forEach { line ->
-                            Text(
-                                text = line,
-                                style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1,
-                                modifier = Modifier.alpha(0.7f)
-                            )
-                        }
+                        val previewLines = lines.take(5).joinToString("\n")
+                        MarkdownView(
+                            content = previewLines,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                         if (lines.size > 5) {
                             Text(
                                 text = stringResource(R.string.stats_click),
@@ -1017,6 +1017,43 @@ private fun ChangelogCard(
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showDialog && content != null) {
+        Dialog(onDismissRequest = { showDialog = false }) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .fillMaxHeight(0.85f),
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.stats_changelog),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                    MarkdownView(
+                        content = content!!,
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                    )
+                    Button(
+                        onClick = { showDialog = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                    ) {
+                        Text(text = stringResource(R.string.generic_close))
                     }
                 }
             }
@@ -1040,11 +1077,16 @@ private fun PlayTimeStatsButton(
                     .fillMaxSize()
                     .padding(12.dp)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         text = stringResource(R.string.stats_play_time),
                         style = MaterialTheme.typography.labelMedium,
                         maxLines = 1
+                    )
+                    Text(
+                        text = stringResource(R.string.stats_click),
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = stringResource(R.string.stats_today_header),
