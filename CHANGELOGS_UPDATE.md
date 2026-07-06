@@ -1,7 +1,9 @@
 # 2.4.9Plus 1.0.0 
 
 
-- New renderers: Kopper zink, MobileGlues(fixed)
+- New renderers:
+-  Kopper zink,
+-  MobileGlues(fixed)
 - New Main Menu UI
 - New Account Management UI
 - ely.by Login
