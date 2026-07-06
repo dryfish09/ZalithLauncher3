@@ -102,26 +102,32 @@ fun defaultRichTextStyle(
             when (level) {
                 0 -> TextStyle(
                     fontSize = 34.sp,
+                    lineHeight = 42.sp,
                     fontWeight = FontWeight.Bold
                 )
                 1 -> TextStyle(
                     fontSize = 24.sp,
+                    lineHeight = 32.sp,
                     fontWeight = FontWeight.Bold
                 )
                 2 -> TextStyle(
                     fontSize = 20.sp,
+                    lineHeight = 28.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 3 -> TextStyle(
                     fontSize = 18.sp,
+                    lineHeight = 26.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 4 -> TextStyle(
                     fontSize = 16.sp,
+                    lineHeight = 24.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 5 -> TextStyle(
                     fontSize = 14.sp,
+                    lineHeight = 22.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 else -> textStyle
