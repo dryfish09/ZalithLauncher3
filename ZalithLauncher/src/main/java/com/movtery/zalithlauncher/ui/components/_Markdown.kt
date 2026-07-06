@@ -22,8 +22,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.markdown.AstBlockNodeComposer
@@ -49,12 +52,24 @@ fun MarkdownView(
     content: String,
     modifier: Modifier = Modifier,
     richTextStyle: RichTextStyle = defaultRichTextStyle(),
+    bodyFontSize: TextUnit? = null,
 ) {
-    RichText(
-        modifier = modifier,
-        style = richTextStyle
-    ) {
-        Markdown(content = content)
+    val view = @Composable {
+        RichText(
+            modifier = modifier,
+            style = richTextStyle
+        ) {
+            Markdown(content = content)
+        }
+    }
+    if (bodyFontSize != null) {
+        CompositionLocalProvider(
+            LocalTextStyle provides TextStyle(fontSize = bodyFontSize)
+        ) {
+            view()
+        }
+    } else {
+        view()
     }
 }
 

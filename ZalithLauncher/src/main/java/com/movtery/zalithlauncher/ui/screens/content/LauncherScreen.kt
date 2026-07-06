@@ -49,7 +49,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -71,6 +70,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
@@ -324,6 +324,7 @@ private val VIDEO_URLS = listOf(
 )
 
 private const val CHANGELOGS_URL = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/fix/CHANGELOGS_UPDATE.md"
+private const val CHANGELOGS_UPDATE_TR = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/fix/CHANGELOGS_UPDATE_TR.md"
 
 @Composable
 private fun StatsGrid(
@@ -954,10 +955,13 @@ private fun ChangelogCard(
     var isLoading by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
 
+    val isTurkey = remember { java.util.Locale.getDefault().country == "TR" }
+    val changelogUrl = if (isTurkey) CHANGELOGS_UPDATE_TR else CHANGELOGS_URL
+
     LaunchedEffect(Unit) {
         try {
             val text = withContext(Dispatchers.IO) {
-                java.net.URL(CHANGELOGS_URL).readText()
+                java.net.URL(changelogUrl).readText()
             }
             content = text
         } catch (_: Exception) {
@@ -977,6 +981,8 @@ private fun ChangelogCard(
                     .fillMaxSize()
                     .padding(start = 8.dp, end = 12.dp, top = 12.dp, bottom = 12.dp)
             ) {
+                val isTablet = LocalConfiguration.current.screenWidthDp >= 600
+
                 Text(
                     text = stringResource(R.string.stats_changelog),
                     style = MaterialTheme.typography.labelMedium,
@@ -1004,18 +1010,15 @@ private fun ChangelogCard(
                             if (lines.size <= 2) contentText
                             else lines.dropLast(2).joinToString("\n")
                         }
-                        CompositionLocalProvider(
-                            LocalTextStyle provides MaterialTheme.typography.bodySmall
-                        ) {
-                            MarkdownView(
-                                content = previewText,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth()
-                                    .bottomFade(48.dp, cardColor()),
-                                richTextStyle = defaultRichTextStyle()
-                            )
-                        }
+                        MarkdownView(
+                            content = previewText,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .bottomFade(48.dp, cardColor()),
+                            richTextStyle = defaultRichTextStyle(),
+                            bodyFontSize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else 10.sp
+                        )
                         Text(
                             text = stringResource(R.string.stats_click_for_more),
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
