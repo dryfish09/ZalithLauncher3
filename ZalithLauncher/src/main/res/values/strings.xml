@@ -188,6 +188,9 @@
     <string name="microphone_check_title">Check Microphone Input</string>
     <string name="microphone_check_volume">Volume: %d</string>
     <string name="microphone_check_no_permissions">Microphone Permission Not Granted to Launcher</string>
+    <string name="microphone_launch_dialog">We need microphone access to use some mods (Simple Voice Chat, etc.)</string>
+    <string name="microphone_allow">Allow</string>
+    <string name="microphone_skip_ask">Don\'t Ask Again</string>
     <!-- Unpacking -->
     <string name="unpack_screen_jre8">Java 8 Environment (required for Minecraft 1.16 and below)</string>
     <string name="unpack_screen_jre17">Java 17 Environment (required for Minecraft 1.17+)</string>

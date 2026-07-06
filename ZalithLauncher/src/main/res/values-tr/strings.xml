@@ -106,6 +106,9 @@
     <string name="microphone_check_title">Mikrofon</string>
     <string name="microphone_check_volume">Ses: %d</string>
     <string name="microphone_check_no_permissions">Launcher\'e mikrofon izinleri verilmedi (uygulama ayarlarını kontrol edin)</string>
+    <string name="microphone_launch_dialog">Bazi modlari kullanmak icin mikrofon erisimine ihtiyacimiz var (Simple Voice Chat, vb.)</string>
+    <string name="microphone_allow">Izin Ver</string>
+    <string name="microphone_skip_ask">Bir Daha Sorma</string>
     <string name="unpack_screen_jre8">Java 8 Ortamı (Minecraft 1.16 ve altı için gerekli)</string>
     <string name="unpack_screen_jre17">Java 17 Ortamı (Minecraft 1.17+ için gerekli)</string>
     <string name="unpack_screen_jre21">Java 21 Ortamı (Minecraft 1.20.5+ için gerekli)</string>

@@ -18,10 +18,16 @@
 
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
+import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Parcelable
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -49,6 +55,7 @@ import com.movtery.zalithlauncher.game.renderer.RendererInterface
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.launcherMMKV
 import com.movtery.zalithlauncher.setting.enums.BackgroundBlur
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.VideoPlayer
@@ -120,6 +127,12 @@ sealed interface LaunchGameOperation {
     data class TryLaunch(
         val version: Version?,
         val quickPlay: QuickPlay? = null
+    ) : LaunchGameOperation
+
+    /** 需要请求麦克风权限 */
+    data class MicrophonePermission(
+        val version: Version,
+        val quickPlay: QuickPlay?
     ) : LaunchGameOperation
 
     /** 正式启动 */
@@ -226,6 +239,36 @@ fun LaunchGameOperation(
                 }
             )
         }
+        is LaunchGameOperation.MicrophonePermission -> {
+            val version = launchGameOperation.version
+            val quickPlay = launchGameOperation.quickPlay
+
+            val requestPermissionLauncher =
+                rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                    launcherMMKV().putBoolean("microphone_asked", true)
+                    updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
+                }
+
+            SimpleAlertDialog(
+                title = stringResource(R.string.microphone_check_title),
+                text = activity.getString(R.string.microphone_launch_dialog),
+                confirmText = stringResource(R.string.microphone_allow),
+                dismissText = stringResource(R.string.microphone_skip_ask),
+                dismissByDialog = false,
+                onConfirm = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    } else {
+                        launcherMMKV().putBoolean("microphone_asked", true)
+                        updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
+                    }
+                },
+                onDismiss = {
+                    launcherMMKV().putBoolean("microphone_asked", true)
+                    updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
+                }
+            )
+        }
         is LaunchGameOperation.TryLaunch -> {
             LaunchedEffect(Unit) {
                 val version = launchGameOperation.version ?: run {
@@ -280,6 +323,14 @@ fun LaunchGameOperation(
                     RendererPluginManager.isConfigurablePlugin(version.getRenderer())
                 ) {
                     updateOperation(LaunchGameOperation.RendererNoStoragePermission(currentRenderer, version, quickPlay))
+                    return@LaunchedEffect
+                }
+
+                //首次启动时请求麦克风权限（Simple Voice Chat等mod需要）
+                if (!launcherMMKV().getBoolean("microphone_asked", false) &&
+                    ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    updateOperation(LaunchGameOperation.MicrophonePermission(version, quickPlay))
                     return@LaunchedEffect
                 }
 
