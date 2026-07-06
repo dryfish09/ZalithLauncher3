@@ -1012,8 +1012,9 @@ private fun ChangelogCard(
                             else lines.dropLast(2).joinToString("\n")
                         }
                         val headingBodySize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize
-                        val cardRichTextStyle = remember {
-                            defaultRichTextStyle().copy(
+                        val defaultStyle = defaultRichTextStyle()
+                        val cardRichTextStyle = remember(headingBodySize, defaultStyle) {
+                            defaultStyle.copy(
                                 paragraphSpacing = 16.sp,
                                 headingStyle = { level, _ ->
                                     when (level) {
@@ -1137,19 +1138,19 @@ private fun PlayTimeStatsButton(
     }
 }
 
-private fun Modifier.bottomFade(edgeHeight: androidx.compose.ui.unit.Dp, targetColor: Color = Color.Transparent): Modifier = this.drawWithContent {
-    clipRect {
-        this@drawWithContent.drawContent()
-    }
-    drawRect(
-        brush = Brush.verticalGradient(
-            colors = listOf(
-                Color.Transparent,
-                targetColor
+private fun Modifier.bottomFade(edgeHeight: androidx.compose.ui.unit.Dp, targetColor: Color = Color.Transparent): Modifier = this
+    .graphicsLayer(clip = true)
+    .drawWithContent {
+        drawContent()
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color.Transparent,
+                    targetColor
+                ),
+                startY = size.height - edgeHeight.toPx(),
+                endY = size.height
             ),
-            startY = size.height - edgeHeight.toPx(),
-            endY = size.height
-        ),
-        size = size
-    )
-}
+            size = size
+        )
+    }
