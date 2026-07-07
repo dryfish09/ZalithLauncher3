@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.SurfaceTexture
+import android.os.Build
 import android.os.Bundle
 import android.view.InputDevice
 import android.view.KeyEvent
@@ -556,14 +557,8 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
             }
         }
 
-        var windowWidth = getDisplayPixels(screenSize.width)
-        var windowHeight = getDisplayPixels(screenSize.height)
-        // Force landscape: ensure width >= height
-        if (windowWidth < windowHeight) {
-            val temp = windowWidth
-            windowWidth = windowHeight
-            windowHeight = temp
-        }
+        val windowWidth = getDisplayPixels(screenSize.width)
+        val windowHeight = getDisplayPixels(screenSize.height)
         applySizeToSurface?.invoke(windowWidth, windowHeight)
         ZLBridgeStates.onWindowChange()
         CallbackBridge.sendUpdateWindowSize(windowWidth, windowHeight)
@@ -639,8 +634,12 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
+        val gameSurface = Surface(surface)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            gameSurface.setTransformHint(0)
+        }
         if (vmViewModel.isRunning) {
-            ZLBridge.setupBridgeWindow(Surface(surface))
+            ZLBridge.setupBridgeWindow(gameSurface)
             return
         }
         vmViewModel.isRunning = true
@@ -653,7 +652,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
             }
             withHandler {
                 execute(
-                    surface = Surface(surface),
+                    surface = gameSurface,
                     screenSize = currentSize,
                     scope = lifecycleScope
                 )
@@ -681,10 +680,8 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     override fun surfaceCreated(holder: SurfaceHolder) {
         surfaceGeneration++
         pendingNewSurface?.complete(holder.surface)
-        holder.surface?.let { surface ->
-            try {
-                surface::class.java.getMethod("setTransformHint", Integer.TYPE).invoke(surface, 0)
-            } catch (_: Exception) {}
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            holder.surface?.setTransformHint(0)
         }
         if (vmViewModel.isRunning) {
             ZLBridge.setupBridgeWindow(holder.surface)
@@ -764,11 +761,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                 factory = { context ->
                     if (AllSettings.useSurfaceView.getValue()) {
                         SurfaceView(context).apply {
-                            val metrics = context.resources.displayMetrics
-                            holder.setFixedSize(
-                                maxOf(metrics.widthPixels, metrics.heightPixels),
-                                minOf(metrics.widthPixels, metrics.heightPixels)
-                            )
                             holder.addCallback(this@VMActivity)
                         }.also { view ->
                             applySizeToSurface = { width, height ->
