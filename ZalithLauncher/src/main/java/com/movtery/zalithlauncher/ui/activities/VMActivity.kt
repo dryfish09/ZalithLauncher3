@@ -56,6 +56,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.CompletableDeferred
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.jakewharton.processphoenix.ProcessPhoenix
@@ -100,6 +101,7 @@ import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -670,13 +672,17 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
     }
 
+    private var surfaceGeneration = 0L
+    private var pendingNewSurface: CompletableDeferred<Surface>? = null
+
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-        val surface = holder.surface
+        surfaceGeneration++
+        pendingNewSurface?.complete(holder.surface)
         if (vmViewModel.isRunning) {
-            ZLBridge.setupBridgeWindow(surface)
+            ZLBridge.setupBridgeWindow(holder.surface)
             return
         }
         vmViewModel.isRunning = true
@@ -684,12 +690,27 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
         withHandler { mIsSurfaceDestroyed = false }
         lifecycleScope.launch(Dispatchers.Default) {
             val screenSize = vmViewModel.screenSizeBridge.awaitData()
-            val currentSize = withContext(Dispatchers.Main) {
-                refreshWindowSize(screenSize = screenSize)
+            val (currentSize, genBefore) = withContext(Dispatchers.Main) {
+                pendingNewSurface = CompletableDeferred()
+                val gen = surfaceGeneration
+                val size = refreshWindowSize(screenSize = screenSize)
+                size to gen
+            }
+            val finalSurface = withContext(Dispatchers.Main) {
+                if (surfaceGeneration > genBefore) {
+                    pendingNewSurface = null
+                    holder.surface
+                } else {
+                    val newSurface = withTimeoutOrNull(100L) {
+                        pendingNewSurface!!.await()
+                    }
+                    pendingNewSurface = null
+                    newSurface ?: holder.surface
+                }
             }
             withHandler {
                 execute(
-                    surface = surface,
+                    surface = finalSurface,
                     screenSize = currentSize,
                     scope = lifecycleScope
                 )

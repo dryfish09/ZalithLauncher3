@@ -172,8 +172,8 @@ abstract class Launcher(
             put("pojav.path.minecraft", getGameHome())
             put("pojav.path.private.account", PathManager.DIR_DATA_BASES.absolutePath)
             put("org.lwjgl.vulkan.libname", "libvulkan.so")
-            put("glfwstub.windowWidth", screenSize.width.toString())
-            put("glfwstub.windowHeight", screenSize.height.toString())
+            put("glfwstub.windowWidth", maxOf(screenSize.width, screenSize.height).toString())
+            put("glfwstub.windowHeight", minOf(screenSize.width, screenSize.height).toString())
             put("glfwstub.initEgl", "false")
             put("ext.net.resolvPath", resolvFile.absolutePath)
 
