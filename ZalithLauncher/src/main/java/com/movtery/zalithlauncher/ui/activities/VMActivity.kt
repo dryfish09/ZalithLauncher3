@@ -634,12 +634,8 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-        val gameSurface = Surface(surface)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            gameSurface.setTransformHint(0)
-        }
         if (vmViewModel.isRunning) {
-            ZLBridge.setupBridgeWindow(gameSurface)
+            ZLBridge.setupBridgeWindow(Surface(surface))
             return
         }
         vmViewModel.isRunning = true
@@ -652,7 +648,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
             }
             withHandler {
                 execute(
-                    surface = gameSurface,
+                    surface = Surface(surface),
                     screenSize = currentSize,
                     scope = lifecycleScope
                 )
@@ -680,10 +676,10 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     override fun surfaceCreated(holder: SurfaceHolder) {
         surfaceGeneration++
         pendingNewSurface?.complete(holder.surface)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            holder.surface?.setTransformHint(0)
-        }
         if (vmViewModel.isRunning) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                holder.surface?.setTransformHint(0)
+            }
             ZLBridge.setupBridgeWindow(holder.surface)
             return
         }
@@ -711,6 +707,9 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                 }
             }
             withHandler {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    finalSurface?.setTransformHint(0)
+                }
                 execute(
                     surface = finalSurface,
                     screenSize = currentSize,
