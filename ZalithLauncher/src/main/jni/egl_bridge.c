@@ -71,8 +71,27 @@ EXTERNAL_API void pojavTerminate() {
     }
 }
 
+// Try to set transform hint to IDENTITY via private native_window_set_transform_hint API.
+// This is the native equivalent of Surface.setTransformHint, but accessible without
+// hidden API restrictions. The function is exported from libnativewindow.so (API 29+).
+static void set_window_transform_hint(ANativeWindow* window) {
+    if (!window) return;
+    // Try libnativewindow.so first (Android 10+), fallback to libui.so
+    void* handle = dlopen("libnativewindow.so", RTLD_LAZY | RTLD_LOCAL);
+    if (!handle) handle = dlopen("libui.so", RTLD_LAZY | RTLD_LOCAL);
+    if (!handle) return;
+
+    typedef int (*set_transform_hint_fn)(struct ANativeWindow*, int);
+    set_transform_hint_fn fn = (set_transform_hint_fn)dlsym(handle, "native_window_set_transform_hint");
+    if (fn) {
+        fn(window, 0); // NATIVE_WINDOW_TRANSFORM_IDENTITY
+    }
+    dlclose(handle);
+}
+
 JNIEXPORT void JNICALL Java_com_movtery_zalithlauncher_bridge_ZLBridge_setupBridgeWindow(JNIEnv* env, ABI_COMPAT jclass clazz, jobject surface) {
     pojav_environ->pojavWindow = ANativeWindow_fromSurface(env, surface);
+    set_window_transform_hint(pojav_environ->pojavWindow);
     if (br_setup_window) br_setup_window();
 }
 
@@ -192,9 +211,11 @@ int pojavInitOpenGL() {
 
 EXTERNAL_API int pojavInit() {
     ANativeWindow_acquire(pojav_environ->pojavWindow);
+    set_window_transform_hint(pojav_environ->pojavWindow);
     pojav_environ->savedWidth = ANativeWindow_getWidth(pojav_environ->pojavWindow);
     pojav_environ->savedHeight = ANativeWindow_getHeight(pojav_environ->pojavWindow);
     ANativeWindow_setBuffersGeometry(pojav_environ->pojavWindow,pojav_environ->savedWidth,pojav_environ->savedHeight,AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM);
+    set_window_transform_hint(pojav_environ->pojavWindow);
     pojavInitOpenGL();
     return 1;
 }
