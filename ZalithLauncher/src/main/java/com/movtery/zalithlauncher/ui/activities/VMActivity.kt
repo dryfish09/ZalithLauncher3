@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.SurfaceTexture
+import android.os.Build
 import android.os.Bundle
 import android.view.InputDevice
 import android.view.KeyEvent
@@ -675,6 +676,9 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     override fun surfaceCreated(holder: SurfaceHolder) {
         surfaceGeneration++
         pendingNewSurface?.complete(holder.surface)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            holder.setSurfaceTransformHint(0)
+        }
         if (vmViewModel.isRunning) {
             ZLBridge.setupBridgeWindow(holder.surface)
             return
