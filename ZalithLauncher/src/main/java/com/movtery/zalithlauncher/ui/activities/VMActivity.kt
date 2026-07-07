@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.ui.activities
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.SurfaceTexture
 import android.os.Build
@@ -355,6 +356,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         super.onCreate(savedInstanceState)
         //初始化物理鼠标连接检查器
         PhysicalMouseChecker.initChecker(this)
@@ -557,8 +559,10 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
             }
         }
 
-        val windowWidth = getDisplayPixels(screenSize.width)
-        val windowHeight = getDisplayPixels(screenSize.height)
+        val w = maxOf(screenSize.width, screenSize.height)
+        val h = minOf(screenSize.width, screenSize.height)
+        val windowWidth = getDisplayPixels(w)
+        val windowHeight = getDisplayPixels(h)
         applySizeToSurface?.invoke(windowWidth, windowHeight)
         ZLBridgeStates.onWindowChange()
         CallbackBridge.sendUpdateWindowSize(windowWidth, windowHeight)
@@ -671,16 +675,16 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     private var pendingNewSurface: CompletableDeferred<Surface>? = null
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        val w = maxOf(width, height)
+        val h = minOf(width, height)
+        if (w != width || h != height) {
+            holder.setFixedSize(w, h)
+        }
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         surfaceGeneration++
         pendingNewSurface?.complete(holder.surface)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            try {
-                holder::class.java.getMethod("setSurfaceTransformHint", Integer.TYPE).invoke(holder, 0)
-            } catch (_: Exception) {}
-        }
         if (vmViewModel.isRunning) {
             ZLBridge.setupBridgeWindow(holder.surface)
             return

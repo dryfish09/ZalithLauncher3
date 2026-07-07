@@ -12,6 +12,21 @@
 #include "gl_bridge.h"
 #include "egl_loader.h"
 
+typedef int32_t (*ANativeWindow_getTransformHint_t)(ANativeWindow* window);
+static ANativeWindow_getTransformHint_t ANativeWindow_getTransformHint_fn = NULL;
+
+static void load_transform_hint() {
+    if (ANativeWindow_getTransformHint_fn == NULL) {
+        ANativeWindow_getTransformHint_fn = (ANativeWindow_getTransformHint_t)
+            dlsym(RTLD_DEFAULT, "ANativeWindow_getTransformHint");
+    }
+}
+
+static int32_t safe_get_transform_hint(ANativeWindow* w) {
+    if (ANativeWindow_getTransformHint_fn) return ANativeWindow_getTransformHint_fn(w);
+    return -1;
+}
+
 //
 // Created by maks on 17.09.2022.
 //
@@ -121,6 +136,7 @@ gl_render_window_t* gl_init_context(gl_render_window_t *share) {
 }
 
 void gl_swap_surface(gl_render_window_t* bundle) {
+    load_transform_hint();
     // 有新 Surface 待切换，这里直接切换
     if (bundle->newNativeSurface != NULL)
     {
@@ -128,8 +144,27 @@ void gl_swap_surface(gl_render_window_t* bundle) {
         bundle->nativeSurface = bundle->newNativeSurface;
         bundle->newNativeSurface = NULL;
         ANativeWindow_acquire(bundle->nativeSurface);
-        ANativeWindow_setBuffersGeometry(bundle->nativeSurface, 0, 0, bundle->format);
+        int32_t bufW = ANativeWindow_getWidth(bundle->nativeSurface);
+        int32_t bufH = ANativeWindow_getHeight(bundle->nativeSurface);
+        int32_t displayRot = safe_get_transform_hint(bundle->nativeSurface);
+        __android_log_print(ANDROID_LOG_INFO, g_LogTag,
+            "Buffer before setBuffersGeometry: %dx%d, transformHint=%d, format=%d",
+            bufW, bufH, displayRot, bundle->format);
+        ANativeWindow_setBuffersGeometry(bundle->nativeSurface, bufW, bufH, bundle->format);
+        bufW = ANativeWindow_getWidth(bundle->nativeSurface);
+        bufH = ANativeWindow_getHeight(bundle->nativeSurface);
+        displayRot = safe_get_transform_hint(bundle->nativeSurface);
+        __android_log_print(ANDROID_LOG_INFO, g_LogTag,
+            "Buffer after setBuffersGeometry: %dx%d, transformHint=%d",
+            bufW, bufH, displayRot);
         bundle->surface = eglCreateWindowSurface_p(g_EglDisplay, bundle->config, bundle->nativeSurface, NULL);
+        if (bundle->surface != NULL) {
+            EGLint surfW, surfH;
+            eglQuerySurface_p(g_EglDisplay, bundle->surface, EGL_WIDTH, &surfW);
+            eglQuerySurface_p(g_EglDisplay, bundle->surface, EGL_HEIGHT, &surfH);
+            __android_log_print(ANDROID_LOG_INFO, g_LogTag,
+                "EGL surface created: %dx%d", surfW, surfH);
+        }
         return;
     }
 
