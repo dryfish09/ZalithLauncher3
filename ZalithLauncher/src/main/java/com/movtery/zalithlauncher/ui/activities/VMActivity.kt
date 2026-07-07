@@ -676,8 +676,10 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     override fun surfaceCreated(holder: SurfaceHolder) {
         surfaceGeneration++
         pendingNewSurface?.complete(holder.surface)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            holder.setSurfaceTransformHint(0)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                holder::class.java.getMethod("setSurfaceTransformHint", Integer.TYPE).invoke(holder, 0)
+            } catch (_: Exception) {}
         }
         if (vmViewModel.isRunning) {
             ZLBridge.setupBridgeWindow(holder.surface)
