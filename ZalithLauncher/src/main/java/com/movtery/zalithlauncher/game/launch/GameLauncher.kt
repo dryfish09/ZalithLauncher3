@@ -390,7 +390,7 @@ private fun setRendererEnv(envMap: MutableMap<String, String>) {
             //fallback to 2 since it's the minimum for the entire app
             "2"
         } else if (rendererId.startsWith("opengles")) {
-            rendererId.replace("opengles", "").replace("_5", "")
+            rendererId.removePrefix("opengles").substringBefore("_")
         } else {
             // TODO if can: other backends such as Vulkan.
             // Sure, they should provide GLES 3 support.

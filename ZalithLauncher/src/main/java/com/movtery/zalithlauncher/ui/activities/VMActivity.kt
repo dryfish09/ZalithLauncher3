@@ -737,8 +737,12 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                     },
                 factory = { context ->
                     if (AllSettings.useSurfaceView.getValue()) {
-                        //使用 SurfaceView 渲染
                         SurfaceView(context).apply {
+                            val metrics = context.resources.displayMetrics
+                            holder.setFixedSize(
+                                maxOf(metrics.widthPixels, metrics.heightPixels),
+                                minOf(metrics.widthPixels, metrics.heightPixels)
+                            )
                             holder.addCallback(this@VMActivity)
                         }.also { view ->
                             applySizeToSurface = { width, height ->
