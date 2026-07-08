@@ -548,13 +548,12 @@ private fun ResourcePackHeader(
                         .horizontalScroll(scrollState),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ContentCheckBox(
-                        checked = packFilter.onlyShowValid,
-                        onCheckedChange = { changePackFilter(packFilter.copy(onlyShowValid = it)) }
+                    IconButton(
+                        onClick = onRefresh
                     ) {
-                        Text(
-                            text = stringResource(R.string.manage_only_show_valid),
-                            style = MaterialTheme.typography.labelMedium
+                        Icon(
+                            painter = painterResource(R.drawable.ic_autorenew),
+                            contentDescription = stringResource(R.string.mods_update_all)
                         )
                     }
 
