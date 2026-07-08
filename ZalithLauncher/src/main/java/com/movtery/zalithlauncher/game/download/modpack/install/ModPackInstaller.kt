@@ -335,7 +335,7 @@ class ModPackInstaller(
             id = "modpack_install_${version.platformSha1() ?: version.platformFileName()}",
             task = { proxyTask ->
                 coroutineScope {
-                    val mirrorJob = kotlinx.coroutines.launch {
+                    val mirrorJob = launch {
                         while (true) {
                             kotlinx.coroutines.delay(150)
                             val titledTasks = tasksFlow.value
@@ -356,8 +356,8 @@ class ModPackInstaller(
                     }
                     try {
                         taskExecutor.awaitCompletion()
-                    } catch (_: kotlinx.coroutines.CancellationException) {
-                        throw _
+                    } catch (ce: kotlinx.coroutines.CancellationException) {
+                        throw ce
                     } catch (_: Exception) {
                     } finally {
                         mirrorJob.cancel()
