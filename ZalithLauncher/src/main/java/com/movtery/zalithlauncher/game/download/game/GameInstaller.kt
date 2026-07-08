@@ -1074,34 +1074,32 @@ class GameInstaller(
         return Task.runTask(
             id = "game_install_${info.gameVersion}_${info.customVersionName}",
             task = { proxyTask ->
-                coroutineScope {
-                    val mirrorJob = launch {
-                        while (true) {
-                            kotlinx.coroutines.delay(150)
-                            val titledTasks = tasksFlow.value
-                            val running = titledTasks.firstOrNull { it.task.taskState == TaskState.RUNNING }
-                                ?: titledTasks.lastOrNull()
-                            running?.task?.let { t ->
-                                proxyTask.updateProgress(t.currentProgress)
-                                val msgRes = t.currentMessageRes
-                                val args = t.currentMessageArgs
-                                if (msgRes != null) {
-                                    if (args != null) proxyTask.updateMessage(msgRes, *args)
-                                    else proxyTask.updateMessage(msgRes)
-                                }
-                                if (t.currentRateBytesPerSec >= 0L) proxyTask.updateSpeed(t.currentRateBytesPerSec)
-                                else proxyTask.clearSpeed()
+                val mirrorJob = launch {
+                    while (true) {
+                        kotlinx.coroutines.delay(150)
+                        val titledTasks = tasksFlow.value
+                        val running = titledTasks.firstOrNull { it.task.taskState == TaskState.RUNNING }
+                            ?: titledTasks.lastOrNull()
+                        running?.task?.let { t ->
+                            proxyTask.updateProgress(t.currentProgress)
+                            val msgRes = t.currentMessageRes
+                            val args = t.currentMessageArgs
+                            if (msgRes != null) {
+                                if (args != null) proxyTask.updateMessage(msgRes, *args)
+                                else proxyTask.updateMessage(msgRes)
                             }
+                            if (t.currentRateBytesPerSec >= 0L) proxyTask.updateSpeed(t.currentRateBytesPerSec)
+                            else proxyTask.clearSpeed()
                         }
                     }
-                    try {
-                        taskExecutor.awaitCompletion()
-                    } catch (ce: kotlinx.coroutines.CancellationException) {
-                        throw ce
-                    } catch (_: Exception) {
-                    } finally {
-                        mirrorJob.cancel()
-                    }
+                }
+                try {
+                    taskExecutor.awaitCompletion()
+                } catch (ce: kotlinx.coroutines.CancellationException) {
+                    throw ce
+                } catch (_: Exception) {
+                } finally {
+                    mirrorJob.cancel()
                 }
             },
             onCancel = onCancelRequest
