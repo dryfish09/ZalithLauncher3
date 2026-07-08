@@ -91,7 +91,7 @@ private class SearchScreenViewModel(
     var currentSearchMCMODSJob: Job? = null
 
     /** Issue #9: 已安装的Minecraft版本号（用于在版本列表顶部显示） */
-    val installedVersionIds: List<String> = VersionsManager.versions.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct()
+    val installedVersionIds: List<String> = VersionsManager.versions.value.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct()
 
     /**
      * 仅更新搜索名称
@@ -230,6 +230,7 @@ fun SearchAssetsScreen(
     getModloaders: (Platform) -> List<PlatformDisplayLabel> = { emptyList() },
     mapCategories: (Platform, String) -> PlatformFilterCode?,
     swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> },
+    alwaysShowVersionChips: Boolean = false,
     extraFilter: (LazyListScope.() -> Unit)? = null
 ) {
     val viewModel: SearchScreenViewModel = rememberSearchAssetsViewModel(
@@ -370,7 +371,8 @@ fun SearchAssetsScreen(
                         viewModel.searchFilter.copy(modloader = it)
                     )
                 },
-                extraFilter = extraFilter
+                extraFilter = extraFilter,
+                alwaysShowVersionChips = alwaysShowVersionChips
             )
         }
     }
