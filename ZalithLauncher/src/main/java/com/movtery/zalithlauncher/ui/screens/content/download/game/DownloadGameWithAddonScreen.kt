@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.zalithlauncher.R
@@ -641,17 +642,7 @@ private fun ScreenHeader(
                 }
             }
 
-            var versions by remember { mutableStateOf(VersionsManager.versions) }
-            DisposableEffect(Unit) {
-                val listener: suspend (List<Version>) -> Unit = { versions0 ->
-                    versions = versions0
-                }
-
-                VersionsManager.registerListener(listener)
-                onDispose {
-                    VersionsManager.unregisterListener(listener)
-                }
-            }
+            val versions by VersionsManager.versions.collectAsStateWithLifecycle()
 
             if (versions.isNotEmpty()) {
                 Row {
