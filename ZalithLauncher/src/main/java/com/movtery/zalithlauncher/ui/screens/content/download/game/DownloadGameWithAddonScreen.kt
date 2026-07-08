@@ -39,6 +39,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -55,7 +56,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.zalithlauncher.R
@@ -73,6 +73,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoFo
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersion
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersions
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager.isVersionExists
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -242,56 +243,6 @@ fun DownloadGameWithAddonScreen(
         key = key.toString() + "_" + loaderSupports
     ) {
         AddonsViewModel(key.gameVersion, loaderSupports)
-    }
-
-    //自动选择已安装版本使用的Mod加载器
-    LaunchedEffect(viewModel.addonList) {
-        val installedLoader = VersionsManager.versions.value
-            .firstOrNull { it.getVersionInfo()?.minecraftVersion == key.gameVersion }
-            ?.getVersionInfo()?.loaderInfo?.loader
-        if (installedLoader != null) {
-            val addonList = viewModel.addonList
-            val current = viewModel.currentAddon
-            when (installedLoader) {
-                ModLoader.OPTIFINE -> addonList.optifineList?.firstOrNull()?.let {
-                    current.optifineVersion.value = it
-                }
-                ModLoader.FORGE -> addonList.forgeList?.firstOrNull()?.let {
-                    current.forgeVersion.value = it
-                }
-                ModLoader.NEOFORGE -> addonList.neoforgeList?.firstOrNull()?.let {
-                    current.neoforgeVersion.value = it
-                }
-                ModLoader.FABRIC -> {
-                    addonList.fabricList?.firstOrNull()?.let {
-                        current.fabricVersion.value = it
-                    }
-                    addonList.fabricAPIList?.firstOrNull()?.let {
-                        current.fabricAPIVersion.value = it
-                    }
-                }
-                ModLoader.LEGACY_FABRIC -> {
-                    addonList.legacyFabricList?.firstOrNull()?.let {
-                        current.legacyFabricVersion.value = it
-                    }
-                    addonList.legacyFabricAPIList?.firstOrNull()?.let {
-                        current.legacyFabricAPIVersion.value = it
-                    }
-                }
-                ModLoader.QUILT -> {
-                    addonList.quiltList?.firstOrNull()?.let {
-                        current.quiltVersion.value = it
-                    }
-                    addonList.quiltAPIList?.firstOrNull()?.let {
-                        current.quiltAPIVersion.value = it
-                    }
-                }
-                ModLoader.CLEANROOM -> addonList.cleanroomList?.firstOrNull()?.let {
-                    current.cleanroomVersion.value = it
-                }
-                else -> {}
-            }
-        }
     }
 
     BaseScreen(
@@ -690,7 +641,18 @@ private fun ScreenHeader(
                 }
             }
 
-            val versions by VersionsManager.versions.collectAsStateWithLifecycle()
+            var versions by remember { mutableStateOf(VersionsManager.versions) }
+            DisposableEffect(Unit) {
+                val listener: suspend (List<Version>) -> Unit = { versions0 ->
+                    versions = versions0
+                }
+
+                VersionsManager.registerListener(listener)
+                onDispose {
+                    VersionsManager.unregisterListener(listener)
+                }
+            }
+
             if (versions.isNotEmpty()) {
                 Row {
                     //不使用viewModel存储，防止版本刷新这里状态不同步
