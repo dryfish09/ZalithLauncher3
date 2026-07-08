@@ -25,8 +25,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
@@ -54,7 +53,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -87,7 +85,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -1428,57 +1425,33 @@ private fun ModIcon(
     iconSize: Dp,
     disableContainerSize: Dp = 28.dp
 ) {
-    Box(modifier = modifier) {
-        val colorMatrix = remember(mod, mod.localMod.file) { ColorMatrix() }
-        colorMatrix.setToSaturation(
-            if (mod.localMod.file.isDisabled()) 0f
-            else 1f
-        )
-
+    DisabledStateIcon(
+        modifier = modifier,
+        isDisabled = mod.localMod.file.isDisabled(),
+        disableContainerSize = disableContainerSize
+    ) { colorFilter ->
         val projectInfo = mod.projectInfo
         val localIcon = mod.localMod.icon
-        if (projectInfo?.iconUrl != null) {
-            AssetsIcon(
-                iconUrl = projectInfo.iconUrl,
-                size = iconSize,
-                colorFilter = ColorFilter.colorMatrix(colorMatrix)
-            )
-        } else if (localIcon != null) {
+        if (localIcon != null) {
             ByteArrayIcon(
                 modifier = Modifier.size(iconSize),
                 triggerRefresh = mod,
                 icon = localIcon,
-                colorFilter = ColorFilter.colorMatrix(colorMatrix),
+                colorFilter = colorFilter,
+            )
+        } else if (projectInfo != null) {
+            AssetsIcon(
+                iconUrl = projectInfo.iconUrl,
+                size = iconSize,
+                colorFilter = colorFilter
             )
         } else {
             ModLoaderIcon(
                 modifier = Modifier.size(iconSize),
                 modloader = mod.localMod.loader,
                 defaultIcon = R.drawable.ic_unknown_pack,
-                colorFilter = ColorFilter.colorMatrix(colorMatrix),
+                colorFilter = colorFilter,
             )
-        }
-
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.Center),
-            visible = mod.localMod.file.isDisabled(),
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Surface(
-                modifier = Modifier
-                    .padding(all = 4.dp)
-                    .size(disableContainerSize),
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                shape = CircleShape,
-                shadowElevation = 4.dp
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_block_outlined),
-                    contentDescription = null
-                )
-            }
         }
     }
 }
