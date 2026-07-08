@@ -703,8 +703,7 @@ fun GameScreen(
                 .padding(all = 16.dp),
             versionName = version.getVersionName(),
             versionInfo = version.getVersionInfo()?.getInfoString(),
-            visible = showGameInfo,
-            onClose = onInfoBoxClose
+            visible = showGameInfo
         )
 
         LogBox(
@@ -874,7 +873,6 @@ private fun GameInfoBox(
     versionName: String,
     versionInfo: String?,
     visible: Boolean,
-    onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
@@ -922,16 +920,7 @@ private fun GameInfoBox(
                     }
                 }
 
-                IconButton(
-                    modifier = Modifier.padding(top = 4.dp, end = 4.dp),
-                    onClick = onClose
-                ) {
-                    Icon(
-                        modifier = Modifier.size(18.dp),
-                        painter = painterResource(R.drawable.ic_close),
-                        contentDescription = stringResource(R.string.generic_close)
-                    )
-                }
+
             }
         }
     }
@@ -944,8 +933,7 @@ private fun PreviewGameInfoBox() {
         GameInfoBox(
             versionName = "1.21.11",
             versionInfo = "1.21.11",
-            visible = true,
-            onClose = {}
+            visible = true
         )
     }
 }
