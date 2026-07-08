@@ -49,9 +49,6 @@ import com.movtery.zalithlauncher.game.download.assets.platform.searchAssets
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.searchMcMods
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersion
-import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
-import com.movtery.zalithlauncher.game.versioninfo.popularVersions
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
@@ -90,18 +87,16 @@ private class SearchScreenViewModel(
     private val _searchedMcMods = MutableStateFlow<List<ModTranslations.McMod>>(emptyList())
     /** 搜索得到的所有 MCMOD 项目 */
     val searchedMcMods = _searchedMcMods.asStateFlow()
-    private val _searchedVersions = MutableStateFlow<List<String>>(emptyList())
-    /** 搜索得到的所有Minecraft版本 */
-    val searchedVersions = _searchedVersions.asStateFlow()
-
     var currentSearchJob: Job? = null
     var currentSearchMCMODSJob: Job? = null
-    var currentSearchVersionJob: Job? = null
+
+    /** Issue #9: 已安装的Minecraft版本号（用于在版本列表顶部显示） */
+    val installedVersionIds: List<String> = VersionsManager.versions.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct()
 
     /**
      * 仅更新搜索名称
      */
-    fun updateNameFilter(searchName: String) {
+    fun updateFilter(searchName: String) {
         searchFilter = searchFilter.copy(searchName = searchName)
         currentSearchMCMODSJob?.cancel()
         currentSearchMCMODSJob = viewModelScope.launch {
@@ -117,37 +112,6 @@ private class SearchScreenViewModel(
         }
     }
 
-    /**
-     * 仅更新版本名称
-     */
-    fun updateVersionFilter(version: String) {
-        searchFilter = searchFilter.copy(gameVersion = version)
-        refreshVerSuggestions(version)
-    }
-
-    private fun refreshVerSuggestions(
-        version: String
-    ) {
-        currentSearchVersionJob?.cancel()
-        currentSearchVersionJob = viewModelScope.launch {
-            val allVersions = MinecraftVersions.allVersions.value
-            val result: List<String> = when {
-                version.isEmpty() -> popularVersions
-                allVersions.isEmpty() -> popularVersions.filter { ver ->
-                    ver.contains(version)
-                }.take(20) //仅展示20个搜索结果
-                else -> allVersions.filter {
-                    it.version.id.contains(version) &&
-                            //CurseForge只能使用正式版进行过滤
-                            (searchPlatform != Platform.CURSEFORGE || it.type == MinecraftVersion.Type.Release)
-                }.map { it.version.id }.take(20) //仅展示20个搜索结果
-            }
-            withContext(Dispatchers.Main) {
-                _searchedVersions.update { result }
-            }
-            currentSearchVersionJob = null
-        }
-    }
 
     /**
      * 重置并重新搜索
@@ -207,15 +171,11 @@ private class SearchScreenViewModel(
 
     init {
         //初始化后，执行一次搜索
-        search()
-        refreshVerSuggestions("")
-        viewModelScope.launch {
-            runCatching {
-                MinecraftVersions.refreshVersions(force = false)
-            }.onFailure {
-                Logger.warning(TAG, "Failed to refresh Minecraft versions")
-            }
+        // Issue #9: 如果只有一个已安装版本，自动预选该版本
+        if (installedVersionIds.size == 1) {
+            searchFilter = searchFilter.copy(gameVersion = installedVersionIds.first())
         }
+        search()
     }
 
     override fun onCleared() {
@@ -270,8 +230,7 @@ fun SearchAssetsScreen(
     getModloaders: (Platform) -> List<PlatformDisplayLabel> = { emptyList() },
     mapCategories: (Platform, String) -> PlatformFilterCode?,
     swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> },
-    extraFilter: (LazyListScope.() -> Unit)? = null,
-    alwaysShowVersionChips: Boolean = false
+    extraFilter: (LazyListScope.() -> Unit)? = null
 ) {
     val viewModel: SearchScreenViewModel = rememberSearchAssetsViewModel(
         navKey = screenKey,
@@ -360,10 +319,6 @@ fun SearchAssetsScreen(
                 isHorizontal = true
             )
             val searchedMcMods by viewModel.searchedMcMods.collectAsStateWithLifecycle()
-            val searchedVersions by viewModel.searchedVersions.collectAsStateWithLifecycle()
-            val installedGameVersions = remember {
-                VersionsManager.versions.value.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct().sorted()
-            }
             SearchFilter(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -381,16 +336,18 @@ fun SearchAssetsScreen(
                 },
                 searchName = viewModel.searchFilter.searchName,
                 onSearchNameChange = {
-                    viewModel.updateNameFilter(it)
+                    viewModel.updateFilter(it)
                 },
                 onSearch = {
                     viewModel.resetSearch()
                 },
                 searchedMcMods = searchedMcMods,
-                searchedVersions = searchedVersions,
+                searchedVersions = emptyList(),
                 gameVersion = viewModel.searchFilter.gameVersion,
                 onGameVersionChange = {
-                    viewModel.updateVersionFilter(it)
+                    viewModel.researchWithFilter(
+                        viewModel.searchFilter.copy(gameVersion = it)
+                    )
                 },
                 sortField = viewModel.searchFilter.sortField,
                 onSortFieldChange = {
@@ -413,9 +370,7 @@ fun SearchAssetsScreen(
                         viewModel.searchFilter.copy(modloader = it)
                     )
                 },
-                extraFilter = extraFilter,
-                installedGameVersions = installedGameVersions,
-                alwaysShowVersionChips = alwaysShowVersionChips
+                extraFilter = extraFilter
             )
         }
     }
