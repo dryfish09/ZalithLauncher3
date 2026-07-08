@@ -1,4 +1,4 @@
-# Plus 1.2 (Universal updates for all versions)
+# Plus 1.2 (Universal updates/all versions)
 
 
 - New render engines:
