@@ -19,14 +19,15 @@
 - Daily Hours Display on Playtime Button
 - "Click for more" at the Bottom of All Cards
 - Microphone Permission Dialog on First Game Launch (For mods like Simple Voice Chat)
-- Turkish Changelog Support
-- SurfaceView Landscape Screen Fix
-- Markdown Font Sizes Optimized for Phones/Tablets
+- Changelog Support
 - In-Launcher File Manager
 - New Loading Screens
 - New Downloaded Shaderpack and Resourcepack Screens
 - Kopper Zink Renderer Fixes
 - New Mobileglues Configuration Screen
+
+# Coming Soon
+
 - In-Launcher Screen Recorder
 - In-Launcher Speedrun Timer
-- PojavLauncher or also known as ZL1 controls and editor (Coming soon)
+- PojavLauncher or also known as ZL1 controls and editor
