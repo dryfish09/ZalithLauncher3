@@ -1,28 +1,32 @@
-# 2.4.9Plus 1.0.0
+# Plus 1.2 (Universal updates for all versions)
 
-- New renderers:
+- New render engines:
 
   Kopper zink,
-  MobileGlues(fixed)
+  MobileGlues (fixed)
 
 - New Main Menu UI
 - New Account Management UI
 - ely.by Login
-- Download Mods with Dependencies Button
+- Mod Download Button with Dependencies
 - New Version Listing
-- Default Resolution Set To 70%
-- Hide Controllers When Loading Game Option
+- Default Resolution Set to 70%
+- Option to Hide Controller While Game is Loading
 - New Sidebar
 - Distant Horizons Support
-
-# 2.4.9Plus 1.0.1
-
-- Changelog card added to home screen (Markdown preview with auto-fill, click for full changelog)
-- Last log card now shows full log content with auto-fill
-- Play time stats button shows daily play time
-- All stat cards: "click for more" moved to bottom
-- Microphone permission dialog on first game launch (for Simple Voice Chat mods)
-- Turkish changelog support
-- Touch control converter rewritten (full upstream PojavLauncher compatibility)
-- SurfaceView landscape rendering fix
-- Markdown body text sizes optimized for phone vs tablet
+- Changelog Card Added to Main Screen (Markdown preview, click for full changelog)
+- Latest Log Card Now Shows Full Log Content
+- Daily Hours Display on Playtime Button
+- "Click for more" at the Bottom of All Cards
+- Microphone Permission Dialog on First Game Launch (For mods like Simple Voice Chat)
+- Turkish Changelog Support
+- SurfaceView Landscape Screen Fix
+- Markdown Font Sizes Optimized for Phones/Tablets
+- In-Launcher File Manager
+- New Loading Screens
+- New Downloaded Shaderpack and Resourcepack Screens
+- Kopper Zink Renderer Fixes
+- New Mobileglues Configuration Screen
+- In-Launcher Screen Recorder
+- In-Launcher Speedrun Timer
+- PojavLauncher or also known as ZL1 controls and editor (Coming soon)
