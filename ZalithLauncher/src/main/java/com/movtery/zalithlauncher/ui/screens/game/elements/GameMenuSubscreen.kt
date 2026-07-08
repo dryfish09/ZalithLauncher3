@@ -90,8 +90,6 @@ fun GameMenuSubscreen(
     closeScreen: () -> Unit,
     onForceClose: () -> Unit,
     onSwitchLog: () -> Unit,
-    onOpenPerformanceFps: () -> Unit,
-    onOpenPerformanceRam: () -> Unit,
     enableTerracotta: Boolean,
     onOpenTerracottaMenu: () -> Unit,
     onRefreshWindowSize: () -> Unit,
@@ -178,8 +176,6 @@ fun GameMenuSubscreen(
                 modifier = Modifier.weight(1f),
                 onForceClose = onForceClose,
                 onSwitchLog = onSwitchLog,
-                onOpenPerformanceFps = onOpenPerformanceFps,
-                onOpenPerformanceRam = onOpenPerformanceRam,
                 enableTerracotta = enableTerracotta,
                 onOpenTerracottaMenu = onOpenTerracottaMenu,
                 onRefreshWindowSize = onRefreshWindowSize
@@ -192,8 +188,6 @@ fun GameMenuSubscreen(
 private fun GameActionContent(
     onForceClose: () -> Unit,
     onSwitchLog: () -> Unit,
-    onOpenPerformanceFps: () -> Unit,
-    onOpenPerformanceRam: () -> Unit,
     enableTerracotta: Boolean,
     onOpenTerracottaMenu: () -> Unit,
     onRefreshWindowSize: () -> Unit,
@@ -295,10 +289,11 @@ private fun GameActionContent(
         }
         //帧率显示
         item {
-            MenuTextButton(
+            MenuSwitchButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.game_menu_option_fps_settings),
-                onClick = onOpenPerformanceFps,
+                text = stringResource(R.string.game_menu_option_switch_fps),
+                switch = AllSettings.showFPS.state,
+                onSwitch = { AllSettings.showFPS.save(it) },
                 color = color,
                 contentColor = contentColor,
                 enabled = AllSettings.showMenuBall.state
@@ -306,10 +301,11 @@ private fun GameActionContent(
         }
         //内存显示
         item {
-            MenuTextButton(
+            MenuSwitchButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.game_menu_option_ram_settings),
-                onClick = onOpenPerformanceRam,
+                text = stringResource(R.string.game_menu_option_switch_memory),
+                switch = AllSettings.showMemory.state,
+                onSwitch = { AllSettings.showMemory.save(it) },
                 color = color,
                 contentColor = contentColor,
                 enabled = AllSettings.showMenuBall.state
@@ -423,6 +419,7 @@ private fun ControlOverview(
                 contentColor = contentColor,
             )
         }
+
         //加载时隐藏控制布局
         item {
             MenuSwitchButton(
