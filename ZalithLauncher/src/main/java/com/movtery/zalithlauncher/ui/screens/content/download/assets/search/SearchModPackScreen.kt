@@ -162,7 +162,6 @@ fun SearchModPackScreen(
             }
         },
         swapToDownload = swapToDownload,
-        alwaysShowVersionChips = true,
         extraFilter = {
             //新增导入整合包按钮
             item {
