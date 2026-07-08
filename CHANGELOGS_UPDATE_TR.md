@@ -29,5 +29,5 @@
 - Yeni Mobileglues konfigurasyon ekranı
 - Launcher içi ekran kaydedici
 - launcher içi speedrun timer
-- PojavLauncher kontrolleri ve düzenleyicisi (yakında)
+- PojavLauncher veya diğer adıyla ZL1 kontrolleri ve düzenleyicisi (yakında)
 
