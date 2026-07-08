@@ -1,4 +1,4 @@
-# 2.4.9Plus 1.0.0
+# Plus 1.2 (Her versiyon için geçerli güncellemeler)
 
 - Yeni render motorları:
 
@@ -14,15 +14,20 @@
 - Oyun Yüklenirken Kontrolcüyü Gizleme Seçeneği
 - Yeni Kenar Çubuğu
 - Distant Horizons Desteği
-
-# 2.4.9Plus 1.0.1
-
 - Ana ekrana changelog kartı eklendi (Markdown önizleme, tam changelog için tıklama)
 - Son log kartı artık tam log içeriğini gösteriyor
 - Oyun süresi butonunda günlük saat gösterimi
 - Tüm kartlarda "daha fazlası için tıklayın" altta
 - İlk oyun başlatmada mikrofon izin dialogu (Simple Voice Chat gibi modlar için)
 - Türkçe changelog desteği
-- Touch kontrol dönüştürücü yeniden yazıldı (tam upstream PojavLauncher uyumu)
 - SurfaceView yatay ekran düzeltmesi
 - Markdown yazı boyutları telefon/tablet için optimize edildi
+- Launcher içi dosya yöneticisi
+- Yeni yükleme ekranları
+- Yeni indirilmiş shaderpack ve resourcepack ekranları
+- Kopper Zink renderer fixleri
+- Yeni Mobileglues konfigurasyon ekranı
+- Launcher içi ekran kaydedici
+- launcher içi speedrun timer
+- PojavLauncher kontrolleri ve düzenleyicisi (yakında)
+
