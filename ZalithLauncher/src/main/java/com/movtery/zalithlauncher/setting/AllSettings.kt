@@ -78,6 +78,11 @@ object AllSettings : SettingsRegistry() {
     val useSurfaceView = boolSetting("useSurfaceView", false)
 
     /**
+     * Kopper Zink uyarısını bir daha gösterme
+     */
+    val surfaceViewKopperWarningDontShow = boolSetting("surfaceViewKopperWarningDontShow", false)
+
+    /**
      * 持续性能模式
      */
     val sustainedPerformance = boolSetting("sustainedPerformance", false)

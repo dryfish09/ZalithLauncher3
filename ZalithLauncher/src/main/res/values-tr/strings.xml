@@ -1173,6 +1173,7 @@
     <string name="settings_renderer_surface_summary">Kullanıcı arayüzünün dışında ayrı bir katman kullanarak render işlemleri gerçekleştirir.</string>
     <string name="settings_renderer_surface_summary_kopper_disabled">Kopper Zink renderer kullanılırken kullanılamaz</string>
     <string name="settings_renderer_surface_kopper_warning">SurfaceView oluşturma, Kopper Zink renderer ile birlikte kullanılamaz. Android bu kombinasyonda oyunun görüntüsünü döndürüyor, bu yüzden launcher yatay (landscape) kalsa bile oyun dikey (portrait) açılıyor. Kopper Zink seçiliyken SurfaceView\'i kapalı tutun.</string>
+    <string name="settings_renderer_surface_kopper_warning_dont_show">Bir daha gösterme</string>
     <string name="settings_game_graphics_api_title">Grafikler API</string>
     <string name="settings_game_graphics_api_summary">Minecraft 26.2 ve üzeri sürümlerde kullanılan grafik API\'sini ayarlayın.</string>
     <string name="settings_game_graphics_api_default">Oyun ayarlarını takip et</string>

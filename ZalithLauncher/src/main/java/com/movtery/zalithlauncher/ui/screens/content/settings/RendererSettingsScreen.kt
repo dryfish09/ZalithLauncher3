@@ -18,15 +18,20 @@
 
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
@@ -357,11 +362,12 @@ fun RendererSettingsScreen(
 
                     val isKopperZinkSelected = AllSettings.renderer.state == KopperZinkRenderer.getUniqueIdentifier()
                     var surfaceViewAutoDisabledAlert by remember { mutableStateOf(false) }
+                    var dontShowAgain by remember { mutableStateOf(false) }
 
                     //切换到 Kopper Zink 时，如果 SurfaceView 原本是开启的，仅提示用户已被关闭；
                     //注意：这里不修改实际保存的偏好值，所以切换回其他渲染器时会自动恢复原来的开启状态
                     LaunchedEffect(isKopperZinkSelected) {
-                        if (isKopperZinkSelected && AllSettings.useSurfaceView.state) {
+                        if (isKopperZinkSelected && AllSettings.useSurfaceView.state && !AllSettings.surfaceViewKopperWarningDontShow.state) {
                             surfaceViewAutoDisabledAlert = true
                         }
                     }
@@ -384,10 +390,35 @@ fun RendererSettingsScreen(
                     )
 
                     if (surfaceViewAutoDisabledAlert) {
-                        SimpleAlertDialog(
-                            title = stringResource(R.string.generic_warning),
-                            text = stringResource(R.string.settings_renderer_surface_kopper_warning),
-                            onDismiss = { surfaceViewAutoDisabledAlert = false }
+                        AlertDialog(
+                            onDismissRequest = { surfaceViewAutoDisabledAlert = false },
+                            title = { Text(stringResource(R.string.generic_warning)) },
+                            text = {
+                                Column {
+                                    Text(stringResource(R.string.settings_renderer_surface_kopper_warning))
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.clickable { dontShowAgain = !dontShowAgain }
+                                    ) {
+                                        Checkbox(
+                                            checked = dontShowAgain,
+                                            onCheckedChange = { dontShowAgain = it }
+                                        )
+                                        Text(stringResource(R.string.settings_renderer_surface_kopper_warning_dont_show))
+                                    }
+                                }
+                            },
+                            confirmButton = {
+                                Button(onClick = {
+                                    if (dontShowAgain) {
+                                        AllSettings.surfaceViewKopperWarningDontShow.save(true)
+                                    }
+                                    surfaceViewAutoDisabledAlert = false
+                                }) {
+                                    Text(stringResource(R.string.generic_confirm))
+                                }
+                            }
                         )
                     }
 
