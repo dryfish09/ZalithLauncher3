@@ -25,6 +25,7 @@
 - Yeni indirilmiş shaderpack ve resourcepack ekranları
 - Kopper Zink renderer fixleri
 - Yeni Mobileglues konfigurasyon ekranı
+- Oyun-modpack yüklerken küçültme butonu
 
 # Yakında
 
