@@ -32,6 +32,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.TextureView
+import android.view.ViewGroup
 import android.view.TextureView.SurfaceTextureListener
 import android.view.WindowManager
 import android.widget.Toast
@@ -767,6 +768,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                         }.also { view ->
                             applySizeToSurface = { width, height ->
                                 view.holder.setFixedSize(width, height)
+                                view.layoutParams = ViewGroup.LayoutParams(width, height)
                             }
                         }
                     } else {
