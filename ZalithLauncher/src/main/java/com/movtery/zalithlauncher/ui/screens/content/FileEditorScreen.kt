@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -126,6 +127,14 @@ fun FileEditorScreen(
                         scope.launch(Dispatchers.IO) {
                             runCatching {
                                 File(key.filePath).writeText(state.content.toString())
+                            }.onSuccess {
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.file_editor_saved),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }.onFailure { e ->
                                 Logger.warning(TAG, "Failed to save file: ${key.filePath}", e)
                                 withContext(Dispatchers.Main) {

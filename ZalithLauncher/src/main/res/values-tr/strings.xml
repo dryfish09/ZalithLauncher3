@@ -390,14 +390,16 @@
     <string name="account_other_login_select_role">Rol Seç</string>
     <string name="account_other_login_select_role_logging">%s rolüyle giriş yapılıyor</string>
     <string name="account_other_login_role_not_found">Mevcut hesapla eşleşen rol bulunamadı. Lütfen kullandığınız sunucuda bu rolün var olup olmadığını kontrol edin!</string>
-    <string name="files_back_to_parent">Geri</string>
+    <string name="files_back_to_parent">Geri...</string>
     <string name="files_create_dir">Klasör Oluştur</string>
+    <string name="files_create_file">Dosya Oluştur</string>
     <string name="files_select_dir">Klasör Seç</string>
     <string name="files_current_path">Geçerli yol: %s</string>
     <string name="files_no_selectable_content">Seçilebilecek içerik yok</string>
     <string name="file_manager_upload">Dosya Yükle</string>
     <string name="file_manager_upload_success">Dosya eklendi</string>
     <string name="file_manager_upload_failed">Dosya eklenemedi: %s</string>
+    <string name="file_manager_create_file_failed">Dosya oluşturulamadı: %s</string>
     <string name="file_manager_delete">Sil</string>
     <string name="file_manager_delete_confirm_title">Bu öge silinsin mi?</string>
     <string name="file_manager_delete_confirm_message">"%s" kalıcı olarak silinecek. Bu işlem geri alınamaz.</string>

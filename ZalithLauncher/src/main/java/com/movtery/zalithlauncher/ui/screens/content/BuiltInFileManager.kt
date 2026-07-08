@@ -73,6 +73,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.BaseFileItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.CreateNewDirDialog
+import com.movtery.zalithlauncher.ui.screens.content.elements.CreateNewFileDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
 import com.movtery.zalithlauncher.ui.theme.itemColor
 import com.movtery.zalithlauncher.ui.theme.onItemColor
@@ -103,6 +104,8 @@ private sealed interface FileManagerOperation {
     data object None : FileManagerOperation
     /** 创建文件夹时 */
     data object CreateDir : FileManagerOperation
+    /** 创建文件时 */
+    data object CreateFile : FileManagerOperation
     /** 重命名文件/文件夹时 */
     data class Rename(val file: File) : FileManagerOperation
     /** 删除文件/文件夹时 */
@@ -115,6 +118,7 @@ private fun FileManagerOperation(
     onChange: (FileManagerOperation) -> Unit,
     currentPath: String,
     onCreateDir: (name: String) -> Unit,
+    onCreateFile: (name: String) -> Unit,
     onRename: (file: File, newName: String) -> Unit,
     onDelete: (file: File) -> Unit,
 ) {
@@ -124,6 +128,12 @@ private fun FileManagerOperation(
             CreateNewDirDialog(
                 onDismissRequest = { onChange(FileManagerOperation.None) },
                 createDir = { onCreateDir(it) }
+            )
+        }
+        FileManagerOperation.CreateFile -> {
+            CreateNewFileDialog(
+                onDismissRequest = { onChange(FileManagerOperation.None) },
+                createFile = { onCreateFile(it) }
             )
         }
         is FileManagerOperation.Rename -> {
@@ -244,6 +254,28 @@ fun BuiltInFileManagerScreen(
                 }
             }
         },
+        onCreateFile = { name ->
+            scope.launch(Dispatchers.IO) {
+                runCatching {
+                    val target = File(currentPath, name)
+                    if (!target.createNewFile()) throw IllegalStateException("createNewFile returned false")
+                }.onFailure { e ->
+                    Logger.warning(TAG, "Failed to create file", e)
+                    withContext(Dispatchers.Main) {
+                        submitError(
+                            ErrorViewModel.ThrowableMessage(
+                                title = context.getString(R.string.generic_warning),
+                                message = context.getString(R.string.file_manager_create_file_failed, e.message ?: e.javaClass.simpleName)
+                            )
+                        )
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    operation = FileManagerOperation.None
+                    refresh()
+                }
+            }
+        },
         onRename = { file, newName ->
             scope.launch(Dispatchers.IO) {
                 runCatching {
@@ -301,12 +333,7 @@ fun BuiltInFileManagerScreen(
         ) {
             LeftActionMenu(
                 isVisible = isVisible,
-                backEnabled = currentPath != rootPath,
-                backToParent = {
-                    File(currentPath).parentFile?.let {
-                        currentPath = it.absolutePath
-                    }
-                },
+                createFile = { operation = FileManagerOperation.CreateFile },
                 createDir = { operation = FileManagerOperation.CreateDir },
                 upload = { uploadLauncher.launch(arrayOf("*/*")) },
                 modifier = Modifier
@@ -318,6 +345,12 @@ fun BuiltInFileManagerScreen(
                 isVisible = isVisible,
                 currentPath = currentPath,
                 files = files,
+                canGoBack = currentPath != rootPath,
+                onBack = {
+                    File(currentPath).parentFile?.let {
+                        currentPath = it.absolutePath
+                    }
+                },
                 onOpenFolder = { path -> currentPath = path },
                 onOpenFile = { file ->
                     if (isEditableTextFile(file)) {
@@ -338,8 +371,7 @@ fun BuiltInFileManagerScreen(
 @Composable
 private fun LeftActionMenu(
     isVisible: Boolean,
-    backEnabled: Boolean,
-    backToParent: () -> Unit,
+    createFile: () -> Unit,
     createDir: () -> Unit,
     upload: () -> Unit,
     modifier: Modifier = Modifier
@@ -356,11 +388,10 @@ private fun LeftActionMenu(
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
     ) {
         ScalingActionButton(
-            enabled = backEnabled,
             modifier = Modifier.fillMaxWidth(),
-            onClick = backToParent
+            onClick = createFile
         ) {
-            MarqueeText(text = stringResource(R.string.files_back_to_parent))
+            MarqueeText(text = stringResource(R.string.files_create_file))
         }
         ScalingActionButton(
             modifier = Modifier.fillMaxWidth(),
@@ -401,6 +432,8 @@ private fun FilesLayout(
     isVisible: Boolean,
     currentPath: String,
     files: List<File>,
+    canGoBack: Boolean,
+    onBack: () -> Unit,
     onOpenFolder: (String) -> Unit,
     onOpenFile: (File) -> Unit,
     onRename: (File) -> Unit,
@@ -423,7 +456,7 @@ private fun FilesLayout(
                 path = currentPath
             )
 
-            if (files.isNotEmpty()) {
+            if (canGoBack || files.isNotEmpty()) {
                 val scrollState = rememberLazyListState()
                 LazyColumn(
                     modifier = Modifier
@@ -436,6 +469,16 @@ private fun FilesLayout(
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                     state = scrollState,
                 ) {
+                    if (canGoBack) {
+                        item(key = "..back..") {
+                            BackFileItem(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
+                                onClick = onBack
+                            )
+                        }
+                    }
                     items(files, key = { it.absolutePath }) { file ->
                         ManagedFileItem(
                             modifier = Modifier
@@ -460,6 +503,38 @@ private fun FilesLayout(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun BackFileItem(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    color: Color = itemColor(),
+    contentColor: Color = onItemColor(),
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.large,
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier.padding(all = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                modifier = Modifier.size(24.dp),
+                painter = painterResource(R.drawable.ic_folder_outlined),
+                contentDescription = null
+            )
+            MarqueeText(
+                text = stringResource(R.string.files_back_to_parent),
+                style = MaterialTheme.typography.labelMedium
+            )
         }
     }
 }
@@ -498,21 +573,6 @@ private fun ManagedFileItem(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false }
                     ) {
-                        if (!file.isDirectory && isEditableTextFile(file)) {
-                            DropdownMenuItem(
-                                text = { Text(text = stringResource(R.string.file_manager_edit)) },
-                                leadingIcon = {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_edit_outlined),
-                                        contentDescription = null
-                                    )
-                                },
-                                onClick = {
-                                    showMenu = false
-                                    onClick()
-                                }
-                            )
-                        }
                         DropdownMenuItem(
                             text = { Text(text = stringResource(R.string.file_manager_rename)) },
                             leadingIcon = {

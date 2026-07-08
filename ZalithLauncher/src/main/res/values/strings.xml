@@ -637,14 +637,16 @@
     <string name="cape_name_builder">Builder</string>
     <string name="cape_name_crafter">Crafter</string>
     <!-- File Management -->
-    <string name="files_back_to_parent">Back</string>
+    <string name="files_back_to_parent">Back...</string>
     <string name="files_create_dir">Create Folder</string>
+    <string name="files_create_file">Create File</string>
     <string name="files_select_dir">Select Folder</string>
     <string name="files_current_path">Current path: %s</string>
     <string name="files_no_selectable_content">No selectable content</string>
     <string name="file_manager_upload">Upload File</string>
     <string name="file_manager_upload_success">File added</string>
     <string name="file_manager_upload_failed">Failed to add file: %s</string>
+    <string name="file_manager_create_file_failed">Failed to create file: %s</string>
     <string name="file_manager_delete">Delete</string>
     <string name="file_manager_delete_confirm_title">Delete this item?</string>
     <string name="file_manager_delete_confirm_message">"%s" will be permanently deleted. This cannot be undone.</string>
