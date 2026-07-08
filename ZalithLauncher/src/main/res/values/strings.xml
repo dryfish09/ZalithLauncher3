@@ -1417,6 +1417,7 @@
     <string name="mobileglues_cache_size_label">GLSL Cache Size (MB)</string>
     <string name="mobileglues_cache_size_supporting">Set -1 to clear cache; 0 uses default (32)</string>
     <string name="mobileglues_saved_toast">MobileGlues settings saved</string>
+    <string name="mobileglues_reset_confirm_message">Are you sure you want to reset MobileGlues settings?</string>
 
     <string name="download_game_classic_picker">Classic version list</string>
     <string name="download_game_classic_picker_summary">Show only release versions without search bar</string>

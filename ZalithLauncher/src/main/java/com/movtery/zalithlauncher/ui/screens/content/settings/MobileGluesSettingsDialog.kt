@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +38,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -90,6 +92,8 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
         )
     }
 
+    var showResetConfirm by remember { mutableStateOf(false) }
+
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
             modifier = Modifier
@@ -101,107 +105,152 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
             shadowElevation = 6.dp
         ) {
             Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.padding(20.dp)
             ) {
                 Text(
                     text = stringResource(R.string.mobileglues_settings_title),
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                HorizontalDivider()
+                Spacer(modifier = Modifier.height(12.dp))
 
-                SectionHeader(stringResource(R.string.mobileglues_section_rendering))
-
-                ANGLEPicker(
-                    value = enableANGLE,
-                    onValueChange = { enableANGLE = it }
-                )
-
-                NoErrorPicker(
-                    value = enableNoError,
-                    onValueChange = { enableNoError = it }
-                )
-
-                MultidrawModeSegmented(
-                    value = multidrawMode,
-                    onValueChange = { multidrawMode = it }
-                )
-
-                AngleClearPicker(
-                    value = angleDepthClearFixMode,
-                    onValueChange = { angleDepthClearFixMode = it }
-                )
-
-                GLVersionDropdown(
-                    value = customGLVersion,
-                    options = glVersions,
-                    onValueChange = { customGLVersion = it }
-                )
-
-                HorizontalDivider()
-
-                SectionHeader(stringResource(R.string.mobileglues_section_extensions))
-
-                SettingsSwitchRow(
-                    title = stringResource(R.string.mobileglues_compute_shader),
-                    summary = stringResource(R.string.mobileglues_compute_shader_summary),
-                    checked = enableExtComputeShader,
-                    onCheckedChange = { enableExtComputeShader = it }
-                )
-
-                SettingsSwitchRow(
-                    title = stringResource(R.string.mobileglues_timer_query),
-                    summary = stringResource(R.string.mobileglues_timer_query_summary),
-                    checked = enableExtTimerQuery,
-                    onCheckedChange = { enableExtTimerQuery = it }
-                )
-
-                SettingsSwitchRow(
-                    title = stringResource(R.string.mobileglues_direct_state_access),
-                    summary = stringResource(R.string.mobileglues_direct_state_access_summary),
-                    checked = enableExtDirectStateAccess,
-                    onCheckedChange = { enableExtDirectStateAccess = it }
-                )
-
-                HorizontalDivider()
-                SectionHeader(stringResource(R.string.mobileglues_section_cache))
-
-                OutlinedTextField(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    value = maxGlslCacheSize,
-                    onValueChange = { maxGlslCacheSize = it },
-                    label = { Text(stringResource(R.string.mobileglues_cache_size_label)) },
-                    supportingText = { Text(stringResource(R.string.mobileglues_cache_size_supporting)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        config.enableANGLE = enableANGLE
-                        config.enableNoError = enableNoError
-                        config.enableExtTimerQuery = if (enableExtTimerQuery) 0 else 1
-                        config.enableExtComputeShader = if (enableExtComputeShader) 1 else 0
-                        config.enableExtDirectStateAccess = if (enableExtDirectStateAccess) 1 else 0
-                        config.maxGlslCacheSize = maxGlslCacheSize.toIntOrNull() ?: 32
-                        config.multidrawMode = multidrawMode
-                        config.angleDepthClearFixMode = angleDepthClearFixMode
-                        config.customGLVersion = customGLVersion
-                        config.save()
-                        Toast.makeText(context, context.getString(R.string.mobileglues_saved_toast), Toast.LENGTH_SHORT).show()
-                        onDismissRequest()
-                    }
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(stringResource(R.string.generic_confirm))
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            config.enableANGLE = enableANGLE
+                            config.enableNoError = enableNoError
+                            config.enableExtTimerQuery = if (enableExtTimerQuery) 0 else 1
+                            config.enableExtComputeShader = if (enableExtComputeShader) 1 else 0
+                            config.enableExtDirectStateAccess = if (enableExtDirectStateAccess) 1 else 0
+                            config.maxGlslCacheSize = maxGlslCacheSize.toIntOrNull() ?: 32
+                            config.multidrawMode = multidrawMode
+                            config.angleDepthClearFixMode = angleDepthClearFixMode
+                            config.customGLVersion = customGLVersion
+                            config.save()
+                            Toast.makeText(context, context.getString(R.string.mobileglues_saved_toast), Toast.LENGTH_SHORT).show()
+                            onDismissRequest()
+                        }
+                    ) {
+                        Text(stringResource(R.string.generic_save))
+                    }
+
+                    OutlinedButton(
+                        modifier = Modifier.weight(1f),
+                        onClick = { showResetConfirm = true }
+                    ) {
+                        Text(stringResource(R.string.generic_reset))
+                    }
+                }
+
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(top = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    HorizontalDivider()
+
+                    SectionHeader(stringResource(R.string.mobileglues_section_rendering))
+
+                    ANGLEPicker(
+                        value = enableANGLE,
+                        onValueChange = { enableANGLE = it }
+                    )
+
+                    NoErrorPicker(
+                        value = enableNoError,
+                        onValueChange = { enableNoError = it }
+                    )
+
+                    MultidrawModeSegmented(
+                        value = multidrawMode,
+                        onValueChange = { multidrawMode = it }
+                    )
+
+                    AngleClearPicker(
+                        value = angleDepthClearFixMode,
+                        onValueChange = { angleDepthClearFixMode = it }
+                    )
+
+                    GLVersionDropdown(
+                        value = customGLVersion,
+                        options = glVersions,
+                        onValueChange = { customGLVersion = it }
+                    )
+
+                    HorizontalDivider()
+
+                    SectionHeader(stringResource(R.string.mobileglues_section_extensions))
+
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.mobileglues_compute_shader),
+                        summary = stringResource(R.string.mobileglues_compute_shader_summary),
+                        checked = enableExtComputeShader,
+                        onCheckedChange = { enableExtComputeShader = it }
+                    )
+
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.mobileglues_timer_query),
+                        summary = stringResource(R.string.mobileglues_timer_query_summary),
+                        checked = enableExtTimerQuery,
+                        onCheckedChange = { enableExtTimerQuery = it }
+                    )
+
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.mobileglues_direct_state_access),
+                        summary = stringResource(R.string.mobileglues_direct_state_access_summary),
+                        checked = enableExtDirectStateAccess,
+                        onCheckedChange = { enableExtDirectStateAccess = it }
+                    )
+
+                    HorizontalDivider()
+                    SectionHeader(stringResource(R.string.mobileglues_section_cache))
+
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = maxGlslCacheSize,
+                        onValueChange = { maxGlslCacheSize = it },
+                        label = { Text(stringResource(R.string.mobileglues_cache_size_label)) },
+                        supportingText = { Text(stringResource(R.string.mobileglues_cache_size_supporting)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
                 }
             }
         }
+    }
+
+    if (showResetConfirm) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirm = false },
+            title = { Text(stringResource(R.string.generic_reset)) },
+            text = { Text(stringResource(R.string.mobileglues_reset_confirm_message)) },
+            confirmButton = {
+                Button(onClick = {
+                    enableANGLE = 1
+                    enableNoError = 0
+                    enableExtTimerQuery = true
+                    enableExtComputeShader = true
+                    enableExtDirectStateAccess = true
+                    maxGlslCacheSize = "32"
+                    multidrawMode = 0
+                    angleDepthClearFixMode = 0
+                    customGLVersion = 0
+                    showResetConfirm = false
+                }) {
+                    Text(stringResource(R.string.generic_reset))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showResetConfirm = false }) {
+                    Text(stringResource(R.string.generic_cancel))
+                }
+            }
+        )
     }
 }
 

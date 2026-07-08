@@ -1357,6 +1357,7 @@
     <string name="mobileglues_cache_size_label">GLSL Önbellek Boyutu (MB)</string>
     <string name="mobileglues_cache_size_supporting">Önbelleği temizlemek için -1; varsayılan için 0 (32) ayarlayın</string>
     <string name="mobileglues_saved_toast">MobileGlues ayarları kaydedildi</string>
+    <string name="mobileglues_reset_confirm_message">MobileGlues ayarlarını gerçekten sıfırlamak istediğinize emin misiniz?</string>
 
     <string name="download_game_classic_picker">Klasik sürüm listesi</string>
     <string name="download_game_classic_picker_summary">Yalnızca kararlı sürümleri göster, arama çubuğu yok</string>
