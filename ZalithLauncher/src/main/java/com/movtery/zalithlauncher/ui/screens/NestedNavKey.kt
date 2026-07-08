@@ -19,6 +19,8 @@
 package com.movtery.zalithlauncher.ui.screens
 
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.version.installed.Version
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -28,11 +30,23 @@ import kotlinx.serialization.Serializable
  */
 sealed interface NestedNavKey {
     /** 启动屏幕 */
-    @Serializable class Splash : BackStackNavKey<TitledNavKey>()
+    @Serializable class Splash : BackStackNavKey<TitledNavKey>() {
+        init {
+            backStack.addIfEmpty(NormalNavKey.UnpackDeps)
+        }
+    }
     /** 主屏幕 */
-    @Serializable class Main : BackStackNavKey<TitledNavKey>()
+    @Serializable class Main : BackStackNavKey<TitledNavKey>() {
+        init {
+            backStack.addIfEmpty(NormalNavKey.LauncherMain)
+        }
+    }
     /** 设置屏幕 */
-    @Serializable class Settings : BackStackNavKey<TitledNavKey>(R.string.generic_setting)
+    @Serializable class Settings : BackStackNavKey<TitledNavKey>(R.string.generic_setting) {
+        init {
+            backStack.addIfEmpty(NormalNavKey.Settings.Renderer)
+        }
+    }
     /** 版本详细设置屏幕 */
     @Serializable
     class VersionSettings(@Contextual val version: Version) : BackStackNavKey<TitledNavKey>(
@@ -60,25 +74,64 @@ sealed interface NestedNavKey {
     /** 下载游戏屏幕 */
     @Serializable class DownloadGame : BackStackNavKey<TitledNavKey>(
         R.string.download_category_game
-    )
+    ) {
+        init {
+            backStack.addIfEmpty(NormalNavKey.DownloadGame.SelectGameVersion)
+        }
+    }
     /** 下载整合包屏幕 */
     @Serializable class DownloadModPack : BackStackNavKey<TitledNavKey>(
         R.string.download_category_modpack
-    )
+    ) {
+        init {
+            backStack.addIfEmpty(NormalNavKey.SearchModPack)
+        }
+    }
     /** 下载模组屏幕 */
     @Serializable class DownloadMod : BackStackNavKey<TitledNavKey>(
         R.string.download_category_mod
-    )
+    ) {
+        init {
+            backStack.addIfEmpty(NormalNavKey.SearchMod)
+        }
+    }
     /** 下载资源包屏幕 */
     @Serializable class DownloadResourcePack : BackStackNavKey<TitledNavKey>(
         R.string.download_category_resource_pack
-    )
+    ) {
+        init {
+            backStack.addIfEmpty(NormalNavKey.SearchResourcePack)
+        }
+    }
     /** 下载存档屏幕 */
     @Serializable class DownloadSaves : BackStackNavKey<TitledNavKey>(
         R.string.download_category_saves
-    )
+    ) {
+        init {
+            backStack.addIfEmpty(NormalNavKey.SearchSaves)
+        }
+    }
     /** 下载光影包屏幕 */
     @Serializable class DownloadShaders : BackStackNavKey<TitledNavKey>(
         R.string.download_category_shaders
-    )
+    ) {
+        init {
+            backStack.addIfEmpty(NormalNavKey.SearchShaders)
+        }
+    }
+    /** 查看Addons资源信息屏幕 */
+    @Serializable
+    class AssetInfo(
+        val platform: Platform,
+        val projectId: String,
+        val classes: PlatformClasses
+    ) : BackStackNavKey<TitledNavKey>(
+        R.string.generic_download
+    ) {
+        init {
+            backStack.addIfEmpty(
+                NormalNavKey.DownloadAssets(platform, projectId, classes)
+            )
+        }
+    }
 }

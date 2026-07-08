@@ -451,12 +451,9 @@ private fun NavigationUI(
                             )
                         },
                         onSwapMoreInfo = { projectId, platform ->
-                            backScreenViewModel.navigateToDownload(
-                                targetScreen = backScreenViewModel.downloadModScreen.apply {
-                                    navigateTo(
-                                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD)
-                                    )
-                                }
+                            backScreenViewModel.mainScreen.removeAndNavigateTo(
+                                NestedNavKey.AssetInfo::class,
+                                NestedNavKey.AssetInfo(platform, projectId, PlatformClasses.MOD)
                             )
                         },
                         eventViewModel = eventViewModel,

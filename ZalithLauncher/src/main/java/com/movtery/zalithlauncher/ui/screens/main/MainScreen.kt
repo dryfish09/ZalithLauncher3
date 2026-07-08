@@ -99,6 +99,7 @@ import com.movtery.zalithlauncher.ui.screens.content.VersionExportScreen
 import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.WebViewScreen
+import com.movtery.zalithlauncher.ui.screens.content.assetinfo.AssetInfoScreen
 import com.movtery.zalithlauncher.ui.screens.content.navigateToDownload
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
@@ -592,6 +593,15 @@ private fun NavigationUI(
                         eventViewModel = eventViewModel,
                         modpackImportViewModel = modpackImportViewModel,
                         submitError = submitError
+                    )
+                }
+                entry<NestedNavKey.AssetInfo> { key ->
+                    AssetInfoScreen(
+                        key = key,
+                        mainScreenKey = screenBackStackModel.mainScreen.currentKey,
+                        assetInfoScreenKey = key.currentKey,
+                        eventViewModel = eventViewModel,
+                        submitError = submitError,
                     )
                 }
                 entry<NormalNavKey.Multiplayer> {

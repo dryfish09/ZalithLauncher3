@@ -294,13 +294,16 @@ fun DownloadAssetsScreen(
     currentKey: TitledNavKey?,
     key: NormalNavKey.DownloadAssets,
     eventViewModel: EventViewModel,
-    onItemClicked: (PlatformClasses, PlatformVersion, iconUrl: String?, deps: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>) -> Unit
+    onItemClicked: (PlatformClasses, PlatformVersion, iconUrl: String?, deps: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>) -> Unit,
+    nestedNavKeyClass: Class<out TitledNavKey>? = null,
+    versionsUIWeight: Float = 6.5f,
+    projectUIWeight: Float = 3.5f,
 ) {
     val viewModel: DownloadScreenViewModel = rememberDownloadAssetsViewModel(key)
 
     BaseScreen(
         levels1 = listOf(
-            Pair(NestedNavKey.Download::class.java, mainScreenKey)
+            Pair(nestedNavKeyClass ?: NestedNavKey.Download::class.java, mainScreenKey)
         ),
         Triple(parentScreenKey, parentCurrentKey, false),
         Triple(key, currentKey, false),
@@ -311,7 +314,7 @@ fun DownloadAssetsScreen(
             val yOffset by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible)
             Versions(
                 modifier = Modifier
-                    .weight(6.5f)
+                    .weight(versionsUIWeight)
                     .fillMaxHeight()
                     .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                 viewModel = viewModel,
@@ -331,7 +334,7 @@ fun DownloadAssetsScreen(
             )
             ProjectInfo(
                 modifier = Modifier
-                    .weight(3.5f)
+                    .weight(projectUIWeight)
                     .fillMaxHeight()
                     .padding(vertical = 12.dp)
                     .padding(end = 12.dp)
