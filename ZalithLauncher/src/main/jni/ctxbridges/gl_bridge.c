@@ -27,24 +27,6 @@ static int32_t safe_get_transform_hint(ANativeWindow* w) {
     return -1;
 }
 
-static void set_window_transform_hint_zero(ANativeWindow* window) {
-    if (!window) return;
-    static int (*set_transform_hint_fn)(struct ANativeWindow*, int) = NULL;
-    static bool init_done = false;
-    if (!init_done) {
-        void* handle = dlopen("libnativewindow.so", RTLD_LAZY | RTLD_LOCAL);
-        if (!handle) handle = dlopen("libui.so", RTLD_LAZY | RTLD_LOCAL);
-        if (handle) {
-            set_transform_hint_fn = (int (*)(struct ANativeWindow*, int))
-                dlsym(handle, "native_window_set_transform_hint");
-        }
-        init_done = true;
-    }
-    if (set_transform_hint_fn) {
-        set_transform_hint_fn(window, 0);
-    }
-}
-
 //
 // Created by maks on 17.09.2022.
 //
@@ -162,9 +144,14 @@ void gl_swap_surface(gl_render_window_t* bundle) {
         bundle->nativeSurface = bundle->newNativeSurface;
         bundle->newNativeSurface = NULL;
         ANativeWindow_acquire(bundle->nativeSurface);
-        set_window_transform_hint_zero(bundle->nativeSurface);
         int32_t bufW = ANativeWindow_getWidth(bundle->nativeSurface);
         int32_t bufH = ANativeWindow_getHeight(bundle->nativeSurface);
+        // Force landscape dimensions
+        if (bufW < bufH) {
+            int32_t tmp = bufW;
+            bufW = bufH;
+            bufH = tmp;
+        }
         int32_t displayRot = safe_get_transform_hint(bundle->nativeSurface);
         __android_log_print(ANDROID_LOG_INFO, g_LogTag,
             "Buffer before setBuffersGeometry: %dx%d, transformHint=%d, format=%d",
@@ -176,9 +163,7 @@ void gl_swap_surface(gl_render_window_t* bundle) {
         __android_log_print(ANDROID_LOG_INFO, g_LogTag,
             "Buffer after setBuffersGeometry: %dx%d, transformHint=%d",
             bufW, bufH, displayRot);
-        set_window_transform_hint_zero(bundle->nativeSurface);
         bundle->surface = eglCreateWindowSurface_p(g_EglDisplay, bundle->config, bundle->nativeSurface, NULL);
-        set_window_transform_hint_zero(bundle->nativeSurface);
         if (bundle->surface != NULL) {
             EGLint surfW, surfH;
             eglQuerySurface_p(g_EglDisplay, bundle->surface, EGL_WIDTH, &surfW);
