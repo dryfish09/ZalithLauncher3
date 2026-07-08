@@ -204,6 +204,11 @@ fun LauncherScreen(
                     navigateToVersions(version)
                 }
             }
+            val toFileManagerScreen: () -> Unit = {
+                backStackViewModel.mainScreen.navigateTo(
+                    screenKey = NormalNavKey.BuiltInFileManager
+                )
+            }
 
             RightMenu(
                 isVisible = isVisible,
@@ -214,7 +219,8 @@ fun LauncherScreen(
                 onLaunchGame = onLaunchGame,
                 toAccountManageScreen = toAccountManageScreen,
                 toVersionManageScreen = toVersionManageScreen,
-                toVersionSettingsScreen = toVersionSettingsScreen
+                toVersionSettingsScreen = toVersionSettingsScreen,
+                toFileManagerScreen = toFileManagerScreen
             )
         }
     }
@@ -701,6 +707,7 @@ private fun RightMenuContent(
     toAccountManageScreen: () -> Unit,
     toVersionManageScreen: () -> Unit,
     toVersionSettingsScreen: () -> Unit,
+    toFileManagerScreen: () -> Unit = {},
     launchButton: @Composable (
         innerModifier: Modifier,
         onClick: () -> Unit,
@@ -768,6 +775,15 @@ private fun RightMenuContent(
                             contentDescription = stringResource(R.string.versions_manage_settings)
                         )
                     }
+                }
+                IconButton(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = toFileManagerScreen
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_folder_outlined),
+                        contentDescription = stringResource(R.string.page_title_file_manager)
+                    )
                 }
             }
 
@@ -847,7 +863,8 @@ private fun RightMenu(
     modifier: Modifier = Modifier,
     toAccountManageScreen: () -> Unit = {},
     toVersionManageScreen: () -> Unit = {},
-    toVersionSettingsScreen: () -> Unit = {}
+    toVersionSettingsScreen: () -> Unit = {},
+    toFileManagerScreen: () -> Unit = {}
 ) {
     val xOffset by swapAnimateDpAsState(
         targetValue = 40.dp,
@@ -864,7 +881,8 @@ private fun RightMenu(
             onLaunchGame = onLaunchGame,
             toAccountManageScreen = toAccountManageScreen,
             toVersionManageScreen = toVersionManageScreen,
-            toVersionSettingsScreen = toVersionSettingsScreen
+            toVersionSettingsScreen = toVersionSettingsScreen,
+            toFileManagerScreen = toFileManagerScreen
         ) { innerModifier, onClick, text ->
             ScalingActionButton(
                 modifier = innerModifier,

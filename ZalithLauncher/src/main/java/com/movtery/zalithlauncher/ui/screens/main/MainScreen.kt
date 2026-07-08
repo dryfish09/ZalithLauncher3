@@ -648,6 +648,23 @@ private fun NavigationUI(
                         eventViewModel = eventViewModel
                     )
                 }
+                entry<NormalNavKey.BuiltInFileManager> {
+                    BuiltInFileManagerScreen(
+                        key = NormalNavKey.BuiltInFileManager,
+                        backStackViewModel = screenBackStackModel,
+                        submitError = submitError,
+                        navigateToEditor = { path ->
+                            backStack.navigateTo(NormalNavKey.FileEditor(filePath = path))
+                        }
+                    )
+                }
+                entry<NormalNavKey.FileEditor> { key ->
+                    FileEditorScreen(
+                        key = key,
+                        backStackViewModel = screenBackStackModel,
+                        submitError = submitError
+                    )
+                }
                 entry<NormalNavKey.HomePageEditor> {
                     HomePageEditorScreen(
                         backStackViewModel = screenBackStackModel,

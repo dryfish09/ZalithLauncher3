@@ -65,6 +65,8 @@
     <string name="page_title_version_manage">Manage Versions</string>
     <string name="page_title_account_list">Account List</string>
     <string name="page_title_select_files">Select Path</string>
+    <string name="page_title_file_manager">File Manager</string>
+    <string name="page_title_file_editor">Edit File</string>
     <string name="page_title_home_page_editor">Home Page Editor</string>
     <!-- Files -->
     <string name="files_browse_folder">Browse Folder</string>
@@ -640,6 +642,23 @@
     <string name="files_select_dir">Select Folder</string>
     <string name="files_current_path">Current path: %s</string>
     <string name="files_no_selectable_content">No selectable content</string>
+    <string name="file_manager_upload">Upload File</string>
+    <string name="file_manager_upload_success">File added</string>
+    <string name="file_manager_upload_failed">Failed to add file: %s</string>
+    <string name="file_manager_delete">Delete</string>
+    <string name="file_manager_delete_confirm_title">Delete this item?</string>
+    <string name="file_manager_delete_confirm_message">"%s" will be permanently deleted. This cannot be undone.</string>
+    <string name="file_manager_delete_failed">Failed to delete: %s</string>
+    <string name="file_manager_rename">Rename</string>
+    <string name="file_manager_rename_failed">Failed to rename: %s</string>
+    <string name="file_manager_edit">Edit</string>
+    <string name="file_manager_no_files">This folder is empty</string>
+    <string name="file_editor_save">Save</string>
+    <string name="file_editor_saved">Saved</string>
+    <string name="file_editor_save_failed">Failed to save: %s</string>
+    <string name="file_editor_load_failed">Failed to open file: %s</string>
+    <string name="file_editor_unsupported">This file type isn\'t supported by the text editor</string>
+    <string name="file_editor_too_large">This file is too large to edit (over 2 MB)</string>
     <string name="file_invalid_length" formatted="false">Name too long! (Current: %d, Max: %d)</string>
     <string name="file_invalid_leading_or_trailing_space">Cannot start or end with a space!</string>
     <!-- Java Runtime -->

@@ -395,6 +395,23 @@
     <string name="files_select_dir">Klasör Seç</string>
     <string name="files_current_path">Geçerli yol: %s</string>
     <string name="files_no_selectable_content">Seçilebilecek içerik yok</string>
+    <string name="file_manager_upload">Dosya Yükle</string>
+    <string name="file_manager_upload_success">Dosya eklendi</string>
+    <string name="file_manager_upload_failed">Dosya eklenemedi: %s</string>
+    <string name="file_manager_delete">Sil</string>
+    <string name="file_manager_delete_confirm_title">Bu öge silinsin mi?</string>
+    <string name="file_manager_delete_confirm_message">"%s" kalıcı olarak silinecek. Bu işlem geri alınamaz.</string>
+    <string name="file_manager_delete_failed">Silinemedi: %s</string>
+    <string name="file_manager_rename">Yeniden Adlandır</string>
+    <string name="file_manager_rename_failed">Yeniden adlandırılamadı: %s</string>
+    <string name="file_manager_edit">Düzenle</string>
+    <string name="file_manager_no_files">Bu klasör boş</string>
+    <string name="file_editor_save">Kaydet</string>
+    <string name="file_editor_saved">Kaydedildi</string>
+    <string name="file_editor_save_failed">Kaydedilemedi: %s</string>
+    <string name="file_editor_load_failed">Dosya açılamadı: %s</string>
+    <string name="file_editor_unsupported">Bu dosya türü metin editörü tarafından desteklenmiyor</string>
+    <string name="file_editor_too_large">Bu dosya düzenlemek için çok büyük (2 MB üzeri)</string>
     <string name="file_invalid_length" formatted="false">Ad çok uzun! (Şu an: %d, Maks: %d)</string>
     <string name="multirt_runtime_corrupt">Bozuk Java çalışma zamanı</string>
     <string name="multirt_runtime_incompatible_arch">Uyumsuz mimari: %s</string>
@@ -1134,6 +1151,8 @@
     <string name="page_title_version_manage">Sürümleri Düzenle</string>
     <string name="page_title_account_list">Hesap Listesi</string>
     <string name="page_title_select_files">Yol Seç</string>
+    <string name="page_title_file_manager">Dosya Yöneticisi</string>
+    <string name="page_title_file_editor">Dosyayı Düzenle</string>
     <string name="files_browse_folder">Klasör Ara</string>
     <string name="files_importing">Dosyalar Aktarılıyor</string>
     <string name="files_delete_file">%s\'ı silmek istediğinizden emin misiniz?</string>
