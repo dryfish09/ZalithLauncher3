@@ -118,6 +118,24 @@ private val CURSEFORGE_INTERCEPTOR = Interceptor { chain ->
     chain.proceed(request)
 }
 
+/**
+ * An [Interceptor] that ensures the [URL_USER_AGENT] header is present on every request.
+ *
+ * If a request already carries a User-Agent header (set by [createRequestBuilder] or
+ * similar), this interceptor is a no-op — avoiding duplicate headers.
+ */
+private val USER_AGENT_INTERCEPTOR = Interceptor { chain ->
+    val request = chain.request()
+    if (request.header("User-Agent") != null) {
+        chain.proceed(request)
+    } else {
+        val newRequest = request.newBuilder()
+            .header("User-Agent", URL_USER_AGENT)
+            .build()
+        chain.proceed(newRequest)
+    }
+}
+
 fun createRequestBuilder(url: String): Request.Builder {
     return createRequestBuilder(url, null)
 }
@@ -137,6 +155,7 @@ fun createOkHttpClientBuilder(action: (OkHttpClient.Builder) -> Unit = { }): OkH
     return OkHttpClient.Builder()
         .callTimeout(TIME_OUT, TimeUnit.MILLISECONDS)
         .addInterceptor(CURSEFORGE_INTERCEPTOR)
+        .addInterceptor(USER_AGENT_INTERCEPTOR)
         .apply(action)
 }
 
@@ -156,6 +175,7 @@ val DOWNLOAD_OKHTTP_CLIENT: OkHttpClient by lazy {
         .writeTimeout(30, TimeUnit.SECONDS)
         .retryOnConnectionFailure(true)
         .addInterceptor(CURSEFORGE_INTERCEPTOR)
+        .addInterceptor(USER_AGENT_INTERCEPTOR)
         .build()
         // 注意：不设置 callTimeout，因为文件大小差异极大
         // 协程层的 withTimeout 提供整体兜底保护
