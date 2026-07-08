@@ -940,6 +940,8 @@
     <string name="settings_renderer_force_big_core_summary">Bind Minecraft\'s rendering thread to the CPU\'s high-performance cores (big cores). Enabling this may increase power consumption and heat</string>
     <string name="settings_renderer_surface_title">Use SurfaceView Rendering</string>
     <string name="settings_renderer_surface_summary">Renders using a separate layer outside the UI</string>
+    <string name="settings_renderer_surface_summary_kopper_disabled">Unavailable while using the Kopper Zink renderer</string>
+    <string name="settings_renderer_surface_kopper_warning">SurfaceView rendering cannot be used with the Kopper Zink renderer. Android forces this combination to rotate the game\'s output, causing it to render in portrait even though the launcher stays in landscape. Please keep SurfaceView disabled while Kopper Zink is selected.</string>
     <string name="settings_game_version_isolation_title">Global Version Isolation</string>
     <string name="settings_game_version_isolation_summary">Isolates all versions so that their data does not interfere with each other</string>
     <string name="settings_game_skip_game_integrity_check_title">Skip Integrity Check</string>

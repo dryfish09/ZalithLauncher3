@@ -34,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,7 @@ import com.movtery.zalithlauncher.game.plugin.driver.Driver
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
 import com.movtery.zalithlauncher.game.renderer.Renderers
+import com.movtery.zalithlauncher.game.renderer.renderers.KopperZinkRenderer
 import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
 import com.movtery.zalithlauncher.path.URL_CLOUD_DRIVE_DRIVER_PLUGINS
 import com.movtery.zalithlauncher.path.URL_CLOUD_RENDERER_PLUGINS
@@ -353,13 +355,41 @@ fun RendererSettingsScreen(
                         summary = stringResource(R.string.settings_renderer_force_big_core_summary)
                     )
 
+                    val isKopperZinkSelected = AllSettings.renderer.state == KopperZinkRenderer.getUniqueIdentifier()
+                    var surfaceViewAutoDisabledAlert by remember { mutableStateOf(false) }
+
+                    //切换到 Kopper Zink 时，如果 SurfaceView 原本是开启的，仅提示用户已被关闭；
+                    //注意：这里不修改实际保存的偏好值，所以切换回其他渲染器时会自动恢复原来的开启状态
+                    LaunchedEffect(isKopperZinkSelected) {
+                        if (isKopperZinkSelected && AllSettings.useSurfaceView.state) {
+                            surfaceViewAutoDisabledAlert = true
+                        }
+                    }
+
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Middle,
-                        unit = AllSettings.useSurfaceView,
+                        //Kopper Zink 选中时，无论保存的偏好值是什么，都在界面上显示为关闭+禁用状态
+                        checked = AllSettings.useSurfaceView.state && !isKopperZinkSelected,
+                        enabled = !isKopperZinkSelected,
+                        onCheckedChange = { checked ->
+                            AllSettings.useSurfaceView.save(checked)
+                        },
                         title = stringResource(R.string.settings_renderer_surface_title),
-                        summary = stringResource(R.string.settings_renderer_surface_summary)
+                        summary = if (isKopperZinkSelected) {
+                            stringResource(R.string.settings_renderer_surface_summary_kopper_disabled)
+                        } else {
+                            stringResource(R.string.settings_renderer_surface_summary)
+                        }
                     )
+
+                    if (surfaceViewAutoDisabledAlert) {
+                        SimpleAlertDialog(
+                            title = stringResource(R.string.generic_warning),
+                            text = stringResource(R.string.settings_renderer_surface_kopper_warning),
+                            onDismiss = { surfaceViewAutoDisabledAlert = false }
+                        )
+                    }
 
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),

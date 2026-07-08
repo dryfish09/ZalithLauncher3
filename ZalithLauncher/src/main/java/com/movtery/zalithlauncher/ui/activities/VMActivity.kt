@@ -87,6 +87,8 @@ import com.movtery.zalithlauncher.game.launch.handler.JVMHandler
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.version.installed.PlayTimeRepository
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.renderer.Renderers
+import com.movtery.zalithlauncher.game.renderer.renderers.KopperZinkRenderer
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.terracotta.TerracottaVPNService
 import com.movtery.zalithlauncher.ui.base.BaseAppCompatActivity
@@ -762,7 +764,11 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                         IntOffset(0, -bottomPadding)
                     },
                 factory = { context ->
-                    if (AllSettings.useSurfaceView.getValue()) {
+                    //Kopper Zink 与 SurfaceView 组合使用时，Android 会旋转游戏画面输出，
+                    //因此这里强制忽略 SurfaceView 偏好设置，即使该偏好值仍保存为开启状态
+                    val isKopperZinkActive = Renderers.isCurrentRendererValid() &&
+                        Renderers.getCurrentRenderer().getUniqueIdentifier() == KopperZinkRenderer.getUniqueIdentifier()
+                    if (AllSettings.useSurfaceView.getValue() && !isKopperZinkActive) {
                         SurfaceView(context).apply {
                             holder.addCallback(this@VMActivity)
                         }.also { view ->
