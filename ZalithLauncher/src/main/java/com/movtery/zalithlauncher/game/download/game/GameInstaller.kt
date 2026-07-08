@@ -24,6 +24,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.GlobalContext
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor
+import com.movtery.zalithlauncher.coroutine.TaskState
 import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.coroutine.addTask
 import com.movtery.zalithlauncher.coroutine.buildPhase
@@ -63,6 +64,7 @@ import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import com.movtery.zalithlauncher.utils.network.withSpeedReport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -1061,6 +1063,48 @@ class GameInstaller(
 
                 onComplete()
             }
+        )
+    }
+
+    /**
+     * 创建一个用于 TaskSystem 的代理任务，镜像当前安装进度
+     * 用于最小化安装对话框，同时让安装在后台继续运行
+     */
+    fun createBackgroundTask(onCancelRequest: () -> Unit): Task {
+        return Task.runTask(
+            id = "game_install_${info.gameVersion}_${info.customVersionName}",
+            task = { proxyTask ->
+                coroutineScope {
+                    val mirrorJob = kotlinx.coroutines.launch {
+                        while (true) {
+                            kotlinx.coroutines.delay(150)
+                            val titledTasks = tasksFlow.value
+                            val running = titledTasks.firstOrNull { it.task.taskState == TaskState.RUNNING }
+                                ?: titledTasks.lastOrNull()
+                            running?.task?.let { t ->
+                                proxyTask.updateProgress(t.currentProgress)
+                                val msgRes = t.currentMessageRes
+                                val args = t.currentMessageArgs
+                                if (msgRes != null) {
+                                    if (args != null) proxyTask.updateMessage(msgRes, *args)
+                                    else proxyTask.updateMessage(msgRes)
+                                }
+                                if (t.currentRateBytesPerSec >= 0L) proxyTask.updateSpeed(t.currentRateBytesPerSec)
+                                else proxyTask.clearSpeed()
+                            }
+                        }
+                    }
+                    try {
+                        taskExecutor.awaitCompletion()
+                    } catch (_: kotlinx.coroutines.CancellationException) {
+                        throw _
+                    } catch (_: Exception) {
+                    } finally {
+                        mirrorJob.cancel()
+                    }
+                }
+            },
+            onCancel = onCancelRequest
         )
     }
 

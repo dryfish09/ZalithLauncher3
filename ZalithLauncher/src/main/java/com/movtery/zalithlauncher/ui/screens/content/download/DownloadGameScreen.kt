@@ -48,6 +48,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
+import com.movtery.zalithlauncher.coroutine.InstallerRestoreRegistry
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.download.game.GameInstaller
 import com.movtery.zalithlauncher.game.download.game.optifine.CantFetchingOptiFineUrlException
 import com.movtery.zalithlauncher.game.download.jvm_server.JvmCrashException
@@ -326,11 +328,32 @@ private fun GameInstallOperation(
                 val installGame = installer.tasksFlow.collectAsStateWithLifecycle()
                 if (installGame.value.isNotEmpty()) {
                     //安装游戏流程对话框
+                    val dialogTitle = stringResource(R.string.download_game_install_title)
                     TitleTaskFlowDialog(
-                        title = stringResource(R.string.download_game_install_title),
+                        title = dialogTitle,
                         tasks = installGame.value,
                         onCancel = {
                             onCancel()
+                            updateOperation(GameInstallOperation.None)
+                        },
+                        onMinimize = {
+                            val bgTask = installer.createBackgroundTask(
+                                onCancelRequest = { onCancel() }
+                            )
+                            InstallerRestoreRegistry.register(
+                                bgTask.id,
+                                InstallerRestoreRegistry.RestorableInstaller(
+                                    title = dialogTitle,
+                                    tasksFlow = installer.tasksFlow,
+                                    onCancel = {
+                                        onCancel()
+                                        updateOperation(GameInstallOperation.None)
+                                    }
+                                )
+                            )
+                            TaskSystem.submitTask(bgTask, onEnded = {
+                                InstallerRestoreRegistry.unregister(bgTask.id)
+                            })
                             updateOperation(GameInstallOperation.None)
                         }
                     )
