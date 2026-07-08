@@ -134,6 +134,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.SortByEnum
 import com.movtery.zalithlauncher.ui.screens.content.elements.rememberMultipleUriImportTaskBuilder
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.DeleteAllOperation
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.DisabledStateIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModStateFilter
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsConfirmOperation
