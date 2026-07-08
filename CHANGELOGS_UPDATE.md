@@ -21,10 +21,11 @@
 - Microphone Permission Dialog on First Game Launch (For mods like Simple Voice Chat)
 - Changelog Support
 - In-Launcher File Manager
-- New Loading Screens
+- New Download Screens
 - New Downloaded Shaderpack and Resourcepack Screens
 - Kopper Zink Renderer Fixes
 - New Mobileglues Configuration Screen
+- Minimize button when downloading game-modpack
 
 # Coming Soon
 
