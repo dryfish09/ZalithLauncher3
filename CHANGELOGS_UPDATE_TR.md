@@ -19,14 +19,15 @@
 - Oyun süresi butonunda günlük saat gösterimi
 - Tüm kartlarda "daha fazlası için tıklayın" altta
 - İlk oyun başlatmada mikrofon izin dialogu (Simple Voice Chat gibi modlar için)
-- Türkçe changelog desteği
-- SurfaceView yatay ekran düzeltmesi
-- Markdown yazı boyutları telefon/tablet için optimize edildi
+- Changelog desteği
 - Launcher içi dosya yöneticisi
 - Yeni yükleme ekranları
 - Yeni indirilmiş shaderpack ve resourcepack ekranları
 - Kopper Zink renderer fixleri
 - Yeni Mobileglues konfigurasyon ekranı
+
+# Yakında
+
 - Launcher içi ekran kaydedici
 - launcher içi speedrun timer
 - PojavLauncher veya diğer adıyla ZL1 kontrolleri ve düzenleyicisi (yakında)
