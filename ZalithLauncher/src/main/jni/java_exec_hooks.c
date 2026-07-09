@@ -31,11 +31,11 @@ static void replaceLibPathInEnvBlock(JNIEnv *env, jbyteArray* envBlock, jint* en
         env_block_replacement_warning = true;
     }
     char envStr[1024];
-    jsize new_envl = snprintf(envStr, sizeof(envStr) / sizeof(char), "LD_LIBRARY_PATH=%s%cPATH=%s", directory, 0 ,directory) + 1;
+    jsize new_envl = snprintf(envStr, sizeof(envStr) / sizeof(char), "LD_LIBRARY_PATH=%s%cLD_PRELOAD=libcutils.so%cPATH=%s", directory, 0, 0, directory) + 1;
     jbyteArray newBlock = (*env)->NewByteArray(env, new_envl);
     (*env)->SetByteArrayRegion(env, newBlock, 0, new_envl, (jbyte*) envStr);
     *envBlock = newBlock;
-    *envc = 2;
+    *envc = 3;
 }
 
 /**
