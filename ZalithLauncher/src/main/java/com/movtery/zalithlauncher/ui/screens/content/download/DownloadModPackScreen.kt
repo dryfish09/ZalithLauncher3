@@ -408,6 +408,7 @@ private fun ModPackInstallOperation(
                             updateOperation(ModPackInstallOperation.None)
                         },
                         onMinimize = {
+                            InstallerRestoreRegistry.collapseTaskMenu()
                             val bgTask = installer.createBackgroundTask(
                                 onCancelRequest = { onCancel() }
                             )

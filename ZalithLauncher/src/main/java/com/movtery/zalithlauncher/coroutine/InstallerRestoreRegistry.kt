@@ -18,6 +18,8 @@
 
 package com.movtery.zalithlauncher.coroutine
 
+// ew bro let me import entire settings for some lines of code
+import com.movtery.zalithlauncher.setting.AllSettings
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.flow.StateFlow
 
@@ -46,6 +48,10 @@ object InstallerRestoreRegistry {
     )
 
     private val registry = ConcurrentHashMap<String, RestorableInstaller>()
+
+    fun collapseTaskMenu() {
+        AllSettings.launcherTaskMenuExpanded.save(false)
+    } // RIGHT HERE MA BOI
 
     /** Register a restorable installer entry for the given background task ID. */
     fun register(taskId: String, entry: RestorableInstaller) {

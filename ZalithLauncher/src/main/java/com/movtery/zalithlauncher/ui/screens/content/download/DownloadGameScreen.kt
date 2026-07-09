@@ -337,6 +337,7 @@ private fun GameInstallOperation(
                             updateOperation(GameInstallOperation.None)
                         },
                         onMinimize = {
+                            InstallerRestoreRegistry.collapseTaskMenu()
                             val bgTask = installer.createBackgroundTask(
                                 onCancelRequest = { onCancel() }
                             )

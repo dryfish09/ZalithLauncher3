@@ -20,6 +20,7 @@ package com.movtery.zalithlauncher.game.download.assets
 
 import android.content.Context
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.coroutine.InstallerRestoreRegistry
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
@@ -118,6 +119,9 @@ private fun downloadSingleFile(
     onCancel: () -> Unit = {},
     onFinally: () -> Unit = {}
 ) {
+
+    InstallerRestoreRegistry.collapseTaskMenu() 
+
     TaskSystem.submitTask(
         Task.runTask(
             id = version.platformSha1() ?: version.platformFileName(),
