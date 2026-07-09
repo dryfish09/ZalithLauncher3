@@ -429,12 +429,17 @@ private fun ControlOverview(
         item {
             MenuSwitchButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = "Hide Controls During Loading",
+                text = stringResource(R.string.game_menu_option_hide_controls_loading),
                 switch = AllSettings.hideControlsDuringLoading.state,
                 onSwitch = { AllSettings.hideControlsDuringLoading.save(it) },
                 color = color,
                 contentColor = contentColor
             )
+        }
+
+        //Speedrun Timer
+        item {
+            SpeedrunTimerSection(modifier = Modifier.fillMaxWidth())
         }
 
         //管理摇杆

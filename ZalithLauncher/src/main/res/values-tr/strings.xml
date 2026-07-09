@@ -755,6 +755,7 @@
     <string name="game_menu_option_show_menu">Menü Yer Paylaşımını Etkinleştir</string>
     <string name="game_menu_option_show_menu_hided">Oyun menüsü yer paylaşımı devre dışı bırakıldı. Oyun menüsünü sistem geri düğmesini kullanarak açabilirsiniz</string>
     <string name="game_menu_option_controls_opacity">Kontrol Düzeni Şeffaflığı</string>
+    <string name="game_menu_option_hide_controls_loading">Yüklenirken Kontrolleri Gizle</string>
     <string name="game_styles_joystick">Joystick\'i Yönetin</string>
     <string name="game_styles_joystick_enable">Joystick\'i Etkinleştir</string>
     <string name="game_styles_joystick_x">Joystick X Konumu</string>
@@ -1306,6 +1307,7 @@
     <string name="stats_click">TIKLAYIN</string>
     <string name="stats_changelog_loading">Güncelleme notları yükleniyor…</string>
     <string name="stats_click_for_more">daha fazlası için tıklayın</string>
+    <string name="stats_statistics">İSTATİSTİKLER</string>
     <string name="error_client_error">(%s) İstemci hatası</string>
     <string name="error_unknown">(%s) Bilinmeyen hata</string>
     <string name="settings_renderer_external_driver">Harici Sürücü</string>
@@ -1327,6 +1329,13 @@
     <string name="rank_master">Usta</string>
     <string name="rank_legend">Efsane</string>
     <string name="play_time_format">Oyun Süresi: %s Saat</string>
+    <string name="speedrun_timer">Speedrun Süreölçer</string>
+    <string name="speedrun_rta">RTA</string>
+    <string name="speedrun_igt">IGT</string>
+    <string name="speedrun_start">Başlat</string>
+    <string name="speedrun_stop">Durdur</string>
+    <string name="speedrun_reset">Sıfırla</string>
+    <string name="speedrun_world">Dünya</string>
     <string name="settings_chroma_name_title">Chroma Kullanıcı Adı</string>
     <string name="chroma_mode_red_blue">Kırmızı ve Mavi</string>
     <string name="chroma_mode_sunset">Günbatımı</string>

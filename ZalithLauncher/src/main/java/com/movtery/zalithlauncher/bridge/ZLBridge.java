@@ -84,13 +84,18 @@ public final class ZLBridge {
     static {
         //libffmpeg.so (Replay Mod video dışa aktarma) bazı Android 14 cihazlarında
         //libandroid.so üzerinden native_handle_create sembolünü çözemiyordu.
-        //Oyun sürecine ait diğer native kütüphaneler yüklenmeden önce, bu sistem
-        //kütüphanelerini zorla önden yükleyerek sembollerin süreç genelinde
-        //çözümlenebilir olmasını sağlıyoruz.
+        //Önce System.loadLibrary ile (RTLD_LOCAL) yüklenir, ardından aşağıda
+        //pojavexec yüklendikten sonra ZLBridge.dlopen ile RTLD_GLOBAL modunda
+        //yeniden yüklenerek sembollerin süreç genelinde görünür olması sağlanır.
         NativeLibraryLoader.preloadFFmpegSystemDependencies();
 
         NativeLibraryLoader.loadExitHookLib();
         NativeLibraryLoader.loadPojavLib();
         NativeLibraryLoader.loadPojavAWTLib();
+
+        //pojavexec yüklendikten sonra sistem kütüphanelerini RTLD_GLOBAL ile
+        //yeniden yükle ki FFmpeg alt kütüphaneleri native_handle_create vb.
+        //sembolleri çözümleyebilsin.
+        NativeLibraryLoader.reloadFFmpegSystemDependenciesGlobally();
     }
 }

@@ -28,7 +28,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -41,6 +40,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -61,10 +61,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -73,6 +72,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.ui.screens.content.elements.backgroundGlass
+import com.movtery.zalithlauncher.ui.theme.cardColor
+import com.movtery.zalithlauncher.ui.theme.onCardColor
 import kotlinx.coroutines.delay
 
 private val CollapsedWidth = 56.dp
@@ -88,48 +91,33 @@ fun SideBar(
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    val targetWidth by animateDpAsState(
-        targetValue = if (expanded) ExpandedWidth else CollapsedWidth,
+    val contentOffset by animateDpAsState(
+        targetValue = if (expanded) 0.dp else (CollapsedWidth - ExpandedWidth),
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
         ),
-        label = "sidebarWidth"
+        label = "sidebarOffset"
     )
 
     Box(
         modifier = modifier
-            .width(targetWidth)
+            .width(ExpandedWidth)
             .fillMaxHeight()
             .padding(vertical = 8.dp)
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .offset(x = contentOffset)
+                .clipToBounds()
+                .backgroundGlass(
+                    blur = AllSettings.backgroundBlur.state,
+                    color = cardColor()
+                ),
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.35f),
-            tonalElevation = 0.dp,
-            shadowElevation = 0.dp
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.12f),
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0.08f)
-                            )
-                        )
-                    )
-            )
-        }
-
-        Surface(
-            modifier = Modifier
-                .fillMaxSize(),
-            shape = RoundedCornerShape(20.dp),
-            color = Color.Transparent,
+            color = cardColor(),
+            contentColor = onCardColor(),
             tonalElevation = 0.dp,
             shadowElevation = 0.dp
         ) {
@@ -250,48 +238,24 @@ private fun SideBarToggle(
         label = "toggleScale"
     )
 
-    val rotation by animateFloatAsState(
-        targetValue = if (expanded) 180f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "toggleRotation"
-    )
-
-    Surface(
+    Box(
         modifier = Modifier
-            .size(46.dp)
+            .size(40.dp)
             .scale(scale)
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(14.dp),
-                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-            )
-            .clip(RoundedCornerShape(14.dp))
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
             ),
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                painter = if (expanded) painterResource(R.drawable.ic_arrow_left_rounded)
-                    else painterResource(R.drawable.ic_menu),
-                contentDescription = if (expanded) "Collapse" else "Expand",
-                modifier = Modifier.size(24.dp).rotate(rotation),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-        }
+        Icon(
+            painter = if (expanded) painterResource(R.drawable.ic_arrow_right_rounded)
+                else painterResource(R.drawable.ic_arrow_left_rounded),
+            contentDescription = if (expanded) "Collapse" else "Expand",
+            modifier = Modifier.size(32.dp),
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        )
     }
 }
 

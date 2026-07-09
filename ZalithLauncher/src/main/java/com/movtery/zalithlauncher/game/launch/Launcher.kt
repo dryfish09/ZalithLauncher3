@@ -446,6 +446,23 @@ abstract class Launcher(
     @CallSuper
     protected open fun dlopenEngine() {
         ZLBridge.dlopen("${PathManager.DIR_NATIVE_LIB}/libopenal.so")
+        dlopenFFmpegLibs()
+    }
+
+    private fun dlopenFFmpegLibs() {
+        if (!FFmpegPluginManager.isAvailable) return
+        val nativeDir = PathManager.DIR_NATIVE_LIB
+        val ffmpegLibs = listOf(
+            "libavutil.so", "libavcodec.so", "libavformat.so",
+            "libavfilter.so", "libswscale.so", "libswresample.so",
+            "libavdevice.so", "libffmpeg.so"
+        )
+        ffmpegLibs.forEach { libName ->
+            val libPath = "$nativeDir/$libName"
+            if (File(libPath).exists()) {
+                ZLBridge.dlopen(libPath)
+            }
+        }
     }
 }
 

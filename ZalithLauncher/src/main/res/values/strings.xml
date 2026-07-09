@@ -107,6 +107,7 @@
     <string name="stats_click">Click</string>
     <string name="stats_changelog_loading">Loading changelog…</string>
     <string name="stats_click_for_more">Click for more</string>
+    <string name="stats_statistics">STATISTICS</string>
     <string name="empty_holder" translatable="false">%s</string>
     <!-- Sort By -->
     <string name="sort_by">Sort By</string>
@@ -464,6 +465,7 @@
     <string name="game_menu_option_show_menu">Enable Menu Overlay</string>
     <string name="game_menu_option_show_menu_hided">Game menu overlay has been disabled. You can open the game menu using the system back button</string>
     <string name="game_menu_option_controls_opacity">Control Layout Opacity</string>
+    <string name="game_menu_option_hide_controls_loading">Hide Controls During Loading</string>
     <string name="game_styles_joystick">Manage Joystick</string>
     <string name="game_styles_joystick_enable">Enable Joystick</string>
     <string name="game_styles_joystick_x">Joystick X Position</string>
@@ -1387,6 +1389,13 @@
     <string name="rank_master">Master</string>
     <string name="rank_legend">Legend</string>
     <string name="play_time_format">Play Time: %s Hours</string>
+    <string name="speedrun_timer">Speedrun Timer</string>
+    <string name="speedrun_rta">RTA</string>
+    <string name="speedrun_igt">IGT</string>
+    <string name="speedrun_start">Start</string>
+    <string name="speedrun_stop">Stop</string>
+    <string name="speedrun_reset">Reset</string>
+    <string name="speedrun_world">World</string>
     <string name="settings_chroma_name_title">Chroma Username</string>
     <string name="chroma_mode_red_blue">Red &amp; Blue</string>
     <string name="chroma_mode_sunset">Sunset</string>

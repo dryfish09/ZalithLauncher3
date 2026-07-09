@@ -104,7 +104,6 @@ import com.movtery.zalithlauncher.ui.components.defaultRichTextStyle
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
-import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.AboutDialog
@@ -324,13 +323,6 @@ private fun ContentMenu(
     }
 }
 
-private val VIDEO_URLS = listOf(
-    "QYLWApiTaQE" to "https://youtu.be/QYLWApiTaQE",
-    "cPrtCZX4mII" to "https://youtu.be/cPrtCZX4mII",
-    "pX3-DLIeDWQ" to "https://youtu.be/pX3-DLIeDWQ",
-    "LDosCkeT-2I" to "https://youtu.be/LDosCkeT-2I"
-)
-
 private const val CHANGELOGS_URL = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/main/CHANGELOGS_UPDATE.md"
 private const val CHANGELOGS_UPDATE_TR = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/main/CHANGELOGS_UPDATE_TR.md"
 
@@ -341,10 +333,11 @@ private fun StatsGrid(
     onNavigateToPlayTimeStats: () -> Unit = {},
     onNavigateToLog: (String) -> Unit,
 ) {
-    val isTurkey = remember { java.util.Locale.getDefault().country == "TR" }
+    val versions = remember { VersionsManager.versions.value }
+    val versionNames = remember(versions) { versions.map { it.getVersionName() } }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
@@ -354,78 +347,35 @@ private fun StatsGrid(
                 .padding(horizontal = 4.dp)
                 .alpha(0.5f)
         )
-        if (isTurkey) {
-            // TR region: 1 video + 1 changelog in row 1
-            val trVersions = remember { VersionsManager.versions.value }
-            val trVersionNames = remember(trVersions) { trVersions.map { it.getVersionName() } }
-            val selectedVideo = remember {
-                VIDEO_URLS.shuffled().take(1)
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                VideoCard(
-                    videoId = selectedVideo[0].first,
-                    videoUrl = selectedVideo[0].second,
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-                ChangelogCard(
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                PlayTimeStatsButton(
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                    versionNames = trVersionNames,
-                    onClick = onNavigateToPlayTimeStats
-                )
-                LastLogCard(
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                    onNavigateToLog = onNavigateToLog
-                )
-            }
-        } else {
-            val versions = remember { VersionsManager.versions.value }
-            val versionNames = remember(versions) { versions.map { it.getVersionName() } }
-            // Non-TR: weekly chart (shrunk) + changelog in row 1
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                WeeklyPlayTimeChart(
-                    modifier = Modifier.weight(0.35f).fillMaxHeight(),
-                    versionNames = versionNames
-                )
-                ChangelogCard(
-                    modifier = Modifier.weight(0.65f).fillMaxHeight()
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                DailyPlayTimeCard(
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                    versionNames = versionNames,
-                    onClick = onNavigateToPlayTimeStats
-                )
-                LastLogCard(
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                    onNavigateToLog = onNavigateToLog
-                )
-            }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            WeeklyPlayTimeChart(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                versionNames = versionNames
+            )
+            ChangelogCard(
+                modifier = Modifier.weight(1f).fillMaxHeight()
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            DailyPlayTimeCard(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                versionNames = versionNames,
+                onClick = onNavigateToPlayTimeStats
+            )
+            LastLogCard(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                onNavigateToLog = onNavigateToLog
+            )
         }
     }
 }
@@ -436,7 +386,7 @@ private fun WeeklyPlayTimeChart(
     versionNames: List<String>
 ) {
     val weekData = remember(versionNames) {
-        val dates = PlayTimeRepository.lastNDays(7)
+        val dates = PlayTimeRepository.lastNDays(7).reversed()
         dates.map { date ->
             date to PlayTimeRepository.getDailyTotalPlayTime(date, versionNames)
         }
@@ -447,11 +397,10 @@ private fun WeeklyPlayTimeChart(
 
     val dayLabels = remember(weekData) {
         val sdf = java.text.SimpleDateFormat("EEE", java.util.Locale.getDefault())
+        val parser = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
         weekData.map { (date, _) ->
-            try {
-                val d = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(date)
-                sdf.format(d!!)
-            } catch (_: Exception) { date.takeLast(5) }
+            val d = parser.parse(date)
+            if (d != null) sdf.format(d) else date.takeLast(5)
         }
     }
 
@@ -473,32 +422,40 @@ private fun WeeklyPlayTimeChart(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.Bottom
             ) {
-                weekData.forEach { (_, ms) ->
+                weekData.forEachIndexed { index, (_, ms) ->
                     val fraction = if (maxMs > 0) ms.toFloat() / maxMs else 0f
                     val hours = PlayTimeUtils.getPlayHours(ms)
+                    val barAlpha = 0.4f + (fraction * 0.6f).coerceAtMost(0.6f)
 
                     Column(
                         modifier = Modifier.weight(1f).fillMaxHeight(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Bottom
                     ) {
-                        if (hours > 0) {
-                            Text(
-                                text = "%.1f".format(hours),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontSize = 10.sp,
-                                modifier = Modifier.alpha(0.8f)
-                            )
-                        }
+                        Text(
+                            text = "%.1f".format(hours),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 9.sp,
+                            modifier = Modifier.alpha(0.8f)
+                        )
                         Spacer(Modifier.height(2.dp))
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(0.5f)
-                                .weight(fraction.coerceAtLeast(0.02f))
+                                .fillMaxWidth(0.55f)
+                                .weight(fraction.coerceAtLeast(0.03f))
                                 .background(
-                                    color = primaryColor.copy(alpha = 0.7f),
+                                    color = primaryColor.copy(alpha = barAlpha),
                                     shape = RoundedCornerShape(4.dp)
                                 )
+                        )
+                        Spacer(Modifier.weight((1f - fraction).coerceAtLeast(0.001f)))
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = dayLabels.getOrElse(index) { "" },
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 7.sp,
+                            modifier = Modifier.alpha(0.5f),
+                            maxLines = 1
                         )
                     }
                 }
@@ -536,82 +493,33 @@ private fun DailyPlayTimeCard(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(16.dp)
             ) {
                 Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = "%.1f h".format(hours),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
                     fontSize = 26.sp
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally).alpha(0.7f),
                     text = stringResource(R.string.stats_today),
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.alpha(0.7f)
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    text = stringResource(R.string.stats_statistics),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
                     text = stringResource(R.string.stats_click_for_more),
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun VideoCard(
-    videoId: String,
-    videoUrl: String,
-    modifier: Modifier = Modifier
-) {
-    val uriHandler = LocalUriHandler.current
-
-    BackgroundCard(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.extraLarge,
-        onClick = { uriHandler.openUri(videoUrl) }
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            AsyncImage(
-                model = "https://img.youtube.com/vi/$videoId/hqdefault.jpg",
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(48.dp)
-                    .clip(MaterialTheme.shapes.extraLarge)
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_play_arrow_filled),
-                    contentDescription = stringResource(R.string.generic_open_link),
-                    modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(6.dp)
-                    .background(
-                        color = Color(0xFF1976D2).copy(alpha = 0.85f),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(horizontal = 6.dp, vertical = 3.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.stats_suggested_video),
-                    color = Color.White,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontSize = 9.sp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                     maxLines = 1
                 )
             }
@@ -975,7 +883,7 @@ private fun ChangelogCard(
     var isLoading by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
 
-    val isTurkey = remember { java.util.Locale.getDefault().country == "TR" }
+    val isTurkey = LocalConfiguration.current.locales[0].language == "tr"
     val changelogUrl = if (isTurkey) CHANGELOGS_UPDATE_TR else CHANGELOGS_URL
 
     LaunchedEffect(Unit) {
@@ -1030,17 +938,17 @@ private fun ChangelogCard(
                             if (lines.size <= 2) contentText
                             else lines.dropLast(2).joinToString("\n")
                         }
-                        val headingBodySize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize
+                        val bodySize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize
                         val defaultStyle = defaultRichTextStyle()
-                        val cardRichTextStyle = remember(headingBodySize, defaultStyle) {
+                        val cardRichTextStyle = remember(bodySize, defaultStyle) {
                             defaultStyle.copy(
-                                paragraphSpacing = 16.sp,
+                                paragraphSpacing = 8.sp,
                                 headingStyle = { level, _ ->
                                     when (level) {
-                                        0 -> TextStyle(fontSize = 20.sp, lineHeight = 26.sp, fontWeight = FontWeight.Bold)
-                                        1 -> TextStyle(fontSize = headingBodySize, lineHeight = headingBodySize * 1.3f, fontWeight = FontWeight.Bold)
-                                        2 -> TextStyle(fontSize = headingBodySize, lineHeight = headingBodySize * 1.3f, fontWeight = FontWeight.SemiBold)
-                                        else -> TextStyle(fontSize = headingBodySize, fontWeight = FontWeight.SemiBold)
+                                        0 -> TextStyle(fontSize = bodySize * 1.4f, lineHeight = bodySize * 1.6f, fontWeight = FontWeight.Bold)
+                                        1 -> TextStyle(fontSize = bodySize * 1.2f, lineHeight = bodySize * 1.4f, fontWeight = FontWeight.Bold)
+                                        2 -> TextStyle(fontSize = bodySize * 1.1f, lineHeight = bodySize * 1.3f, fontWeight = FontWeight.SemiBold)
+                                        else -> TextStyle(fontSize = bodySize, lineHeight = bodySize * 1.3f, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             )
@@ -1100,59 +1008,6 @@ private fun ChangelogCard(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun PlayTimeStatsButton(
-    modifier: Modifier = Modifier,
-    versionNames: List<String>,
-    onClick: () -> Unit
-) {
-    val todayMs = remember(versionNames) {
-        PlayTimeRepository.getDailyTotalPlayTime(PlayTimeRepository.today(), versionNames)
-    }
-    val hours = PlayTimeUtils.getPlayHours(todayMs)
-
-    BackgroundCard(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.extraLarge,
-        onClick = onClick
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.stats_play_time),
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1
-                )
-                Text(
-                    text = "%.1f h".format(hours),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                    fontSize = 26.sp
-                )
-                Spacer(Modifier.weight(1f))
-                Text(
-                    text = stringResource(R.string.stats_click_for_more),
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1
-                )
-            }
-            Icon(
-                painter = painterResource(R.drawable.ic_dashboard_filled),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(12.dp)
-                    .size(32.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-            )
         }
     }
 }
