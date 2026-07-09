@@ -111,8 +111,8 @@ object SpeedrunTimerState : LoggerBridge.EventLogListener {
 
     fun deleteWorld(worldName: String) {
         if (currentWorld == worldName) resetTimer()
-        mmkv.removeValue(worldRtaKey(worldName))
-        mmkv.removeValue(worldIgtKey(worldName))
+        mmkv.remove(worldRtaKey(worldName))
+        mmkv.remove(worldIgtKey(worldName))
         val worlds = getAllWorlds().toMutableList()
         worlds.remove(worldName)
         saveWorldsList(worlds)
