@@ -1409,6 +1409,8 @@
     <string name="speedrun_stop">Stop</string>
     <string name="speedrun_reset">Reset</string>
     <string name="speedrun_world">World</string>
+    <string name="screen_recorder_start">Start Recording</string>
+    <string name="screen_recorder_stop">Stop Recording</string>
     <string name="settings_chroma_name_title">Chroma Username</string>
     <string name="chroma_mode_red_blue">Red &amp; Blue</string>
     <string name="chroma_mode_sunset">Sunset</string>

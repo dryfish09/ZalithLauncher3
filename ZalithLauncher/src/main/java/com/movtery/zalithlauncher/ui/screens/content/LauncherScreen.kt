@@ -942,13 +942,13 @@ private fun ChangelogCard(
                         val defaultStyle = defaultRichTextStyle()
                         val cardRichTextStyle = remember(bodySize, defaultStyle) {
                             defaultStyle.copy(
-                                paragraphSpacing = 8.sp,
-                                headingStyle = { level, _ ->
+                                paragraphSpacing = 12.sp,
+                                headingStyle = { level, textStyle ->
                                     when (level) {
-                                        0 -> TextStyle(fontSize = bodySize * 1.4f, lineHeight = bodySize * 1.6f, fontWeight = FontWeight.Bold)
-                                        1 -> TextStyle(fontSize = bodySize * 1.2f, lineHeight = bodySize * 1.4f, fontWeight = FontWeight.Bold)
-                                        2 -> TextStyle(fontSize = bodySize * 1.1f, lineHeight = bodySize * 1.3f, fontWeight = FontWeight.SemiBold)
-                                        else -> TextStyle(fontSize = bodySize, lineHeight = bodySize * 1.3f, fontWeight = FontWeight.SemiBold)
+                                        0 -> TextStyle(fontSize = bodySize * 1.8f, lineHeight = bodySize * 2.2f, fontWeight = FontWeight.Bold)
+                                        1 -> TextStyle(fontSize = bodySize * 1.5f, lineHeight = bodySize * 1.8f, fontWeight = FontWeight.Bold)
+                                        2 -> TextStyle(fontSize = bodySize * 1.3f, lineHeight = bodySize * 1.6f, fontWeight = FontWeight.Bold)
+                                        else -> TextStyle(fontSize = bodySize * 1.1f, lineHeight = bodySize * 1.4f, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             )
