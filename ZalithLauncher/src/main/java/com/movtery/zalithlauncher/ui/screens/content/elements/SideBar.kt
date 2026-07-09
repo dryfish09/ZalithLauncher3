@@ -281,7 +281,7 @@ private fun SideBarToggle(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = if (expanded) painterResource(R.drawable.ic_menu)
+                painter = if (expanded) painterResource(R.drawable.ic_arrow_right_rounded)
                     else painterResource(R.drawable.ic_arrow_left_rounded),
                 contentDescription = if (expanded) "Collapse" else "Expand",
                 modifier = Modifier.size(32.dp),
