@@ -44,6 +44,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -473,14 +474,15 @@ private fun ControlOverview(
 
         //Speedrun Timer toggle
         item {
-            val world = SpeedrunTimerState.currentWorld
-            val enabled = world != null && SpeedrunTimerState.isEnabledForWorld(world)
+            val currentWorld = SpeedrunTimerState.currentWorld
+            val enabled = currentWorld != null && SpeedrunTimerState.isEnabledForWorld(currentWorld)
+            val switchState = remember(currentWorld, enabled) { mutableStateOf(enabled) }
             MenuSwitchButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.speedrun_timer),
-                switch = remember(world, enabled) { mutableStateOf(enabled) },
-                onSwitch = { SpeedrunTimerState.toggleWorld(world) },
-                enabled = world != null,
+                switch = switchState,
+                onSwitch = { SpeedrunTimerState.toggleWorld(currentWorld) },
+                enabled = currentWorld != null,
                 color = color,
                 contentColor = contentColor
             )

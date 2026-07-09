@@ -53,11 +53,8 @@ object ScreenRecorderManager {
         }
         mediaRecorder = recorder
 
-        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        val display = displayManager.getDisplay(DisplayManager.DISPLAY_DEFAULT)
-
-        val displayMetrics = context.resources.displayMetrics
-        val density = displayMetrics.densityDpi.toFloat()
+        val display = (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).getDisplay(0)
+        val density = context.resources.displayMetrics.densityDpi.toFloat()
 
         virtualDisplay = mediaProjection?.createVirtualDisplay(
             "ScreenRecorder",
