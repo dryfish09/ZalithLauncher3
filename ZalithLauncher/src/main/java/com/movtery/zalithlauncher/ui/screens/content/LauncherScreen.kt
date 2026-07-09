@@ -353,11 +353,11 @@ private fun StatsGrid(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             WeeklyPlayTimeChart(
-                modifier = Modifier.weight(0.65f).fillMaxHeight(),
+                modifier = Modifier.weight(1f).fillMaxHeight(),
                 versionNames = versionNames
             )
             ChangelogCard(
-                modifier = Modifier.weight(0.35f).fillMaxHeight()
+                modifier = Modifier.weight(1f).fillMaxHeight()
             )
         }
         Row(
@@ -491,22 +491,24 @@ private fun DailyPlayTimeCard(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(16.dp)
             ) {
                 Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = "%.1f h".format(hours),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
                     fontSize = 26.sp
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = stringResource(R.string.stats_today),
                     style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.alpha(0.7f)
+                    alpha = 0.7f
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = stringResource(R.string.stats_statistics),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary,
