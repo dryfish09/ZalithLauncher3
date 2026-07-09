@@ -42,6 +42,8 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayL
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchFilter
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchResult
+import com.movtery.zalithlauncher.game.download.assets.platform.loadSearchFilter
+import com.movtery.zalithlauncher.game.download.assets.platform.saveSearchFilter
 import com.movtery.zalithlauncher.game.download.assets.platform.navigatePage
 import com.movtery.zalithlauncher.game.download.assets.platform.nextPage
 import com.movtery.zalithlauncher.game.download.assets.platform.previousPage
@@ -73,10 +75,12 @@ private const val TAG = "SearchAssetsScreen"
  * 资源搜索屏幕的 view model
  * @param initialPlatform 初始设定的平台
  * @param platformClasses 资源搜索的类型
+ * @param filterPersistenceKey MMKV中保存过滤器状态的键，为空则不持久化
  */
 private class SearchScreenViewModel(
     initialPlatform: Platform,
-    private val platformClasses: PlatformClasses
+    private val platformClasses: PlatformClasses,
+    private val filterPersistenceKey: String? = null
 ): ViewModel() {
     var searchResult by mutableStateOf<SearchAssetsState>(SearchAssetsState.Searching)
     val pages = mutableStateListOf<AssetsPage?>()
@@ -128,7 +132,17 @@ private class SearchScreenViewModel(
     fun researchWithFilter(filter: PlatformSearchFilter) {
         pages.clear()
         searchFilter = filter.copy(index = 0) //重置索引到起始处
+        persistFilter()
         search()
+    }
+
+    /**
+     * 将当前过滤器状态持久化到 MMKV
+     */
+    private fun persistFilter() {
+        if (filterPersistenceKey != null) {
+            saveSearchFilter(filterPersistenceKey, searchFilter)
+        }
     }
 
     private fun putResult(result: PlatformSearchResult) {
@@ -170,11 +184,23 @@ private class SearchScreenViewModel(
     }
 
     init {
-        //初始化后，执行一次搜索
+        //从 MMKV 恢复持久化的过滤器状态
+        if (filterPersistenceKey != null) {
+            val persisted = loadSearchFilter(filterPersistenceKey)
+            if (persisted != null) {
+                searchFilter = searchFilter.copy(
+                    gameVersion = persisted.gameVersion,
+                    sortField = persisted.sortField
+                )
+            }
+        }
+
         // Issue #9: 如果只有一个已安装版本，自动预选该版本
         if (installedVersionIds.size == 1) {
             searchFilter = searchFilter.copy(gameVersion = installedVersionIds.first())
         }
+
+        //初始化后，执行一次搜索
         search()
     }
 
@@ -188,13 +214,14 @@ private class SearchScreenViewModel(
 private fun rememberSearchAssetsViewModel(
     navKey: TitledNavKey,
     initialPlatform: Platform,
-    platformClasses: PlatformClasses
+    platformClasses: PlatformClasses,
+    filterPersistenceKey: String? = null
 ): SearchScreenViewModel {
     val screenKey = navKey.toString()
     return viewModel(
         key = "${screenKey}_search"
     ) {
-        SearchScreenViewModel(initialPlatform, platformClasses)
+        SearchScreenViewModel(initialPlatform, platformClasses, filterPersistenceKey)
     }
 }
 
@@ -211,6 +238,7 @@ private fun rememberSearchAssetsViewModel(
  * @param enableModLoader 是否允许更改模组加载器
  * @param getModloaders 根据平台获取可用的模组加载器过滤器
  * @param mapCategories 通过平台获取类别本地化信息
+ * @param filterPersistenceKey 持久化过滤器状态的 MMKV 键，为空则不保存
  * @param swapToDownload 跳转到下载详情页
  * @param extraFilter 额外的过滤器UI
  */
@@ -229,13 +257,15 @@ fun SearchAssetsScreen(
     enableModLoader: Boolean = false,
     getModloaders: (Platform) -> List<PlatformDisplayLabel> = { emptyList() },
     mapCategories: (Platform, String) -> PlatformFilterCode?,
+    filterPersistenceKey: String? = null,
     swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> },
     extraFilter: (LazyListScope.() -> Unit)? = null
 ) {
     val viewModel: SearchScreenViewModel = rememberSearchAssetsViewModel(
         navKey = screenKey,
         initialPlatform = initialPlatform,
-        platformClasses = platformClasses
+        platformClasses = platformClasses,
+        filterPersistenceKey = filterPersistenceKey
     )
 
     //跟随平台自动变更的内容

@@ -689,6 +689,31 @@ object AllSettings : SettingsRegistry() {
     val searchShadersPlatform = enumSetting("searchShadersPlatform", Platform.MODRINTH)
 
     /**
+     * 搜索模组时保存的过滤器状态（JSON）
+     */
+    val searchModFilter = stringSetting("searchModFilter", "")
+
+    /**
+     * 搜索整合包时保存的过滤器状态（JSON）
+     */
+    val searchModpackFilter = stringSetting("searchModpackFilter", "")
+
+    /**
+     * 搜索资源包时保存的过滤器状态（JSON）
+     */
+    val searchResourcePackFilter = stringSetting("searchResourcePackFilter", "")
+
+    /**
+     * 搜索光影时保存的过滤器状态（JSON）
+     */
+    val searchShadersFilter = stringSetting("searchShadersFilter", "")
+
+    /**
+     * 搜索存档时保存的过滤器状态（JSON）
+     */
+    val searchSavesFilter = stringSetting("searchSavesFilter", "")
+
+    /**
      * 启动 MC26.2+ 时，自动检查 Vulkan
      */
     val autoVulkanChecker = boolSetting("autoVulkanChecker", true)
