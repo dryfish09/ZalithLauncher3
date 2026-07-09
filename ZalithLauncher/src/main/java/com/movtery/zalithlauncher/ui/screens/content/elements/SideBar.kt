@@ -63,7 +63,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -256,15 +255,6 @@ private fun SideBarToggle(
         label = "toggleScale"
     )
 
-    val rotation by animateFloatAsState(
-        targetValue = if (expanded) 180f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "toggleRotation"
-    )
-
     Surface(
         modifier = Modifier
             .size(52.dp)
@@ -291,10 +281,10 @@ private fun SideBarToggle(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = if (expanded) painterResource(R.drawable.ic_arrow_left_rounded)
-                    else painterResource(R.drawable.ic_menu),
+                painter = if (expanded) painterResource(R.drawable.ic_menu)
+                    else painterResource(R.drawable.ic_arrow_left_rounded),
                 contentDescription = if (expanded) "Collapse" else "Expand",
-                modifier = Modifier.size(32.dp).rotate(rotation),
+                modifier = Modifier.size(32.dp),
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
