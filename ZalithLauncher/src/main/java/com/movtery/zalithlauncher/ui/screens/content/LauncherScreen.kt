@@ -945,10 +945,10 @@ private fun ChangelogCard(
                                 paragraphSpacing = 8.sp,
                                 headingStyle = { level, _ ->
                                     when (level) {
-                                        0 -> TextStyle(fontSize = bodySize * 1.2f, lineHeight = bodySize * 1.5f, fontWeight = FontWeight.Bold)
-                                        1 -> TextStyle(fontSize = bodySize, lineHeight = bodySize * 1.3f, fontWeight = FontWeight.Bold)
-                                        2 -> TextStyle(fontSize = bodySize, lineHeight = bodySize * 1.3f, fontWeight = FontWeight.SemiBold)
-                                        else -> TextStyle(fontSize = bodySize, fontWeight = FontWeight.SemiBold)
+                                        0 -> TextStyle(fontSize = bodySize * 1.4f, lineHeight = bodySize * 1.6f, fontWeight = FontWeight.Bold)
+                                        1 -> TextStyle(fontSize = bodySize * 1.2f, lineHeight = bodySize * 1.4f, fontWeight = FontWeight.Bold)
+                                        2 -> TextStyle(fontSize = bodySize * 1.1f, lineHeight = bodySize * 1.3f, fontWeight = FontWeight.SemiBold)
+                                        else -> TextStyle(fontSize = bodySize, lineHeight = bodySize * 1.3f, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             )

@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -61,6 +62,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
@@ -88,24 +90,26 @@ fun SideBar(
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    val targetWidth by animateDpAsState(
-        targetValue = if (expanded) ExpandedWidth else CollapsedWidth,
+    val contentOffset by animateDpAsState(
+        targetValue = if (expanded) 0.dp else (CollapsedWidth - ExpandedWidth),
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
         ),
-        label = "sidebarWidth"
+        label = "sidebarOffset"
     )
 
     Box(
         modifier = modifier
-            .width(targetWidth)
+            .width(ExpandedWidth)
             .fillMaxHeight()
             .padding(vertical = 8.dp)
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .offset(x = contentOffset)
+                .clipToBounds(),
             shape = RoundedCornerShape(20.dp),
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.35f),
             tonalElevation = 0.dp,
@@ -127,7 +131,9 @@ fun SideBar(
 
         Surface(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .offset(x = contentOffset)
+                .clipToBounds(),
             shape = RoundedCornerShape(20.dp),
             color = Color.Transparent,
             tonalElevation = 0.dp,
