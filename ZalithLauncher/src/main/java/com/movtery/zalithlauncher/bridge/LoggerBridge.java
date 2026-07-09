@@ -49,6 +49,9 @@ public final class LoggerBridge {
     }
 
     static {
+        //ZLBridge ile aynı önlem: hangi bridge sınıfının önce dokunulacağı garanti
+        //olmadığından, burada da bağımsız olarak (idempotent, güvenli) çağırıyoruz.
+        NativeLibraryLoader.preloadFFmpegSystemDependencies();
         NativeLibraryLoader.loadPojavLib();
     }
 }

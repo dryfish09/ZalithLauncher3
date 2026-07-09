@@ -82,6 +82,13 @@ public final class ZLBridge {
     @Keep public static native void fsrSetQuality(int qualityPreset);
 
     static {
+        //libffmpeg.so (Replay Mod video dışa aktarma) bazı Android 14 cihazlarında
+        //libandroid.so üzerinden native_handle_create sembolünü çözemiyordu.
+        //Oyun sürecine ait diğer native kütüphaneler yüklenmeden önce, bu sistem
+        //kütüphanelerini zorla önden yükleyerek sembollerin süreç genelinde
+        //çözümlenebilir olmasını sağlıyoruz.
+        NativeLibraryLoader.preloadFFmpegSystemDependencies();
+
         NativeLibraryLoader.loadExitHookLib();
         NativeLibraryLoader.loadPojavLib();
         NativeLibraryLoader.loadPojavAWTLib();

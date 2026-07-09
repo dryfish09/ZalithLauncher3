@@ -34,8 +34,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -458,7 +458,10 @@ private fun FilesLayout(
             )
 
             if (canGoBack || files.isNotEmpty()) {
-                val scrollState = rememberLazyListState()
+                //每次切换目录时都重新创建滚动状态，确保列表从顶部开始显示，
+                //否则从深层目录返回/切换文件夹时，列表会保留旧的滚动位置，
+                //导致"返回上级"那一行和最上面的文件被滚动到看不见的地方
+                val scrollState = remember(currentPath) { LazyListState() }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
