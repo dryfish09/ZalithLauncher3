@@ -501,10 +501,9 @@ private fun DailyPlayTimeCard(
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    modifier = Modifier.align(Alignment.CenterHorizontally).alpha(0.7f),
                     text = stringResource(R.string.stats_today),
-                    style = MaterialTheme.typography.labelSmall,
-                    alpha = 0.7f
+                    style = MaterialTheme.typography.labelSmall
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
