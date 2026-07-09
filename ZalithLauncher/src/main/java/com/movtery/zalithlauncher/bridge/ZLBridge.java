@@ -82,20 +82,17 @@ public final class ZLBridge {
     @Keep public static native void fsrSetQuality(int qualityPreset);
 
     static {
-        //libffmpeg.so (Replay Mod video dışa aktarma) bazı Android 14 cihazlarında
-        //libandroid.so üzerinden native_handle_create sembolünü çözemiyordu.
-        //Önce System.loadLibrary ile (RTLD_LOCAL) yüklenir, ardından aşağıda
-        //pojavexec yüklendikten sonra ZLBridge.dlopen ile RTLD_GLOBAL modunda
-        //yeniden yüklenerek sembollerin süreç genelinde görünür olması sağlanır.
-        NativeLibraryLoader.preloadFFmpegSystemDependencies();
-
         NativeLibraryLoader.loadExitHookLib();
         NativeLibraryLoader.loadPojavLib();
         NativeLibraryLoader.loadPojavAWTLib();
 
-        //pojavexec yüklendikten sonra sistem kütüphanelerini RTLD_GLOBAL ile
-        //yeniden yükle ki FFmpeg alt kütüphaneleri native_handle_create vb.
-        //sembolleri çözümleyebilsin.
+        //Android 14'te libandroid.so, native_handle_create için libnativewindow.so'ya
+        //ihtiyaç duyar. pojavexec yüklendikten sonra ZLBridge.dlopen RTLD_GLOBAL ile
+        //bu kütüphaneleri yükler; böylece FFmpeg (ReplayMod) dlopen edildiğinde
+        //linker sembolleri çözümleyebilir.
+        //Not: System.loadLibrary RTLD_LOCAL kullanır — önceden RTLD_LOCAL ile
+        //yüklenmiş bir lib sonradan RTLD_GLOBAL'a çevrilemez, o yüzden sadece
+        //RTLD_GLOBAL ile yüklüyoruz.
         NativeLibraryLoader.reloadFFmpegSystemDependenciesGlobally();
     }
 }

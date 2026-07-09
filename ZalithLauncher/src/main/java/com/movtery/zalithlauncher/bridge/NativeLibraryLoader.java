@@ -52,11 +52,15 @@ public class NativeLibraryLoader {
     }
 
     /**
-     * System.loadLibrary kullanır (RTLD_LOCAL). Aşağıdaki yöntem,
-     * ZLBridge.dlopen (RTLD_GLOBAL) ile aynı kütüphaneleri yeniden
-     * yükleyerek sembollerin süreç genelinde görünür olmasını sağlar.
+     * ZLBridge.dlopen (RTLD_GLOBAL) ile sistem kütüphanelerini yükleyerek
+     * sembollerin süreç genelinde görünür olmasını sağlar.
      * Bu, FFmpeg gibi daha sonra dlopen ile yüklenen kütüphanelerin
      * native_handle_create vb. sembolleri bulamamasını engeller.
+     * <p>
+     * Not: System.loadLibrary RTLD_LOCAL kullanır. Önceden RTLD_LOCAL ile
+     * yüklenmiş bir kütüphane sonradan RTLD_GLOBAL'a çevrilemez,
+     * bu yüzden doğrudan RTLD_GLOBAL ile yüklüyoruz.
+     * RTLD_GLOBAL başarısız olursa yedek olarak System.loadLibrary deneriz.
      */
     public static void reloadFFmpegSystemDependenciesGlobally() {
         dlopenSystemLibGlobally("libcutils.so");
@@ -70,12 +74,15 @@ public class NativeLibraryLoader {
             boolean ok = ZLBridge.dlopen(libName);
             if (ok) {
                 Log.i(TAG, "Globally loaded: " + libName);
-            } else {
-                Log.w(TAG, "Failed to globally load: " + libName);
+                return;
             }
+            Log.w(TAG, "ZLBridge.dlopen failed for " + libName + ", falling back to System.loadLibrary");
         } catch (Exception e) {
-            Log.w(TAG, "Error globally loading: " + libName, e);
+            Log.w(TAG, "Error globally loading " + libName + " via ZLBridge, falling back", e);
         }
+        // Fallback: System.loadLibrary (RTLD_LOCAL) — semboller global olmasa da
+        // kütüphanenin kendisi yüklenmiş olur; bazı cihazlarda yine de işe yarayabilir.
+        loadSystemLibraryQuietly(libName.replaceAll("^lib(.*)\\.so$", "$1"));
     }
 
     private static void loadSystemLibraryQuietly(String libraryName) {
