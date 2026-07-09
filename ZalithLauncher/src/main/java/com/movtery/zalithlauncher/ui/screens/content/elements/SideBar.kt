@@ -267,7 +267,7 @@ private fun SideBarToggle(
 
     Surface(
         modifier = Modifier
-            .size(46.dp)
+            .size(52.dp)
             .scale(scale)
             .shadow(
                 elevation = 4.dp,
@@ -294,7 +294,7 @@ private fun SideBarToggle(
                 painter = if (expanded) painterResource(R.drawable.ic_arrow_left_rounded)
                     else painterResource(R.drawable.ic_menu),
                 contentDescription = if (expanded) "Collapse" else "Expand",
-                modifier = Modifier.size(24.dp).rotate(rotation),
+                modifier = Modifier.size(32.dp).rotate(rotation),
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
