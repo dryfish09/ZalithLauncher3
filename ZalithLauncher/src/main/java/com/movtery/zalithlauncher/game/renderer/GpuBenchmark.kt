@@ -9,6 +9,10 @@ import javax.microedition.khronos.egl.EGLContext
 import javax.microedition.khronos.egl.EGLDisplay
 import javax.microedition.khronos.egl.EGLSurface
 
+// EGL 1.1+ constants not in the EGL10 interface
+private const val EGL_OPENGL_ES2_BIT = 0x0004
+private const val EGL_CONTEXT_CLIENT_VERSION = 0x3098
+
 private const val TAG = "GpuBenchmark"
 private const val BENCHMARK_DURATION_NS = 3_000_000_000L // 3 seconds
 private const val SURFACE_WIDTH = 256
@@ -32,7 +36,7 @@ fun runGpuBenchmark(): GpuBenchmarkResult {
     val configs = arrayOfNulls<EGLConfig>(1)
     val numConfigs = intArrayOf(1)
     val configAttribs = intArrayOf(
-        EGL10.EGL_RENDERABLE_TYPE, EGL10.EGL_OPENGL_ES2_BIT,
+        EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
         EGL10.EGL_SURFACE_TYPE, EGL10.EGL_PBUFFER_BIT,
         EGL10.EGL_BLUE_SIZE, 8,
         EGL10.EGL_GREEN_SIZE, 8,
@@ -58,7 +62,7 @@ fun runGpuBenchmark(): GpuBenchmarkResult {
     }
 
     val ctxAttribs = intArrayOf(
-        EGL10.EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL_CONTEXT_CLIENT_VERSION, 2,
         EGL10.EGL_NONE
     )
     val context = egl.eglCreateContext(display, configs[0]!!, EGL10.EGL_NO_CONTEXT, ctxAttribs)
