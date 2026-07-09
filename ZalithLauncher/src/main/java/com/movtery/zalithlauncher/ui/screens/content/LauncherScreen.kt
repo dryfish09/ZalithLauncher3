@@ -336,7 +336,7 @@ private fun StatsGrid(
     val versionNames = remember(versions) { versions.map { it.getVersionName() } }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
@@ -447,6 +447,7 @@ private fun WeeklyPlayTimeChart(
                                     shape = RoundedCornerShape(4.dp)
                                 )
                         )
+                        Spacer(Modifier.weight((1f - fraction).coerceAtLeast(0f)))
                         Spacer(Modifier.height(2.dp))
                         Text(
                             text = dayLabels.getOrElse(index) { "" },
