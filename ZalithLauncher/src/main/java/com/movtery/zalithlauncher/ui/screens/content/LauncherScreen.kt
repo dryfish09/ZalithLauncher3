@@ -324,6 +324,7 @@ private fun ContentMenu(
 }
 
 private const val CHANGELOGS_URL = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/main/CHANGELOGS_UPDATE.md"
+private const val CHANGELOGS_UPDATE_TR = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/main/CHANGELOGS_UPDATE_TR.md"
 
 @Composable
 private fun StatsGrid(
@@ -882,7 +883,8 @@ private fun ChangelogCard(
     var isLoading by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
 
-    val changelogUrl = CHANGELOGS_URL
+    val isTurkey = LocalConfiguration.current.locales[0].language == "tr"
+    val changelogUrl = if (isTurkey) CHANGELOGS_UPDATE_TR else CHANGELOGS_URL
 
     LaunchedEffect(Unit) {
         try {

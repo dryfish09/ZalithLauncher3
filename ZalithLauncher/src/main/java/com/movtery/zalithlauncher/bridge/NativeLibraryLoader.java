@@ -50,6 +50,32 @@ public class NativeLibraryLoader {
         loadSystemLibraryQuietly("mediandk");
     }
 
+    /**
+     * System.loadLibrary kullanır (RTLD_LOCAL). Aşağıdaki yöntem,
+     * ZLBridge.dlopen (RTLD_GLOBAL) ile aynı kütüphaneleri yeniden
+     * yükleyerek sembollerin süreç genelinde görünür olmasını sağlar.
+     * Bu, FFmpeg gibi daha sonra dlopen ile yüklenen kütüphanelerin
+     * native_handle_create vb. sembolleri bulamamasını engeller.
+     */
+    public static void reloadFFmpegSystemDependenciesGlobally() {
+        dlopenSystemLibGlobally("libcutils.so");
+        dlopenSystemLibGlobally("libandroid.so");
+        dlopenSystemLibGlobally("libmediandk.so");
+    }
+
+    private static void dlopenSystemLibGlobally(String libName) {
+        try {
+            boolean ok = ZLBridge.dlopen(libName);
+            if (ok) {
+                Log.i(TAG, "Globally loaded: " + libName);
+            } else {
+                Log.w(TAG, "Failed to globally load: " + libName);
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Error globally loading: " + libName, e);
+        }
+    }
+
     private static void loadSystemLibraryQuietly(String libraryName) {
         try {
             System.loadLibrary(libraryName);
