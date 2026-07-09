@@ -448,7 +448,7 @@ private fun WeeklyPlayTimeChart(
                                     shape = RoundedCornerShape(4.dp)
                                 )
                         )
-                        Spacer(Modifier.weight((1f - fraction).coerceAtLeast(0f)))
+                        Spacer(Modifier.weight((1f - fraction).coerceAtLeast(0.001f)))
                         Spacer(Modifier.height(2.dp))
                         Text(
                             text = dayLabels.getOrElse(index) { "" },
