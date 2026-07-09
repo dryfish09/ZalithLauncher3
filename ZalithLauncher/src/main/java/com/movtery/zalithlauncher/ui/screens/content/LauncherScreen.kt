@@ -333,7 +333,7 @@ private fun StatsGrid(
     onNavigateToPlayTimeStats: () -> Unit = {},
     onNavigateToLog: (String) -> Unit,
 ) {
-    val versions = remember { VersionsManager.versions.value }
+    val versions by VersionsManager.versions.collectAsStateWithLifecycle()
     val versionNames = remember(versions) { versions.map { it.getVersionName() } }
 
     Column(

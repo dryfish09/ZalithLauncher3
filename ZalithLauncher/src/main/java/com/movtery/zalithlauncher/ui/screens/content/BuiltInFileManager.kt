@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.ui.screens.content
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Arrangement
@@ -61,6 +62,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.context.getFileName
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -360,6 +362,7 @@ fun BuiltInFileManagerScreen(
                 },
                 onRename = { file -> operation = FileManagerOperation.Rename(file) },
                 onDelete = { file -> operation = FileManagerOperation.Delete(file) },
+                onRefresh = ::refresh,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(7.5f)
@@ -413,6 +416,7 @@ private fun LeftActionMenu(
 private fun TopPathHeader(
     path: String,
     modifier: Modifier = Modifier,
+    onRefresh: () -> Unit = {},
 ) {
     CardTitleLayout(modifier = modifier) {
         Column(
@@ -420,10 +424,23 @@ private fun TopPathHeader(
                 .fillMaxWidth()
                 .padding(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 12.dp)
         ) {
-            Text(
-                text = stringResource(R.string.files_current_path, path),
-                style = MaterialTheme.typography.labelMedium
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = stringResource(R.string.files_current_path, path),
+                    style = MaterialTheme.typography.labelMedium
+                )
+                IconButton(onClick = onRefresh) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_refresh),
+                        contentDescription = stringResource(R.string.generic_refresh)
+                    )
+                }
+            }
         }
     }
 }
@@ -439,6 +456,7 @@ private fun FilesLayout(
     onOpenFile: (File) -> Unit,
     onRename: (File) -> Unit,
     onDelete: (File) -> Unit,
+    onRefresh: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val surfaceXOffset by com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState(
@@ -454,7 +472,8 @@ private fun FilesLayout(
         Column(modifier = Modifier.fillMaxSize()) {
             TopPathHeader(
                 modifier = Modifier.fillMaxWidth(),
-                path = currentPath
+                path = currentPath,
+                onRefresh = onRefresh
             )
 
             if (canGoBack || files.isNotEmpty()) {
@@ -518,8 +537,14 @@ private fun BackFileItem(
     color: Color = itemColor(),
     contentColor: Color = onItemColor(),
 ) {
+    val scale = remember { Animatable(initialValue = 0.95f) }
+    LaunchedEffect(Unit) {
+        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+    }
+
     Surface(
-        modifier = modifier,
+        modifier = modifier
+            .graphicsLayer(scaleY = scale.value, scaleX = scale.value),
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
@@ -555,8 +580,14 @@ private fun ManagedFileItem(
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
+    val scale = remember { Animatable(initialValue = 0.95f) }
+    LaunchedEffect(Unit) {
+        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+    }
+
     Surface(
-        modifier = modifier,
+        modifier = modifier
+            .graphicsLayer(scaleY = scale.value, scaleX = scale.value),
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
