@@ -1,4 +1,5 @@
-# Plus 1.2 (Her versiyon için geçerli güncellemeler)
+## Plus 1.2 (Her versiyon için/evrensel)
+
 
 - Yeni render motorları:
 

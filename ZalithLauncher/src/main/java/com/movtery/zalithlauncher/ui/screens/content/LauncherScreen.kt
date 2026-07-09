@@ -331,8 +331,8 @@ private val VIDEO_URLS = listOf(
     "LDosCkeT-2I" to "https://youtu.be/LDosCkeT-2I"
 )
 
-private const val CHANGELOGS_URL = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/fix/CHANGELOGS_UPDATE.md"
-private const val CHANGELOGS_UPDATE_TR = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/fix/CHANGELOGS_UPDATE_TR.md"
+private const val CHANGELOGS_URL = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/main/CHANGELOGS_UPDATE.md"
+private const val CHANGELOGS_UPDATE_TR = "https://raw.githubusercontent.com/Star1xr/ZalithLauncher2Plus/refs/heads/main/CHANGELOGS_UPDATE_TR.md"
 
 @Composable
 private fun StatsGrid(
