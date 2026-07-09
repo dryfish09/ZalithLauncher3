@@ -48,6 +48,7 @@ public class NativeLibraryLoader {
         loadSystemLibraryQuietly("cutils");
         loadSystemLibraryQuietly("android");
         loadSystemLibraryQuietly("mediandk");
+        loadSystemLibraryQuietly("nativewindow");
     }
 
     /**
@@ -61,6 +62,7 @@ public class NativeLibraryLoader {
         dlopenSystemLibGlobally("libcutils.so");
         dlopenSystemLibGlobally("libandroid.so");
         dlopenSystemLibGlobally("libmediandk.so");
+        dlopenSystemLibGlobally("libnativewindow.so");
     }
 
     private static void dlopenSystemLibGlobally(String libName) {
