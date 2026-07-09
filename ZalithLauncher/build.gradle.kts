@@ -44,7 +44,7 @@ fun getKeyFromLocal(envKey: String, fileName: String? = null, default: String? =
 
 android {
     namespace = zalithPackageName
-    compileSdk = 37
+    compileSdk = project.findProperty("ciCompileSdk")?.toString()?.toIntOrNull() ?: 37
 
     signingConfigs {
         create("releaseBuild") {
