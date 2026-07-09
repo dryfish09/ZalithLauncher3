@@ -42,7 +42,10 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayL
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchFilter
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchResult
+import com.movtery.zalithlauncher.game.download.assets.platform.loadRawPersistedData
 import com.movtery.zalithlauncher.game.download.assets.platform.loadSearchFilter
+import com.movtery.zalithlauncher.game.download.assets.platform.resolvePersistedCategories
+import com.movtery.zalithlauncher.game.download.assets.platform.resolvePersistedModloader
 import com.movtery.zalithlauncher.game.download.assets.platform.saveSearchFilter
 import com.movtery.zalithlauncher.game.download.assets.platform.navigatePage
 import com.movtery.zalithlauncher.game.download.assets.platform.nextPage
@@ -76,11 +79,15 @@ private const val TAG = "SearchAssetsScreen"
  * @param initialPlatform 初始设定的平台
  * @param platformClasses 资源搜索的类型
  * @param filterPersistenceKey MMKV中保存过滤器状态的键，为空则不持久化
+ * @param getCategories 根据平台获取可用的资源类别过滤器（用于恢复持久化的类别选择）
+ * @param getModloaders 根据平台获取可用的模组加载器过滤器（用于恢复持久化的模组加载器）
  */
 private class SearchScreenViewModel(
     initialPlatform: Platform,
     private val platformClasses: PlatformClasses,
-    private val filterPersistenceKey: String? = null
+    private val filterPersistenceKey: String? = null,
+    private val getCategories: ((Platform) -> List<PlatformFilterCode>)? = null,
+    private val getModloaders: ((Platform) -> List<PlatformDisplayLabel>)? = null
 ): ViewModel() {
     var searchResult by mutableStateOf<SearchAssetsState>(SearchAssetsState.Searching)
     val pages = mutableStateListOf<AssetsPage?>()
@@ -186,12 +193,33 @@ private class SearchScreenViewModel(
     init {
         //从 MMKV 恢复持久化的过滤器状态
         if (filterPersistenceKey != null) {
-            val persisted = loadSearchFilter(filterPersistenceKey)
-            if (persisted != null) {
+            val filter = loadSearchFilter(filterPersistenceKey)
+            if (filter != null) {
                 searchFilter = searchFilter.copy(
-                    gameVersion = persisted.gameVersion,
-                    sortField = persisted.sortField
+                    gameVersion = filter.gameVersion,
+                    sortField = filter.sortField
                 )
+            }
+
+            //恢复类别和模组加载器
+            val raw = loadRawPersistedData(filterPersistenceKey)
+            if (raw != null) {
+                if (getCategories != null) {
+                    val resolvedCategories = resolvePersistedCategories(
+                        names = raw.categories,
+                        getCategories = getCategories,
+                        platform = searchPlatform
+                    )
+                    searchFilter = searchFilter.copy(categories = resolvedCategories)
+                }
+                if (getModloaders != null) {
+                    val resolvedModloader = resolvePersistedModloader(
+                        name = raw.modloader,
+                        getModloaders = getModloaders,
+                        platform = searchPlatform
+                    )
+                    searchFilter = searchFilter.copy(modloader = resolvedModloader)
+                }
             }
         }
 
@@ -215,13 +243,15 @@ private fun rememberSearchAssetsViewModel(
     navKey: TitledNavKey,
     initialPlatform: Platform,
     platformClasses: PlatformClasses,
-    filterPersistenceKey: String? = null
+    filterPersistenceKey: String? = null,
+    getCategories: ((Platform) -> List<PlatformFilterCode>)? = null,
+    getModloaders: ((Platform) -> List<PlatformDisplayLabel>)? = null
 ): SearchScreenViewModel {
     val screenKey = navKey.toString()
     return viewModel(
         key = "${screenKey}_search"
     ) {
-        SearchScreenViewModel(initialPlatform, platformClasses, filterPersistenceKey)
+        SearchScreenViewModel(initialPlatform, platformClasses, filterPersistenceKey, getCategories, getModloaders)
     }
 }
 
@@ -265,7 +295,9 @@ fun SearchAssetsScreen(
         navKey = screenKey,
         initialPlatform = initialPlatform,
         platformClasses = platformClasses,
-        filterPersistenceKey = filterPersistenceKey
+        filterPersistenceKey = filterPersistenceKey,
+        getCategories = getCategories,
+        getModloaders = getModloaders
     )
 
     //跟随平台自动变更的内容

@@ -23,7 +23,7 @@ import com.movtery.zalithlauncher.setting.launcherMMKV
 
 private val gson = Gson()
 
-private data class PersistedPlatformSearchFilter(
+data class PersistedPlatformSearchFilter(
     val gameVersion: String? = null,
     val sortField: String = PlatformSortField.RELEVANCE.name,
     val categories: List<String> = emptyList(),
@@ -41,13 +41,7 @@ fun saveSearchFilter(key: String, filter: PlatformSearchFilter) {
 }
 
 fun loadSearchFilter(key: String): PlatformSearchFilter? {
-    val json = launcherMMKV().getString(key, null) ?: return null
-    if (json.isEmpty()) return null
-    val persisted = try {
-        gson.fromJson(json, PersistedPlatformSearchFilter::class.java)
-    } catch (_: Exception) {
-        return null
-    }
+    val persisted = loadRawPersistedData(key) ?: return null
 
     val sortField = try {
         PlatformSortField.valueOf(persisted.sortField)
@@ -59,4 +53,44 @@ fun loadSearchFilter(key: String): PlatformSearchFilter? {
         gameVersion = persisted.gameVersion,
         sortField = sortField
     )
+}
+
+/**
+ * Returns raw persisted filter data including category and modloader names
+ * for the ViewModel to resolve against current platform's available lists.
+ */
+fun loadRawPersistedData(key: String): PersistedPlatformSearchFilter? {
+    val json = launcherMMKV().getString(key, null) ?: return null
+    if (json.isEmpty()) return null
+    return try {
+        gson.fromJson(json, PersistedPlatformSearchFilter::class.java)
+    } catch (_: Exception) {
+        null
+    }
+}
+
+/**
+ * Resolve persisted category names against the current platform's available categories.
+ */
+fun resolvePersistedCategories(
+    names: List<String>,
+    getCategories: (Platform) -> List<PlatformFilterCode>,
+    platform: Platform
+): List<PlatformFilterCode> {
+    if (names.isEmpty()) return emptyList()
+    return names.mapNotNull { name ->
+        getCategories(platform).find { (it as? Enum<*>)?.name == name }
+    }
+}
+
+/**
+ * Resolve persisted modloader name against the current platform's available modloaders.
+ */
+fun resolvePersistedModloader(
+    name: String?,
+    getModloaders: (Platform) -> List<PlatformDisplayLabel>,
+    platform: Platform
+): PlatformDisplayLabel? {
+    if (name == null) return null
+    return getModloaders(platform).find { (it as? Enum<*>)?.name == name }
 }
