@@ -181,11 +181,15 @@ fun SearchFilter(
                       Logger.warning("SearchFilter", "Failed to refresh Minecraft versions")
                   }
               }
-              // Release versions only for CurseForge; all versions for Modrinth
-              val releaseVersions = remember(allVersions, searchPlatform) {
-                  val all = allVersions.filter {
-                      searchPlatform != Platform.CURSEFORGE || it.type == MinecraftVersion.Type.Release
-                  }.map { it.version.id }
+              // Only show release versions by default; can be toggled in settings
+              val showSnapshots = AllSettings.showSnapshotVersions.state
+              val releaseVersions = remember(allVersions, showSnapshots) {
+                  val all = if (showSnapshots) {
+                      allVersions.map { it.version.id }
+                  } else {
+                      allVersions.filter { it.type == MinecraftVersion.Type.Release }
+                          .map { it.version.id }
+                  }
                   if (all.isEmpty()) popularVersions else all
               }
               // Issue #9: installed versions appear at the top, no duplicates

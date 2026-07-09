@@ -1127,6 +1127,8 @@
     <string name="settings_launcher_mirror_assets_download_title">Asset Platform Download Source</string>
     <string name="settings_launcher_mirror_official_first">Prefer Official Source</string>
     <string name="settings_launcher_mirror_mirror_first">Prefer Mirror Source</string>
+    <string name="settings_launcher_show_snapshot_versions_title">Show Snapshot Versions</string>
+    <string name="settings_launcher_show_snapshot_versions_summary">Display snapshot, old, and experimental versions in the asset download page version filter</string>
     <string name="settings_launcher_background_title">Launcher Background</string>
     <string name="settings_launcher_background_summary">Choose an image or video as the launcher background</string>
     <string name="settings_launcher_background_importing">Importing launcher background file</string>

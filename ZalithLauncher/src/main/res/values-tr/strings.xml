@@ -1078,6 +1078,8 @@
     <string name="control_editor_special_joystick_style_tip_summary">Uygulamasının zor olması nedeniyle, kontrol düzeni sistemi joystick bileşenlerini doğrudan entegre edemez. Joystick bileşenini kullanmak istiyorsanız, yalnızca oyun içi menüde evrensel joystick bileşenini etkinleştirebilirsiniz. Ancak, kontrol düzeni aracılığıyla joystick bileşeninin görünümünü sağlayarak stil birliğini koruyabilirsiniz.</string>
     <string name="settings_launcher_mirror_assets_search_title">Varlık Platformu Arama Kaynağı</string>
     <string name="settings_launcher_mirror_assets_download_title">Varlık Platformu İndirme Kaynağı</string>
+    <string name="settings_launcher_show_snapshot_versions_title">Snapshot Sürümlerini Göster</string>
+    <string name="settings_launcher_show_snapshot_versions_summary">İndirme sayfasındaki sürüm filtresinde snapshot, eski ve deneysel sürümleri göster</string>
     <string name="about_acknowledgements_mcim_text">%s, MCIM aynalama kaynağını kullanıyor</string>
     <string name="generic_copied">Kopyalandı</string>
     <string name="crash_link_share_button">Bağlantıyı Paylaş</string>

@@ -714,6 +714,11 @@ object AllSettings : SettingsRegistry() {
     val searchSavesFilter = stringSetting("searchSavesFilter", "")
 
     /**
+     * 在下载页面显示快照版本（snapshot/old/aprilfools等）
+     */
+    val showSnapshotVersions = boolSetting("showSnapshotVersions", false)
+
+    /**
      * 启动 MC26.2+ 时，自动检查 Vulkan
      */
     val autoVulkanChecker = boolSetting("autoVulkanChecker", true)

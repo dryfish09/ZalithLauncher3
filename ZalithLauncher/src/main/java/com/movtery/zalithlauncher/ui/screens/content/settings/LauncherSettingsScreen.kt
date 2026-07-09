@@ -703,6 +703,22 @@ fun LauncherSettingsScreen(
                     )
                 }
             }
+
+            AnimatedItem(scope) { yOffset ->
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    SwitchSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
+                        unit = AllSettings.showSnapshotVersions,
+                        title = stringResource(R.string.settings_launcher_show_snapshot_versions_title),
+                        summary = stringResource(R.string.settings_launcher_show_snapshot_versions_summary)
+                    )
+                }
+            }
         }
     }
 }
