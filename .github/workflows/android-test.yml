@@ -41,7 +41,6 @@ jobs:
       - name: Build APK (arm64 + x86_64)
         run: |
           ./gradlew :ZalithLauncher:assembleDebug \
-            -PciCompileSdk=35 \
             -Parch=all \
             -Plauncher_app_name="ZalithLauncher" \
             -Plauncher_name="ZalithLauncher" \
