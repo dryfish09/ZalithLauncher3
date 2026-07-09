@@ -44,7 +44,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -474,18 +473,7 @@ private fun ControlOverview(
 
         //Speedrun Timer toggle
         item {
-            val currentWorld = SpeedrunTimerState.currentWorld
-            val enabled = currentWorld != null && SpeedrunTimerState.isEnabledForWorld(currentWorld)
-            val switchState = remember(currentWorld, enabled) { mutableStateOf(enabled) }
-            MenuSwitchButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.speedrun_timer),
-                switch = switchState,
-                onSwitch = { SpeedrunTimerState.toggleWorld(currentWorld) },
-                enabled = currentWorld != null,
-                color = color,
-                contentColor = contentColor
-            )
+            SpeedrunTimerToggle(color = color, contentColor = contentColor)
         }
 
         //管理摇杆
@@ -1014,4 +1002,22 @@ private fun ControlGyroscope(
             )
         }
     }
+}
+
+@Composable
+private fun SpeedrunTimerToggle(
+    color: Color = cardColor(false),
+    contentColor: Color = onCardColor()
+) {
+    val currentWorld = SpeedrunTimerState.currentWorld
+    val enabled = currentWorld != null && SpeedrunTimerState.isEnabledForWorld(currentWorld)
+    MenuSwitchButton(
+        modifier = Modifier.fillMaxWidth(),
+        text = stringResource(R.string.speedrun_timer),
+        switch = enabled,
+        onSwitch = { SpeedrunTimerState.toggleWorld(currentWorld) },
+        enabled = currentWorld != null,
+        color = color,
+        contentColor = contentColor
+    )
 }
