@@ -997,12 +997,12 @@ private fun SpeedrunTimerToggle(
     color: Color = cardColor(false),
     contentColor: Color = onCardColor()
 ) {
-    val enabled = AllSettings.speedrunTimerEnabled.getValue()
+    val unit = AllSettings.speedrunTimerEnabled
     MenuSwitchButton(
         modifier = Modifier.fillMaxWidth(),
         text = stringResource(R.string.speedrun_timer),
-        switch = enabled,
-        onSwitch = { AllSettings.speedrunTimerEnabled.setValue(!enabled) },
+        switch = unit.state,
+        onSwitch = { unit.save(!unit.state) },
         color = color,
         contentColor = contentColor
     )
