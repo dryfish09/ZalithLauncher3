@@ -112,6 +112,7 @@ include $(BUILD_SHARED_LIBRARY)
 $(info $(shell (rm $(HERE_PATH)/../jniLibs/*/libawt_headless.so)))
 
 
+LOCAL_PATH := $(HERE_PATH)
 include $(CLEAR_VARS)
 LOCAL_LDLIBS := -ldl -llog
 LOCAL_MODULE := namespace_shim
