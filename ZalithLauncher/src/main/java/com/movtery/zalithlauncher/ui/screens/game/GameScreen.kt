@@ -121,6 +121,7 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.DraggableGameBall
 import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.SpeedrunTimerOverlay
+import com.movtery.zalithlauncher.ui.screens.game.elements.SpeedrunTimerState
 import com.movtery.zalithlauncher.ui.screens.game.elements.JoystickManageOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
@@ -257,6 +258,9 @@ private class GameViewModel(
         val key = event.key
         when (event.type) {
             ClickEvent.Type.Key -> {
+                if (pressed && key == ControlEventKeycode.GLFW_KEY_ESCAPE) {
+                    SpeedrunTimerState.toggleIgtPause()
+                }
                 lwjglEvent(
                     eventKey = key,
                     isMouse = key.startsWith("GLFW_MOUSE_", false),

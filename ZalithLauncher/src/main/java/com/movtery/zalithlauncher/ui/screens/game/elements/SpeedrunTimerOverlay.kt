@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.movtery.zalithlauncher.setting.AllSettings
 
 @Composable
 fun SpeedrunTimerOverlay(
@@ -46,8 +47,7 @@ fun SpeedrunTimerOverlay(
         onDispose { state.disable() }
     }
 
-    val world = state.currentWorld
-    val enabled = world != null && state.isEnabledForWorld(world)
+    val enabled = AllSettings.speedrunTimerEnabled.getValue()
     val show = enabled && state.isRunning
 
     AnimatedVisibility(

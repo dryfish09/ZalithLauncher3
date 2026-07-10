@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.LogMultiplexer
-import com.movtery.zalithlauncher.setting.launcherMMKV
+import com.movtery.zalithlauncher.setting.AllSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,25 +20,32 @@ object SpeedrunTimerState : LoggerBridge.EventLogListener {
     var igtMs by mutableLongStateOf(0L)
     var currentWorld by mutableStateOf<String?>(null)
     var isRunning by mutableStateOf(false)
-    var enabledWorlds by mutableStateOf<Set<String>>(emptySet())
+    var isIgtPaused by mutableStateOf(false)
 
     private var sessionStartMs = 0L
     private var gameActiveStartMs = 0L
     private var accumulatedIgtMs = 0L
     private var tickJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.Main)
-    private val mmkv = launcherMMKV()
 
-    fun isEnabledForWorld(worldName: String?): Boolean {
-        return worldName != null && worldName in enabledWorlds
+    fun toggleIgtPause() {
+        if (!isRunning) return
+        if (isIgtPaused) resumeIgt() else pauseIgt()
+        isIgtPaused = !isIgtPaused
     }
 
-    fun toggleWorld(worldName: String?) {
-        val name = worldName ?: return
-        val updated = enabledWorlds.toMutableSet()
-        if (name in updated) updated.remove(name) else updated.add(name)
-        enabledWorlds = updated
-        mmkv.putString("speedrun_enabled_worlds", updated.joinToString(",")).apply()
+    override fun onEventLogged(text: String) {
+        if (!AllSettings.speedrunTimerEnabled.getValue()) return
+        if (text.contains("Preparing spawn area")) {
+            val world = parseWorldName(text) ?: "World"
+            if (world != currentWorld) {
+                currentWorld = world
+                startTimer(world)
+            }
+        }
+        if (text.contains("Saving worlds") || text.contains("Disconnected")) {
+            if (isRunning) stopTimer()
+        }
     }
 
     fun formatTime(ms: Long): String {
@@ -62,6 +69,7 @@ object SpeedrunTimerState : LoggerBridge.EventLogListener {
         accumulatedIgtMs = 0L
         rtaMs = 0L
         igtMs = 0L
+        isIgtPaused = false
         isRunning = true
         tickJob = scope.launch {
             while (isActive) {
@@ -91,7 +99,7 @@ object SpeedrunTimerState : LoggerBridge.EventLogListener {
         if (!isRunning) return
         val now = SystemClock.elapsedRealtime()
         accumulatedIgtMs += (now - gameActiveStartMs)
-        rtaMs += (now - sessionStartMs)
+        rtaMs = now - sessionStartMs
         igtMs = accumulatedIgtMs
         tickJob?.cancel()
         tickJob = null
@@ -110,29 +118,12 @@ object SpeedrunTimerState : LoggerBridge.EventLogListener {
     }
 
     fun enable() {
-        val raw = mmkv.getString("speedrun_enabled_worlds", "") ?: ""
-        enabledWorlds = if (raw.isBlank()) emptySet() else raw.split(",").filter { it.isNotBlank() }.toSet()
         LogMultiplexer.addListener(this)
     }
 
     fun disable() {
         LogMultiplexer.removeListener(this)
         stopTimer()
-    }
-
-    override fun onEventLogged(text: String) {
-        if (text.contains("Preparing spawn area")) {
-            val world = parseWorldName(text) ?: "World"
-            if (world != currentWorld) {
-                currentWorld = world
-                if (isEnabledForWorld(world)) {
-                    startTimer(world)
-                }
-            }
-        }
-        if (text.contains("Saving worlds") || text.contains("Disconnected")) {
-            pauseIgt()
-        }
     }
 
     private fun parseWorldName(line: String): String? {

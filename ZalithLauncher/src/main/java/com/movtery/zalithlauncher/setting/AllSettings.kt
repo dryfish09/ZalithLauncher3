@@ -649,6 +649,11 @@ object AllSettings : SettingsRegistry() {
     val finishedGame = intSetting("finishedGame", 0)
 
     /**
+     * Speedrun timer
+     */
+    val speedrunTimerEnabled = boolSetting("speedrunTimerEnabled", false)
+
+    /**
      * 玩家在模拟器中运行游戏的总时长（毫秒）
      */
     val playTime = longSetting("playTime", 0L)
