@@ -27,6 +27,8 @@
     <string name="generic_enable">Aktif Et</string>
     <string name="generic_disable">Devre Dışı Bırak</string>
     <string name="generic_open_link">Tarayıcıda Aç</string>
+    <string name="generic_select">Seç</string>
+    <string name="generic_default">Varsayılan</string>
     <string name="generic_cannot_empty">İçerik boş olamaz!</string>
     <string name="generic_input_invalid_character">Geçersiz karakterler: \"%s\"</string>
     <string name="generic_input_failed_to_number">Girilen değer bir sayı olarak işlenemedi</string>
@@ -1412,4 +1414,22 @@
     <string name="download_game_classic_picker">Klasik sürüm listesi</string>
     <string name="download_game_classic_picker_summary">Yalnızca kararlı sürümleri göster, arama çubuğu yok</string>
     <string name="download_game_installed_at_top">Yüklü sürümler önce</string>
+
+    <string name="versions_manage_select_default_folder">Varsayılan Oyun Klasörünü Ayarla</string>
+    <string name="versions_manage_select_default_folder_title">Varsayılan Oyun Klasörünü Seç</string>
+
+    <string name="versions_manage_move_versions">Sürümleri Taşı</string>
+    <string name="versions_manage_move_versions_select_versions">Taşınacak sürümleri seç</string>
+    <string name="versions_manage_move_versions_select_target">Hedef oyun klasörünü seç</string>
+    <string name="versions_manage_move_versions_summary">Taşımayı incele</string>
+    <string name="versions_manage_move_versions_progress">Sürümler taşınıyor…</string>
+    <string name="versions_manage_move_versions_no_versions">Taşınabilir sürüm yok (hepsinde sürüm izolasyonu etkin)</string>
+    <string name="versions_manage_move_versions_version_count">%1$d sürüm seçildi</string>
+    <string name="versions_manage_move_versions_next">İleri</string>
+    <string name="versions_manage_move_versions_finish">Bitir</string>
+    <string name="versions_manage_move_versions_from">Kaynak</string>
+    <string name="versions_manage_move_versions_to">Hedef</string>
+    <string name="versions_manage_move_versions_moving">%1$s taşınıyor…</string>
+    <string name="versions_manage_move_versions_done">Taşıma tamamlandı</string>
+    <string name="versions_manage_move_versions_failed">Taşıma başarısız</string>
 </resources>
