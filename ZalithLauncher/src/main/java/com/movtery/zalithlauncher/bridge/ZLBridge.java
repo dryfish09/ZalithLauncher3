@@ -86,13 +86,10 @@ public final class ZLBridge {
         NativeLibraryLoader.loadPojavLib();
         NativeLibraryLoader.loadPojavAWTLib();
 
-        //Android 14'te libandroid.so, native_handle_create için libnativewindow.so'ya
-        //ihtiyaç duyar. pojavexec yüklendikten sonra ZLBridge.dlopen RTLD_GLOBAL ile
-        //bu kütüphaneleri yükler; böylece FFmpeg (ReplayMod) dlopen edildiğinde
-        //linker sembolleri çözümleyebilir.
-        //Not: System.loadLibrary RTLD_LOCAL kullanır — önceden RTLD_LOCAL ile
-        //yüklenmiş bir lib sonradan RTLD_GLOBAL'a çevrilemez, o yüzden sadece
-        //RTLD_GLOBAL ile yüklüyoruz.
+        //Android 14'te native_handle_create libnativewindow.so'ya taşındı.
+        //Ana çözüm: java_exec_hooks.c ile FFmpeg subprocess'inin LD_PRELOAD'ına
+        //libnativewindow.so eklendi. Ayrıca burada RTLD_GLOBAL ile in-process
+        //yüklemelere karşı ek güvence sağlıyoruz. RTLD_LOCAL kullanılmaz.
         NativeLibraryLoader.reloadFFmpegSystemDependenciesGlobally();
     }
 }

@@ -24,43 +24,18 @@ public class NativeLibraryLoader {
     private static final String TAG = "NativeLibraryLoader";
 
     /**
-     * Android 14 (API 34) üzerinde bazı cihazlarda, Replay Mod ile video
-     * dışa aktarılırken libffmpeg.so üzerinden linker şu hatayı veriyordu:
+     * Android 14 (API 34) üzerinde FFmpeg subprocess'te
      * "cannot locate symbol native_handle_create referenced by libandroid.so"
+     * hatası alınıyor. native_handle_create Android 13 ve öncesinde
+     * libcutils.so'da, Android 14+ ise libnativewindow.so'da tanımlı.
      * <p>
-     * readelf ile bakıldığında libffmpeg.so'nun kendisi libandroid'e bağımlı
-     * görünmüyor, ancak FFmpeg'in altında kullandığı bazı alt kütüphaneler
-     * (MediaCodec/AImage tabanlı donanım kodlayıcı yolları) çalışma zamanında
-     * bu sembolleri dolaylı olarak tetikliyor. Sorun, bu sistem kütüphanelerinin
-     * FFmpeg dlopen edilene kadar süreç içinde henüz yüklenmemiş/bağlanmamış
-     * olmasından kaynaklanıyor.
+     * Ana çözüm java_exec_hooks.c'de: FFmpeg subprocess'inin LD_PRELOAD'ına
+     * libnativewindow.so eklendi. Bu sayede subprocess başlar başlamaz
+     * native_handle_create global olarak çözümlenebilir hale geliyor.
      * <p>
-     * Çözüm: oyun süreci başlamadan (yani {@link ZLBridge} ilk dokunulup asıl
-     * pojavexec/awt kütüphaneleri yüklenmeden) hemen önce, Java katmanında
-     * System.loadLibrary ile bu sistem kütüphanelerini zorla önden yükleyip
-     * sembollerini sürecin genelinde çözümlenebilir hale getiriyoruz.
-     * <p>
-     * Bazı cihazlarda/mimarilerde bu kütüphanelerden biri bulunamayabilir ya da
-     * zaten yüklenmiş olabilir; bu durumda oyunun başlamasını engellememesi için
-     * her biri ayrı ayrı, birbirinden bağımsız olarak try/catch içinde yükleniyor.
-     */
-    public static void preloadFFmpegSystemDependencies() {
-        loadSystemLibraryQuietly("cutils");
-        loadSystemLibraryQuietly("android");
-        loadSystemLibraryQuietly("mediandk");
-        loadSystemLibraryQuietly("nativewindow");
-    }
-
-    /**
-     * ZLBridge.dlopen (RTLD_GLOBAL) ile sistem kütüphanelerini yükleyerek
-     * sembollerin süreç genelinde görünür olmasını sağlar.
-     * Bu, FFmpeg gibi daha sonra dlopen ile yüklenen kütüphanelerin
-     * native_handle_create vb. sembolleri bulamamasını engeller.
-     * <p>
-     * Not: System.loadLibrary RTLD_LOCAL kullanır. Önceden RTLD_LOCAL ile
-     * yüklenmiş bir kütüphane sonradan RTLD_GLOBAL'a çevrilemez,
-     * bu yüzden doğrudan RTLD_GLOBAL ile yüklüyoruz.
-     * RTLD_GLOBAL başarısız olursa yedek olarak System.loadLibrary deneriz.
+     * Buradaki dlopen(RTLD_GLOBAL) ise olası in-process FFmpeg yüklemelerine
+     * karşı ek güvence. RTLD_LOCAL fallback kullanılmaz çünkü RTLD_LOCAL
+     * ile yüklenen bir lib sonradan RTLD_GLOBAL'a çevrilemez.
      */
     public static void reloadFFmpegSystemDependenciesGlobally() {
         dlopenSystemLibGlobally("libcutils.so");
@@ -76,23 +51,9 @@ public class NativeLibraryLoader {
                 Log.i(TAG, "Globally loaded: " + libName);
                 return;
             }
-            Log.w(TAG, "ZLBridge.dlopen failed for " + libName + ", falling back to System.loadLibrary");
+            Log.w(TAG, "ZLBridge.dlopen failed for " + libName + " (no RTLD_LOCAL fallback)");
         } catch (Exception e) {
-            Log.w(TAG, "Error globally loading " + libName + " via ZLBridge, falling back", e);
-        }
-        // Fallback: System.loadLibrary (RTLD_LOCAL) — semboller global olmasa da
-        // kütüphanenin kendisi yüklenmiş olur; bazı cihazlarda yine de işe yarayabilir.
-        loadSystemLibraryQuietly(libName.replaceAll("^lib(.*)\\.so$", "$1"));
-    }
-
-    private static void loadSystemLibraryQuietly(String libraryName) {
-        try {
-            System.loadLibrary(libraryName);
-            Log.i(TAG, "Preloaded system library: lib" + libraryName + ".so");
-        } catch (UnsatisfiedLinkError | SecurityException e) {
-            //bazı cihazlarda/mimarilerde bu kütüphane bulunamayabilir veya erişilemez olabilir,
-            //bu durumda sessizce günlüğe yazıp devam ediyoruz; bu yüzden oyunun başlamasını engellememeli
-            Log.w(TAG, "Failed to preload system library: lib" + libraryName + ".so", e);
+            Log.w(TAG, "Error globally loading " + libName + " via ZLBridge", e);
         }
     }
 
