@@ -990,18 +990,12 @@ private fun ChangelogCard(
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    Text(
-                        text = stringResource(R.string.stats_changelog),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Spacer(Modifier.height(24.dp))
                     val dialogConfig = defaultMarkdownConfig()
                     MarkdownView(
-                        content = content!!,
+                        content = "# ${stringResource(R.string.stats_changelog)}\n\n${content!!}",
                         modifier = Modifier
                             .weight(1f)
-                            .verticalScroll(rememberScrollState())
-                            .padding(top = 8.dp),
+                            .verticalScroll(rememberScrollState()),
                         config = dialogConfig
                     )
                     Button(
