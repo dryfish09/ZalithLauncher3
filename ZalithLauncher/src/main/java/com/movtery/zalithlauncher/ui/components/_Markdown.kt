@@ -10,10 +10,12 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.iffly.compose.markdown.config.MarkdownRenderConfig
+import com.iffly.compose.markdown.style.ListTheme
 import com.iffly.compose.markdown.style.MarkdownTheme
 import com.iffly.compose.markdown.MarkdownView as ComposeMarkdownView
 import com.movtery.zalithlauncher.ui.theme.cardColor
@@ -66,50 +68,67 @@ fun defaultMarkdownConfig(
 ): MarkdownRenderConfig {
     val primary = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
-    return remember(influencedByBackground, codeBackground, primary, secondary) {
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    return remember(influencedByBackground, codeBackground, primary, secondary, onSurface) {
         MarkdownRenderConfig.Builder()
             .markdownTheme(
                 MarkdownTheme(
                     textStyle = TextStyle(
                         fontSize = 14.sp,
                         lineHeight = 20.sp,
+                        color = onSurface,
                     ),
                     headStyle = mapOf(
-                        0 to TextStyle(
-                            fontSize = 34.sp,
-                            lineHeight = 42.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
                         1 to TextStyle(
-                            fontSize = 24.sp,
-                            lineHeight = 32.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                        2 to TextStyle(
-                            fontSize = 20.sp,
-                            lineHeight = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                        3 to TextStyle(
                             fontSize = 18.sp,
-                            lineHeight = 26.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                        4 to TextStyle(
-                            fontSize = 16.sp,
                             lineHeight = 24.sp,
                             fontWeight = FontWeight.Bold,
+                            color = primary,
                         ),
-                        5 to TextStyle(
-                            fontSize = 14.sp,
+                        2 to TextStyle(
+                            fontSize = 16.sp,
                             lineHeight = 22.sp,
                             fontWeight = FontWeight.Bold,
+                            color = primary,
+                        ),
+                        3 to TextStyle(
+                            fontSize = 15.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = primary,
+                        ),
+                        4 to TextStyle(
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = primary,
+                        ),
+                        5 to TextStyle(
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = primary,
+                        ),
+                        6 to TextStyle(
+                            fontSize = 12.sp,
+                            lineHeight = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = primary,
                         ),
                     ),
                     code = TextStyle(
                         fontFamily = FontFamily.Monospace,
                         fontSize = 13.sp,
+                        color = onSurface,
                         background = codeBackground,
+                    ),
+                    listTheme = ListTheme(
+                        markerTextStyle = TextStyle(
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                            textAlign = TextAlign.End,
+                            color = onSurface,
+                        ),
                     ),
                     link = TextLinkStyles(
                         style = SpanStyle(
