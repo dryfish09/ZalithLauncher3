@@ -66,10 +66,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.movtery.zalithlauncher.game.plugin.driver.Driver
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
-import com.movtery.zalithlauncher.game.renderer.GpuBenchmarkResult
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
 import com.movtery.zalithlauncher.game.renderer.Renderers
-import com.movtery.zalithlauncher.game.renderer.runGpuBenchmark
 import com.movtery.zalithlauncher.game.renderer.renderers.KopperZinkRenderer
 import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
 import com.movtery.zalithlauncher.path.URL_CLOUD_DRIVE_DRIVER_PLUGINS
@@ -315,37 +313,6 @@ fun RendererSettingsScreen(
                 }
             }
 
-            // GPU Benchmark section
-            AnimatedItem(scope) { yOffset ->
-                val benchmarkState = remember { mutableStateOf<GpuBenchmarkResult?>(null) }
-                val isRunning = remember { mutableStateOf(false) }
-                val scope2 = rememberCoroutineScope()
-
-                SettingsCardColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
-                ) {
-                    BenchmarkCard(
-                        isRunning = isRunning.value,
-                        result = benchmarkState.value,
-                        onStart = {
-                            if (!isRunning.value) {
-                                isRunning.value = true
-                                benchmarkState.value = null
-                                scope2.launch(Dispatchers.IO) {
-                                    val result = runGpuBenchmark()
-                                    withContext(Dispatchers.Main) {
-                                        benchmarkState.value = result
-                                        isRunning.value = false
-                                    }
-                                }
-                            }
-                        }
-                    )
-                }
-            }
-
             AnimatedItem(scope) { yOffset ->
                 SettingsCardColumn(
                     modifier = Modifier
@@ -515,106 +482,3 @@ fun DriverSummaryLayout(driver: Driver) {
     }
 }
 
-@Composable
-private fun BenchmarkCard(
-    isRunning: Boolean,
-    result: GpuBenchmarkResult?,
-    onStart: () -> Unit
-) {
-    val border = remember {
-        BorderStroke(
-            width = 2.dp,
-            brush = Brush.horizontalGradient(
-                colors = listOf(Color(0xFF00BCD4), Color(0xFF4CAF50))
-            )
-        )
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(12.dp),
-        border = border,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.gpu_benchmark_title),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (isRunning) {
-                Text(
-                    text = stringResource(R.string.gpu_benchmark_running),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            } else if (result != null && result.gpuVendor != "Error") {
-                Text(
-                    text = "${stringResource(R.string.gpu_benchmark_gpu)}: ${result.gpuRenderer}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "${stringResource(R.string.gpu_benchmark_gl)}: ${result.glVersion}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "${stringResource(R.string.gpu_benchmark_vulkan)}: ${
-                        if (result.hasVulkan) stringResource(R.string.gpu_benchmark_vulkan_supported)
-                        else stringResource(R.string.gpu_benchmark_vulkan_unsupported)
-                    }",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "${stringResource(R.string.gpu_benchmark_fps)}: ${"%.1f".format(result.fps)} FPS",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "${stringResource(R.string.gpu_benchmark_recommendation)}: ${stringResource(result.recommendationResId)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.tertiary
-                )
-            } else if (result != null) {
-                Text(
-                    text = "${stringResource(R.string.gpu_benchmark_error)}: ${result.gpuRenderer}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = onStart,
-                enabled = !isRunning,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF00BCD4)
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.gpu_benchmark_start),
-                    color = Color.White
-                )
-            }
-        }
-    }
-}
