@@ -50,5 +50,9 @@
     *;
 }
 
+# ComposeMarkdown + Flexmark
+-keep class com.iffly.compose.markdown.** { *; }
+-keep class com.vladsch.flexmark.** { *; }
+
 # Libraries
 -keep class com.github.steveice10.opennbt.** { *; }
