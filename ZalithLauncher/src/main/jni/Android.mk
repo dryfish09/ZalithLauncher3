@@ -113,6 +113,13 @@ $(info $(shell (rm $(HERE_PATH)/../jniLibs/*/libawt_headless.so)))
 
 
 include $(CLEAR_VARS)
+LOCAL_LDLIBS := -ldl -llog
+LOCAL_MODULE := namespace_shim
+LOCAL_SRC_FILES := namespace_shim.c
+include $(BUILD_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
 LOCAL_PATH := $(HERE_PATH)
 LOCAL_MODULE := zl_fsr
 LOCAL_CFLAGS += -rdynamic

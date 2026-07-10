@@ -30,11 +30,10 @@ static void replaceLibPathInEnvBlock(JNIEnv *env, jbyteArray* envBlock, jint* en
         printf("exec_hooks WARN: replaceLibPathInEnvBlock does not preserve original env. Please notify PojavLauncherTeam if you need that feature\n");
         env_block_replacement_warning = true;
     }
-    // Preload libnativewindow.so (native_handle_create on Android 14+), libcutils.so (fallback),
-    // and libc++_shared.so (__emutls_get_address). libandroid.so is NOT preloaded — it's already
-    // loaded by the system before PRELOAD takes effect, causing unresolved native_handle_create.
+    // Preload our namespace shim (dlopens libnativewindow with RTLD_GLOBAL)
+    // and libc++_shared.so for __emutls_get_address (Clang TLS).
     char envStr[1024];
-    jsize new_envl = snprintf(envStr, sizeof(envStr) / sizeof(char), "LD_LIBRARY_PATH=%s:/system/lib64:/vendor/lib64%cLD_PRELOAD=libnativewindow.so:libcutils.so:libc++_shared.so%cPATH=%s", directory, 0, 0, directory) + 1;
+    jsize new_envl = snprintf(envStr, sizeof(envStr) / sizeof(char), "LD_LIBRARY_PATH=%s:/system/lib64:/vendor/lib64%cLD_PRELOAD=libnamespace_shim.so:libc++_shared.so%cPATH=%s", directory, 0, 0, directory) + 1;
     jbyteArray newBlock = (*env)->NewByteArray(env, new_envl);
     (*env)->SetByteArrayRegion(env, newBlock, 0, new_envl, (jbyte*) envStr);
     *envBlock = newBlock;
