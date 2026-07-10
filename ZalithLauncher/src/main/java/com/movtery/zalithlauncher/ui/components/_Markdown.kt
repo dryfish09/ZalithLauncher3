@@ -12,7 +12,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.iffly.compose.markdown.config.MarkdownRenderConfig
 import com.iffly.compose.markdown.style.ListTheme
@@ -26,24 +25,10 @@ fun MarkdownView(
     content: String,
     modifier: Modifier = Modifier,
     config: MarkdownRenderConfig = defaultMarkdownConfig(),
-    bodyFontSize: TextUnit? = null,
 ) {
-    val finalConfig = if (bodyFontSize != null) {
-        remember(bodyFontSize, config) {
-            MarkdownRenderConfig.Builder()
-                .markdownTheme(
-                    MarkdownTheme(
-                        textStyle = TextStyle(fontSize = bodyFontSize)
-                    )
-                )
-                .build()
-        }
-    } else {
-        config
-    }
     ComposeMarkdownView(
         content = content,
-        markdownRenderConfig = finalConfig,
+        markdownRenderConfig = config,
         modifier = modifier,
     )
 }

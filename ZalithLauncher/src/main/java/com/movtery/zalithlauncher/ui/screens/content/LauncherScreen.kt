@@ -84,6 +84,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
@@ -102,6 +103,7 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.defaultMarkdownConfig
 import com.iffly.compose.markdown.config.MarkdownRenderConfig
+import com.iffly.compose.markdown.style.ListTheme
 import com.iffly.compose.markdown.style.MarkdownTheme
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
@@ -941,21 +943,30 @@ private fun ChangelogCard(
                             else lines.dropLast(2).joinToString("\n")
                         }
                         val bodySize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize
-                        val cardConfig = remember(bodySize) {
+                        val primary = MaterialTheme.colorScheme.primary
+                        val onSurface = MaterialTheme.colorScheme.onSurface
+                        val cardConfig = remember(bodySize, primary, onSurface) {
                             MarkdownRenderConfig.Builder()
                                 .markdownTheme(
                                     MarkdownTheme(
-                                        textStyle = TextStyle(fontSize = bodySize, lineHeight = bodySize * 1.4f),
+                                        textStyle = TextStyle(fontSize = bodySize, lineHeight = bodySize * 1.4f, color = onSurface),
                                         headStyle = mapOf(
-                                            1 to TextStyle(fontSize = bodySize * 1.5f, lineHeight = bodySize * 1.8f, fontWeight = FontWeight.Bold),
-                                            2 to TextStyle(fontSize = bodySize * 1.3f, lineHeight = bodySize * 1.6f, fontWeight = FontWeight.Bold),
-                                            3 to TextStyle(fontSize = bodySize * 1.1f, lineHeight = bodySize * 1.4f, fontWeight = FontWeight.SemiBold),
+                                            1 to TextStyle(fontSize = bodySize * 1.2f, lineHeight = bodySize * 1.5f, fontWeight = FontWeight.Bold, color = primary),
+                                            2 to TextStyle(fontSize = bodySize * 1.1f, lineHeight = bodySize * 1.4f, fontWeight = FontWeight.Bold, color = primary),
+                                            3 to TextStyle(fontSize = bodySize, lineHeight = bodySize * 1.3f, fontWeight = FontWeight.SemiBold, color = primary),
+                                        ),
+                                        listTheme = ListTheme(
+                                            markerTextStyle = TextStyle(
+                                                fontSize = bodySize,
+                                                lineHeight = bodySize * 1.4f,
+                                                textAlign = TextAlign.End,
+                                                color = onSurface,
+                                            ),
                                         ),
                                     )
                                 )
                                 .build()
                         }
-                        val previewBodySize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else 10.sp
                         MarkdownView(
                             content = previewText,
                             modifier = Modifier
@@ -963,7 +974,6 @@ private fun ChangelogCard(
                                 .fillMaxWidth()
                                 .bottomFade(48.dp, cardColor()),
                             config = cardConfig,
-                            bodyFontSize = previewBodySize
                         )
                         Text(
                             text = stringResource(R.string.stats_click_for_more),
