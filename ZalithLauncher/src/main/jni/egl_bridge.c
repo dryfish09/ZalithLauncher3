@@ -238,6 +238,15 @@ EXTERNAL_API void pojavSetWindowHint(int hint, int value) {
     }
 }
 
+// Recording support forward declarations
+static bool g_recording_active = false;
+static int g_recording_width = 0;
+static int g_recording_height = 0;
+static JavaVM* g_recording_jvm = NULL;
+static jclass g_recording_class = NULL;
+static jmethodID g_recording_onFrame = NULL;
+static void capture_and_send_recording_frame();
+
 EXTERNAL_API void pojavSwapBuffers() {
     calculateFPS();
 
@@ -346,13 +355,6 @@ EXTERNAL_API void pojavSwapInterval(int interval) {
 }
 
 // Recording support -----------------------------------------------------------
-
-static bool g_recording_active = false;
-static int g_recording_width = 0;
-static int g_recording_height = 0;
-static JavaVM* g_recording_jvm = NULL;
-static jclass g_recording_class = NULL;
-static jmethodID g_recording_onFrame = NULL;
 
 static void rgba_to_nv12(const uint8_t* rgba, uint8_t* nv12, int width, int height) {
     const int ySize = width * height;
