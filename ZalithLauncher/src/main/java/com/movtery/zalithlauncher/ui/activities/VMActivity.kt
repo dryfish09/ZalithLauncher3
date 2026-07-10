@@ -28,7 +28,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.InputDevice
 import android.view.KeyEvent
-import android.view.PointerIcon
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -769,12 +768,9 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                     //因此这里强制忽略 SurfaceView 偏好设置，即使该偏好值仍保存为开启状态
                     val isKopperZinkActive = Renderers.isCurrentRendererValid() &&
                         Renderers.getCurrentRenderer().getUniqueIdentifier() == KopperZinkRenderer.getUniqueIdentifier()
-                    // Hide system mouse pointer; launcher provides its own via pointerHoverIcon
-                    val nullPointer = PointerIcon.getSystemIcon(context, PointerIcon.TYPE_NULL)
                     if (AllSettings.useSurfaceView.getValue() && !isKopperZinkActive) {
                         SurfaceView(context).apply {
                             holder.addCallback(this@VMActivity)
-                            pointerIcon = nullPointer
                         }.also { view ->
                             applySizeToSurface = { width, height ->
                                 view.holder.setFixedSize(width, height)
@@ -787,7 +783,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                             alpha = 1.0f
 
                             surfaceTextureListener = this@VMActivity
-                            pointerIcon = nullPointer
                         }.also { view ->
                             applySizeToSurface = { width, height ->
                                 view.surfaceTexture?.setDefaultBufferSize(width, height)
