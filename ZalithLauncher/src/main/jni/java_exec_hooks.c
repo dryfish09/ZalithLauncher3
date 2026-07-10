@@ -34,7 +34,7 @@ static void replaceLibPathInEnvBlock(JNIEnv *env, jbyteArray* envBlock, jint* en
     // Preload libandroid.so (DT_NEEDED on libnativewindow) + libnativewindow.so directly + libcutils.so
     // to ensure all native_handle symbols are globally visible regardless of linker namespace quirks.
     char envStr[1024];
-    jsize new_envl = snprintf(envStr, sizeof(envStr) / sizeof(char), "LD_LIBRARY_PATH=/system/lib64:/vendor/lib64:%s%cLD_PRELOAD=libnativewindow.so:libandroid.so:libcutils.so%cPATH=%s", directory, 0, 0, directory) + 1;
+    jsize new_envl = snprintf(envStr, sizeof(envStr) / sizeof(char), "LD_LIBRARY_PATH=%s:/system/lib64:/vendor/lib64%cLD_PRELOAD=libnativewindow.so:libcutils.so%cPATH=%s", directory, 0, 0, directory) + 1;
     jbyteArray newBlock = (*env)->NewByteArray(env, new_envl);
     (*env)->SetByteArrayRegion(env, newBlock, 0, new_envl, (jbyte*) envStr);
     *envBlock = newBlock;
