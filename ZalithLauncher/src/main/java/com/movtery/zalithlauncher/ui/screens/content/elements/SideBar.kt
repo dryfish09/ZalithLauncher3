@@ -182,7 +182,7 @@ fun SideBar(
                 SideBarToggle(
                     expanded = expanded,
                     onClick = { expanded = !expanded },
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
         }
