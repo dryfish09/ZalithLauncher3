@@ -100,7 +100,9 @@ import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarkdownView
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
-import com.movtery.zalithlauncher.ui.components.defaultRichTextStyle
+import com.movtery.zalithlauncher.ui.components.defaultMarkdownConfig
+import com.iffly.compose.markdown.config.MarkdownRenderConfig
+import com.iffly.compose.markdown.style.MarkdownTheme
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
@@ -242,7 +244,7 @@ private fun ContentMenu(
 
     val homePageViewModel = LocalHomePageViewModel.current
     val pageState by homePageViewModel.pageState.collectAsStateWithLifecycle()
-    val richTextStyle = defaultRichTextStyle()
+    val config = defaultMarkdownConfig()
 
     Column(
         modifier = modifier
@@ -314,7 +316,7 @@ private fun ContentMenu(
                 ) {
                     customHomePage(
                         blocks = state.page,
-                        richTextStyle = richTextStyle,
+                        config = config,
                         onEvent = onHomePageEvent
                     )
                 }
@@ -939,28 +941,29 @@ private fun ChangelogCard(
                             else lines.dropLast(2).joinToString("\n")
                         }
                         val bodySize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize
-                        val defaultStyle = defaultRichTextStyle()
-                        val cardRichTextStyle = remember(bodySize, defaultStyle) {
-                            defaultStyle.copy(
-                                paragraphSpacing = 12.sp,
-                                headingStyle = { level, textStyle ->
-                                    when (level) {
-                                        0 -> TextStyle(fontSize = bodySize * 1.8f, lineHeight = bodySize * 2.2f, fontWeight = FontWeight.Bold)
-                                        1 -> TextStyle(fontSize = bodySize * 1.5f, lineHeight = bodySize * 1.8f, fontWeight = FontWeight.Bold)
-                                        2 -> TextStyle(fontSize = bodySize * 1.3f, lineHeight = bodySize * 1.6f, fontWeight = FontWeight.Bold)
-                                        else -> TextStyle(fontSize = bodySize * 1.1f, lineHeight = bodySize * 1.4f, fontWeight = FontWeight.SemiBold)
-                                    }
-                                }
-                            )
+                        val cardConfig = remember(bodySize) {
+                            MarkdownRenderConfig.Builder()
+                                .markdownTheme(
+                                    MarkdownTheme(
+                                        textStyle = TextStyle(fontSize = bodySize, lineHeight = bodySize * 1.4f),
+                                        headStyle = mapOf(
+                                            1 to TextStyle(fontSize = bodySize * 1.5f, lineHeight = bodySize * 1.8f, fontWeight = FontWeight.Bold),
+                                            2 to TextStyle(fontSize = bodySize * 1.3f, lineHeight = bodySize * 1.6f, fontWeight = FontWeight.Bold),
+                                            3 to TextStyle(fontSize = bodySize * 1.1f, lineHeight = bodySize * 1.4f, fontWeight = FontWeight.SemiBold),
+                                        ),
+                                    )
+                                )
+                                .build()
                         }
+                        val previewBodySize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else 10.sp
                         MarkdownView(
                             content = previewText,
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth()
                                 .bottomFade(48.dp, cardColor()),
-                            richTextStyle = cardRichTextStyle,
-                            bodyFontSize = if (isTablet) MaterialTheme.typography.bodySmall.fontSize else 10.sp
+                            config = cardConfig,
+                            bodyFontSize = previewBodySize
                         )
                         Text(
                             text = stringResource(R.string.stats_click_for_more),
@@ -992,14 +995,14 @@ private fun ChangelogCard(
                         style = MaterialTheme.typography.titleLarge
                     )
                     Spacer(Modifier.height(24.dp))
-                    val dialogRichTextStyle = defaultRichTextStyle()
+                    val dialogConfig = defaultMarkdownConfig()
                     MarkdownView(
                         content = content!!,
                         modifier = Modifier
                             .weight(1f)
                             .verticalScroll(rememberScrollState())
                             .padding(top = 8.dp),
-                        richTextStyle = dialogRichTextStyle
+                        config = dialogConfig
                     )
                     Button(
                         onClick = { showDialog = false },
