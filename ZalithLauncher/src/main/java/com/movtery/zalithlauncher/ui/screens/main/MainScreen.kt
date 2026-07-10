@@ -650,9 +650,9 @@ private fun NavigationUI(
                         eventViewModel = eventViewModel
                     )
                 }
-                entry<NormalNavKey.BuiltInFileManager> {
+                entry<NormalNavKey.BuiltInFileManager> { key ->
                     BuiltInFileManagerScreen(
-                        key = NormalNavKey.BuiltInFileManager,
+                        key = key,
                         backStackViewModel = screenBackStackModel,
                         submitError = submitError,
                         navigateToEditor = { path ->

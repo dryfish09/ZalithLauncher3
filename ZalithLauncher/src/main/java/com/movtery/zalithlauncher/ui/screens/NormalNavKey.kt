@@ -67,7 +67,9 @@ sealed interface NormalNavKey : TitledNavKey {
         override val title: Int = R.string.terracotta_terracotta
     }
     /** 内置文件管理器屏幕 */
-    @Serializable data object BuiltInFileManager : NormalNavKey {
+    @Serializable data class BuiltInFileManager(
+        val startPath: String? = null
+    ) : NormalNavKey {
         override val title: Int = R.string.page_title_file_manager
     }
     /** 文件编辑器屏幕 */

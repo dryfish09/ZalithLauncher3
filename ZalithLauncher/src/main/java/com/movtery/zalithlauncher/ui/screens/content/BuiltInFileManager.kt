@@ -184,7 +184,8 @@ fun BuiltInFileManagerScreen(
     val scope = rememberCoroutineScope()
 
     val rootPath = remember { PathManager.DIR_FILES_EXTERNAL.absolutePath }
-    var currentPath by remember { mutableStateOf(rootPath) }
+    val initialPath = key.startPath ?: rootPath
+    var currentPath by remember { mutableStateOf(initialPath) }
     var files by remember { mutableStateOf<List<File>>(emptyList()) }
     var operation by remember { mutableStateOf<FileManagerOperation>(FileManagerOperation.None) }
 

@@ -401,6 +401,11 @@ private fun NavigationUI(
                         versionsScreenKey = versionsScreenKey,
                         backToMainScreen = backToMainScreen,
                         onExport = onExport,
+                        onOpenFolder = { folderPath ->
+                            backScreenViewModel.mainScreen.navigateTo(
+                                NormalNavKey.BuiltInFileManager(startPath = folderPath)
+                            )
+                        },
                         version = version,
                         eventViewModel = eventViewModel,
                         submitError = submitError
