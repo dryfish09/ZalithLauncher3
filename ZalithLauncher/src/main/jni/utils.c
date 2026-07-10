@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
-#include <android/dlext.h>
 
 #include "logger/logger.h"
 
@@ -135,73 +133,5 @@ JNIEXPORT void JNICALL Java_com_movtery_zalithlauncher_bridge_ZLBridge_fsrSetQua
 	if (fsr_set_quality_fn) {
 		fsr_set_quality_fn((int)qualityPreset);
 	}
-}
-
-JNIEXPORT jboolean JNICALL Java_com_movtery_zalithlauncher_bridge_ZLBridge_dlopenGlobalSphal(JNIEnv *env, jclass clazz, jstring name) {
-	const char *nameUtf = (*env)->GetStringUTFChars(env, name, 0);
-	LOG_TO_D("dlopenGlobalSphal: trying %s", nameUtf);
-
-	// Önce normal dlopen RTLD_GLOBAL dene (çoğu cihazda yeterli)
-	void* handle = dlopen(nameUtf, RTLD_GLOBAL | RTLD_LAZY);
-	if (handle) {
-		LOG_TO_D("dlopenGlobalSphal: dlopen success for %s", nameUtf);
-		(*env)->ReleaseStringUTFChars(env, name, nameUtf);
-		return JNI_TRUE;
-	}
-	LOG_TO_W("dlopenGlobalSphal: dlopen failed for %s, trying android_dlopen_ext: %s", nameUtf, dlerror());
-
-	// dlopen başarısız — ColorOS/HyperOS gibi ROM'larda linker namespace engelleyebilir.
-	// android_dlopen_ext ile doğru namespace'i kullanarak yükle.
-	void *libdl_android = dlopen("libdl_android.so", RTLD_LAZY | RTLD_LOCAL);
-	if (!libdl_android) {
-		LOG_TO_W("dlopenGlobalSphal: cannot load libdl_android.so: %s", dlerror());
-		(*env)->ReleaseStringUTFChars(env, name, nameUtf);
-		return JNI_FALSE;
-	}
-
-	typedef struct android_namespace_t* (*get_namespace_fn_t)(const char*);
-	get_namespace_fn_t get_namespace = (get_namespace_fn_t)dlsym(libdl_android, "android_get_exported_namespace");
-	if (!get_namespace) {
-		LOG_TO_W("dlopenGlobalSphal: no android_get_exported_namespace: %s", dlerror());
-		dlclose(libdl_android);
-		(*env)->ReleaseStringUTFChars(env, name, nameUtf);
-		return JNI_FALSE;
-	}
-
-	// Sırayla namespace'leri dene: sphal, vendor, default
-	const char* ns_names[] = {"sphal", "vendor", "default", NULL};
-	struct android_namespace_t* ns = NULL;
-	for (int i = 0; ns_names[i]; i++) {
-		ns = get_namespace(ns_names[i]);
-		if (ns) {
-			LOG_TO_D("dlopenGlobalSphal: using namespace '%s'", ns_names[i]);
-			break;
-		}
-	}
-
-	if (!ns) {
-		LOG_TO_W("dlopenGlobalSphal: no usable namespace found");
-		dlclose(libdl_android);
-		(*env)->ReleaseStringUTFChars(env, name, nameUtf);
-		return JNI_FALSE;
-	}
-
-	android_dlextinfo extinfo;
-	memset(&extinfo, 0, sizeof(extinfo));
-	extinfo.flags = ANDROID_DLEXT_USE_NAMESPACE;
-	extinfo.library_namespace = ns;
-
-	handle = android_dlopen_ext(nameUtf, RTLD_GLOBAL | RTLD_LAZY, &extinfo);
-	if (!handle) {
-		LOG_TO_E("dlopenGlobalSphal: android_dlopen_ext failed for %s: %s", nameUtf, dlerror());
-		dlclose(libdl_android);
-		(*env)->ReleaseStringUTFChars(env, name, nameUtf);
-		return JNI_FALSE;
-	}
-
-	LOG_TO_D("dlopenGlobalSphal: android_dlopen_ext success for %s", nameUtf);
-	dlclose(libdl_android);
-	(*env)->ReleaseStringUTFChars(env, name, nameUtf);
-	return JNI_TRUE;
 }
 

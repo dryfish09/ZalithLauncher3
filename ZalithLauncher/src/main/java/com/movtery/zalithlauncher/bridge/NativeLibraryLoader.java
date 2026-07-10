@@ -24,23 +24,43 @@ public class NativeLibraryLoader {
     private static final String TAG = "NativeLibraryLoader";
 
     /**
-     * Android 14 (API 34) üzerinde ReplayMod video export ederken
+     * Android 14 (API 34) üzerinde bazı cihazlarda, Replay Mod ile video
+     * dışa aktarılırken libffmpeg.so üzerinden linker şu hatayı veriyordu:
      * "cannot locate symbol native_handle_create referenced by libandroid.so"
-     * hatası alınıyor. Bunun sebebi, native_handle_create'in Android 14'te
-     * libnativewindow.so'da tanımlı olması ve FFmpeg dlopen edildiğinde
-     * linker'ın bu sembolü çözümleyememesidir.
      * <p>
-     * Çözüm: Oyun başlamadan önce, ZLBridge.dlopenGlobalSphal ile
-     * (android_dlopen_ext + RTLD_GLOBAL) bu kütüphaneleri sphal/default
-     * namespace'inde yükleyip sembolleri süreç genelinde görünür hale getiririz.
+     * readelf ile bakıldığında libffmpeg.so'nun kendisi libandroid'e bağımlı
+     * görünmüyor, ancak FFmpeg'in altında kullandığı bazı alt kütüphaneler
+     * (MediaCodec/AImage tabanlı donanım kodlayıcı yolları) çalışma zamanında
+     * bu sembolleri dolaylı olarak tetikliyor. Sorun, bu sistem kütüphanelerinin
+     * FFmpeg dlopen edilene kadar süreç içinde henüz yüklenmemiş/bağlanmamış
+     * olmasından kaynaklanıyor.
      * <p>
-     * Bazı cihazlarda (ColorOS/RealmeUI/HyperOS) linker namespace'leri
-     * normal dlopen'ı engelleyebilir; bu yüzden android_dlopen_ext ile
-     * doğrudan doğru namespace hedeflenir.
+     * Çözüm: oyun süreci başlamadan (yani {@link ZLBridge} ilk dokunulup asıl
+     * pojavexec/awt kütüphaneleri yüklenmeden) hemen önce, Java katmanında
+     * System.loadLibrary ile bu sistem kütüphanelerini zorla önden yükleyip
+     * sembollerini sürecin genelinde çözümlenebilir hale getiriyoruz.
      * <p>
-     * ÖNEMLİ: System.loadLibrary (RTLD_LOCAL) KULLANMIYORUZ. Bir kütüphane
-     * RTLD_LOCAL ile yüklendikten sonra RTLD_GLOBAL'a çevrilemez.
-     * Bu yüzden sadece RTLD_GLOBAL ile yükleme yapıyoruz.
+     * Bazı cihazlarda/mimarilerde bu kütüphanelerden biri bulunamayabilir ya da
+     * zaten yüklenmiş olabilir; bu durumda oyunun başlamasını engellememesi için
+     * her biri ayrı ayrı, birbirinden bağımsız olarak try/catch içinde yükleniyor.
+     */
+    public static void preloadFFmpegSystemDependencies() {
+        loadSystemLibraryQuietly("cutils");
+        loadSystemLibraryQuietly("android");
+        loadSystemLibraryQuietly("mediandk");
+        loadSystemLibraryQuietly("nativewindow");
+    }
+
+    /**
+     * ZLBridge.dlopen (RTLD_GLOBAL) ile sistem kütüphanelerini yükleyerek
+     * sembollerin süreç genelinde görünür olmasını sağlar.
+     * Bu, FFmpeg gibi daha sonra dlopen ile yüklenen kütüphanelerin
+     * native_handle_create vb. sembolleri bulamamasını engeller.
+     * <p>
+     * Not: System.loadLibrary RTLD_LOCAL kullanır. Önceden RTLD_LOCAL ile
+     * yüklenmiş bir kütüphane sonradan RTLD_GLOBAL'a çevrilemez,
+     * bu yüzden doğrudan RTLD_GLOBAL ile yüklüyoruz.
+     * RTLD_GLOBAL başarısız olursa yedek olarak System.loadLibrary deneriz.
      */
     public static void reloadFFmpegSystemDependenciesGlobally() {
         dlopenSystemLibGlobally("libcutils.so");
@@ -51,14 +71,28 @@ public class NativeLibraryLoader {
 
     private static void dlopenSystemLibGlobally(String libName) {
         try {
-            boolean ok = ZLBridge.dlopenGlobalSphal(libName);
+            boolean ok = ZLBridge.dlopen(libName);
             if (ok) {
                 Log.i(TAG, "Globally loaded: " + libName);
                 return;
             }
-            Log.w(TAG, "ZLBridge.dlopenGlobalSphal failed for " + libName + " (no fallback)");
+            Log.w(TAG, "ZLBridge.dlopen failed for " + libName + ", falling back to System.loadLibrary");
         } catch (Exception e) {
-            Log.w(TAG, "Error globally loading " + libName + " via dlopenGlobalSphal", e);
+            Log.w(TAG, "Error globally loading " + libName + " via ZLBridge, falling back", e);
+        }
+        // Fallback: System.loadLibrary (RTLD_LOCAL) — semboller global olmasa da
+        // kütüphanenin kendisi yüklenmiş olur; bazı cihazlarda yine de işe yarayabilir.
+        loadSystemLibraryQuietly(libName.replaceAll("^lib(.*)\\.so$", "$1"));
+    }
+
+    private static void loadSystemLibraryQuietly(String libraryName) {
+        try {
+            System.loadLibrary(libraryName);
+            Log.i(TAG, "Preloaded system library: lib" + libraryName + ".so");
+        } catch (UnsatisfiedLinkError | SecurityException e) {
+            //bazı cihazlarda/mimarilerde bu kütüphane bulunamayabilir veya erişilemez olabilir,
+            //bu durumda sessizce günlüğe yazıp devam ediyoruz; bu yüzden oyunun başlamasını engellememeli
+            Log.w(TAG, "Failed to preload system library: lib" + libraryName + ".so", e);
         }
     }
 

@@ -65,7 +65,6 @@ public final class ZLBridge {
     //Launch
     @Keep public static native void setLdLibraryPath(String ldLibraryPath);
     @Keep public static native boolean dlopen(String libPath);
-    @Keep public static native boolean dlopenGlobalSphal(String libPath);
 
     //Render
     @Keep public static native void setupBridgeWindow(Object surface);
@@ -88,12 +87,12 @@ public final class ZLBridge {
         NativeLibraryLoader.loadPojavAWTLib();
 
         //Android 14'te libandroid.so, native_handle_create için libnativewindow.so'ya
-        //ihtiyaç duyar. pojavexec yüklendikten sonra dlopenGlobalSphal ile
-        //(android_dlopen_ext + RTLD_GLOBAL, sphal/vendor/default namespace)
-        //bu kütüphaneleri yükleriz; böylece FFmpeg (ReplayMod) dlopen edildiğinde
+        //ihtiyaç duyar. pojavexec yüklendikten sonra ZLBridge.dlopen RTLD_GLOBAL ile
+        //bu kütüphaneleri yükler; böylece FFmpeg (ReplayMod) dlopen edildiğinde
         //linker sembolleri çözümleyebilir.
-        //Not: System.loadLibrary (RTLD_LOCAL) KULLANILMAZ — bir lib RTLD_LOCAL
-        //ile yüklendikten sonra RTLD_GLOBAL'a çevrilemez.
+        //Not: System.loadLibrary RTLD_LOCAL kullanır — önceden RTLD_LOCAL ile
+        //yüklenmiş bir lib sonradan RTLD_GLOBAL'a çevrilemez, o yüzden sadece
+        //RTLD_GLOBAL ile yüklüyoruz.
         NativeLibraryLoader.reloadFFmpegSystemDependenciesGlobally();
     }
 }
