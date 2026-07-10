@@ -46,7 +46,6 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
-import com.movtery.zalithlauncher.game.plugin.renderer_v2.RendererV2PluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.notification.NotificationManager
@@ -727,7 +726,6 @@ class MainActivity : BaseAppCompatActivity() {
         val importing = when (type) {
             IMPORT_TYPE_MODPACK -> handleModpackImport(intent)
             IMPORT_TYPE_CONTROLS -> handleControlsImport(intent)
-            IMPORT_TYPE_RENDERER -> handleRendererImport(intent)
             else -> false
         }
 
@@ -778,22 +776,6 @@ class MainActivity : BaseAppCompatActivity() {
             importControlFiles(listOf(uri))
         }
         return uri != null
-    }
-
-    /**
-     * 处理新架构渲染器插件配置导入
-     * @return 是否已经触发了渲染器导入
-     */
-    private fun handleRendererImport(intent: Intent): Boolean {
-        val senderPackage = intent.getStringExtra(EXTRA_SENDER_PACKAGE) ?: return false
-        val configJson = intent.getStringExtra(EXTRA_CONFIG_JSON) ?: return false
-
-        RendererV2PluginManager.deserialize(
-            context = this,
-            senderPackageName = senderPackage,
-            configJson = configJson
-        )
-        return true
     }
 
     override fun onResume() {

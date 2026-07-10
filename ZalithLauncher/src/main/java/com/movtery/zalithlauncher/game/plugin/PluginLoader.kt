@@ -57,8 +57,6 @@ object PluginLoader {
         RendererV2PluginManager.clearPlugin()
         NativePluginManager.clearPlugin()
 
-        RendererV2PluginManager.initialize(context) { apkPluginList.add(it) }
-
         val queryIntentActivities =
             context.packageManager.queryIntentActivities(
                 Intent(Intent.ACTION_MAIN),
@@ -68,6 +66,7 @@ object PluginLoader {
             val applicationInfo = resolve.activityInfo.applicationInfo
             runCatching {
                 DriverPluginManager.parseApkPlugin(context, applicationInfo) { apkPluginList.add(it) }
+                RendererV2PluginManager.parseApkPlugin(context, applicationInfo) { apkPluginList.add(it) }
                 RendererPluginManager.parseApkPlugin(context, applicationInfo) { apkPluginList.add(it) }
                 NativePluginManager.parseApkPlugin(context, applicationInfo) { apkPluginList.add(it) }
             }.onFailure { e ->

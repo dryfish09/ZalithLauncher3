@@ -60,11 +60,7 @@ const val EXTRA_IMPORT_TYPE   = "EXTRA_IMPORT_TYPE"
 
 const val IMPORT_TYPE_MODPACK = "modpack"
 const val IMPORT_TYPE_CONTROLS = "controls"
-const val IMPORT_TYPE_RENDERER = "renderer"
 const val IMPORT_TYPE_UNKNOWN = "unknown"
-
-const val EXTRA_CONFIG_JSON = "config"
-const val EXTRA_SENDER_PACKAGE = "sender_package"
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
@@ -252,43 +248,34 @@ class SplashActivity : BaseAppCompatActivity() {
     private fun handleImportIntent(source: Intent): Boolean {
         if (!isImportIntent(source)) return false
 
+        val uri: Uri? = when (source.action) {
+            Intent.ACTION_SEND -> {
+                source.clipData?.getItemAt(0)?.uri
+                    ?: source.getParcelableExtra(Intent.EXTRA_STREAM)
+            }
+            Intent.ACTION_VIEW -> source.data
+            else -> null
+        }
+
+        if (uri == null) {
+            Logger.warning(TAG, "No valid import Uri found")
+            return false
+        } else {
+            try {
+                //可持久化访问授权
+                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            } catch (_: Exception) {
+                Logger.warning(TAG, "No persistable permission granted for $uri")
+            }
+        }
+
         val forward = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or
                     Intent.FLAG_ACTIVITY_SINGLE_TOP
 
             putExtra(EXTRA_IMPORT_ACTION, source.action)
+            putExtra(EXTRA_IMPORT_URI, uri)
             putExtra(EXTRA_IMPORT_TYPE, resolveImportType(source))
-        }
-
-        if (isPluginConfigIntent(source)) {
-            // 渲染器插件配置推送
-            forward.putExtra(EXTRA_CONFIG_JSON, source.getStringExtra(EXTRA_CONFIG_JSON))
-            forward.putExtra(EXTRA_SENDER_PACKAGE, source.getStringExtra(EXTRA_SENDER_PACKAGE))
-        }
-
-        // 文件导入
-        if (!isPluginConfigIntent(source)) {
-            val uri: Uri? = when (source.action) {
-                Intent.ACTION_SEND -> {
-                    source.clipData?.getItemAt(0)?.uri
-                        ?: source.getParcelableExtra(Intent.EXTRA_STREAM)
-                }
-                Intent.ACTION_VIEW -> source.data
-                else -> null
-            }
-
-            if (uri == null) {
-                Logger.warning(TAG, "No valid import Uri found")
-                return false
-            } else {
-                try {
-                    contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                } catch (_: Exception) {
-                    Logger.warning(TAG, "No persistable permission granted for $uri")
-                }
-            }
-
-            forward.putExtra(EXTRA_IMPORT_URI, uri)
         }
 
         startActivity(forward)
@@ -313,14 +300,7 @@ class SplashActivity : BaseAppCompatActivity() {
     private fun isImportIntent(intent: Intent?): Boolean {
         val comp = intent?.component ?: return false
         val info = packageManager.getActivityInfo(comp, PackageManager.GET_META_DATA)
-        val meta = info.metaData ?: return false
-        return meta.getString("import_type") != null
-    }
-
-    private fun isPluginConfigIntent(intent: Intent): Boolean {
-        val comp = intent.component ?: return false
-        val info = packageManager.getActivityInfo(comp, PackageManager.GET_META_DATA)
-        return info.metaData?.getString("import_type") == IMPORT_TYPE_RENDERER
+        return info.metaData?.getString("import_type") != null
     }
 
     private fun areAllTasksFinished(): Boolean {

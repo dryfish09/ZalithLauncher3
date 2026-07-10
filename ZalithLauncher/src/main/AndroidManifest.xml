@@ -59,22 +59,6 @@
         </activity>
 
         <activity-alias
-            android:name=".ui.activities.PluginConfigReceiver"
-            android:targetActivity=".ui.activities.SplashActivity"
-            android:exported="true">
-
-            <meta-data
-                android:name="import_type"
-                android:value="renderer" />
-
-            <intent-filter>
-                <action android:name="com.launchers_plugin.renderer.PUSH_RENDERER_CONFIG" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-        </activity-alias>
-
-        <activity-alias
             android:label="@string/import_modpack"
             android:name="com.movtery.activity.ImportModpackActivity"
             android:exported="true"
