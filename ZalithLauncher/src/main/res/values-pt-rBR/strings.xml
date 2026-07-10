@@ -709,6 +709,7 @@
     <string name="shader_pack_manage_name">Nome da shader</string>
     <string name="shader_pack_manage_delete_warning">Tem certeza de que deseja excluir a Shader %s? Se fizer isso não tem mais volta!</string>
     <string name="shader_pack_manage_no_packs">Tá vazio aqui, coloca shader aí</string>
+    <string name="shader_pack_manage_info">Informações do Pacote de Shader</string>
     <string name="servers_list">Servidores</string>
     <string name="servers_list_no_servers">Sem servidores para entrar automaticamente assim que abrir o jogo</string>
     <string name="servers_list_failed_to_connect">Não foi possível conectar ao servidor</string>

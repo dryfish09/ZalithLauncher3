@@ -605,6 +605,7 @@
     <string name="shader_pack_manage_name">Tên shader</string>
     <string name="shader_pack_manage_delete_warning">Xóa shader %s? Mất!</string>
     <string name="shader_pack_manage_no_packs">Chưa có shader</string>
+    <string name="shader_pack_manage_info">Thông tin Shader</string>
     <string name="about_launcher_title">Về launcher</string>
     <string name="about_launcher_version">Phiên bản: %s</string>
     <string name="about_launcher_author_movtery_title">MovTery</string>

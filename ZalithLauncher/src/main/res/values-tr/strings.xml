@@ -495,6 +495,7 @@
     <string name="shader_pack_manage_name">Gölgelendirici Paketi İsmi</string>
     <string name="shader_pack_manage_delete_warning">%s gölgelendirici paketini silmek istediğinizden emin misiniz? Bu eylem geri alınamaz!</string>
     <string name="shader_pack_manage_no_packs">Bu sürüm için gölgelendirici paketi yok</string>
+    <string name="shader_pack_manage_info">Gölgelendirici Paket Bilgisi</string>
     <string name="minecraft_download_stat_download_task">İndirmeler hazırlanıyor</string>
     <string name="minecraft_download_stat_verify_task">Doğrulamalar hazırlanıyor</string>
     <string name="minecraft_download_downloading_game_files">Dosyalar indiriliyor \n(%1$d/%2$d, %3$s/%4$s)</string>

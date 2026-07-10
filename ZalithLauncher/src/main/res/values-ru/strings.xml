@@ -687,6 +687,7 @@
     <string name="shader_pack_manage_name">Название шейдеров</string>
     <string name="shader_pack_manage_delete_warning">Вы уверены, что хотите удалить шейдер %s? Это действие необратимо!</string>
     <string name="shader_pack_manage_no_packs">Нет шейдеров для этой версии</string>
+    <string name="shader_pack_manage_info">Информация о шейдер-паке</string>
     <string name="settings_game_show_log_automatic_title">Автоматически выводить логи</string>
     <string name="settings_game_show_log_automatic_summary">Автоматически выводит логи до начала отображения игрового экрана</string>
     <string name="settings_control_physical_key_bind_ime_title">Вывод окна ввода текста с помощью нажатия клавиши</string>

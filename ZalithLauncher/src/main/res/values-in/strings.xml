@@ -568,6 +568,7 @@
     <string name="game_menu_option_send_keycode">Kirim Input</string>
     <string name="shader_pack_manage_delete_warning">Yakin ingin menghapus shader %s? Tindakan ini tidak dapat dibatalkan!</string>
     <string name="shader_pack_manage_no_packs">Tidak ada shader untuk versi ini</string>
+    <string name="shader_pack_manage_info">Informasi Paket Shader</string>
     <string name="minecraft_download_stat_download_task">Bersiap mengunduh</string>
     <string name="minecraft_download_stat_verify_task">Mempersiapkan verifikasi</string>
     <string name="minecraft_download_verifying_and_repairing_files">Memverifikasi file\n(%1$d/%2$d, %3$s/%4$s)</string>

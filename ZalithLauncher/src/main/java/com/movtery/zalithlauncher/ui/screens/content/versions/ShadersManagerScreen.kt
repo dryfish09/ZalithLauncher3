@@ -120,6 +120,7 @@ import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.FolderFileCounter
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.version.shader_pack.RemoteShaderPack
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -396,6 +397,7 @@ fun ShadersManagerScreen(
     version: Version,
     backToMainScreen: () -> Unit,
     swapToDownload: () -> Unit,
+    onSwapMoreInfo: (id: String, Platform) -> Unit = { _, _ -> },
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     if (!version.isValid()) {
@@ -508,6 +510,7 @@ fun ShadersManagerScreen(
                             addToSelected = { viewModel.selectedPacks.add(it) },
                             onToggleEnabled = { viewModel.togglePackEnabled(it) },
                             updateOperation = { shaderOperation = it },
+                            onSwapMoreInfo = onSwapMoreInfo,
                             onLoad = { viewModel.loadShaderPack(it) }
                         )
                     }
@@ -751,6 +754,7 @@ private fun ShadersList(
     addToSelected: (RemoteShaderPack) -> Unit,
     onToggleEnabled: (RemoteShaderPack) -> Unit,
     updateOperation: (ShaderOperation) -> Unit,
+    onSwapMoreInfo: (id: String, Platform) -> Unit = { _, _ -> },
     onLoad: (RemoteShaderPack) -> Unit
 ) {
     shadersList?.let { list ->
@@ -781,6 +785,7 @@ private fun ShadersList(
                         },
                         onToggleEnabled = { onToggleEnabled(pack) },
                         onDelete = { updateOperation(ShaderOperation.Delete(pack.info)) },
+                        onSwapMoreInfo = onSwapMoreInfo,
                         onLoad = { onLoad(pack) }
                     )
                 }
@@ -811,6 +816,7 @@ private fun ShaderPackItem(
     onClick: () -> Unit = {},
     onToggleEnabled: () -> Unit = {},
     onDelete: () -> Unit = {},
+    onSwapMoreInfo: (id: String, Platform) -> Unit = { _, _ -> },
     onLoad: () -> Unit = {},
     itemColor: Color = itemColor(),
     itemContentColor: Color = onItemColor(),
@@ -880,6 +886,21 @@ private fun ShaderPackItem(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val projectInfo = pack.projectInfo
+                if (projectInfo != null) {
+                    IconButton(
+                        modifier = Modifier.size(38.dp),
+                        onClick = {
+                            onSwapMoreInfo(projectInfo.id, projectInfo.platform)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_info_outlined),
+                            contentDescription = stringResource(R.string.shader_pack_manage_info)
+                        )
+                    }
+                }
+
                 Checkbox(
                     checked = shaderPackInfo.isEnabled,
                     onCheckedChange = { onToggleEnabled() }

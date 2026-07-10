@@ -901,6 +901,7 @@
     <string name="shader_pack_manage_name">Shader Pack Name</string>
     <string name="shader_pack_manage_delete_warning">Are you sure you want to delete the shader pack %s? This action cannot be undone!</string>
     <string name="shader_pack_manage_no_packs">No shader packs for this version</string>
+    <string name="shader_pack_manage_info">Shader Pack Information</string>
     <string name="screenshots_manage">Screenshots</string>
     <string name="screenshots_manage_no_screenshots">No screenshots for this version</string>
     <string name="screenshots_manage_export">Export</string>

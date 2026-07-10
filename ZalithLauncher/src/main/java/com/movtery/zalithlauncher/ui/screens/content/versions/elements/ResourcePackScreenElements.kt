@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions.elements
 
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.version.resource_pack.RemoteResourcePack
 import com.movtery.zalithlauncher.game.version.resource_pack.ResourcePackInfo
 
 /** 资源包操作状态 */
@@ -56,5 +57,17 @@ fun List<ResourcePackInfo>.filterPacks(filter: ResourcePackFilter) = this.filter
     }
     val nameMatched = filter.filterName.isEmpty() ||
             it.rawName.contains(filter.filterName, true)
+    matchesState && nameMatched
+}
+
+fun List<RemoteResourcePack>.filterRemotePacks(filter: ResourcePackFilter) = this.filter {
+    val info = it.info
+    val matchesState = when (filter.stateFilter) {
+        PackStateFilter.All -> true
+        PackStateFilter.Enabled -> info.isEnabled
+        PackStateFilter.Disabled -> !info.isEnabled
+    }
+    val nameMatched = filter.filterName.isEmpty() ||
+            info.rawName.contains(filter.filterName, true)
     matchesState && nameMatched
 }

@@ -808,6 +808,7 @@
     <string name="shader_pack_manage_exists">この名前のシェーダーパックが既に存在します</string>
     <string name="shader_pack_manage_delete_warning">シェーダーパック%s を削除してよろしいですか？この操作は元に戻せません！</string>
     <string name="shader_pack_manage_no_packs">このバージョンにはシェーダーパックがありません</string>
+    <string name="shader_pack_manage_info">シェーダーパックの情報</string>
     <string name="minecraft_download_failed_notfound">一部の依存ファイルをダウンロードできませんでした。複数回試しても問題が解決しない場合は、ゲームに必要なライブラリファイルが不足してる可能性があります。ゲームを再インストールすることを勧めます。</string>
     <string name="settings_game_skip_game_integrity_check_summary">ゲームを起動する際、既存のゲームファイルが実際のファイルと一致しない場合でも再ダウンロードしません</string>
     <string name="settings_game_version_custom_info_summary">カスタム情報はゲームのメインメニューの左下とF3画面の右上に表示されます。特別なバージョンや外部アカウントでのログインしてる場合は表示されない可能性があります。[zl_version]タグで現在のバージョンの番号になります</string>

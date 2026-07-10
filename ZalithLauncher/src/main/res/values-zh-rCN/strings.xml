@@ -833,6 +833,7 @@
     <string name="shader_pack_manage_name">光影包名称</string>
     <string name="shader_pack_manage_delete_warning">您确定要删除光影包 %s 吗？该操作不可撤销！</string>
     <string name="shader_pack_manage_no_packs">当前版本还没有光影包</string>
+    <string name="shader_pack_manage_info">光影包信息</string>
     <string name="screenshots_manage">截图管理</string>
     <string name="screenshots_manage_no_screenshots">当前版本还没有截图</string>
     <string name="screenshots_manage_export">导出</string>

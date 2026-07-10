@@ -520,6 +520,7 @@
     <string name="shader_pack_manage_name">Nome do pacote de shader</string>
     <string name="shader_pack_manage_delete_warning">Tem certeza que gostaria de apagar o pacote de shader %s? Essa ação não pode ser desfeita!</string>
     <string name="shader_pack_manage_no_packs">Não há pacote de shader para esta versão</string>
+    <string name="shader_pack_manage_info">Informações do Pacote de Shader</string>
     <string name="minecraft_download_stat_download_task">Preparando downloads</string>
     <string name="minecraft_download_stat_verify_task">Preparando verificações</string>
     <string name="minecraft_download_downloading_game_files">Baixando arquivos \n(%1$d/%2$d, %3$s/%4$s)</string>

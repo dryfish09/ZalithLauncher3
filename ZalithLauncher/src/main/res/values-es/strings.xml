@@ -687,6 +687,7 @@
     <string name="shader_pack_manage_name">Nombre del paquete de shaders</string>
     <string name="shader_pack_manage_delete_warning">¿Seguro que deseas eliminar el paquete de shaders %s? ¡Esta acción no se puede deshacer!</string>
     <string name="shader_pack_manage_no_packs">No hay paquetes de shaders para esta versión</string>
+    <string name="shader_pack_manage_info">Información del Paquete de Shaders</string>
     <string name="minecraft_download_stat_download_task">Preparando descargas</string>
     <string name="minecraft_download_stat_verify_task">Preparando verificaciones</string>
     <string name="minecraft_download_downloading_game_files">Descargando archivos \n(%1$d/%2$d, %3$s/%4$s)</string>
