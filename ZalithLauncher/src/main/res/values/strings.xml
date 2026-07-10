@@ -1472,4 +1472,22 @@
     <string name="download_game_classic_picker">Classic version list</string>
     <string name="download_game_classic_picker_summary">Show only release versions without search bar</string>
     <string name="download_game_installed_at_top">Installed versions first</string>
+
+    <string name="versions_manage_select_default_folder">Set Default Game Folder</string>
+    <string name="versions_manage_select_default_folder_title">Select Default Game Folder</string>
+
+    <string name="versions_manage_move_versions">Move Versions</string>
+    <string name="versions_manage_move_versions_select_versions">Select versions to move</string>
+    <string name="versions_manage_move_versions_select_target">Select target game folder</string>
+    <string name="versions_manage_move_versions_summary">Review move</string>
+    <string name="versions_manage_move_versions_progress">Moving versions…</string>
+    <string name="versions_manage_move_versions_no_versions">No movable versions (all have version isolation enabled)</string>
+    <string name="versions_manage_move_versions_version_count">%1$d version(s) selected</string>
+    <string name="versions_manage_move_versions_next">Next</string>
+    <string name="versions_manage_move_versions_finish">Finish</string>
+    <string name="versions_manage_move_versions_from">From</string>
+    <string name="versions_manage_move_versions_to">To</string>
+    <string name="versions_manage_move_versions_moving">Moving %1$s…</string>
+    <string name="versions_manage_move_versions_done">Move complete</string>
+    <string name="versions_manage_move_versions_failed">Move failed</string>
 </resources>
