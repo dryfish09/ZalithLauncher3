@@ -27,6 +27,10 @@
 - Kopper Zink renderer fixleri
 - Yeni Mobileglues konfigurasyon ekranı
 - Oyun-modpack yüklerken küçültme butonu
+- Zeryth Launcher'dan Dosya Yöneticisi Arayüzü Yeniden Tasarımı
+- Oyun Klasörleri Arasında Sürüm Taşıma
+- Varsayılan Oyun Klasörü Ayarlama Diyaloğu
+- Kenar Çubuğu Geçiş Düğmesi Hizalaması Düzeltildi
 
 # Yakında
 

@@ -27,6 +27,10 @@
 - Kopper Zink Renderer Fixes
 - New Mobileglues Configuration Screen
 - Minimize button when downloading game-modpack
+- File Manager UI Redesign from Zeryth Launcher
+- Move Versions Between Game Folders
+- Set Default Game Folder Dialog
+- Fixed Sidebar Toggle Button Alignment
 
 # Coming Soon
 
