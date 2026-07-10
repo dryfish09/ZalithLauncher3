@@ -991,7 +991,7 @@ private fun ChangelogCard(
                         text = stringResource(R.string.stats_changelog),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(24.dp))
                     MarkdownView(
                         content = content!!,
                         modifier = Modifier
