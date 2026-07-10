@@ -121,12 +121,10 @@ fun SideBar(
             tonalElevation = 0.dp,
             shadowElevation = 0.dp
         ) {
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = 10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                    .padding(vertical = 10.dp)
             ) {
                 AnimatedVisibility(
                     visible = expanded,
@@ -140,7 +138,8 @@ fun SideBar(
                     exit = fadeOut(animationSpec = tween(150)) +
                         slideOutVertically(
                             animationSpec = tween(150)
-                        ) { it / 3 }
+                        ) { it / 3 },
+                    modifier = Modifier.align(Alignment.TopCenter)
                 ) {
                     Column(
                         modifier = Modifier.padding(horizontal = 6.dp),
@@ -180,12 +179,11 @@ fun SideBar(
                         }
                     }
                 }
-                Spacer(modifier = Modifier.weight(1f))
                 SideBarToggle(
                     expanded = expanded,
-                    onClick = { expanded = !expanded }
+                    onClick = { expanded = !expanded },
+                    modifier = Modifier.align(Alignment.Center)
                 )
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
@@ -226,7 +224,8 @@ private fun StaggeredItem(
 @Composable
 private fun SideBarToggle(
     expanded: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -240,7 +239,7 @@ private fun SideBarToggle(
     )
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(40.dp)
             .scale(scale)
             .clickable(
