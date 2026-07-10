@@ -30,10 +30,11 @@ static void replaceLibPathInEnvBlock(JNIEnv *env, jbyteArray* envBlock, jint* en
         printf("exec_hooks WARN: replaceLibPathInEnvBlock does not preserve original env. Please notify PojavLauncherTeam if you need that feature\n");
         env_block_replacement_warning = true;
     }
-    // Android 14+ where native_handle_create moved from libcutils to libnativewindow.
-    // Preload libnativewindow first so its symbols are globally visible in the subprocess.
+    // Android 14+ where native_handle_{create,close,delete} moved from libcutils to libnativewindow.
+    // Preload libandroid.so (DT_NEEDED on libnativewindow) + libnativewindow.so directly + libcutils.so
+    // to ensure all native_handle symbols are globally visible regardless of linker namespace quirks.
     char envStr[1024];
-    jsize new_envl = snprintf(envStr, sizeof(envStr) / sizeof(char), "LD_LIBRARY_PATH=%s%cLD_PRELOAD=libnativewindow.so:libcutils.so%cPATH=%s", directory, 0, 0, directory) + 1;
+    jsize new_envl = snprintf(envStr, sizeof(envStr) / sizeof(char), "LD_LIBRARY_PATH=%s%cLD_PRELOAD=libandroid.so:libnativewindow.so:libcutils.so%cPATH=%s", directory, 0, 0, directory) + 1;
     jbyteArray newBlock = (*env)->NewByteArray(env, new_envl);
     (*env)->SetByteArrayRegion(env, newBlock, 0, new_envl, (jbyte*) envStr);
     *envBlock = newBlock;

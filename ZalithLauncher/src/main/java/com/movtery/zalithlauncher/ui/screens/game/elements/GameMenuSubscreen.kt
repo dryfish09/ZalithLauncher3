@@ -18,12 +18,8 @@
 
 package com.movtery.zalithlauncher.ui.screens.game.elements
 
-import android.app.Activity
 import android.content.Context
-import android.media.projection.MediaProjectionManager
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -63,7 +59,7 @@ import com.movtery.zalithlauncher.ui.components.MenuSliderLayout
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.components.MenuSwitchButton
 import com.movtery.zalithlauncher.ui.components.MenuTextButton
-import com.movtery.zalithlauncher.ui.screens.game.elements.ScreenRecorderManager
+
 import com.movtery.zalithlauncher.ui.components.lazyScrollWithBar
 import com.movtery.zalithlauncher.ui.control.HotbarRule
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
@@ -345,26 +341,18 @@ private fun GameActionContent(
         }
         //screen recorder
         item {
-            val context = LocalContext.current
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.StartActivityForResult()
-            ) { result ->
-                if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-                    ScreenRecorderManager.startRecording(context, result.resultCode, result.data!!)
-                }
-            }
             MenuTextButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = if (ScreenRecorderManager.isRecording)
+                text = if (GameRecorder.isRecording)
                     stringResource(R.string.screen_recorder_stop)
                 else
                     stringResource(R.string.screen_recorder_start),
                 onClick = {
-                    if (ScreenRecorderManager.isRecording) {
-                        ScreenRecorderManager.stopRecording()
+                    if (GameRecorder.isRecording) {
+                        GameRecorder.stopRecording()
                     } else {
-                        val projectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-                        launcher.launch(projectionManager.createScreenCaptureIntent())
+                        val display = context.resources.displayMetrics
+                        GameRecorder.startRecording(display.widthPixels, display.heightPixels)
                     }
                 },
                 color = color,

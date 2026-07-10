@@ -587,7 +587,7 @@ private fun BenchmarkCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "${stringResource(R.string.gpu_benchmark_recommendation)}: ${result.recommendation}",
+                    text = "${stringResource(R.string.gpu_benchmark_recommendation)}: ${stringResource(result.recommendationResId)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.tertiary
                 )

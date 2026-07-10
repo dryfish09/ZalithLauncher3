@@ -1209,6 +1209,10 @@
     <string name="gpu_benchmark_fps">Performans</string>
     <string name="gpu_benchmark_recommendation">Tavsiye</string>
     <string name="gpu_benchmark_error">Hata</string>
+    <string name="gpu_benchmark_recommend_adreno">Freedreno (Adreno) veya Vulkan Zink</string>
+    <string name="gpu_benchmark_recommend_mali">Panfrost (Mali) veya Vulkan Zink</string>
+    <string name="gpu_benchmark_recommend_vulkan">Vulkan Zink</string>
+    <string name="gpu_benchmark_recommend_fallback">Krypton Wrapper (NGGL4ES)</string>
     <string name="settings_game_graphics_api_title">Grafikler API</string>
     <string name="settings_game_graphics_api_summary">Minecraft 26.2 ve üzeri sürümlerde kullanılan grafik API\'sini ayarlayın.</string>
     <string name="settings_game_graphics_api_default">Oyun ayarlarını takip et</string>

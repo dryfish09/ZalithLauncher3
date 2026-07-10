@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.game.renderer
 
 import android.opengl.GLES20
 import android.opengl.GLES30
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.utils.logging.Logger
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
@@ -156,7 +157,7 @@ fun runGpuBenchmark(): GpuBenchmarkResult {
     egl.eglTerminate(display)
 
     val hasVulkan = isES30 // Vulkan requires at least ES 3.0 on Android
-    val recommendation = recommendRenderer(vendor, renderer, hasVulkan)
+    val recommendationResId = recommendRenderer(vendor, renderer, hasVulkan)
 
     Logger.info(TAG, "Benchmark complete: $fps FPS, $frameCount frames in ${elapsedNs / 1_000_000}ms")
 
@@ -166,7 +167,7 @@ fun runGpuBenchmark(): GpuBenchmarkResult {
         glVersion = "OpenGL ES ${if (isES30) "3.0+" else "2.0"} / $glVersion",
         hasVulkan = hasVulkan,
         fps = fps,
-        recommendation = recommendation
+        recommendationResId = recommendationResId
     )
 }
 
@@ -226,20 +227,21 @@ private fun generateVertexData(): FloatArray {
     return data
 }
 
-private fun recommendRenderer(vendor: String, renderer: String, hasVulkan: Boolean): String {
+private fun recommendRenderer(vendor: String, renderer: String, hasVulkan: Boolean): Int {
     val vendorLower = vendor.lowercase()
     val rendererLower = renderer.lowercase()
 
-    if (hasVulkan) {
+    return if (hasVulkan) {
         if (rendererLower.contains("adreno") || vendorLower.contains("qualcomm")) {
-            return "Freedreno (Adreno) veya Vulkan Zink"
+            R.string.gpu_benchmark_recommend_adreno
+        } else if (rendererLower.contains("mali") || vendorLower.contains("arm")) {
+            R.string.gpu_benchmark_recommend_mali
+        } else {
+            R.string.gpu_benchmark_recommend_vulkan
         }
-        if (rendererLower.contains("mali") || vendorLower.contains("arm")) {
-            return "Panfrost (Mali) veya Vulkan Zink"
-        }
-        return "Vulkan Zink"
+    } else {
+        R.string.gpu_benchmark_recommend_fallback
     }
-    return "Krypton Wrapper (NGGL4ES)"
 }
 
 private fun errorResult(message: String): GpuBenchmarkResult {
@@ -249,6 +251,6 @@ private fun errorResult(message: String): GpuBenchmarkResult {
         glVersion = "",
         hasVulkan = false,
         fps = 0f,
-        recommendation = ""
+        recommendationResId = R.string.gpu_benchmark_error
     )
 }

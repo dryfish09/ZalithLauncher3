@@ -978,6 +978,10 @@
     <string name="gpu_benchmark_fps">Performance</string>
     <string name="gpu_benchmark_recommendation">Recommendation</string>
     <string name="gpu_benchmark_error">Error</string>
+    <string name="gpu_benchmark_recommend_adreno">Freedreno (Adreno) or Vulkan Zink</string>
+    <string name="gpu_benchmark_recommend_mali">Panfrost (Mali) or Vulkan Zink</string>
+    <string name="gpu_benchmark_recommend_vulkan">Vulkan Zink</string>
+    <string name="gpu_benchmark_recommend_fallback">Krypton Wrapper (NGGL4ES)</string>
     <string name="settings_game_version_isolation_title">Global Version Isolation</string>
     <string name="settings_game_version_isolation_summary">Isolates all versions so that their data does not interfere with each other</string>
     <string name="settings_game_skip_game_integrity_check_title">Skip Integrity Check</string>
