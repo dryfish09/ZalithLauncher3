@@ -48,10 +48,9 @@ fun SpeedrunTimerOverlay(
     }
 
     val enabled = AllSettings.speedrunTimerEnabled.getValue()
-    val show = enabled && state.isRunning
 
     AnimatedVisibility(
-        visible = show,
+        visible = enabled,
         enter = fadeIn(),
         exit = fadeOut(),
         modifier = modifier
