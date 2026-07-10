@@ -119,6 +119,7 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.elements.PackState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourcePackFilter
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourcePackOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterPacks
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterRemotePacks
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionChunkBackground
 import com.movtery.zalithlauncher.ui.theme.itemColor
 import com.movtery.zalithlauncher.ui.theme.onItemColor
@@ -306,7 +307,7 @@ private class ResourcePackManageViewModel(
         filteredPacks = allPacks
             .takeIf { it.isNotEmpty() }
             ?.filterRemotePacks(packFilter)
-            ?.sortedWith { o1, o2 ->
+            ?.sortedWith { o1: RemoteResourcePack, o2: RemoteResourcePack ->
                 val info1 = o1.info
                 val info2 = o2.info
                 val value = when (sortByEnum) {
