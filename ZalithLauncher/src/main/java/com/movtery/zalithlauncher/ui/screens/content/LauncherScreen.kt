@@ -992,9 +992,7 @@ private fun ChangelogCard(
                         style = MaterialTheme.typography.titleLarge
                     )
                     Spacer(Modifier.height(16.dp))
-                    val dialogRichTextStyle = remember {
-                        defaultRichTextStyle().copy(paragraphSpacing = 20.sp)
-                    }
+                    val dialogRichTextStyle = defaultRichTextStyle().copy(paragraphSpacing = 20.sp)
                     MarkdownView(
                         content = content!!,
                         modifier = Modifier
