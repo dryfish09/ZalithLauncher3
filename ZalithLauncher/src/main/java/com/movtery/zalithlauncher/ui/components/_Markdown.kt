@@ -64,7 +64,9 @@ fun defaultMarkdownConfig(
     influencedByBackground: Boolean = true,
     codeBackground: Color = cardColor(influencedByBackground),
 ): MarkdownRenderConfig {
-    return remember(influencedByBackground, codeBackground) {
+    val primary = MaterialTheme.colorScheme.primary
+    val secondary = MaterialTheme.colorScheme.secondary
+    return remember(influencedByBackground, codeBackground, primary, secondary) {
         MarkdownRenderConfig.Builder()
             .markdownTheme(
                 MarkdownTheme(
@@ -111,13 +113,13 @@ fun defaultMarkdownConfig(
                     ),
                     link = TextLinkStyles(
                         style = SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = primary,
                             textDecoration = TextDecoration.Underline,
                             fontWeight = FontWeight.Bold,
                         ),
                         pressedStyle = SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            background = MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f),
+                            color = primary,
+                            background = secondary.copy(alpha = 0.4f),
                             textDecoration = TextDecoration.Underline,
                             fontWeight = FontWeight.Bold,
                         ),

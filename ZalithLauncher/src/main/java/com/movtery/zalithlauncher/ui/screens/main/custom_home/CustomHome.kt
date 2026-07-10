@@ -168,7 +168,7 @@ private fun BlockItem(
                         block = child,
                         modifier = childModifier,
                         isInsideFlex = true,
-                        richTextStyle = richTextStyle,
+                        config = config,
                         onEvent = onEvent
                     )
                 }
@@ -184,7 +184,7 @@ private fun BlockItem(
                     BlockItem(
                         block = child,
                         isInsideFlex = true,
-                        richTextStyle = richTextStyle,
+                        config = config,
                         onEvent = onEvent
                     )
                 }
