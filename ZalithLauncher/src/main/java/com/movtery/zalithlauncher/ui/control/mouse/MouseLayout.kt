@@ -151,8 +151,8 @@ fun VirtualPointerLayout(
     LaunchedEffect(hideMouseInClickMode) {
         updateMousePointer(
             show = when {
-                //物理鼠标已连接：始终显示虚拟指针，TYPE_NULL 隐藏了系统指针
-                PhysicalMouseChecker.physicalMouseConnected -> true
+                //物理鼠标已连接：是否为抓获控制模式
+                PhysicalMouseChecker.physicalMouseConnected -> requestPointerCapture
                 //点击控制模式：由隐藏虚拟鼠标设置决定
                 controlMode == MouseControlMode.CLICK -> !hideMouseInClickMode
                 //滑动控制始终显示
@@ -231,12 +231,8 @@ fun VirtualPointerLayout(
                     )
                     onPointerMove(pointerPosition)
                 } else {
-                    //非鼠标抓取模式：物理鼠标时保持虚拟指针可见
-                    if (PhysicalMouseChecker.physicalMouseConnected) {
-                        updateMousePointer(true)
-                    } else {
-                        updateMousePointer(false)
-                    }
+                    //非鼠标抓取模式
+                    updateMousePointer(false)
                     pointerPosition = offset
                     onPointerMove(pointerPosition)
                 }
