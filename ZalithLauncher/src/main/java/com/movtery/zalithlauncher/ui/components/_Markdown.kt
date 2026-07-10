@@ -17,7 +17,7 @@ import com.iffly.compose.markdown.config.MarkdownRenderConfig
 import com.iffly.compose.markdown.style.MarkdownTheme
 import com.iffly.compose.markdown.MarkdownView as ComposeMarkdownView
 import com.movtery.zalithlauncher.ui.theme.cardColor
-import com.vladsch.flexmark.ast.Node
+import com.vladsch.flexmark.util.ast.Node
 
 @Composable
 fun MarkdownView(

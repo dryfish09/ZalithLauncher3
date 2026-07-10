@@ -25,7 +25,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vladsch.flexmark.ast.Node
+import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.parser.Parser
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.copyAssetFile

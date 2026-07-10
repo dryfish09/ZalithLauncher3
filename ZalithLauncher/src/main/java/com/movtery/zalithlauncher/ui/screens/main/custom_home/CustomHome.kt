@@ -36,7 +36,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.iffly.compose.markdown.config.MarkdownRenderConfig
-import com.vladsch.flexmark.ast.Node
+import com.vladsch.flexmark.util.ast.Node
 import com.movtery.zalithlauncher.ui.components.MarkdownView
 import com.movtery.zalithlauncher.ui.components.defaultMarkdownConfig
 import com.movtery.zalithlauncher.ui.theme.itemColor
