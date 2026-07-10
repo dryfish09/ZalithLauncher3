@@ -991,12 +991,16 @@ private fun ChangelogCard(
                         text = stringResource(R.string.stats_changelog),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(16.dp))
+                    val dialogRichTextStyle = remember {
+                        defaultRichTextStyle().copy(paragraphSpacing = 20.sp)
+                    }
                     MarkdownView(
                         content = content!!,
                         modifier = Modifier
                             .weight(1f)
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(rememberScrollState()),
+                        richTextStyle = dialogRichTextStyle
                     )
                     Button(
                         onClick = { showDialog = false },
