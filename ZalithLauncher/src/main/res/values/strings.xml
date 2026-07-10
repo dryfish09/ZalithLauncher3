@@ -27,6 +27,8 @@
     <string name="generic_enable">Enable</string>
     <string name="generic_disable">Disable</string>
     <string name="generic_open_link">Open in Browser</string>
+    <string name="generic_select">Select</string>
+    <string name="generic_default">Default</string>
     <string name="generic_cannot_empty">Content cannot be empty!</string>
     <string name="generic_input_invalid_character">Invalid character in name: \"%s\"</string>
     <string name="generic_input_failed_to_number">Input cannot be parsed as a number</string>

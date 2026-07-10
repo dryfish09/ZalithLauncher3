@@ -110,7 +110,7 @@ import java.util.Locale
 
 private const val TAG = "BuiltInFileManager"
 
-private const val SIDEBAR_WIDTH = 180.dp
+private val SIDEBAR_WIDTH = 180.dp
 
 private val SidebarSlideEnterSpec: FiniteAnimationSpec<IntOffset> =
     tween(320, easing = FastOutSlowInEasing)
