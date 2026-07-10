@@ -82,6 +82,7 @@ object GameRecorder {
     private external fun nativeSetRecording(active: Boolean, width: Int, height: Int)
 
     @Keep
+    @JvmStatic
     fun onFrameNV12(nv12Buffer: ByteBuffer) {
         if (!isRecording) return
         nv12Buffer.position(0)
