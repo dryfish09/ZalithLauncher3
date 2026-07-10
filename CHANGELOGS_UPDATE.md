@@ -28,9 +28,11 @@
 - New Mobileglues Configuration Screen
 - Minimize button when downloading game-modpack
 - File Manager UI Redesign from Zeryth Launcher
-- Move Versions Between Game Folders
+- Move Isolated Versions Between Game Folders
 - Set Default Game Folder Dialog
 - Fixed Sidebar Toggle Button Alignment
+- Info Button Added to Shader Pack Items (redirects to project page if downloaded from launcher)
+- Resource Pack Info Button Now Redirects to Project Page When Available
 
 # Coming Soon
 

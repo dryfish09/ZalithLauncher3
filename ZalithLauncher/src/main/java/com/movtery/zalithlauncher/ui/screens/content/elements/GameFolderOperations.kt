@@ -158,7 +158,7 @@ private fun MoveVersionsSelectStep(
     onCancel: () -> Unit
 ) {
     val movableVersions = remember(versions) {
-        versions.filter { !it.isIsolation() }
+        versions.filter { it.isIsolation() }
     }
     var selectedVersions by remember { mutableStateOf(setOf<Version>()) }
     var showError by remember { mutableStateOf(false) }

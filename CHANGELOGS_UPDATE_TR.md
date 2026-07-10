@@ -28,9 +28,11 @@
 - Yeni Mobileglues konfigurasyon ekranı
 - Oyun-modpack yüklerken küçültme butonu
 - Zeryth Launcher'dan Dosya Yöneticisi Arayüzü Yeniden Tasarımı
-- Oyun Klasörleri Arasında Sürüm Taşıma
+- İzole Edilmiş Sürümleri Oyun Klasörleri Arasında Taşıma
 - Varsayılan Oyun Klasörü Ayarlama Diyaloğu
 - Kenar Çubuğu Geçiş Düğmesi Hizalaması Düzeltildi
+- Gölgelendirici Paket Öğelerine Bilgi Butonu Eklendi (launcher'dan indirildiyse proje sayfasına yönlendirir)
+- Kaynak Paketi Bilgi Butonu Artık Uygun Olduğunda Proje Sayfasına Yönlendiriyor
 
 # Yakında
 
