@@ -1484,7 +1484,7 @@
     <string name="versions_manage_move_versions_select_target">Select target game folder</string>
     <string name="versions_manage_move_versions_summary">Review move</string>
     <string name="versions_manage_move_versions_progress">Moving versions…</string>
-    <string name="versions_manage_move_versions_no_versions">No movable versions (all have version isolation enabled)</string>
+    <string name="versions_manage_move_versions_no_versions">No versions found (all of the versions may not have version isolation)</string>
     <string name="versions_manage_move_versions_version_count">%1$d version(s) selected</string>
     <string name="versions_manage_move_versions_next">Next</string>
     <string name="versions_manage_move_versions_finish">Finish</string>

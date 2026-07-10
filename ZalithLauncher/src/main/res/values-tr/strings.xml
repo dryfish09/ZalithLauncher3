@@ -1424,7 +1424,7 @@
     <string name="versions_manage_move_versions_select_target">Hedef oyun klasörünü seç</string>
     <string name="versions_manage_move_versions_summary">Taşımayı incele</string>
     <string name="versions_manage_move_versions_progress">Sürümler taşınıyor…</string>
-    <string name="versions_manage_move_versions_no_versions">Taşınabilir sürüm yok (hepsinde sürüm izolasyonu etkin)</string>
+    <string name="versions_manage_move_versions_no_versions">Sürüm bulunamadı (sürümlerin hiçbirinde sürüm izolasyonu olmayabilir)</string>
     <string name="versions_manage_move_versions_version_count">%1$d sürüm seçildi</string>
     <string name="versions_manage_move_versions_next">İleri</string>
     <string name="versions_manage_move_versions_finish">Bitir</string>
