@@ -1197,8 +1197,7 @@ private fun GameRecorderOverlay(modifier: Modifier = Modifier) {
             ) {
                 if (GameRecorder.isSaving) {
                     LoadingIndicator(
-                        modifier = Modifier.size(14.dp),
-                        strokeWidth = 2.dp
+                        modifier = Modifier.size(14.dp)
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
