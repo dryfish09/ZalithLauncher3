@@ -60,6 +60,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.movtery.zalithlauncher.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -110,10 +112,23 @@ fun RendererSettingsScreen(
     ) { isVisible ->
         val context = LocalContext.current
         var showMobileGluesSettings by remember { mutableStateOf(false) }
+        var showBenchmark by remember { mutableStateOf(false) }
         var driverToDelete by remember { mutableStateOf<Driver?>(null) }
 
         if (showMobileGluesSettings) {
             MobileGluesSettingsDialog(onDismissRequest = { showMobileGluesSettings = false })
+        }
+
+        if (showBenchmark) {
+            Dialog(
+                onDismissRequest = { showBenchmark = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+                RendererBenchmarkOverlay(
+                    availableRenderers = Renderers.getCompatibleRenderers(context).second,
+                    onDismiss = { showBenchmark = false }
+                )
+            }
         }
 
         driverToDelete?.let { driver ->
@@ -146,6 +161,13 @@ fun RendererSettingsScreen(
                         .fillMaxWidth()
                         .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
+                    OutlinedButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { showBenchmark = true }
+                    ) {
+                        Text(stringResource(R.string.benchmark_run))
+                    }
+
                     ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Top,
