@@ -415,6 +415,7 @@ static void capture_and_send_recording_frame() {
             (*env)->CallStaticVoidMethod(env, g_recording_class, g_recording_onFrame, buffer);
             (*env)->DeleteLocalRef(env, buffer);
         }
+        free(nv12);
     }
 
     free(rgba);

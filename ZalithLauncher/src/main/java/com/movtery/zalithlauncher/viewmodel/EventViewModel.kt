@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class EventViewModel : ViewModel() {
-    private val _events = MutableSharedFlow<Event>(extraBufferCapacity = 1)
+    private val _events = MutableSharedFlow<Event>(replay = 1, extraBufferCapacity = 1)
     val events = _events.asSharedFlow()
 
     /**
