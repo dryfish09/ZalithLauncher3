@@ -83,6 +83,7 @@
     <string name="crash_type">Oyundan atılma türü:%s</string>
     <string name="crash_type_launcher">Başlatıcı Çökmesi</string>
     <string name="crash_type_game">Oyun Çökmesi</string>
+    <string name="crash_show_logs">Oyun Çıktılarını Göster</string>
     <string name="crash_share_logs">Çıktıları Paylaş</string>
     <string name="crash_restart">Tekrar Başlat</string>
     <string name="crash_exit">Çıkış Yap</string>

@@ -20,9 +20,11 @@ package com.movtery.zalithlauncher.ui.activities
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.compose.setContent
+import androidx.core.content.FileProvider
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -152,6 +154,20 @@ class ErrorActivity : BaseAppCompatActivity(refreshData = false) {
                         shareLogs = logExists,
                         canUpload = viewModel.canUpload,
                         canRestart = canRestart,
+                        onShowLogsClick = {
+                            if (logExists) {
+                                val uri = FileProvider.getUriForFile(
+                                    this@ErrorActivity,
+                                    "${packageName}.provider",
+                                    logFile
+                                )
+                                val intent = Intent(Intent.ACTION_VIEW).apply {
+                                    setDataAndType(uri, "text/plain")
+                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                }
+                                startActivity(Intent.createChooser(intent, getString(R.string.crash_show_logs)))
+                            }
+                        },
                         onShareLogsClick = {
                             if (logExists) {
                                 shareFile(this@ErrorActivity, logFile)
