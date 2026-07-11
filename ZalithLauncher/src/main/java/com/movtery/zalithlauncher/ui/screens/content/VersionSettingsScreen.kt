@@ -75,6 +75,7 @@ import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.notification.NotificationManager
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.NotificationCheck
@@ -327,9 +328,9 @@ private fun TabMenu(
                 onClick = {
                     if (item.key == NormalNavKey.Versions.UpdateLoader) {
                         if (isUpdateLoader) {
-                            NormalNavKey.Versions.UpdateLoader.title = R.string.versions_update_loader
+                            NormalNavKey.Versions.UpdateLoader.title = androidText(R.string.versions_update_loader)
                         } else {
-                            NormalNavKey.Versions.UpdateLoader.title = R.string.versions_install_loader
+                            NormalNavKey.Versions.UpdateLoader.title = androidText(R.string.versions_install_loader)
                         }
                     }
                     backStack.navigateOnce(item.key)
@@ -340,10 +341,10 @@ private fun TabMenu(
                 label = {
                     val text = if (item.key == NormalNavKey.Versions.UpdateLoader) {
                         if (isUpdateLoader) {
-                            NormalNavKey.Versions.UpdateLoader.title = R.string.versions_update_loader
+                            NormalNavKey.Versions.UpdateLoader.title = androidText(R.string.versions_update_loader)
                             stringResource(item.textRes)
                         } else {
-                            NormalNavKey.Versions.UpdateLoader.title = R.string.versions_install_loader
+                            NormalNavKey.Versions.UpdateLoader.title = androidText(R.string.versions_install_loader)
                             stringResource(R.string.versions_install_loader)
                         }
                     } else {

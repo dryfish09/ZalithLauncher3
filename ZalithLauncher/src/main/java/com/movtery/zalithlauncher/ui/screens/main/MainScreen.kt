@@ -79,6 +79,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.AndroidStringText
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.base.applyFullscreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
@@ -342,11 +343,14 @@ private fun <E: TitledNavKey> TopBar(
                         )
                     }
                 } else {
-                    val parentText = stringResource(parent)
-                    val childText = child?.let { stringResource(it) }
+                    val titleText = if (child != null) {
+                        androidText(parent, androidText(" - "), child)
+                    } else {
+                        parent
+                    }
 
-                    Text(
-                        text = if (childText != null) "$parentText - $childText" else parentText,
+                    AndroidStringText(
+                        text = titleText,
                         style = style,
                         softWrap = softWarp,
                         maxLines = maxLines
