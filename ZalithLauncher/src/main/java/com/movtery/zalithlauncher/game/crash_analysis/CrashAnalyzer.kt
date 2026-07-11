@@ -899,6 +899,15 @@ object CrashAnalyzer {
     private fun analyzeAndroidIssues(log: String): List<CrashTip> {
         val tips = mutableListOf<CrashTip>()
 
+        if (log.contains("pojavSwapBuffers")) {
+            tips.add(
+                CrashTip(Severity.ERROR,
+                    "Screen Recorder / Buffer Swap Crash",
+                    "The game crashed in the native buffer swap function (pojavSwapBuffers). This often happens when starting or stopping a screen recording, or after a GL context loss.",
+                    "Avoid starting/stopping screen recordings rapidly. If the crash persists, restart the launcher before recording. Try switching between Zink and OpenGLES renderers.")
+            )
+        }
+
         if (log.contains("Could not initialize class org.lwjgl")) {
             tips.add(
                 CrashTip(Severity.ERROR,
