@@ -75,6 +75,15 @@ object PluginLoader {
         }
         FFmpegPluginManager.loadPlugin(context) { apkPluginList.add(it) }
 
+        // 批量并行加载 V2 渲染器插件配置
+        RendererV2PluginManager.loadAllConfigs(context) { apkPluginList.add(it) }
+        // 加载成功后，移除同包名的旧架构渲染器插件，避免重复加载
+        val v2Packages = RendererV2PluginManager.getPackageNameList().toSet()
+        RendererPluginManager.getRendererList()
+            .filter { it.packageName in v2Packages }
+            .takeIf { it.isNotEmpty() }
+            ?.let { RendererPluginManager.removeRenderer(it) }
+
         // 加载旧架构渲染器插件
         RendererPluginManager.getRendererList().filter { plugin ->
             !Renderers.addRenderer(plugin)
@@ -91,6 +100,10 @@ object PluginLoader {
         }?.let { failedToLoadList ->
             RendererV2PluginManager.removeRenderer(failedToLoadList)
         }
+
+        // 去重已加载的插件
+        val seenPackages = mutableSetOf<String>()
+        apkPluginList.removeAll { !seenPackages.add(it.packageName) }
 
         //全部已加载的插件
         allPlugins = apkPluginList.sortedBy { it.appName }

@@ -24,7 +24,6 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 import com.movtery.zalithlauncher.game.plugin.ApkPluginManager
 import com.movtery.zalithlauncher.game.plugin.cacheAppIcon
-import com.movtery.zalithlauncher.game.plugin.renderer_v2.RendererV2PluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
 
 /**
@@ -91,13 +90,6 @@ object RendererPluginManager: ApkPluginManager() {
                 val packageManager = context.packageManager
                 val packageName = info.packageName
                 val appName = info.loadLabel(packageManager).toString()
-
-                // 如果已加载新架构渲染器插件，此处不再继续加载其提供的旧架构
-                if (
-                    RendererV2PluginManager.getPackageNameList().any { v2Plugin ->
-                        v2Plugin == packageName
-                    }
-                ) return
 
                 val rendererString = metaData.getString("renderer") ?: return
                 val des = metaData.getString("des") ?: return
