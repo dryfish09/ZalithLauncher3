@@ -128,16 +128,20 @@ class VersionMover(
     }
 
     private suspend fun copyAssets() {
-        val sourceAssets = File(sourceGameHome, "assets")
-        val targetAssets = File(targetGamePath, "assets")
-        if (sourceAssets.exists()) {
-            FileUtils.copyDirectory(sourceAssets, targetAssets)
-        }
+        movedVersions.forEach { name ->
+            val sourceIndex = File(File(sourceGameHome, "assets/indexes"), "${name}.json")
+            val targetIndex = File(File(targetGamePath, "assets/indexes"), "${name}.json")
+            if (sourceIndex.exists()) {
+                targetIndex.parentFile.mkdirs()
+                FileUtils.copyFile(sourceIndex, targetIndex)
+            }
 
-        val sourceResources = File(sourceGameHome, "resources")
-        val targetResources = File(targetGamePath, "resources")
-        if (sourceResources.exists()) {
-            FileUtils.copyDirectory(sourceResources, targetResources)
+            val sourceResources = File(File(sourceGameHome, "resources"), name)
+            val targetResources = File(File(targetGamePath, "resources"), name)
+            if (sourceResources.exists()) {
+                targetResources.parentFile.mkdirs()
+                FileUtils.copyDirectory(sourceResources, targetResources)
+            }
         }
     }
 }
