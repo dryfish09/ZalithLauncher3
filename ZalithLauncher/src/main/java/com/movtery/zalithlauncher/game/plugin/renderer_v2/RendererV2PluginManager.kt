@@ -24,28 +24,19 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 import com.movtery.zalithlauncher.game.plugin.ApkPluginManager
 import com.movtery.zalithlauncher.game.plugin.cacheAppIcon
-import com.movtery.zalithlauncher.game.plugin.renderer_v2.data.RendererConfigList
+import com.movtery.zalithlauncher.game.plugin.renderer_v2.data.RendererConfig
 import com.movtery.zalithlauncher.path.GLOBAL_JSON
 import com.movtery.zalithlauncher.utils.logging.Logger
 
 object RendererV2PluginManager : ApkPluginManager() {
     private const val TAG = "RendererV2Plugin"
-    private const val META_V2_PLUGIN = "fclPlugin_V2"
-
     private val rendererPluginList: MutableList<RendererV2Data> = mutableListOf()
-    private val packageNameList: MutableList<String> = mutableListOf()
-
-    /** 扫描阶段暂存的插件信息 */
-    private val pendingPlugins: MutableList<Pair<String, ApplicationInfo>> = mutableListOf()
 
     fun getRendererList(): List<RendererV2Data> = rendererPluginList
 
-    fun getPackageNameList(): List<String> = packageNameList
 
     fun clearPlugin() {
         rendererPluginList.clear()
-        packageNameList.clear()
-        pendingPlugins.clear()
     }
 
     /**
@@ -57,72 +48,51 @@ object RendererV2PluginManager : ApkPluginManager() {
         loaded: (ApkPlugin) -> Unit
     ) {
         if (info.flags and ApplicationInfo.FLAG_SYSTEM != 0) return
-
         val metaData = info.metaData ?: return
-        if (!metaData.getBoolean(META_V2_PLUGIN, false)) return
 
-        pendingPlugins.add(info.packageName to info)
+        // 读取启动器配置资源
+        val configRes = metaData.getInt("fclPlugin_V2", -1).takeIf { it > 0 } ?: return
+        val configString = context.getString(info, configRes) ?: return
+
+        val pm = context.packageManager
+        val packageName = info.packageName
+
+        // 反序列化渲染器配置信息
+        val config = runCatching {
+            GLOBAL_JSON.decodeFromString<RendererConfig>(configString)
+        }.onFailure { e ->
+            Logger.error(TAG, "Failed to parse config JSON from $packageName", e)
+        }.getOrNull() ?: return
+
+        // 获取插件应用信息
+        val appLabel = info.loadLabel(pm).toString()
+        val appVersion = runCatching {
+            pm.getPackageInfo(packageName, 0).versionName ?: ""
+        }.getOrDefault("")
+
+        rendererPluginList.add(
+            RendererV2Data(
+                packageName = packageName,
+                summary = context.getString(R.string.settings_renderer_from_plugins, appLabel),
+                renderer = config
+            )
+        )
+
+        // 已成功加载目标插件
+        runCatching {
+            cacheAppIcon(context, info)
+            ApkPlugin(
+                packageName = packageName,
+                appName = appLabel,
+                appVersion = appVersion
+            )
+        }.getOrNull()?.let { loaded(it) }
     }
 
-    /**
-     * 批量并行启动所有插件的 Activity 获取配置
-     */
-    fun loadAllConfigs(
-        context: Context,
-        loaded: (ApkPlugin) -> Unit
-    ) {
-        if (pendingPlugins.isEmpty()) return
-
-        Logger.debug(TAG, "Batch loading ${pendingPlugins.size} plugin(s)...")
-
-        val configMap = ActivityConfigLoader.loadConfigs(context, pendingPlugins)
-        val pm = context.packageManager
-
-        pendingPlugins.forEach { (packageName, info) ->
-            val configJson = configMap[packageName]
-            if (configJson == null) {
-                Logger.warning(TAG, "No config received from $packageName")
-                return@forEach
-            }
-
-            // 反序列化渲染器配置信息
-            val configList = runCatching {
-                GLOBAL_JSON.decodeFromString<RendererConfigList>(configJson)
-            }.onFailure {
-                Logger.error(TAG, "Failed to parse config JSON from $packageName", it)
-            }.getOrNull() ?: return@forEach
-
-            // 获取插件应用信息
-            val appLabel = info.loadLabel(pm).toString()
-            val appVersion = runCatching {
-                pm.getPackageInfo(packageName, 0).versionName ?: ""
-            }.getOrDefault("")
-
-            packageNameList.add(packageName)
-
-            configList.data.forEach { data ->
-                val renderer = RendererV2Data(
-                    packageName = packageName,
-                    summary = context.getString(R.string.settings_renderer_from_plugins, appLabel),
-                    renderer = data
-                )
-                rendererPluginList.add(renderer)
-            }
-
-            // 已成功加载目标插件
-            runCatching {
-                cacheAppIcon(context, info)
-                ApkPlugin(
-                    packageName = packageName,
-                    appName = appLabel,
-                    appVersion = appVersion
-                )
-            }.getOrNull()?.let { loaded(it) }
-
-            Logger.debug(TAG, "Loaded ${configList.data.size} renderer(s) from $packageName")
-        }
-
-        pendingPlugins.clear()
+    private fun Context.getString(info: ApplicationInfo, path: Int): String? {
+        return runCatching {
+            packageManager.getResourcesForApplication(info).getString(path)
+        }.getOrNull()
     }
 
     /**
@@ -130,14 +100,5 @@ object RendererV2PluginManager : ApkPluginManager() {
      */
     fun removeRenderer(failedToLoadList: List<RendererV2Data>) {
         rendererPluginList.removeAll { it in failedToLoadList }
-
-        // 检查是否有包名的所有渲染器都被移除
-        val failedByPackage = failedToLoadList.groupBy { it.packageName }
-        failedByPackage.keys.forEach { packageName ->
-            if (rendererPluginList.none { it.packageName == packageName }) {
-                packageNameList.remove(packageName)
-                Logger.info(TAG, "All renderers removed for $packageName, package unloaded.")
-            }
-        }
     }
 }
