@@ -33,6 +33,8 @@
 - Kenar Çubuğu Geçiş Düğmesi Hizalaması Düzeltildi
 - Gölgelendirici Paket Öğelerine Bilgi Butonu Eklendi (launcher'dan indirildiyse proje sayfasına yönlendirir)
 - Kaynak Paketi Bilgi Butonu Artık Uygun Olduğunda Proje Sayfasına Yönlendiriyor
+- Varsayılan Klasör Uyarı Diyaloğu: Varsayılan Yol Değiştirilirken İzole Edilmiş Sürümler Taşınır
+- Klasör Öğelerinde Varsayılan Klasör Yıldız Simgesi ve Rozet
 
 # Yakında
 

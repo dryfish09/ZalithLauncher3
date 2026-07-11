@@ -622,6 +622,9 @@
     <string name="execute_jar_title">执行 Jar 文件</string>
     <!--  版本  -->
     <string name="versions_manage_game_path_default">默认游戏目录</string>
+    <string name="versions_manage_game_path_default_badge">默认目录</string>
+    <string name="versions_manage_select_default_folder_warning_title">修改默认目录？</string>
+    <string name="versions_manage_select_default_folder_warning_text">隔离版本将被移动到新目录下（不包括非隔离版本）。这可能需要一些时间。</string>
     <string name="versions_manage_game_path_add_new">添加游戏目录</string>
     <string name="versions_manage_game_path_edit_title">为该游戏目录命名</string>
     <string name="versions_manage_game_path_delete_title">删除游戏目录</string>

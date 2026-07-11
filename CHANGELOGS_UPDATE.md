@@ -33,6 +33,8 @@
 - Fixed Sidebar Toggle Button Alignment
 - Info Button Added to Shader Pack Items (redirects to project page if downloaded from launcher)
 - Resource Pack Info Button Now Redirects to Project Page When Available
+- Default Folder Warning Dialog: Isolated Versions Are Moved When Changing Default Path
+- Default Folder Star Icon and Badge on Folder Items
 
 # Coming Soon
 

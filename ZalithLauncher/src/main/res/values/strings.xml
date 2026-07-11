@@ -684,6 +684,9 @@
     <string name="execute_jar_title">Execute Jar</string>
     <!-- Version Management -->
     <string name="versions_manage_game_path_default">Default Game Folder</string>
+    <string name="versions_manage_game_path_default_badge">Default Folder</string>
+    <string name="versions_manage_select_default_folder_warning_title">Change Default Folder?</string>
+    <string name="versions_manage_select_default_folder_warning_text">Isolated versions will be moved to the new folder. This may take a while.</string>
     <string name="versions_manage_game_path_add_new">Add Game Folder</string>
     <string name="versions_manage_game_path_edit_title">Rename Game Folder</string>
     <string name="versions_manage_game_path_delete_title">Delete Game Folder</string>

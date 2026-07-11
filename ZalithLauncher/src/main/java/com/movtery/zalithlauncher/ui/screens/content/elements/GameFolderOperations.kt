@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +37,7 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 sealed interface GameFolderOperation {
     data object None : GameFolderOperation
     data object SelectDefault : GameFolderOperation
+    data class SelectDefaultWarning(val targetId: String, val targetPath: String) : GameFolderOperation
     data object MoveVersionsSelect : GameFolderOperation
     data class MoveVersionsTarget(val versions: List<Version>) : GameFolderOperation
     data class MoveVersionsSummary(val versions: List<Version>, val targetPath: String) : GameFolderOperation
@@ -49,12 +51,20 @@ fun GameFolderOperationDialog(
     changeState: (GameFolderOperation) -> Unit,
     versions: List<Version>,
     onStartMove: (List<Version>, String) -> Unit,
-    onSelectDefaultFolder: (String) -> Unit = {}
+    onSelectDefaultFolder: (String, String) -> Unit = { _, _ -> }
 ) {
     when (operation) {
         is GameFolderOperation.None -> {}
         is GameFolderOperation.SelectDefault -> SelectDefaultFolderDialog(
-            onSelect = { id -> onSelectDefaultFolder(id) },
+            onSelect = { id, path -> changeState(GameFolderOperation.SelectDefaultWarning(id, path)) },
+            onDismiss = { changeState(GameFolderOperation.None) }
+        )
+        is GameFolderOperation.SelectDefaultWarning -> SelectDefaultWarningDialog(
+            targetPath = operation.targetPath,
+            onConfirm = {
+                changeState(GameFolderOperation.None)
+                onSelectDefaultFolder(operation.targetId, operation.targetPath)
+            },
             onDismiss = { changeState(GameFolderOperation.None) }
         )
         is GameFolderOperation.MoveVersionsSelect -> MoveVersionsSelectStep(
@@ -101,7 +111,7 @@ fun GameFolderOperationDialog(
 
 @Composable
 private fun SelectDefaultFolderDialog(
-    onSelect: (String) -> Unit,
+    onSelect: (String, String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val gamePaths by GamePathManager.gamePathData.collectAsStateWithLifecycle()
@@ -135,12 +145,38 @@ private fun SelectDefaultFolderDialog(
         },
         confirmButton = {
             Button(onClick = {
-                onSelect(
-                    gamePaths.find { it.path == selectedPath }?.id ?: GamePathManager.DEFAULT_ID
-                )
+                val selectedItem = gamePaths.find { it.path == selectedPath }
+                val id = selectedItem?.id ?: GamePathManager.DEFAULT_ID
+                val path = selectedItem?.path ?: selectedPath
+                onSelect(id, path)
                 onDismiss()
             }) {
                 MarqueeText(text = stringResource(R.string.generic_select))
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                MarqueeText(text = stringResource(R.string.generic_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+private fun SelectDefaultWarningDialog(
+    targetPath: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.versions_manage_select_default_folder_warning_title)) },
+        text = {
+            Text(stringResource(R.string.versions_manage_select_default_folder_warning_text))
+        },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                MarqueeText(text = stringResource(R.string.generic_confirm))
             }
         },
         dismissButton = {

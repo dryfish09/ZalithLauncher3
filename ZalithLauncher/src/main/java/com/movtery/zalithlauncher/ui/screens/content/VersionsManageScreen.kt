@@ -166,7 +166,8 @@ private class VersionsScreenViewModel : ViewModel() {
         versions: List<Version>,
         targetPath: String,
         onStart: () -> Unit = {},
-        onStop: () -> Unit = {}
+        onStop: () -> Unit = {},
+        onComplete: ((List<String>, List<Pair<String, String>>) -> Unit)? = null
     ) {
         mover = VersionMover(
             context = context,
@@ -179,6 +180,7 @@ private class VersionsScreenViewModel : ViewModel() {
                 onEnd = { moved, failed ->
                     mover = null
                     gameFolderOperation = GameFolderOperation.MoveVersionsResult(moved, failed)
+                    onComplete?.invoke(moved, failed)
                     onStop()
                 },
                 onThrowable = { th ->
@@ -308,14 +310,27 @@ fun VersionsManageScreen(
                 onStop = { eventViewModel.sendKeepScreen(false) }
             )
         },
-        onSelectDefaultFolder = { id ->
+        onSelectDefaultFolder = { id, targetPath ->
             (context as? MainActivity)?.let { activity ->
                 checkStoragePermissions(
                     activity = activity,
                     message = activity.getString(R.string.versions_manage_game_storage_permissions),
                     messageSdk30 = activity.getString(R.string.versions_manage_game_storage_permissions_sdk30),
                     hasPermission = {
-                        GamePathManager.saveCurrentPath(id)
+                        val currentDefaultPath = GamePathManager.getGameHome()
+                        val isolatedVersions = VersionsManager.versions.value.filter {
+                            it.isIsolation() && it.path?.startsWith(currentDefaultPath) == true
+                        }
+                        viewModel.startMoveVersions(
+                            context = context,
+                            versions = isolatedVersions,
+                            targetPath = targetPath,
+                            onStart = { eventViewModel.sendKeepScreen(true) },
+                            onComplete = { _, _ ->
+                                GamePathManager.saveCurrentPath(id)
+                            },
+                            onStop = { eventViewModel.sendKeepScreen(false) }
+                        )
                     }
                 )
             }
