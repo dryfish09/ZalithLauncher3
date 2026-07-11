@@ -47,6 +47,7 @@ import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.activities.EXTRA_LAUNCH_VERSION
+import com.movtery.zalithlauncher.ui.activities.EXTRA_OPEN_LOG
 import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.path.URL_SUPPORT
@@ -266,6 +267,11 @@ class MainActivity : BaseAppCompatActivity() {
                     }
                     is EventViewModel.Event.VulkanCheck -> {
                         checkVulkan()
+                    }
+                    is EventViewModel.Event.OpenLog -> {
+                        screenBackStackModel.mainScreen.backStack.navigateTo(
+                            screenKey = NormalNavKey.LogView(logPath = event.path)
+                        )
                     }
                     else -> {
                         //忽略
@@ -717,6 +723,13 @@ class MainActivity : BaseAppCompatActivity() {
      */
     private fun handleImportIfNeeded(intent: Intent?): Boolean {
         if (intent == null) return false
+
+        val logPath = intent.getStringExtra(EXTRA_OPEN_LOG)
+        if (logPath != null) {
+            intent.removeExtra(EXTRA_OPEN_LOG)
+            eventViewModel.sendEvent(EventViewModel.Event.OpenLog(logPath))
+            return true
+        }
 
         val versionName = intent.getStringExtra(EXTRA_LAUNCH_VERSION)
         if (versionName != null) {

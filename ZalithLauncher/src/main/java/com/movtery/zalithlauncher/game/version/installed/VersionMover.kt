@@ -6,7 +6,10 @@ import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor
 import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.coroutine.addTask
 import com.movtery.zalithlauncher.coroutine.buildPhase
+import com.movtery.zalithlauncher.game.path.getAssetsHome
+import com.movtery.zalithlauncher.game.path.getResourcesHome
 import com.movtery.zalithlauncher.game.path.getVersionsHome
+import com.movtery.zalithlauncher.ui.screens.content.elements.GameFolderOperation
 import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,13 +25,12 @@ class VersionMover(
     private val context: Context,
     scope: CoroutineScope,
     private val versions: List<Version>,
-    private val targetGamePath: String
+    private val sourceGameHome: String,
+    private val targetGamePath: String,
+    private val changeState: (GameFolderOperation) -> Unit
 ) {
     private val taskExecutor = TaskFlowExecutor(scope)
     val tasksFlow: StateFlow<List<TitledTask>> = taskExecutor.tasksFlow
-
-    private val sourceVersionsHome: String = getVersionsHome()
-    private val targetVersionsHome: String = File(targetGamePath, "versions").absolutePath
 
     private val movedVersions = mutableListOf<String>()
     private val failedVersions = mutableListOf<Pair<String, String>>()
@@ -45,6 +47,7 @@ class VersionMover(
                 taskExecutor.addPhases(phases)
             },
             onComplete = {
+                changeState(GameFolderOperation.None)
                 onEnd(movedVersions.toList(), failedVersions.toList())
             },
             onError = onThrowable
@@ -75,22 +78,11 @@ class VersionMover(
                         task.updateMessage(R.string.versions_manage_move_versions_moving, name)
 
                         val sourceDir = version.getVersionPath()
-                        val targetDir = File(targetVersionsHome, name)
+                        val targetDir = File(File(targetGamePath, "versions"), name)
 
                         try {
                             runCatching {
-                                if (targetDir.exists()) {
-                                    FileUtils.deleteQuietly(targetDir)
-                                }
-                                targetDir.mkdirs()
-                                FileUtils.copyDirectory(sourceDir, targetDir)
-                                FileUtils.deleteQuietly(sourceDir)
-
-                                version.getVersionConfig().apply {
-                                    setVersionPath(targetDir)
-                                    saveWithThrowable()
-                                }
-
+                                moveVersionDirectory(sourceDir, targetDir, version, name)
                                 movedVersions.add(name)
                             }.onFailure { e ->
                                 Logger.error(TAG, "Failed to move version $name", e)
@@ -109,9 +101,43 @@ class VersionMover(
                         )
                     }
 
+                    copyAssets()
                     task.updateProgress(-1f)
                 }
             }
         )
+    }
+
+    private fun moveVersionDirectory(
+        sourceDir: File,
+        targetDir: File,
+        version: Version,
+        name: String
+    ) {
+        if (targetDir.exists()) {
+            FileUtils.deleteQuietly(targetDir)
+        }
+        targetDir.mkdirs()
+        FileUtils.copyDirectory(sourceDir, targetDir)
+        FileUtils.deleteQuietly(sourceDir)
+
+        version.getVersionConfig().apply {
+            setVersionPath(targetDir)
+            saveWithThrowable()
+        }
+    }
+
+    private suspend fun copyAssets() {
+        val sourceAssets = File(sourceGameHome, "assets")
+        val targetAssets = File(targetGamePath, "assets")
+        if (sourceAssets.exists()) {
+            FileUtils.copyDirectory(sourceAssets, targetAssets)
+        }
+
+        val sourceResources = File(sourceGameHome, "resources")
+        val targetResources = File(targetGamePath, "resources")
+        if (sourceResources.exists()) {
+            FileUtils.copyDirectory(sourceResources, targetResources)
+        }
     }
 }

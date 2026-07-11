@@ -76,6 +76,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -330,7 +331,7 @@ fun BuiltInFileManagerScreen(
                                         Spacer(Modifier.width(8.dp))
                                         Column {
                                             Text(
-                                                text = "Clipboard",
+                                                text = stringResource(R.string.file_manager_clipboard),
                                                 style = MaterialTheme.typography.titleSmall,
                                                 maxLines = 1,
                                                 color = MaterialTheme.colorScheme.primary
@@ -353,12 +354,12 @@ fun BuiltInFileManagerScreen(
                                         Spacer(Modifier.width(8.dp))
                                         Column {
                                             Text(
-                                                text = "Current Folder",
+                                                text = stringResource(R.string.file_manager_current_folder),
                                                 style = MaterialTheme.typography.titleSmall,
                                                 maxLines = 1
                                             )
                                             Text(
-                                                text = currentDirectory.name.ifEmpty { "Game Folder" },
+                                                text = currentDirectory.name.ifEmpty { stringResource(R.string.file_manager_game_folder) },
                                                 style = MaterialTheme.typography.bodySmall,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
@@ -383,13 +384,13 @@ fun BuiltInFileManagerScreen(
                                 verticalArrangement = Arrangement.spacedBy(2.dp)
                             ) {
                                 CollapsibleSidebarSection(
-                                    title = "GAME",
+                                    title = stringResource(R.string.file_manager_sidebar_game),
                                     expanded = gameSectionExpanded,
                                     onToggle = { gameSectionExpanded = !gameSectionExpanded }
                                 ) {
                                     SidebarNavItem(
                                         icon = R.drawable.ic_folder_outlined,
-                                        label = "Game Folder",
+                                        label = stringResource(R.string.file_manager_game_folder),
                                         selected = inGameRoot,
                                         onClick = { currentDirectory = rootDirectory }
                                     )
@@ -398,13 +399,13 @@ fun BuiltInFileManagerScreen(
                                 Spacer(Modifier.height(4.dp))
 
                                 CollapsibleSidebarSection(
-                                    title = "CONTENT",
+                                    title = stringResource(R.string.file_manager_sidebar_content),
                                     expanded = contentSectionExpanded,
                                     onToggle = { contentSectionExpanded = !contentSectionExpanded }
                                 ) {
                                     SidebarNavItem(
                                         icon = R.drawable.ic_extension_outlined,
-                                        label = "Mods",
+                                        label = stringResource(R.string.file_manager_sidebar_mods),
                                         selected = inModsSubtree,
                                         onClick = {
                                             if (!modsFolder.exists()) modsFolder.mkdirs()
@@ -413,7 +414,7 @@ fun BuiltInFileManagerScreen(
                                     )
                                     SidebarNavItem(
                                         icon = R.drawable.ic_folder_zip_outlined,
-                                        label = "Resource Packs",
+                                        label = stringResource(R.string.file_manager_sidebar_resourcepacks),
                                         selected = inResourcePacksSubtree,
                                         onClick = {
                                             if (!resourcePacksFolder.exists())
@@ -426,13 +427,13 @@ fun BuiltInFileManagerScreen(
                                 Spacer(Modifier.height(4.dp))
 
                                 CollapsibleSidebarSection(
-                                    title = "MEDIA",
+                                    title = stringResource(R.string.file_manager_sidebar_media),
                                     expanded = mediaSectionExpanded,
                                     onToggle = { mediaSectionExpanded = !mediaSectionExpanded }
                                 ) {
                                     SidebarNavItem(
                                         icon = R.drawable.ic_image_outlined,
-                                        label = "Screenshots",
+                                        label = stringResource(R.string.file_manager_sidebar_screenshots),
                                         selected = inScreenshotsSubtree,
                                         onClick = {
                                             if (!screenshotsFolder.exists())
@@ -480,7 +481,7 @@ fun BuiltInFileManagerScreen(
                                             else R.drawable.ic_menu
                                         ),
                                         contentDescription = if (sidebarVisible)
-                                            "Hide sidebar" else "Show sidebar"
+                                            stringResource(R.string.file_manager_sidebar_hide) else stringResource(R.string.file_manager_sidebar_show)
                                     )
                                 }
                                 IconButton(onClick = {
@@ -489,15 +490,11 @@ fun BuiltInFileManagerScreen(
                                 }) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_close),
-                                        contentDescription = "Exit selection"
+                                        contentDescription = stringResource(R.string.file_manager_exit_selection)
                                     )
                                 }
                                 Text(
-                                    text = buildString {
-                                        val n = selectedPaths.size
-                                        append(n)
-                                        append(if (n == 1) " item selected" else " items selected")
-                                    },
+                                    text = stringResource(R.string.file_manager_items_selected, selectedPaths.size),
                                     style = MaterialTheme.typography.titleSmall,
                                     modifier = Modifier
                                         .weight(1f)
@@ -519,7 +516,7 @@ fun BuiltInFileManagerScreen(
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_file_copy_filled),
-                                        contentDescription = "Cut",
+                                        contentDescription = stringResource(R.string.file_manager_cut),
                                         tint = if (hasSelection) LocalContentColor.current
                                         else LocalContentColor.current.copy(alpha = 0.38f)
                                     )
@@ -535,7 +532,7 @@ fun BuiltInFileManagerScreen(
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_copy_all_outlined),
-                                        contentDescription = "Copy",
+                                        contentDescription = stringResource(R.string.file_manager_copy),
                                         tint = if (hasSelection) LocalContentColor.current
                                         else LocalContentColor.current.copy(alpha = 0.38f)
                                     )
@@ -546,7 +543,7 @@ fun BuiltInFileManagerScreen(
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_delete_outlined),
-                                        contentDescription = "Delete",
+                                        contentDescription = stringResource(R.string.file_manager_delete),
                                         tint = if (hasSelection)
                                             MaterialTheme.colorScheme.error
                                         else LocalContentColor.current.copy(alpha = 0.38f)
@@ -563,7 +560,7 @@ fun BuiltInFileManagerScreen(
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_edit_outlined),
-                                        contentDescription = "Rename",
+                                        contentDescription = stringResource(R.string.file_manager_rename),
                                         tint = if (singleSelection) LocalContentColor.current
                                         else LocalContentColor.current.copy(alpha = 0.38f)
                                     )
@@ -577,7 +574,7 @@ fun BuiltInFileManagerScreen(
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_info_outlined),
-                                        contentDescription = "Properties",
+                                        contentDescription = stringResource(R.string.file_manager_properties),
                                         tint = if (hasSelection) LocalContentColor.current
                                         else LocalContentColor.current.copy(alpha = 0.38f)
                                     )
@@ -587,7 +584,7 @@ fun BuiltInFileManagerScreen(
                                 }) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_select_all),
-                                        contentDescription = "Select all"
+                                        contentDescription = stringResource(R.string.file_manager_select_all)
                                     )
                                 }
                                 IconButton(
@@ -596,7 +593,7 @@ fun BuiltInFileManagerScreen(
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_deselect),
-                                        contentDescription = "Deselect all",
+                                        contentDescription = stringResource(R.string.file_manager_deselect_all),
                                         tint = if (hasSelection) LocalContentColor.current
                                         else LocalContentColor.current.copy(alpha = 0.38f)
                                     )
@@ -617,7 +614,7 @@ fun BuiltInFileManagerScreen(
                                             else R.drawable.ic_menu
                                         ),
                                         contentDescription = if (sidebarVisible)
-                                            "Hide sidebar" else "Show sidebar"
+                                            stringResource(R.string.file_manager_sidebar_hide) else stringResource(R.string.file_manager_sidebar_show)
                                     )
                                 }
 
@@ -626,7 +623,7 @@ fun BuiltInFileManagerScreen(
                                     IconButton(onClick = { sortExpanded = !sortExpanded }) {
                                         Icon(
                                             painter = painterResource(R.drawable.ic_sort),
-                                            contentDescription = "Sort"
+                                            contentDescription = stringResource(R.string.file_manager_sort)
                                         )
                                     }
                                     SortByDropdownMenu(
@@ -651,7 +648,7 @@ fun BuiltInFileManagerScreen(
                                     onValueChange = { searchQuery = it },
                                     hint = {
                                         Text(
-                                            text = "Search files",
+                                            text = stringResource(R.string.file_manager_search_files),
                                             style = TextStyle(
                                                 color = LocalContentColor.current,
                                                 fontSize = 12.sp
@@ -669,7 +666,7 @@ fun BuiltInFileManagerScreen(
                                 }) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_select_all),
-                                        contentDescription = "Selection mode"
+                                        contentDescription = stringResource(R.string.file_manager_selection_mode)
                                     )
                                 }
 
@@ -684,7 +681,7 @@ fun BuiltInFileManagerScreen(
                                         clipboardIsCut = false
                                         refreshCounter++
                                     }) {
-                                        Text(if (clipboardIsCut) "Move Here" else "Paste Here")
+                                        Text(if (clipboardIsCut) stringResource(R.string.file_manager_move_here) else stringResource(R.string.file_manager_paste_here))
                                     }
                                 }
 
@@ -696,22 +693,22 @@ fun BuiltInFileManagerScreen(
                                         showCreateFolderDialog = true
                                     },
                                     painter = painterResource(R.drawable.ic_folder_outlined),
-                                    text = "New Folder"
+                                    text = stringResource(R.string.file_manager_new_folder)
                                 )
                                 IconTextButton(
                                     onClick = { showCreateFileDialog = true },
                                     painter = painterResource(R.drawable.ic_article_outlined),
-                                    text = "New File"
+                                    text = stringResource(R.string.file_manager_new_file)
                                 )
                                 IconTextButton(
                                     onClick = { importLauncher.launch(arrayOf("*/*")) },
                                     painter = painterResource(R.drawable.ic_upload),
-                                    text = "Import"
+                                    text = stringResource(R.string.file_manager_import)
                                 )
                                 IconButton(onClick = { refreshCounter++ }) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_refresh),
-                                        contentDescription = "Refresh"
+                                        contentDescription = stringResource(R.string.file_manager_refresh)
                                     )
                                 }
                             }
@@ -764,7 +761,7 @@ fun BuiltInFileManagerScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_arrow_back),
-                                    contentDescription = "Up one folder",
+                                    contentDescription = stringResource(R.string.file_manager_up_one_folder),
                                     modifier = Modifier
                                         .size(18.dp)
                                         .graphicsLayer { rotationZ = 90f }
@@ -784,7 +781,7 @@ fun BuiltInFileManagerScreen(
                                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                             ) {
                                 Text(
-                                    text = "Game Folder",
+                                    text = stringResource(R.string.file_manager_game_folder),
                                     style = MaterialTheme.typography.labelMedium,
                                     maxLines = 1,
                                     softWrap = false
@@ -852,14 +849,14 @@ fun BuiltInFileManagerScreen(
                                     tint = LocalContentColor.current.copy(alpha = 0.35f)
                                 )
                                 Text(
-                                    text = if (searchQuery.isBlank()) "This folder is empty"
-                                    else "No matching files",
+                                    text = if (searchQuery.isBlank()) stringResource(R.string.file_manager_no_files)
+                                    else stringResource(R.string.file_manager_no_matching_files),
                                     style = MaterialTheme.typography.titleSmall
                                 )
                                 Text(
                                     text = if (searchQuery.isBlank())
-                                        "Import files or create folders."
-                                    else "Try a different search term.",
+                                        stringResource(R.string.file_manager_import_files_hint)
+                                    else stringResource(R.string.file_manager_try_different_search),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 )
@@ -938,12 +935,12 @@ fun BuiltInFileManagerScreen(
         val focusRequester = remember { FocusRequester() }
         AlertDialog(
             onDismissRequest = { showGoToPathDialog = false },
-            title = { Text("Go to Path") },
+            title = { Text(stringResource(R.string.file_manager_go_to_path)) },
             text = {
                 OutlinedTextField(
                     value = goToPathText,
                     onValueChange = { goToPathText = it; goToPathError = null },
-                    label = { Text("Directory path") },
+                    label = { Text(stringResource(R.string.file_manager_directory_path)) },
                     singleLine = true,
                     isError = goToPathError != null,
                     supportingText = goToPathError?.let { err -> { Text(err) } },
@@ -954,15 +951,15 @@ fun BuiltInFileManagerScreen(
                 TextButton(onClick = {
                     val target = File(goToPathText.trim())
                     when {
-                        !target.exists() -> goToPathError = "Directory does not exist"
-                        !target.isDirectory -> goToPathError = "Path is not a directory"
-                        !target.canRead() -> goToPathError = "Cannot access this directory"
+                        !target.exists() -> goToPathError = stringResource(R.string.file_manager_dir_not_exist)
+                        !target.isDirectory -> goToPathError = stringResource(R.string.file_manager_not_a_dir)
+                        !target.canRead() -> goToPathError = stringResource(R.string.file_manager_cannot_access)
                         else -> { currentDirectory = target; showGoToPathDialog = false }
                     }
-                }) { Text("Go") }
+                }) { Text(stringResource(R.string.file_manager_go)) }
             },
             dismissButton = {
-                TextButton(onClick = { showGoToPathDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showGoToPathDialog = false }) { Text(stringResource(R.string.generic_cancel)) }
             }
         )
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
@@ -971,12 +968,12 @@ fun BuiltInFileManagerScreen(
     if (showRenameDialog) {
         AlertDialog(
             onDismissRequest = { showRenameDialog = false },
-            title = { Text("Rename") },
+            title = { Text(stringResource(R.string.file_manager_rename)) },
             text = {
                 OutlinedTextField(
                     value = renameText,
                     onValueChange = { renameText = it },
-                    label = { Text("New name") },
+                    label = { Text(stringResource(R.string.file_manager_new_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -986,10 +983,10 @@ fun BuiltInFileManagerScreen(
                     selectedFile?.renameTo(File(selectedFile!!.parent, renameText))
                     refreshCounter++
                     showRenameDialog = false
-                }) { Text("Rename") }
+                }) { Text(stringResource(R.string.file_manager_rename)) }
             },
             dismissButton = {
-                TextButton(onClick = { showRenameDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showRenameDialog = false }) { Text(stringResource(R.string.generic_cancel)) }
             }
         )
     }
@@ -997,18 +994,18 @@ fun BuiltInFileManagerScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete") },
-            text = { Text("Delete \"${fileToDelete?.name}\"? This cannot be undone.") },
+            title = { Text(stringResource(R.string.file_manager_delete)) },
+            text = { Text(stringResource(R.string.file_manager_delete_confirm_file, fileToDelete?.name ?: "")) },
             confirmButton = {
                 TextButton(onClick = {
                     fileToDelete?.deleteRecursively()
                     fileToDelete = null
                     refreshCounter++
                     showDeleteDialog = false
-                }) { Text("Delete") }
+                }) { Text(stringResource(R.string.file_manager_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.generic_cancel)) }
             }
         )
     }
@@ -1017,12 +1014,9 @@ fun BuiltInFileManagerScreen(
         val count = selectedPaths.size
         AlertDialog(
             onDismissRequest = { showBulkDeleteDialog = false },
-            title = { Text("Delete items") },
+            title = { Text(stringResource(R.string.file_manager_delete_items_title)) },
             text = {
-                Text(
-                    "Permanently delete $count ${if (count == 1) "item" else "items"}? " +
-                        "This cannot be undone."
-                )
+                Text(stringResource(R.string.file_manager_delete_items_confirm, count))
             },
             confirmButton = {
                 TextButton(onClick = {
@@ -1032,11 +1026,11 @@ fun BuiltInFileManagerScreen(
                     refreshCounter++
                     showBulkDeleteDialog = false
                 }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.file_manager_delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showBulkDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showBulkDeleteDialog = false }) { Text(stringResource(R.string.generic_cancel)) }
             }
         )
     }
@@ -1097,7 +1091,7 @@ fun BuiltInFileManagerScreen(
                 )
             },
             title = {
-                Text(if (clipboardIsCut) "Cut \u2014 pending move" else "Copy \u2014 pending paste")
+                Text(if (clipboardIsCut) stringResource(R.string.file_manager_clipboard_cut_title) else stringResource(R.string.file_manager_clipboard_copy_title))
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -1129,14 +1123,14 @@ fun BuiltInFileManagerScreen(
                     }
                     if (clipboardFiles.size > 5) {
                         Text(
-                            text = "\u2026 and ${clipboardFiles.size - 5} more",
+                            text = stringResource(R.string.file_manager_and_more, clipboardFiles.size - 5),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     }
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        text = "Destination: ${currentDirectory.name.ifEmpty { "Game Folder" }}",
+                        text = stringResource(R.string.file_manager_clipboard_destination, currentDirectory.name.ifEmpty { stringResource(R.string.file_manager_game_folder) }),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1154,7 +1148,7 @@ fun BuiltInFileManagerScreen(
                     refreshCounter++
                     showClipboardDialog = false
                 }) {
-                    Text("Paste Here")
+                    Text(stringResource(R.string.file_manager_paste_here))
                 }
             },
             dismissButton = {
@@ -1163,8 +1157,8 @@ fun BuiltInFileManagerScreen(
                         clipboardFiles = emptyList()
                         clipboardIsCut = false
                         showClipboardDialog = false
-                    }) { Text("Clear") }
-                    TextButton(onClick = { showClipboardDialog = false }) { Text("Cancel") }
+                    }) { Text(stringResource(R.string.file_manager_clipboard_clear)) }
+                    TextButton(onClick = { showClipboardDialog = false }) { Text(stringResource(R.string.generic_cancel)) }
                 }
             }
         )
@@ -1204,7 +1198,7 @@ private fun CollapsibleSidebarSection(
             )
             Icon(
                 painter = painterResource(R.drawable.ic_arrow_back),
-                contentDescription = if (expanded) "Collapse $title" else "Expand $title",
+                contentDescription = if (expanded) stringResource(R.string.file_manager_collapse_section, title) else stringResource(R.string.file_manager_expand_section, title),
                 modifier = Modifier
                     .size(14.dp)
                     .graphicsLayer { rotationZ = chevronRotation },
@@ -1350,7 +1344,7 @@ private fun SidebarStorageFooter(rootDirectory: File) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Game data",
+                text = stringResource(R.string.file_manager_game_data),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )
@@ -1369,7 +1363,7 @@ private fun SidebarStorageFooter(rootDirectory: File) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Storage",
+                text = stringResource(R.string.file_manager_storage),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )
@@ -1454,7 +1448,7 @@ private fun FileItemLayout(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = if (file.isDirectory) "Folder"
+                    text = if (file.isDirectory) stringResource(R.string.file_manager_folder)
                     else formatBytesShort(file.length()),
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -1469,7 +1463,7 @@ private fun FileItemLayout(
                     IconButton(onClick = onProperties) {
                         Icon(
                             painter = painterResource(R.drawable.ic_info_outlined),
-                            contentDescription = "Properties"
+                            contentDescription = stringResource(R.string.file_manager_properties)
                         )
                     }
                     Box {
@@ -1477,7 +1471,7 @@ private fun FileItemLayout(
                         IconButton(onClick = { menuExpanded = true }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_more_vert),
-                                contentDescription = "More options"
+                                contentDescription = stringResource(R.string.file_manager_more_options)
                             )
                         }
                         DropdownMenu(
@@ -1489,28 +1483,28 @@ private fun FileItemLayout(
                                 leadingIcon = {
                                     Icon(painterResource(R.drawable.ic_edit_outlined), null)
                                 },
-                                text = { Text("Rename") },
+                                text = { Text(stringResource(R.string.file_manager_rename)) },
                                 onClick = { onRename(); menuExpanded = false }
                             )
                             DropdownMenuItem(
                                 leadingIcon = {
                                     Icon(painterResource(R.drawable.ic_copy_all_outlined), null)
                                 },
-                                text = { Text("Copy") },
+                                text = { Text(stringResource(R.string.file_manager_copy)) },
                                 onClick = { onCopy(); menuExpanded = false }
                             )
                             DropdownMenuItem(
                                 leadingIcon = {
                                     Icon(painterResource(R.drawable.ic_file_copy_filled), null)
                                 },
-                                text = { Text("Cut") },
+                                text = { Text(stringResource(R.string.file_manager_cut)) },
                                 onClick = { onCut(); menuExpanded = false }
                             )
                             DropdownMenuItem(
                                 leadingIcon = {
                                     Icon(painterResource(R.drawable.ic_delete_outlined), null)
                                 },
-                                text = { Text("Delete") },
+                                text = { Text(stringResource(R.string.file_manager_delete)) },
                                 onClick = { onDelete(); menuExpanded = false }
                             )
                         }
@@ -1527,25 +1521,25 @@ private fun PropertiesDialog(files: List<File>, onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = {
             Text(
-                if (files.size == 1) "Properties"
-                else "Properties \u2014 ${files.size} items"
+                if (files.size == 1) stringResource(R.string.file_manager_properties)
+                else stringResource(R.string.file_manager_properties_title_multi, files.size)
             )
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (files.size == 1) {
                     val f = files.first()
-                    PropertyRow("Name", f.name)
-                    PropertyRow("Type", if (f.isDirectory) "Folder" else "File")
-                    PropertyRow("Location", f.parentFile?.absolutePath ?: "\u2014")
+                    PropertyRow(stringResource(R.string.file_manager_properties_item_name), f.name)
+                    PropertyRow(stringResource(R.string.file_manager_properties_type), if (f.isDirectory) stringResource(R.string.file_manager_folder) else stringResource(R.string.file_manager_properties_file))
+                    PropertyRow(stringResource(R.string.file_manager_properties_location), f.parentFile?.absolutePath ?: "\u2014")
                     PropertyRow(
-                        "Size",
-                        if (f.isDirectory) "Folder" else formatBytesShort(f.length())
+                        stringResource(R.string.file_manager_properties_size),
+                        if (f.isDirectory) stringResource(R.string.file_manager_folder) else formatBytesShort(f.length())
                     )
-                    PropertyRow("Modified", formatFileDate(f.lastModified()))
-                    PropertyRow("Readable", if (f.canRead()) "Yes" else "No")
-                    PropertyRow("Writable", if (f.canWrite()) "Yes" else "No")
-                    PropertyRow("Executable", if (f.canExecute()) "Yes" else "No")
+                    PropertyRow(stringResource(R.string.file_manager_properties_modified), formatFileDate(f.lastModified()))
+                    PropertyRow(stringResource(R.string.file_manager_properties_readable), if (f.canRead()) stringResource(R.string.file_manager_properties_yes) else stringResource(R.string.file_manager_properties_no))
+                    PropertyRow(stringResource(R.string.file_manager_properties_writable), if (f.canWrite()) stringResource(R.string.file_manager_properties_yes) else stringResource(R.string.file_manager_properties_no))
+                    PropertyRow(stringResource(R.string.file_manager_properties_executable), if (f.canExecute()) stringResource(R.string.file_manager_properties_yes) else stringResource(R.string.file_manager_properties_no))
                 } else {
                     val fileCount = files.count { !it.isDirectory }
                     val folderCount = files.count { it.isDirectory }
@@ -1554,20 +1548,20 @@ private fun PropertiesDialog(files: List<File>, onDismiss: () -> Unit) {
                     val locationLabel = when {
                         parents.isEmpty() -> "\u2014"
                         parents.size == 1 -> parents.first()
-                        else -> "${parents.size} locations"
+                        else -> stringResource(R.string.file_manager_n_locations, parents.size)
                     }
 
                     if (fileCount > 0)
-                        PropertyRow("Files", "$fileCount")
+                        PropertyRow(stringResource(R.string.file_manager_properties_files), "$fileCount")
                     if (folderCount > 0)
-                        PropertyRow("Folders", "$folderCount")
-                    PropertyRow("Total size", formatBytesShort(totalSize))
-                    PropertyRow("Location", locationLabel)
+                        PropertyRow(stringResource(R.string.file_manager_properties_folders), "$folderCount")
+                    PropertyRow(stringResource(R.string.file_manager_properties_total_size), formatBytesShort(totalSize))
+                    PropertyRow(stringResource(R.string.file_manager_properties_location), locationLabel)
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Close") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.file_manager_properties_close)) }
         }
     )
 }
@@ -1591,11 +1585,12 @@ private fun PropertyRow(label: String, value: String) {
     }
 }
 
+@Composable
 private fun formatBytesShort(bytes: Long): String = when {
-    bytes < 1_024L -> "$bytes B"
-    bytes < 1_024L * 1_024L -> "%.1f KB".format(bytes / 1_024.0)
-    bytes < 1_024L * 1_024L * 1_024L -> "%.1f MB".format(bytes / (1_024.0 * 1_024.0))
-    else -> "%.2f GB".format(bytes / (1_024.0 * 1_024.0 * 1_024.0))
+    bytes < 1_024L -> "$bytes ${stringResource(R.string.file_manager_bytes)}"
+    bytes < 1_024L * 1_024L -> "%.1f ${stringResource(R.string.file_manager_kb)}".format(bytes / 1_024.0)
+    bytes < 1_024L * 1_024L * 1_024L -> "%.1f ${stringResource(R.string.file_manager_mb)}".format(bytes / (1_024.0 * 1_024.0))
+    else -> "%.2f ${stringResource(R.string.file_manager_gb)}".format(bytes / (1_024.0 * 1_024.0 * 1_024.0))
 }
 
 private fun formatFileDate(millis: Long): String =

@@ -20,7 +20,6 @@ package com.movtery.zalithlauncher.ui.activities
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.compose.setContent
@@ -35,7 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
 import androidx.activity.viewModels
 import com.jakewharton.processphoenix.ProcessPhoenix
 import com.movtery.zalithlauncher.R
@@ -200,16 +198,12 @@ class ErrorActivity : BaseAppCompatActivity(refreshData = false) {
                         canRestart = canRestart,
                         onShowLogsClick = {
                             if (logExists) {
-                                val uri = FileProvider.getUriForFile(
-                                    this@ErrorActivity,
-                                    "${packageName}.provider",
-                                    logFile
+                                startActivity(
+                                    Intent(this@ErrorActivity, MainActivity::class.java).apply {
+                                        putExtra(EXTRA_OPEN_LOG, logFile.absolutePath)
+                                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                    }
                                 )
-                                val intent = Intent(Intent.ACTION_VIEW).apply {
-                                    setDataAndType(uri, "text/plain")
-                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                }
-                                startActivity(Intent.createChooser(intent, getString(R.string.crash_show_logs)))
                             }
                         },
                         onShareLogsClick = {
