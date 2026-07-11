@@ -279,6 +279,11 @@ private class ResourcePackManageViewModel(
         }
     }
 
+    private val queueMutex = Mutex()
+    private val packsToLoad = mutableListOf<RemoteResourcePack>()
+    private val loadQueue = LinkedList<Pair<RemoteResourcePack, Boolean>>()
+    private val semaphore = Semaphore(8)
+
     init {
         refresh(checkCount = false)
         startQueueProcessor()
@@ -318,11 +323,6 @@ private class ResourcePackManageViewModel(
                 if (isAscending) value else -value
             }
     }
-
-    private val queueMutex = Mutex()
-    private val packsToLoad = mutableListOf<RemoteResourcePack>()
-    private val loadQueue = LinkedList<Pair<RemoteResourcePack, Boolean>>()
-    private val semaphore = Semaphore(8)
 
     private fun startQueueProcessor() {
         viewModelScope.launch {
