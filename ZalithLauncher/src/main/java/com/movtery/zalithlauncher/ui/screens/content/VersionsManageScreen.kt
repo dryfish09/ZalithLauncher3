@@ -191,7 +191,6 @@ private class VersionsScreenViewModel : ViewModel() {
 
     override fun onCleared() {
         cancelCleaner()
-        cancelMove()
         currentJob?.cancel()
     }
 }

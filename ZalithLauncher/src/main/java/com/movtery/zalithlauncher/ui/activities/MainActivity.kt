@@ -269,8 +269,8 @@ class MainActivity : BaseAppCompatActivity() {
                         checkVulkan()
                     }
                     is EventViewModel.Event.OpenLog -> {
-                        screenBackStackModel.mainScreen.backStack.navigateTo(
-                            screenKey = NormalNavKey.LogView(logPath = event.path)
+                        screenBackStackModel.mainScreen.backStack.navigateToLogView(
+                            logPath = event.path
                         )
                     }
                     else -> {

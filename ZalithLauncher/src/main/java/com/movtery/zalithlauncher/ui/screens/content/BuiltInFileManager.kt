@@ -933,6 +933,10 @@ fun BuiltInFileManagerScreen(
 
     if (showGoToPathDialog) {
         val focusRequester = remember { FocusRequester() }
+        val goToPathLabel = stringResource(R.string.file_manager_directory_path)
+        val dirNotExist = context.getString(R.string.file_manager_dir_not_exist)
+        val notADir = context.getString(R.string.file_manager_not_a_dir)
+        val cannotAccess = context.getString(R.string.file_manager_cannot_access)
         AlertDialog(
             onDismissRequest = { showGoToPathDialog = false },
             title = { Text(stringResource(R.string.file_manager_go_to_path)) },
@@ -940,7 +944,7 @@ fun BuiltInFileManagerScreen(
                 OutlinedTextField(
                     value = goToPathText,
                     onValueChange = { goToPathText = it; goToPathError = null },
-                    label = { Text(stringResource(R.string.file_manager_directory_path)) },
+                    label = { Text(goToPathLabel) },
                     singleLine = true,
                     isError = goToPathError != null,
                     supportingText = goToPathError?.let { err -> { Text(err) } },
@@ -951,9 +955,9 @@ fun BuiltInFileManagerScreen(
                 TextButton(onClick = {
                     val target = File(goToPathText.trim())
                     when {
-                        !target.exists() -> goToPathError = stringResource(R.string.file_manager_dir_not_exist)
-                        !target.isDirectory -> goToPathError = stringResource(R.string.file_manager_not_a_dir)
-                        !target.canRead() -> goToPathError = stringResource(R.string.file_manager_cannot_access)
+                        !target.exists() -> goToPathError = dirNotExist
+                        !target.isDirectory -> goToPathError = notADir
+                        !target.canRead() -> goToPathError = cannotAccess
                         else -> { currentDirectory = target; showGoToPathDialog = false }
                     }
                 }) { Text(stringResource(R.string.file_manager_go)) }
