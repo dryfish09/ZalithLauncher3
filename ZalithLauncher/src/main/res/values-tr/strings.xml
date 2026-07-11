@@ -31,11 +31,11 @@
     <string name="benchmark_result_stability">Kararlılık</string>
     <string name="benchmark_result_score">Puan</string>
     <string name="benchmark_note">GPU'nun ham çizim (draw-call) verimini test eder (500 dörtgen × 15 sn). Yüksek puan = daha iyi renderer performans payı.</string>
-    <string name="benchmark_select_renderers">Karşılaştırılacak Renderer\'ları Seç</string>
+    <string name="benchmark_select_renderers">Karşılaştırılacak Renderer'ları Seç</string>
     <string name="benchmark_select_all">Tümünü Seç</string>
     <string name="benchmark_deselect_all">Tüm Seçimi Kaldır</string>
     <string name="benchmark_select_minimum">Başlamak için en az 1 renderer seç</string>
-    <string name="benchmark_start">Benchmark\'ı Başlat</string>
+    <string name="benchmark_start">Benchmark'ı Başlat</string>
     <string name="benchmark_running_renderer">Test ediliyor: %s</string>
     <string name="benchmark_progress_of">%2$d üzerinden %1$d</string>
     <string name="benchmark_comparison_title">Karşılaştırma Sonuçları</string>
