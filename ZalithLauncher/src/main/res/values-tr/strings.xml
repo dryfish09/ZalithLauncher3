@@ -1057,8 +1057,8 @@
     <string name="settings_control_mouse_pointer_not_allowed_summary">Geçersiz işlem imleci</string>
     <string name="settings_control_mouse_pointer_common_summary">Ortak imleç ayarları</string>
     <string name="settings_control_mouse_pointer_hotspot">İmleç Odak Noktası</string>
-    <string name="settings_control_mouse_pointer_hotspot_x_percent">X Ekseni (%)</string>
-    <string name="settings_control_mouse_pointer_hotspot_y_percent">Y Ekseni (%)</string>
+    <string name="settings_control_mouse_pointer_hotspot_x_percent">X Ekseni (%%)</string>
+    <string name="settings_control_mouse_pointer_hotspot_y_percent">Y Ekseni (%%)</string>
     <string name="settings_control_gyroscope_title">Jiroskop</string>
     <string name="settings_control_gyroscope_unsupported">Cihazınız jiroskopu desteklemiyor</string>
     <string name="settings_control_gyroscope_summary">Jiroskop ile bakış kontrolü</string>
