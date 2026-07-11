@@ -85,6 +85,7 @@ import com.movtery.zalithlauncher.game.launch.handler.AbstractHandler
 import com.movtery.zalithlauncher.game.launch.handler.GameHandler
 import com.movtery.zalithlauncher.game.launch.handler.HandlerType
 import com.movtery.zalithlauncher.game.launch.handler.JVMHandler
+import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.version.installed.PlayTimeRepository
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -384,7 +385,15 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                     val logPath = withLauncher {
                         getLogFile().absolutePath
                     }
-                    showExitMessage(this@VMActivity, exitCode, isSignal, logPath)
+                    showExitMessage(
+                        this@VMActivity,
+                        exitCode,
+                        isSignal,
+                        logPath,
+                        gameHome = getGameHome(),
+                        allocatedRamMb = AllSettings.ramAllocation.getValue() ?: 0,
+                        renderer = AllSettings.renderer.getValue()
+                    )
                 } else {
                     //重启启动器
                     ProcessPhoenix.triggerRebirth(this@VMActivity)
