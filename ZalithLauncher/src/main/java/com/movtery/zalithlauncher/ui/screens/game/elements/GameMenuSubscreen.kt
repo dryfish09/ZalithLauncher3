@@ -345,6 +345,7 @@ private fun GameActionContent(
         //screen recorder
         item {
             val scope = rememberCoroutineScope()
+            val displayMetrics = LocalContext.current.resources.displayMetrics
             MenuTextButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = when {
@@ -357,8 +358,7 @@ private fun GameActionContent(
                     if (GameRecorder.isRecording) {
                         GameRecorder.stopRecording(scope)
                     } else {
-                        val dm = ctx.resources.displayMetrics
-                        GameRecorder.startRecording(dm.widthPixels, dm.heightPixels)
+                        GameRecorder.startRecording(displayMetrics.widthPixels, displayMetrics.heightPixels)
                     }
                 },
                 color = color,
