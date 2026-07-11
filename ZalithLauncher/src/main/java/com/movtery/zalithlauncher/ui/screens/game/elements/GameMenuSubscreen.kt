@@ -107,7 +107,7 @@ fun GameMenuSubscreen(
     onEditLayout: () -> Unit,
     onShowToast: (AndroidStringText, Int) -> Unit
 ) {
-    val context = LocalContext.current
+    val ctx = LocalContext.current
     DualMenuSubscreen(
         state = state,
         closeScreen = closeScreen,
@@ -357,8 +357,8 @@ private fun GameActionContent(
                     if (GameRecorder.isRecording) {
                         GameRecorder.stopRecording(scope)
                     } else {
-                        val display = LocalContext.current.resources.displayMetrics
-                        GameRecorder.startRecording(display.widthPixels, display.heightPixels)
+                        val dm = ctx.resources.displayMetrics
+                        GameRecorder.startRecording(dm.widthPixels, dm.heightPixels)
                     }
                 },
                 color = color,
