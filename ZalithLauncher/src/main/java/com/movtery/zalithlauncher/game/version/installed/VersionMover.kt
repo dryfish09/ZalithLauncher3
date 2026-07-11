@@ -6,9 +6,7 @@ import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor
 import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.coroutine.addTask
 import com.movtery.zalithlauncher.coroutine.buildPhase
-import com.movtery.zalithlauncher.game.path.getAssetsHome
-import com.movtery.zalithlauncher.game.path.getResourcesHome
-import com.movtery.zalithlauncher.game.path.getVersionsHome
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.screens.content.elements.GameFolderOperation
 import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CoroutineScope
@@ -65,7 +63,7 @@ class VersionMover(
             buildPhase {
                 addTask(
                     id = "VersionMover.MoveVersions",
-                    title = context.getString(R.string.versions_manage_move_versions_progress),
+                    title = androidText(R.string.versions_manage_move_versions_progress),
                     icon = R.drawable.ic_autorenew,
                     dispatcher = Dispatchers.IO
                 ) { task ->
@@ -75,7 +73,7 @@ class VersionMover(
                     versions.forEachIndexed { index, version ->
                         ensureActive()
                         val name = version.getVersionName()
-                        task.updateMessage(R.string.versions_manage_move_versions_moving, name)
+                        task.updateMessage(androidText(R.string.versions_manage_move_versions_moving, name))
 
                         val sourceDir = version.getVersionPath()
                         val targetDir = File(File(targetGamePath, "versions"), name)

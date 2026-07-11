@@ -23,6 +23,7 @@ import android.widget.Toast
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.upgrade.GithubReleaseApi
@@ -107,7 +108,7 @@ object TurnipDownloader {
         val task = Task.runTask(
             id = "download_turnip_driver_${asset.name}",
             task = { it ->
-                it.updateMessage(R.string.settings_renderer_turnip_downloading)
+                it.updateMessage(androidText(R.string.settings_renderer_turnip_downloading))
                 it.updateProgress(-1f)
 
                 val downloadFile = File(PathManager.DIR_CACHE, asset.name)
@@ -133,7 +134,7 @@ object TurnipDownloader {
                     }
                 }
 
-                it.updateMessage(R.string.settings_renderer_turnip_extracting)
+                it.updateMessage(androidText(R.string.settings_renderer_turnip_extracting))
                 it.updateProgress(-1f)
 
                 val extractDir = File(PathManager.DIR_DRIVERS, asset.name.removeSuffix(".zip"))
@@ -191,7 +192,7 @@ object TurnipDownloader {
                     extractDir.deleteRecursively()
                 }
 
-                it.updateMessage(R.string.settings_renderer_turnip_downloading)
+                it.updateMessage(androidText(R.string.settings_renderer_turnip_downloading))
                 it.updateProgress(-1f)
 
                 val downloadFile = File(PathManager.DIR_CACHE, zipName)
@@ -218,7 +219,7 @@ object TurnipDownloader {
                         }
                     }
 
-                    it.updateMessage(R.string.settings_renderer_turnip_extracting)
+                    it.updateMessage(androidText(R.string.settings_renderer_turnip_extracting))
                     it.updateProgress(-1f)
 
                     extractDir.mkdirs()

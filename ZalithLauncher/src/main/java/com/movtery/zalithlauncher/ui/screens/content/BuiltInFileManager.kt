@@ -86,6 +86,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.getGameHome
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -1070,8 +1071,8 @@ fun BuiltInFileManagerScreen(
                     Logger.warning(TAG, "Failed to create file", e)
                     submitError(
                         ErrorViewModel.ThrowableMessage(
-                            title = context.getString(R.string.generic_warning),
-                            message = context.getString(R.string.file_manager_create_file_failed, e.message ?: e.javaClass.simpleName)
+                            title = androidText(R.string.generic_warning),
+                            message = androidText(R.string.file_manager_create_file_failed, e.message ?: e.javaClass.simpleName)
                         )
                     )
                 }

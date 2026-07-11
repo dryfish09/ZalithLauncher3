@@ -40,6 +40,7 @@ import com.movtery.zalithlauncher.ui.code_editor.scheme.SchemeIDEADark
 import com.movtery.zalithlauncher.ui.code_editor.scheme.SchemeIDEALight
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.utils.logging.Logger
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.Dispatchers
@@ -80,8 +81,8 @@ fun FileEditorScreen(
             Logger.warning(TAG, "Failed to open file for editing: ${key.filePath}", e)
             submitError(
                 ErrorViewModel.ThrowableMessage(
-                    title = context.getString(R.string.generic_warning),
-                    message = context.getString(R.string.file_editor_load_failed, e.message ?: e.javaClass.simpleName)
+                    title = androidText(R.string.generic_warning),
+                    message = androidText(R.string.file_editor_load_failed, e.message ?: e.javaClass.simpleName)
                 )
             )
             return@LaunchedEffect
@@ -90,8 +91,8 @@ fun FileEditorScreen(
         if (content == null) {
             submitError(
                 ErrorViewModel.ThrowableMessage(
-                    title = context.getString(R.string.generic_warning),
-                    message = context.getString(R.string.file_editor_too_large)
+                    title = androidText(R.string.generic_warning),
+                    message = androidText(R.string.file_editor_too_large)
                 )
             )
             return@LaunchedEffect
@@ -140,8 +141,8 @@ fun FileEditorScreen(
                                 withContext(Dispatchers.Main) {
                                     submitError(
                                         ErrorViewModel.ThrowableMessage(
-                                            title = context.getString(R.string.generic_warning),
-                                            message = context.getString(R.string.file_editor_save_failed, e.message ?: e.javaClass.simpleName)
+                                            title = androidText(R.string.generic_warning),
+                                            message = androidText(R.string.file_editor_save_failed, e.message ?: e.javaClass.simpleName)
                                         )
                                     )
                                 }

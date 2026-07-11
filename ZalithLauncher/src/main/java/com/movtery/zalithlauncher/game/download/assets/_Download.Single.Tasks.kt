@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.game.download.assets
 
+import android.content.Context
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.InstallerRestoreRegistry
 import com.movtery.zalithlauncher.coroutine.Task
@@ -56,6 +57,7 @@ private const val TAG = "DownloadSingle"
  * @param onFileCancelled 文件安装已取消 单独回调
  */
 fun downloadSingleForVersions(
+    context: Context,
     version: PlatformVersion,
     versions: List<Version>,
     folder: String,

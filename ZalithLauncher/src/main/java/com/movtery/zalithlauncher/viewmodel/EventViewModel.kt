@@ -126,6 +126,8 @@ class EventViewModel : ViewModel() {
         data object VulkanCheck: Event
         /** 在应用内打开日志文件 */
         data class OpenLog(val path: String) : Event
+        /** 展示 Toast 消息 */
+        data class ShowToast(val text: AndroidStringText, val duration: Int) : Event
     }
 }
 

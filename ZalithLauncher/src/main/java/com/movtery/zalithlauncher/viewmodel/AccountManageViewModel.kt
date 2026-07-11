@@ -465,8 +465,8 @@ class AccountManageViewModel @Inject constructor(
             }.onSuccess { isValid ->
                 if (!isValid) {
                     emitError(
-                        context.getString(R.string.generic_warning),
-                        context.getString(R.string.account_change_cape_invalid)
+                        androidText(R.string.generic_warning),
+                        androidText(R.string.account_change_cape_invalid)
                     )
                     return@onSuccess
                 }
@@ -480,8 +480,8 @@ class AccountManageViewModel @Inject constructor(
                     it.copy(importingCape = false)
                 }
                 emitError(
-                    context.getString(R.string.generic_error),
-                    context.getString(R.string.account_change_cape_failed_to_import) + "\r\n" + th.getMessageOrToString()
+                    androidText(R.string.generic_error),
+                    androidText(context.getString(R.string.account_change_cape_failed_to_import) + "\r\n" + th.getMessageOrToString())
                 )
             }
 
@@ -750,15 +750,15 @@ class AccountManageViewModel @Inject constructor(
                 } else {
                     FileUtils.deleteQuietly(capeFile)
                     emitError(
-                        context.getString(R.string.generic_warning),
-                        context.getString(R.string.account_change_cape_invalid)
+                        androidText(R.string.generic_warning),
+                        androidText(R.string.account_change_cape_invalid)
                     )
                 }
             }, onError = { th ->
                 FileUtils.deleteQuietly(capeFile)
                 emitError(
-                    context.getString(R.string.generic_error),
-                    context.getString(R.string.account_change_cape_failed_to_import) + "\r\n" + th.getMessageOrToString()
+                    androidText(R.string.generic_error),
+                    androidText(context.getString(R.string.account_change_cape_failed_to_import) + "\r\n" + th.getMessageOrToString())
                 )
             })
         )

@@ -71,13 +71,13 @@ sealed interface NormalNavKey : TitledNavKey {
     @Serializable data class BuiltInFileManager(
         val startPath: String? = null
     ) : NormalNavKey {
-        override val title: Int = R.string.page_title_file_manager
+        @Contextual override val title: AndroidStringText = androidText(R.string.page_title_file_manager)
     }
     /** 文件编辑器屏幕 */
     @Serializable data class FileEditor(
         val filePath: String
     ) : NormalNavKey {
-        override val title: Int = R.string.page_title_file_editor
+        @Contextual override val title: AndroidStringText = androidText(R.string.page_title_file_editor)
     }
 
     /** 查看日志屏幕 */
@@ -95,7 +95,7 @@ sealed interface NormalNavKey : TitledNavKey {
         }
         /** Turnip 驱动下载屏幕 */
         @Serializable data object TurnipDrivers : Settings {
-            override val title: Int = R.string.settings_renderer_download_turnip
+            @Contextual override val title: AndroidStringText = androidText(R.string.settings_renderer_download_turnip)
         }
         /** 游戏设置屏幕 */
         @Serializable data object Game : Settings {
@@ -210,12 +210,12 @@ sealed interface NormalNavKey : TitledNavKey {
 
     /** 游戏统计屏幕 */
     @Serializable data object GameStats : NormalNavKey {
-        override val title: Int = R.string.stats_game_stats
+        @Contextual override val title: AndroidStringText = androidText(R.string.stats_game_stats)
     }
 
     /** 游戏时间统计屏幕 */
     @Serializable data object PlayTimeStats : NormalNavKey {
-        override val title: Int = R.string.stats_play_time_title
+        @Contextual override val title: AndroidStringText = androidText(R.string.stats_play_time_title)
     }
 
     /** 协议展示屏幕 */

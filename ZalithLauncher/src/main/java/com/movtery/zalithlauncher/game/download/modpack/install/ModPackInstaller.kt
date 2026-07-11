@@ -22,7 +22,7 @@ import android.content.Context
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor
-import com.movtery.zalithlauncher.coroutine.TaskState
+import com.movtery.zalithlauncher.coroutine.TaskStage
 import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.coroutine.addTask
 import com.movtery.zalithlauncher.coroutine.buildPhase
@@ -341,18 +341,12 @@ class ModPackInstaller(
                     while (true) {
                         kotlinx.coroutines.delay(150)
                         val titledTasks = tasksFlow.value
-                        val running = titledTasks.firstOrNull { it.task.taskState == TaskState.RUNNING }
+                        val running = titledTasks.firstOrNull { it.task.stage.value == TaskStage.RUNNING }
                             ?: titledTasks.lastOrNull()
                         running?.task?.let { t ->
-                            proxyTask.updateProgress(t.currentProgress)
-                            val msgRes = t.currentMessageRes
-                            val args = t.currentMessageArgs
-                            if (msgRes != null) {
-                                if (args != null) proxyTask.updateMessage(msgRes, *args)
-                                else proxyTask.updateMessage(msgRes)
-                            }
-                            if (t.currentRateBytesPerSec >= 0L) proxyTask.updateSpeed(t.currentRateBytesPerSec)
-                            else proxyTask.clearSpeed()
+                            proxyTask.updateProgress(t.progress.value)
+                            proxyTask.updateMessage(t.message.value)
+                            t.rateBytesPerSec.value?.let { proxyTask.updateSpeed(it) } ?: proxyTask.clearSpeed()
                         }
                     }
                 }

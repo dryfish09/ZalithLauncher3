@@ -179,7 +179,7 @@ object AccountsManager {
                 context = context,
                 account = account,
                 onSuccess = { updatedAccount, task ->
-                    task.updateMessage(R.string.account_logging_in_saving)
+                    task.updateMessage(androidText(R.string.account_logging_in_saving))
                     updatedAccount.downloadYggdrasil()
                     suspendSaveAccount(updatedAccount)
                 },

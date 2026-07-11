@@ -48,6 +48,7 @@ import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.utils.network.isUsingMobileData
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.launch
@@ -78,6 +79,7 @@ fun DownloadModScreen(
         changeOperation = { operation = it },
         doInstall = { classes, version, gameVersions ->
             downloadSingleForVersions(
+                context = context,
                 version = version,
                 versions = gameVersions,
                 folder = classes.versionFolder.folderName,
@@ -105,8 +107,8 @@ fun DownloadModScreen(
                 if (failedDependencies.isNotEmpty()) {
                     submitError(
                         ErrorViewModel.ThrowableMessage(
-                            title = context.getString(R.string.download_assets_install_failed),
-                            message = failedDependencies.joinToString("\n")
+                            title = androidText(R.string.download_assets_install_failed),
+                            message = androidText(failedDependencies.joinToString("\n"))
                         )
                     )
                 }
@@ -150,8 +152,8 @@ fun DownloadModScreen(
             if (failedDependencies.isNotEmpty()) {
                 submitError(
                     ErrorViewModel.ThrowableMessage(
-                        title = context.getString(R.string.download_assets_install_failed),
-                        message = failedDependencies.joinToString("\n")
+                        title = androidText(R.string.download_assets_install_failed),
+                        message = androidText(failedDependencies.joinToString("\n"))
                     )
                 )
             }

@@ -107,6 +107,7 @@ fun GameMenuSubscreen(
     onEditLayout: () -> Unit,
     onShowToast: (AndroidStringText, Int) -> Unit
 ) {
+    val context = LocalContext.current
     DualMenuSubscreen(
         state = state,
         closeScreen = closeScreen,
