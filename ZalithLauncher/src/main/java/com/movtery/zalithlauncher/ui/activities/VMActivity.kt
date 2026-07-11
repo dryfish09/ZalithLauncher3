@@ -575,9 +575,9 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
         val h = minOf(screenSize.width, screenSize.height)
         val windowWidth = getDisplayPixels(w)
         val windowHeight = getDisplayPixels(h)
-        applySizeToSurface?.invoke(windowWidth, windowHeight)
-        ZLBridgeStates.onWindowChange()
         CallbackBridge.sendUpdateWindowSize(windowWidth, windowHeight)
+        ZLBridgeStates.onWindowChange()
+        applySizeToSurface?.invoke(windowWidth, windowHeight)
 
         return IntSize(windowWidth, windowHeight)
     }
