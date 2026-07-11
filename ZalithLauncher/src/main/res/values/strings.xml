@@ -48,6 +48,9 @@
     <string name="generic_authorization">Authorization</string>
     <string name="generic_file_name">File Name: %s</string>
     <string name="generic_file_size">File Size: %s</string>
+    <string name="generic_path">Path: %s</string>
+    <string name="generic_status_enabled">Status: Enabled</string>
+    <string name="generic_status_disabled">Status: Disabled</string>
     <string name="generic_all">All</string>
     <string name="generic_enabled">Enabled</string>
     <string name="generic_disabled">Disabled</string>

@@ -886,19 +886,50 @@ private fun ShaderPackItem(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                var showLocalInfo by remember { mutableStateOf(false) }
+
                 val projectInfo = pack.projectInfo
-                if (projectInfo != null) {
-                    IconButton(
-                        modifier = Modifier.size(38.dp),
-                        onClick = {
+                IconButton(
+                    modifier = Modifier.size(38.dp),
+                    onClick = {
+                        if (projectInfo != null) {
                             onSwapMoreInfo(projectInfo.id, projectInfo.platform)
+                        } else {
+                            showLocalInfo = true
                         }
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_info_outlined),
-                            contentDescription = stringResource(R.string.shader_pack_manage_info)
-                        )
                     }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_info_outlined),
+                        contentDescription = stringResource(R.string.shader_pack_manage_info)
+                    )
+                }
+
+                if (showLocalInfo) {
+                    SimpleAlertDialog(
+                        title = shaderPackInfo.displayName,
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                val file = shaderPackInfo.file
+                                Text(
+                                    text = stringResource(R.string.generic_path, file.absolutePath),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = stringResource(R.string.generic_file_size, formatFileSize(shaderPackInfo.fileSize)),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = stringResource(if (shaderPackInfo.isEnabled) R.string.generic_status_enabled else R.string.generic_status_disabled),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        },
+                        confirmText = stringResource(R.string.generic_confirm),
+                        onConfirm = { showLocalInfo = false },
+                        onCancel = { showLocalInfo = false },
+                        onDismissRequest = { showLocalInfo = false }
+                    )
                 }
 
                 Checkbox(

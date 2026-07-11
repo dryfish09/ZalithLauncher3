@@ -47,6 +47,9 @@
     <string name="generic_authorization">Yetkilendirme</string>
     <string name="generic_file_name">Dosya adı:%s</string>
     <string name="generic_file_size">Dosya Boyutu: %s</string>
+    <string name="generic_path">Yol: %s</string>
+    <string name="generic_status_enabled">Durum: Etkin</string>
+    <string name="generic_status_disabled">Durum: Devre Dışı</string>
     <string name="generic_all">Hepsi</string>
     <string name="generic_unspecified">Belirtilmemiş</string>
     <string name="generic_save">Kaydet</string>
