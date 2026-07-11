@@ -127,8 +127,6 @@ import com.movtery.zalithlauncher.ui.control.mouse.SwitchableMouseLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.DraggableGameBall
 import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
-import com.movtery.zalithlauncher.ui.screens.game.elements.GameRecorder
-
 import com.movtery.zalithlauncher.ui.screens.game.elements.JoystickManageOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
@@ -560,12 +558,6 @@ fun GameScreen(
         eventViewModel.sendEvent(EventViewModel.Event.Game.KeyHandle(state.not()))
     }
 
-    LaunchedEffect(GameRecorder.lastSavedFile) {
-        GameRecorder.lastSavedFile?.let { path ->
-            Toast.makeText(context, context.getString(R.string.screen_recorder_saved, path), Toast.LENGTH_LONG).show()
-        }
-    }
-
     SendKeycodeOperation(
         operation = viewModel.sendKeycodeState,
         onChange = { viewModel.sendKeycodeState = it },
@@ -731,12 +723,6 @@ fun GameScreen(
                 onLogStateChange(LogState.CLOSE)
             },
             modifier = Modifier.fillMaxSize()
-        )
-
-        GameRecorderOverlay(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 8.dp, end = 8.dp)
         )
 
         GameMenuSubscreen(
@@ -1178,53 +1164,4 @@ private fun JoystickControlLayout(
             onKeyEvent(event, pressed)
         }
     )
-}
-
-@Composable
-private fun GameRecorderOverlay(modifier: Modifier = Modifier) {
-    AnimatedVisibility(
-        visible = GameRecorder.isRecording || GameRecorder.isSaving,
-        enter = fadeIn(),
-        exit = fadeOut(),
-        modifier = modifier
-    ) {
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            color = if (GameRecorder.isSaving)
-                MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.85f)
-            else
-                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.85f)
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (GameRecorder.isSaving) {
-                    LoadingIndicator(
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = stringResource(R.string.screen_recorder_saving),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.error,
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = "REC",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-        }
-    }
 }

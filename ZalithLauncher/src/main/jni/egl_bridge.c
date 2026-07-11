@@ -238,22 +238,8 @@ EXTERNAL_API void pojavSetWindowHint(int hint, int value) {
     }
 }
 
-// Recording support forward declarations
-static bool g_recording_active = false;
-static int g_recording_width = 0;
-static int g_recording_height = 0;
-static JavaVM* g_recording_jvm = NULL;
-static jclass g_recording_class = NULL;
-static jmethodID g_recording_onFrame = NULL;
-static void capture_and_send_recording_frame();
-
 EXTERNAL_API void pojavSwapBuffers() {
     calculateFPS();
-
-    // Capture frame for recording BEFORE swap (back buffer still valid for GL path)
-    if (g_recording_active && (pojav_environ->config_renderer == RENDERER_GL4ES)) {
-        capture_and_send_recording_frame();
-    }
 
     if (pojav_environ->config_renderer == RENDERER_VK_ZINK
      || pojav_environ->config_renderer == RENDERER_GL4ES)
@@ -352,94 +338,5 @@ EXTERNAL_API void pojavSwapInterval(int interval) {
         virglSwapInterval(interval);
     }
 
-}
-
-// Recording support -----------------------------------------------------------
-
-static void rgba_to_nv12(const uint8_t* rgba, uint8_t* nv12, int width, int height) {
-    const int ySize = width * height;
-    uint8_t* y = nv12;
-    uint8_t* uv = nv12 + ySize;
-
-    for (int j = 0; j < height; j++) {
-        for (int i = 0; i < width; i++) {
-            int idx = (j * width + i) * 4;
-            int r = rgba[idx + 0];
-            int g = rgba[idx + 1];
-            int b = rgba[idx + 2];
-
-            int yy = (77*r + 150*g + 29*b + 128) >> 8;
-            y[j * width + i] = yy < 16 ? 16 : yy > 235 ? 235 : yy;
-
-            if ((j & 1) == 0 && (i & 1) == 0) {
-                int u = ((-43*r - 84*g + 127*b + 128) >> 8) + 128;
-                int v = ((127*r - 106*g - 21*b + 128) >> 8) + 128;
-                int uvIdx = (j >> 1) * (width >> 1) + (i >> 1);
-                uv[uvIdx * 2 + 0] = u < 0 ? 0 : u > 255 ? 255 : u;
-                uv[uvIdx * 2 + 1] = v < 0 ? 0 : v > 255 ? 255 : v;
-            }
-        }
-    }
-}
-
-static void capture_and_send_recording_frame() {
-    if (!g_recording_active || !g_recording_jvm) return;
-
-    // lazily resolve glReadPixels via dlsym to avoid GLES2 header dependency
-    static void (*glReadPixels_fn)(GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, GLvoid*) = NULL;
-    if (!glReadPixels_fn) {
-        glReadPixels_fn = dlsym(RTLD_DEFAULT, "glReadPixels");
-        if (!glReadPixels_fn) return;
-    }
-
-    int width = g_recording_width;
-    int height = g_recording_height;
-    if (width <= 0 || height <= 0) return;
-
-    // Allocate RGBA buffer
-    uint8_t* rgba = malloc(width * height * 4);
-    if (!rgba) return;
-
-    glReadPixels_fn(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
-
-    // Allocate NV12 buffer (Y plane + interleaved UV)
-    int nv12Size = width * height + width * height / 2;
-    uint8_t* nv12 = malloc(nv12Size);
-    if (nv12) {
-        rgba_to_nv12(rgba, nv12, width, height);
-
-        // Send to Java via JNI
-        JNIEnv* env;
-        if ((*g_recording_jvm)->AttachCurrentThread(g_recording_jvm, &env, NULL) == JNI_OK) {
-            jobject buffer = (*env)->NewDirectByteBuffer(env, nv12, nv12Size);
-            (*env)->CallStaticVoidMethod(env, g_recording_class, g_recording_onFrame, buffer);
-            (*env)->DeleteLocalRef(env, buffer);
-        }
-        free(nv12);
-    }
-
-    free(rgba);
-}
-
-JNIEXPORT void JNICALL
-Java_com_movtery_zalithlauncher_ui_screens_game_elements_GameRecorder_nativeSetRecording(
-    JNIEnv* env, jclass clazz, jboolean active, jint width, jint height) {
-    g_recording_active = active;
-    g_recording_width = active ? width : 0;
-    g_recording_height = active ? height : 0;
-    if (active) {
-        (*env)->GetJavaVM(env, &g_recording_jvm);
-        jclass recorderClass = (*env)->FindClass(env,
-            "com/movtery/zalithlauncher/ui/screens/game/elements/GameRecorder");
-        g_recording_class = (*env)->NewGlobalRef(env, recorderClass);
-        g_recording_onFrame = (*env)->GetStaticMethodID(env, recorderClass,
-            "onFrameNV12", "(Ljava/nio/ByteBuffer;)V");
-    } else {
-        if (g_recording_class) {
-            (*env)->DeleteGlobalRef(env, g_recording_class);
-        }
-        g_recording_class = NULL;
-        g_recording_jvm = NULL;
-    }
 }
 

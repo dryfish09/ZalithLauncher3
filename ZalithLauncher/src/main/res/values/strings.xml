@@ -1519,13 +1519,6 @@
 
 
 
-    <string name="screen_recorder_start">Start Recording</string>
-    <string name="screen_recorder_stop">Stop Recording</string>
-    <string name="screen_recorder_saving">Saving…</string>
-    <string name="screen_recorder_saved">Recording saved to %s</string>
-    <string name="screen_recorder_notification_channel">Screen Recording</string>
-    <string name="screen_recorder_notification_title">Recording Screen</string>
-    <string name="screen_recorder_notification_text">A screen recording is in progress</string>
     <string name="settings_chroma_name_title">Chroma Username</string>
     <string name="chroma_mode_red_blue">Red &amp; Blue</string>
     <string name="chroma_mode_sunset">Sunset</string>

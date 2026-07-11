@@ -342,29 +342,6 @@ private fun GameActionContent(
                 contentColor = contentColor,
             )
         }
-        //screen recorder
-        item {
-            val scope = rememberCoroutineScope()
-            val displayMetrics = LocalContext.current.resources.displayMetrics
-            MenuTextButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = when {
-                    GameRecorder.isSaving -> stringResource(R.string.screen_recorder_saving)
-                    GameRecorder.isRecording -> stringResource(R.string.screen_recorder_stop)
-                    else -> stringResource(R.string.screen_recorder_start)
-                },
-                enabled = !GameRecorder.isSaving,
-                onClick = {
-                    if (GameRecorder.isRecording) {
-                        GameRecorder.stopRecording(scope)
-                    } else {
-                        GameRecorder.startRecording(displayMetrics.widthPixels, displayMetrics.heightPixels)
-                    }
-                },
-                color = color,
-                contentColor = contentColor,
-            )
-        }
     }
 }
 
