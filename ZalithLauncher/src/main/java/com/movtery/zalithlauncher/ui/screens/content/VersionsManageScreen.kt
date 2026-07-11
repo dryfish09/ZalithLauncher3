@@ -516,9 +516,9 @@ private fun LeftMenu(
             modifier = Modifier
                 .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
                 .fillMaxWidth(),
-            onClick = onCleanupGameFiles
+            onClick = onMoveVersions
         ) {
-            MarqueeText(text = stringResource(R.string.versions_manage_cleanup))
+            MarqueeText(text = stringResource(R.string.versions_manage_move_versions))
         }
 
         ScalingActionButton(
@@ -534,9 +534,9 @@ private fun LeftMenu(
             modifier = Modifier
                 .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
                 .fillMaxWidth(),
-            onClick = onMoveVersions
+            onClick = onCleanupGameFiles
         ) {
-            MarqueeText(text = stringResource(R.string.versions_manage_move_versions))
+            MarqueeText(text = stringResource(R.string.versions_manage_cleanup))
         }
     }
 }
