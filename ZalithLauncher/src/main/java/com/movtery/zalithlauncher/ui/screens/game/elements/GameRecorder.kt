@@ -9,6 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.zalithlauncher.path.PathManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
@@ -61,8 +64,14 @@ object GameRecorder {
         isRecording = false
         nativeSetRecording(false, 0, 0)
 
-        drainEncoder(eos = true)
+        if (muxerStarted) {
+            drainEncoder(eos = true)
+        }
 
+        cleanupEncoder()
+    }
+
+    private fun cleanupEncoder() {
         try {
             mediaCodec?.stop()
             mediaCodec?.release()

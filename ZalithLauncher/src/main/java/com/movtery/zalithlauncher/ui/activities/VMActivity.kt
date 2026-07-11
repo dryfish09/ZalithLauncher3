@@ -77,6 +77,7 @@ import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.GameLauncher
 import com.movtery.zalithlauncher.game.launch.GameService
 import com.movtery.zalithlauncher.game.launch.JvmLaunchInfo
+import com.movtery.zalithlauncher.game.screenrecorder.MediaProjectionService
 import com.movtery.zalithlauncher.game.launch.JvmLauncher
 import com.movtery.zalithlauncher.game.launch.LaunchConfig
 import com.movtery.zalithlauncher.game.launch.Launcher
@@ -366,6 +367,8 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
 
         //启动前台服务，防止后台网络中断
         startForegroundService(Intent(this, GameService::class.java))
+        //启动媒体投影前台服务，用于屏幕录制
+        startForegroundService(Intent(this, MediaProjectionService::class.java))
 
         val bundle = intent.extras ?: throw IllegalStateException("Unknown VM launch state!")
 
@@ -581,6 +584,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
 
     private fun stopAllService() {
         stopService(Intent(this, GameService::class.java))
+        stopService(Intent(this, MediaProjectionService::class.java))
         if (TerracottaVPNService.isRunning()) {
             val vpnIntent = Intent(this, TerracottaVPNService::class.java).apply {
                 action = TerracottaVPNService.ACTION_STOP

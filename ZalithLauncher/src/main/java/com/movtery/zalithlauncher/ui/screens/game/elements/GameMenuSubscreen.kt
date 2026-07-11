@@ -459,11 +459,6 @@ private fun ControlOverview(
             )
         }
 
-        //Speedrun Timer toggle
-        item {
-            SpeedrunTimerToggle(color = color, contentColor = contentColor)
-        }
-
         //管理摇杆
         item {
             MenuTextButton(
@@ -990,20 +985,4 @@ private fun ControlGyroscope(
             )
         }
     }
-}
-
-@Composable
-private fun SpeedrunTimerToggle(
-    color: Color = cardColor(false),
-    contentColor: Color = onCardColor()
-) {
-    val unit = AllSettings.speedrunTimerEnabled
-    MenuSwitchButton(
-        modifier = Modifier.fillMaxWidth(),
-        text = stringResource(R.string.speedrun_timer),
-        switch = unit.state,
-        onSwitch = { unit.save(!unit.state) },
-        color = color,
-        contentColor = contentColor
-    )
 }

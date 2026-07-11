@@ -1412,15 +1412,14 @@
     <string name="rank_master">Master</string>
     <string name="rank_legend">Legend</string>
     <string name="play_time_format">Play Time: %s Hours</string>
-    <string name="speedrun_timer">Speedrun Timer</string>
-    <string name="speedrun_rta">RTA</string>
-    <string name="speedrun_igt">IGT</string>
-    <string name="speedrun_start">Start</string>
-    <string name="speedrun_stop">Stop</string>
-    <string name="speedrun_reset">Reset</string>
-    <string name="speedrun_world">World</string>
+
+
+
     <string name="screen_recorder_start">Start Recording</string>
     <string name="screen_recorder_stop">Stop Recording</string>
+    <string name="screen_recorder_notification_channel">Screen Recording</string>
+    <string name="screen_recorder_notification_title">Recording Screen</string>
+    <string name="screen_recorder_notification_text">A screen recording is in progress</string>
     <string name="settings_chroma_name_title">Chroma Username</string>
     <string name="chroma_mode_red_blue">Red &amp; Blue</string>
     <string name="chroma_mode_sunset">Sunset</string>
