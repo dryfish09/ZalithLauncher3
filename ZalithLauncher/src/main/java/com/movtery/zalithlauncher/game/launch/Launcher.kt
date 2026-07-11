@@ -417,6 +417,8 @@ abstract class Launcher(
             if (AllSettings.bigCoreAffinity.getValue()) map["POJAV_BIG_CORE_AFFINITY"] = "1"
 
             if (FFmpegPluginManager.isAvailable) map["POJAV_FFMPEG_PATH"] = FFmpegPluginManager.executablePath!!
+
+            map["ALSOFT_DRIVERS"] = "opensl,aaudio"
         }
     }
 
