@@ -317,9 +317,8 @@ fun VersionsManageScreen(
                     message = activity.getString(R.string.versions_manage_game_storage_permissions),
                     messageSdk30 = activity.getString(R.string.versions_manage_game_storage_permissions_sdk30),
                     hasPermission = {
-                        val currentDefaultPath = GamePathManager.getGameHome()
                         val isolatedVersions = VersionsManager.versions.value.filter {
-                            it.isIsolation() && it.path?.startsWith(currentDefaultPath) == true
+                            it.isIsolation()
                         }
                         viewModel.startMoveVersions(
                             context = context,
