@@ -144,39 +144,8 @@ void gl_swap_surface(gl_render_window_t* bundle) {
         bundle->nativeSurface = bundle->newNativeSurface;
         bundle->newNativeSurface = NULL;
         ANativeWindow_acquire(bundle->nativeSurface);
-        int32_t bufW = ANativeWindow_getWidth(bundle->nativeSurface);
-        int32_t bufH = ANativeWindow_getHeight(bundle->nativeSurface);
-        // Force landscape dimensions
-        if (bufW < bufH) {
-            int32_t tmp = bufW;
-            bufW = bufH;
-            bufH = tmp;
-        }
-        int32_t displayRot = safe_get_transform_hint(bundle->nativeSurface);
-        __android_log_print(ANDROID_LOG_INFO, g_LogTag,
-            "Buffer before setBuffersGeometry: %dx%d, transformHint=%d, format=%d",
-            bufW, bufH, displayRot, bundle->format);
-        ANativeWindow_setBuffersGeometry(bundle->nativeSurface, bufW, bufH, bundle->format);
-        bufW = ANativeWindow_getWidth(bundle->nativeSurface);
-        bufH = ANativeWindow_getHeight(bundle->nativeSurface);
-        displayRot = safe_get_transform_hint(bundle->nativeSurface);
-        __android_log_print(ANDROID_LOG_INFO, g_LogTag,
-            "Buffer after setBuffersGeometry: %dx%d, transformHint=%d",
-            bufW, bufH, displayRot);
+        ANativeWindow_setBuffersGeometry(bundle->nativeSurface, 0, 0, bundle->format);
         bundle->surface = eglCreateWindowSurface_p(g_EglDisplay, bundle->config, bundle->nativeSurface, NULL);
-        // Mesa EGL may reset buffer geometry during surface creation — force it back.
-        ANativeWindow_setBuffersGeometry(bundle->nativeSurface, bufW, bufH, bundle->format);
-        if (bundle->surface != NULL) {
-            EGLint surfW, surfH;
-            eglQuerySurface_p(g_EglDisplay, bundle->surface, EGL_WIDTH, &surfW);
-            eglQuerySurface_p(g_EglDisplay, bundle->surface, EGL_HEIGHT, &surfH);
-            int32_t finalHint = safe_get_transform_hint(bundle->nativeSurface);
-            int32_t finalW = ANativeWindow_getWidth(bundle->nativeSurface);
-            int32_t finalH = ANativeWindow_getHeight(bundle->nativeSurface);
-            __android_log_print(ANDROID_LOG_INFO, g_LogTag,
-                "EGL surface created: %dx%d, ANW=%dx%d, transformHint=%d",
-                surfW, surfH, finalW, finalH, finalHint);
-        }
         return;
     }
 
@@ -267,19 +236,6 @@ void gl_swap_buffers() {
     {
         void (*fsr_apply)(void) = dlsym(RTLD_DEFAULT, "fsr_apply");
         if (fsr_apply) fsr_apply();
-
-        // Re-assert landscape buffer geometry before every swap in case
-        // Mesa/Zink/Vulkan WSI resets it during swapchain creation.
-        if (currentBundle->nativeSurface != NULL) {
-            int32_t w = ANativeWindow_getWidth(currentBundle->nativeSurface);
-            int32_t h = ANativeWindow_getHeight(currentBundle->nativeSurface);
-            if (w < h) {
-                int32_t tmp = w;
-                w = h;
-                h = tmp;
-                ANativeWindow_setBuffersGeometry(currentBundle->nativeSurface, w, h, currentBundle->format);
-            }
-        }
 
         if (!eglSwapBuffers_p(g_EglDisplay, currentBundle->surface) && eglGetError_p() == EGL_BAD_SURFACE)
         {

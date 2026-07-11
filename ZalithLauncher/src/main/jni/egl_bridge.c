@@ -73,14 +73,6 @@ EXTERNAL_API void pojavTerminate() {
 
 JNIEXPORT void JNICALL Java_com_movtery_zalithlauncher_bridge_ZLBridge_setupBridgeWindow(JNIEnv* env, ABI_COMPAT jclass clazz, jobject surface) {
     pojav_environ->pojavWindow = ANativeWindow_fromSurface(env, surface);
-    // Force landscape buffer geometry so the ANativeWindow's default dimensions
-    // are landscape before any EGL/Vulkan WSI code sees them.
-    int32_t w = ANativeWindow_getWidth(pojav_environ->pojavWindow);
-    int32_t h = ANativeWindow_getHeight(pojav_environ->pojavWindow);
-    int32_t landscapeW = w > h ? w : h;
-    int32_t landscapeH = w > h ? h : w;
-    ANativeWindow_setBuffersGeometry(pojav_environ->pojavWindow, landscapeW, landscapeH,
-                                     AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM);
     if (br_setup_window) br_setup_window();
 }
 
@@ -202,12 +194,6 @@ EXTERNAL_API int pojavInit() {
     ANativeWindow_acquire(pojav_environ->pojavWindow);
     pojav_environ->savedWidth = ANativeWindow_getWidth(pojav_environ->pojavWindow);
     pojav_environ->savedHeight = ANativeWindow_getHeight(pojav_environ->pojavWindow);
-    // Ensure landscape
-    if (pojav_environ->savedWidth < pojav_environ->savedHeight) {
-        int32_t tmp = pojav_environ->savedWidth;
-        pojav_environ->savedWidth = pojav_environ->savedHeight;
-        pojav_environ->savedHeight = tmp;
-    }
     ANativeWindow_setBuffersGeometry(pojav_environ->pojavWindow,pojav_environ->savedWidth,pojav_environ->savedHeight,AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM);
     pojavInitOpenGL();
     return 1;
