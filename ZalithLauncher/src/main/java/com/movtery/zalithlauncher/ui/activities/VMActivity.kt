@@ -24,7 +24,6 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.SurfaceTexture
-import android.os.Build
 import android.os.Bundle
 import android.view.InputDevice
 import android.view.KeyEvent
@@ -32,7 +31,6 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.TextureView
-import android.view.ViewGroup
 import android.view.TextureView.SurfaceTextureListener
 import android.view.WindowManager
 import android.widget.Toast
@@ -88,8 +86,6 @@ import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.version.installed.PlayTimeRepository
 import com.movtery.zalithlauncher.game.version.installed.Version
-import com.movtery.zalithlauncher.game.renderer.Renderers
-import com.movtery.zalithlauncher.game.renderer.renderers.KopperZinkRenderer
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.terracotta.TerracottaVPNService
 import com.movtery.zalithlauncher.ui.base.BaseAppCompatActivity
@@ -571,10 +567,8 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
             }
         }
 
-        val w = maxOf(screenSize.width, screenSize.height)
-        val h = minOf(screenSize.width, screenSize.height)
-        val windowWidth = getDisplayPixels(w)
-        val windowHeight = getDisplayPixels(h)
+        val windowWidth = getDisplayPixels(screenSize.width)
+        val windowHeight = getDisplayPixels(screenSize.height)
         applySizeToSurface?.invoke(windowWidth, windowHeight)
         ZLBridgeStates.onWindowChange()
         CallbackBridge.sendUpdateWindowSize(windowWidth, windowHeight)
@@ -687,11 +681,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     private var pendingNewSurface: CompletableDeferred<Surface>? = null
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        val w = maxOf(width, height)
-        val h = minOf(width, height)
-        if (w != width || h != height) {
-            holder.setFixedSize(w, h)
-        }
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
@@ -773,17 +762,12 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                         IntOffset(0, -bottomPadding)
                     },
                 factory = { context ->
-                    //Kopper Zink 与 SurfaceView 组合使用时，Android 会旋转游戏画面输出，
-                    //因此这里强制忽略 SurfaceView 偏好设置，即使该偏好值仍保存为开启状态
-                    val isKopperZinkActive = Renderers.isCurrentRendererValid() &&
-                        Renderers.getCurrentRenderer().getUniqueIdentifier() == KopperZinkRenderer.getUniqueIdentifier()
-                    if (AllSettings.useSurfaceView.getValue() && !isKopperZinkActive) {
+                    if (AllSettings.useSurfaceView.getValue()) {
                         SurfaceView(context).apply {
                             holder.addCallback(this@VMActivity)
                         }.also { view ->
                             applySizeToSurface = { width, height ->
                                 view.holder.setFixedSize(width, height)
-                                view.layoutParams = ViewGroup.LayoutParams(width, height)
                             }
                         }
                     } else {
