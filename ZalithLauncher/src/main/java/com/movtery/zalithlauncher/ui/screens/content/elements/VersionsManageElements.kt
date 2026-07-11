@@ -167,15 +167,6 @@ fun GamePathItemLayout(
                     .alpha(if (enabled) 1f else DisabledAlpha)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (!notDefault) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_star_filled),
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = Color(0xFF4FC3F7)
-                        )
-                        Spacer(Modifier.width(4.dp))
-                    }
                     Text(
                         modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE).weight(1f),
                         text = if (notDefault) item.title else stringResource(R.string.versions_manage_game_path_default),
@@ -195,21 +186,6 @@ fun GamePathItemLayout(
             var menuExpanded by remember { mutableStateOf(false) }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (!notDefault) {
-                    Surface(
-                        color = Color(0xFF1976D2).copy(alpha = 0.6f),
-                        shape = MaterialTheme.shapes.small,
-                        modifier = Modifier.padding(end = 4.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.versions_manage_game_path_default_badge),
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White
-                        )
-                    }
-                }
-
                 IconButton(
                     modifier = Modifier.size(24.dp),
                     onClick = { menuExpanded = !menuExpanded }
