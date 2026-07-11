@@ -85,16 +85,6 @@ JNIEXPORT void JNICALL Java_com_movtery_zalithlauncher_bridge_ZLBridge_setupBrid
 }
 
 JNIEXPORT void JNICALL
-Java_com_movtery_zalithlauncher_bridge_ZLBridge_nativeUpdateWindowSize(
-        ABI_COMPAT JNIEnv *env, ABI_COMPAT jclass clazz, jint width, jint height) {
-    if (pojav_environ->pojavWindow != NULL) {
-        ANativeWindow_setBuffersGeometry(pojav_environ->pojavWindow, (int32_t) width, (int32_t) height,
-                                         AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM);
-        if (br_setup_window) br_setup_window();
-    }
-}
-
-JNIEXPORT void JNICALL
 Java_com_movtery_zalithlauncher_bridge_ZLBridge_releaseBridgeWindow(ABI_COMPAT JNIEnv *env, ABI_COMPAT jclass clazz) {
     ANativeWindow_release(pojav_environ->pojavWindow);
 }

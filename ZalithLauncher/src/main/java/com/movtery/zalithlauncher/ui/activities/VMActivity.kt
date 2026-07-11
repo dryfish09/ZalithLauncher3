@@ -578,9 +578,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
         CallbackBridge.sendUpdateWindowSize(windowWidth, windowHeight)
         ZLBridgeStates.onWindowChange()
         applySizeToSurface?.invoke(windowWidth, windowHeight)
-        if (vmViewModel.isRunning) {
-            ZLBridge.nativeUpdateWindowSize(windowWidth, windowHeight)
-        }
 
         return IntSize(windowWidth, windowHeight)
     }
