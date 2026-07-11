@@ -20,9 +20,11 @@ package com.movtery.zalithlauncher.viewmodel
 
 import android.net.Uri
 import android.view.KeyEvent
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.ui.AndroidStringText
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
 import com.movtery.zalithlauncher.ui.screens.main.custom_home.MarkdownBlock
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -131,6 +133,13 @@ fun EventViewModel.sendKeepScreen(
     on: Boolean
 ) {
     sendEvent(EventViewModel.Event.KeepScreen(on))
+}
+
+fun EventViewModel.sendToast(
+    text: AndroidStringText,
+    duration: Int = Toast.LENGTH_SHORT,
+) {
+    sendEvent(EventViewModel.Event.ShowToast(text, duration))
 }
 
 fun EventViewModel.sendDLPlugin(

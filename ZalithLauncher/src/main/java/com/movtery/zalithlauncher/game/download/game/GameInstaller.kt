@@ -58,6 +58,8 @@ import com.movtery.zalithlauncher.game.version.installed.VersionConfig
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.ui.AndroidStringText
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
 import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
@@ -296,7 +298,7 @@ class GameInstaller(
                 //开始之前，应该先清理一次临时游戏目录，否则可能会影响安装结果
                 addTask(
                     id = "Download.Game.ClearTemp",
-                    title = context.getString(R.string.download_install_clear_temp),
+                    title = androidText(R.string.download_install_clear_temp),
                     icon = R.drawable.ic_auto_delete_outlined,
                 ) {
                     clearTempGameDir()
@@ -314,7 +316,7 @@ class GameInstaller(
 
                 //下载安装原版
                 addTask(
-                    title = context.getString(R.string.download_game_install_vanilla, info.gameVersion),
+                    title = androidText(R.string.download_game_install_vanilla, info.gameVersion),
                     task = createMinecraftDownloadTask(info.gameVersion, pathConfig.tempGameVersionsDir)
                 )
 
@@ -333,7 +335,7 @@ class GameInstaller(
 
                 //最终游戏安装任务
                 addTask(
-                    title = context.getString(R.string.download_game_install_game_files_progress),
+                    title = androidText(R.string.download_game_install_game_files_progress),
                     icon = R.drawable.ic_build_outlined,
                     //如果有非原版以外的任务，则需要进行处理安装（合并版本Json、迁移文件等）
                     task = if (
@@ -393,7 +395,7 @@ class GameInstaller(
                 //开始之前，应该先清理一次临时游戏目录，否则可能会影响安装结果
                 addTask(
                     id = "UpdateLoader.ClearTemp",
-                    title = context.getString(R.string.download_install_clear_temp),
+                    title = androidText(R.string.download_install_clear_temp),
                     icon = R.drawable.ic_auto_delete_outlined,
                 ) {
                     clearTempGameDir()
@@ -412,7 +414,7 @@ class GameInstaller(
                 //下载原版的 Json/Jar，后续需要基于这个进行合并
                 addTask(
                     id = "UpdateLoader.DownloadVanilla",
-                    title = context.getString(R.string.download_game_install_base_download_file2, info.gameVersion)
+                    title = androidText(R.string.download_game_install_base_download_file2, info.gameVersion)
                 ) { task ->
                     val clientVersion = info.gameVersion
                     val mcFolder = pathConfig.tempGameVersionsDir
@@ -481,7 +483,7 @@ class GameInstaller(
 
                 //最终游戏安装任务
                 addTask(
-                    title = context.getString(R.string.download_game_install_game_files_progress),
+                    title = androidText(R.string.download_game_install_game_files_progress),
                     icon = R.drawable.ic_build_outlined,
                     task = createGameInstalledTask(
                         tempMinecraftDir = pathConfig.tempMinecraftDir,
@@ -526,7 +528,7 @@ class GameInstaller(
 
                 //将OptiFine作为版本下载，其余情况则作为Mod下载
                 addTask(
-                    title = context.getString(
+                    title = androidText(
                         R.string.download_game_install_base_download_file,
                         ModLoader.OPTIFINE.displayName,
                         info.optifine.displayName
@@ -539,7 +541,7 @@ class GameInstaller(
 
                 //安装 OptiFine
                 addTask(
-                    title = context.getString(
+                    title = androidText(
                         R.string.download_game_install_base_install,
                         ModLoader.OPTIFINE.displayName
                     ),
@@ -555,7 +557,7 @@ class GameInstaller(
             } else {
                 //仅作为Mod进行下载
                 addTask(
-                    title = context.getString(
+                    title = androidText(
                         R.string.download_game_install_base_download_file,
                         ModLoader.OPTIFINE.displayName,
                         info.optifine.displayName
@@ -614,7 +616,7 @@ class GameInstaller(
             modVer: String,
         ) {
             addTask(
-                title = context.getString(
+                title = androidText(
                     R.string.download_game_install_base_download_file,
                     modName, modVer
                 ),
@@ -780,7 +782,7 @@ class GameInstaller(
         tempGameDir: File,
         tempMinecraftDir: File,
         tempFolderName: String,
-        addTask: (title: String, icon: Int?, task: Task) -> Unit
+        addTask: (title: AndroidStringText, icon: Int?, task: Task) -> Unit
     ) {
         //类似 1.19.3-41.2.8 格式，优先使用 Version 中要求的版本而非 Inherit（例如 1.19.3 却使用了 1.19 的 Forge）
         val (processedInherit, processedLoaderVersion) =
@@ -795,7 +797,7 @@ class GameInstaller(
         val tempInstaller = targetTempForgeLikeInstaller(tempGameDir)
         //下载安装器
         addTask(
-            context.getString(
+            androidText(
                 R.string.download_game_install_base_download_file,
                 forgeLikeVersion.loaderName,
                 processedLoaderVersion
@@ -808,7 +810,7 @@ class GameInstaller(
 
         if (isNew) {
             addTask(
-                context.getString(
+                androidText(
                     R.string.download_game_install_forgelike_analyse,
                     forgeLikeVersion.loaderName
                 ),
@@ -825,7 +827,7 @@ class GameInstaller(
         }
 
         addTask(
-            context.getString(
+            androidText(
                 R.string.download_game_install_base_install,
                 forgeLikeVersion.loaderName
             ),
@@ -847,13 +849,13 @@ class GameInstaller(
         fabricLikeVersion: FabricLikeVersion,
         tempMinecraftDir: File,
         tempFolderName: String,
-        addTask: (title: String, icon: Int?, task: Task) -> Unit
+        addTask: (title: AndroidStringText, icon: Int?, task: Task) -> Unit
     ) {
         val tempVersionJson = File(tempMinecraftDir, "versions/$tempFolderName/$tempFolderName.json")
 
         //下载 Json
         addTask(
-            context.getString(
+            androidText(
                 R.string.download_game_install_base_download_file,
                 fabricLikeVersion.loaderName,
                 fabricLikeVersion.version
@@ -867,7 +869,7 @@ class GameInstaller(
 
         //补全游戏库
         addTask(
-            context.getString(
+            androidText(
                 R.string.download_game_install_forgelike_analyse,
                 fabricLikeVersion.loaderName
             ),
@@ -885,12 +887,12 @@ class GameInstaller(
         tempGameDir: File,
         tempMinecraftDir: File,
         tempFolderName: String,
-        addTask: (title: String, icon: Int?, task: Task) -> Unit
+        addTask: (title: AndroidStringText, icon: Int?, task: Task) -> Unit
     ) {
         val tempInstaller = targetTempCleanroomInstaller(tempGameDir)
         //下载安装器
         addTask(
-            context.getString(
+            androidText(
                 R.string.download_game_install_base_download_file,
                 ModLoader.CLEANROOM.displayName,
                 cleanroomVersion.version
@@ -901,7 +903,7 @@ class GameInstaller(
 
         //以新Forge安装器的方式进行安装
         addTask(
-            context.getString(
+            androidText(
                 R.string.download_game_install_forgelike_analyse,
                 cleanroomVersion.version
             ),
@@ -917,7 +919,7 @@ class GameInstaller(
         )
 
         addTask(
-            context.getString(
+            androidText(
                 R.string.download_game_install_base_install,
                 cleanroomVersion.version
             ),
@@ -1032,7 +1034,8 @@ class GameInstaller(
             }
 
             //清除临时游戏目录
-            task.updateProgress(-1f, R.string.download_install_clear_temp)
+            task.updateProgress(-1f)
+            task.updateMessage(androidText(R.string.download_install_clear_temp))
             clearTempGameDir()
 
             onComplete()
@@ -1058,7 +1061,8 @@ class GameInstaller(
                 )
 
                 //清除临时游戏目录
-                task.updateProgress(-1f, R.string.download_install_clear_temp)
+                task.updateProgress(-1f)
+                task.updateMessage(androidText(R.string.download_install_clear_temp))
                 clearTempGameDir()
 
                 onComplete()

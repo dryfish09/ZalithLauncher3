@@ -36,8 +36,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.downloadDependenciesBatch
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
-import com.movtery.zalithlauncher.game.version.saves.unpackSaveZip
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.version.saves.unpackSaveZip
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
@@ -82,7 +82,6 @@ fun DownloadSavesScreen(
         changeOperation = { operation = it },
         doInstall = { classes, version, versions ->
             downloadSingleForVersions(
-                context = context,
                 version = version,
                 versions = versions,
                 folder = classes.versionFolder.folderName,

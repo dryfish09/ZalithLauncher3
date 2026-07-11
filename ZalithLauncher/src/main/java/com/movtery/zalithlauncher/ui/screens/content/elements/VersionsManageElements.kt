@@ -87,6 +87,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.game.version.installed.cleanup.CleanFailedException
 import com.movtery.zalithlauncher.game.version.installed.cleanup.GameAssetCleaner
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -249,15 +250,14 @@ fun GamePathOperation(
     changeState: (GamePathOperation) -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    val errorText = stringResource(R.string.versions_manage_game_path_error_title)
     fun doRunCatching(block: () -> Unit) {
         runCatching {
             block()
         }.onFailure { e ->
             submitError(
                 ErrorViewModel.ThrowableMessage(
-                    title = errorText,
-                    message = e.getMessageOrToString()
+                    title = androidText(R.string.versions_manage_game_path_error_title),
+                    message = androidText(e.getMessageOrToString())
                 )
             )
         }
@@ -437,7 +437,6 @@ fun VersionsOperation(
             )
         }
         is VersionsOperation.RunTask -> {
-            val errorMessage = stringResource(R.string.versions_manage_task_error)
             SimpleTaskDialog(
                 title = stringResource(versionsOperation.title),
                 task = versionsOperation.task,
@@ -447,8 +446,8 @@ fun VersionsOperation(
                     Logger.error(TAG, "Failed to run task.", e)
                     submitError(
                         ErrorViewModel.ThrowableMessage(
-                            title = errorMessage,
-                            message = e.getMessageOrToString()
+                            title = androidText(R.string.versions_manage_task_error),
+                            message = androidText(e.getMessageOrToString())
                         )
                     )
                 }
@@ -658,8 +657,8 @@ fun CleanupOperation(
                 changeOperation(CleanupOperation.None)
                 submitError(
                     ErrorViewModel.ThrowableMessage(
-                        title = stringResource(R.string.versions_manage_cleanup_failed),
-                        message = error.getMessageOrToString()
+                        title = androidText(R.string.versions_manage_cleanup_failed),
+                        message = androidText(error.getMessageOrToString())
                     )
                 )
             }
@@ -731,7 +730,6 @@ fun VersionItemLayout(
                 version = version
             )
 
-            val saveFailedText = stringResource(R.string.versions_config_failed_to_save)
             IconButton(
                 onClick = {
                     val currentValue = version.pinnedState
@@ -741,8 +739,8 @@ fun VersionItemLayout(
                         Logger.error(TAG, "Failed to save version config!", e)
                         callbacks.submitError(
                             ErrorViewModel.ThrowableMessage(
-                                title = saveFailedText,
-                                message = e.getMessageOrToString()
+                                title = androidText(R.string.versions_config_failed_to_save),
+                                message = androidText(e.getMessageOrToString())
                             )
                         )
                     }.onSuccess {

@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
-import android.content.Context
 import android.os.Environment
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.horizontalScroll
@@ -202,12 +201,10 @@ private class VersionsScreenViewModel : ViewModel() {
     }
 
     fun cleanUnusedFiles(
-        context: Context,
         onStart: () -> Unit = {},
         onStop: () -> Unit = {}
     ) {
         cleaner = GameAssetCleaner(
-            context = context,
             scope = viewModelScope
         ).also {
             cleanupOperation = CleanupOperation.Clean
@@ -287,7 +284,6 @@ fun VersionsManageScreen(
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val viewModel = rememberVersionViewModel()
-    val context = LocalContext.current
 
     val versions by rememberVersions(VersionsManager.versions, viewModel)
     val currentVersion by VersionsManager.currentVersion.collectAsStateWithLifecycle()
@@ -382,7 +378,6 @@ fun VersionsManageScreen(
                 cleaner = viewModel.cleaner,
                 onClean = {
                     viewModel.cleanUnusedFiles(
-                        context = context,
                         onStart = {
                             eventViewModel.sendKeepScreen(true)
                         },

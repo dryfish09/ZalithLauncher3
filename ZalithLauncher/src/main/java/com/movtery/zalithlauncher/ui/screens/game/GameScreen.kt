@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.screens.game
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -105,6 +104,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.terracotta.Terracotta
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.components.rememberBoxSize
@@ -147,6 +147,7 @@ import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import com.movtery.zalithlauncher.viewmodel.JoystickMovementViewModel
+import com.movtery.zalithlauncher.viewmodel.sendToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -592,7 +593,10 @@ fun GameScreen(
     )
 
     TerracottaOperation(
-        viewModel = terracottaViewModel
+        viewModel = terracottaViewModel,
+        onShowToast = { text, duration ->
+            eventViewModel.sendToast(text, duration)
+        }
     )
 
     BoxWithConstraints(
@@ -759,6 +763,9 @@ fun GameScreen(
                 viewModel.startControlEditor(
                     editorVM = editorViewModel
                 )
+            },
+            onShowToast = { text, duration ->
+                eventViewModel.sendToast(text, duration)
             }
         )
 
@@ -826,8 +833,6 @@ fun GameScreen(
 
     //摇杆管理状态操作
     //包含覆盖全屏类UI组件，只能放到顶部
-    val saveStyleFailed = stringResource(R.string.game_styles_save_failed)
-    val savedStyle = stringResource(R.string.generic_saved)
     JoystickManageOperation(
         operation = joystickMovementViewModel.operation,
         onChanged = { joystickMovementViewModel.operation = it },
@@ -837,15 +842,13 @@ fun GameScreen(
                 onFailed = { th ->
                     submitError(
                         ErrorViewModel.ThrowableMessage(
-                            title = saveStyleFailed,
-                            message = th.getMessageOrToString()
+                            title = androidText(R.string.game_styles_save_failed),
+                            message = androidText(th.getMessageOrToString())
                         )
                     )
                 },
                 onSuccess = {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context, savedStyle, Toast.LENGTH_SHORT).show()
-                    }
+                    eventViewModel.sendToast(androidText(R.string.generic_saved))
                 }
             )
         }

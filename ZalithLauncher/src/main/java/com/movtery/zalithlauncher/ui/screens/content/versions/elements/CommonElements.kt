@@ -63,6 +63,8 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.text.MINECRAFT_COLOR_FORMAT
 import com.movtery.zalithlauncher.game.text.WHITE
 import com.movtery.zalithlauncher.game.version.multiplayer.description.ComponentDescription
+import com.movtery.zalithlauncher.ui.androidText
+import com.movtery.zalithlauncher.ui.buildAppendedText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
@@ -115,8 +117,6 @@ fun DeleteAllOperation(
             )
         }
         is DeleteAllOperation.Delete -> {
-            val errorTitle = stringResource(R.string.generic_error)
-            val errorMessage = stringResource(R.string.manage_delete_all_error)
             SimpleTaskDialog(
                 title = stringResource(R.string.manage_delete_all),
                 task = {
@@ -133,8 +133,12 @@ fun DeleteAllOperation(
                 onError = { th ->
                     submitError(
                         ErrorViewModel.ThrowableMessage(
-                            title = errorTitle,
-                            message = errorMessage + "\r\n" + th.getMessageOrToString()
+                            title = androidText(R.string.generic_error),
+                            message = buildAppendedText {
+                                append(R.string.manage_delete_all_error)
+                                append("\r\n")
+                                append(th.getMessageOrToString())
+                            }
                         )
                     )
                 }

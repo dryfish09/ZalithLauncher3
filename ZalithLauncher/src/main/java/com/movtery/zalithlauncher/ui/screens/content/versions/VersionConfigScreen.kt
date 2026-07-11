@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
-import android.content.Context
 import android.os.Build
 import android.os.Vibrator
 import androidx.compose.animation.AnimatedVisibility
@@ -53,6 +52,8 @@ import com.movtery.zalithlauncher.game.version.installed.VersionConfig
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.setting.unit.getOrMin
+import com.movtery.zalithlauncher.ui.AndroidStringText
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.IDItem
@@ -89,6 +90,7 @@ fun VersionConfigScreen(
     version: Version,
     backToMainScreen: () -> Unit,
     onCheckVulkan: () -> Unit,
+    showToast: (AndroidStringText) -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     if (!version.isValid()) {
@@ -138,6 +140,7 @@ fun VersionConfigScreen(
                         .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     config = config,
                     onCheckVulkan = onCheckVulkan,
+                    showToast = showToast,
                     submitError = submitError
                 )
             }
@@ -170,7 +173,7 @@ private fun VersionConfigs(
             onValueChange = { type ->
                 if (config.isolationType != type) {
                     config.isolationType = type
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             },
             title = stringResource(R.string.versions_config_isolation_title),
@@ -184,7 +187,7 @@ private fun VersionConfigs(
             onValueChange = { type ->
                 if (config.skipGameIntegrityCheck != type) {
                     config.skipGameIntegrityCheck = type
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             },
             title = stringResource(R.string.settings_game_skip_game_integrity_check_title),
@@ -210,7 +213,7 @@ private fun VersionConfigs(
             onValueChange = { item ->
                 if (config.renderer != item.id) {
                     config.renderer = item.id
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             }
         )
@@ -234,7 +237,7 @@ private fun VersionConfigs(
             onValueChange = { item ->
                 if (config.driver != item.id) {
                     config.driver = item.id
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             }
         )
@@ -263,7 +266,7 @@ private fun VersionConfigs(
             onValueChange = { item ->
                 if (config.graphicsApi?.name != item.id) {
                     config.graphicsApi = GraphicsApi.entries.find { it.name == item.id }
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             }
         )
@@ -284,7 +287,7 @@ private fun VersionConfigs(
             onValueChange = {
                 if (config.control != it.id) {
                     config.control = it.id
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             }
         )
@@ -297,8 +300,6 @@ private fun GameConfigs(
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-
     SettingsCardColumn(
         modifier = modifier
     ) {
@@ -320,7 +321,7 @@ private fun GameConfigs(
             onValueChange = { item ->
                 if (config.javaRuntime != item.id) {
                     config.javaRuntime = item.id
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             }
         )
@@ -342,7 +343,7 @@ private fun GameConfigs(
                 config.ramAllocation = it
                 ramAllocation = it
             },
-            onValueChangeFinished = { config.saveOrShowError(context, submitError) },
+            onValueChangeFinished = { config.saveOrShowError(submitError) },
             previewContent = {
                 AnimatedVisibility(
                     modifier = Modifier.fillMaxWidth(),
@@ -373,7 +374,7 @@ private fun GameConfigs(
                 customInfo = value
                 if (config.customInfo != value) {
                     config.customInfo = value
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             },
             title = stringResource(R.string.settings_game_version_custom_info_title),
@@ -394,7 +395,7 @@ private fun GameConfigs(
                 jvmArgs = value
                 if (config.jvmArgs != value) {
                     config.jvmArgs = value
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             },
             label = {
@@ -413,7 +414,7 @@ private fun GameConfigs(
                 serverIp = value
                 if (config.serverIp != value) {
                     config.serverIp = value
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             },
             label = {
@@ -427,6 +428,7 @@ private fun GameConfigs(
 private fun SupportConfigs(
     config: VersionConfig,
     onCheckVulkan: () -> Unit,
+    showToast: (AndroidStringText) -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -479,7 +481,7 @@ private fun SupportConfigs(
                 }
                 if (config.touchVibrateKind != enum) {
                     config.touchVibrateKind = enum
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 }
             }
         )
@@ -504,7 +506,7 @@ private fun SupportConfigs(
                             vibrateKind = touchVibrateKind,
                         )
                     }
-                    config.saveOrShowError(context, submitError)
+                    config.saveOrShowError(submitError)
                 },
                 suffix = "ms",
                 fineTuningControl = true
@@ -523,7 +525,8 @@ private fun SupportConfigs(
         var microphoneState by remember { mutableStateOf<MicrophoneCheckState>(MicrophoneCheckState.None) }
         MicrophoneCheckOperation(
             state = microphoneState,
-            changeState = { microphoneState = it }
+            changeState = { microphoneState = it },
+            onShowToast = showToast,
         )
         SettingsCard(
             modifier = Modifier.fillMaxWidth(),
@@ -547,7 +550,6 @@ private fun <E> getIDList(list: List<E>, toIDItem: (E) -> IDItem): List<IDItem> 
 }
 
 private fun VersionConfig.saveOrShowError(
-    context: Context,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     runCatching {
@@ -556,8 +558,8 @@ private fun VersionConfig.saveOrShowError(
         Logger.error(TAG, "Failed to save version config!", e)
         submitError(
             ErrorViewModel.ThrowableMessage(
-                title = context.getString(R.string.versions_config_failed_to_save),
-                message = e.getMessageOrToString()
+                title = androidText(R.string.versions_config_failed_to_save),
+                message = androidText(e.getMessageOrToString())
             )
         )
     }

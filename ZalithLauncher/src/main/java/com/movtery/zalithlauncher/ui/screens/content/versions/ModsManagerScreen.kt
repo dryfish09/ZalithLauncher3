@@ -115,6 +115,8 @@ import com.movtery.zalithlauncher.game.version.mod.update.ModManifest
 import com.movtery.zalithlauncher.game.version.mod.update.ModUpdater
 import com.movtery.zalithlauncher.game.version.mod.update.SelectableModManifest
 import com.movtery.zalithlauncher.game.version.mod.update.toSelectableList
+import com.movtery.zalithlauncher.ui.AndroidStringText
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
@@ -154,6 +156,7 @@ import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.sendKeepScreen
+import com.movtery.zalithlauncher.viewmodel.sendToast
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -504,9 +507,9 @@ private class ModsUpdaterViewModel(
     var modsUpdater by mutableStateOf<ModUpdater?>(null)
 
     fun update(
-        context: Context,
         mods: List<RemoteMod>,
         refreshMods: () -> Unit,
+        showToast: (AndroidStringText, duration: Int) -> Unit,
         onStart: () -> Unit = {},
         onStop: () -> Unit = {}
     ) {
@@ -514,7 +517,6 @@ private class ModsUpdaterViewModel(
         val modLoader = version.getVersionInfo()!!.loaderInfo!!.loader
 
         modsUpdater = ModUpdater(
-            context = context,
             mods = mods,
             modsDir = modsDir,
             minecraft = minecraftVer,
@@ -531,9 +533,7 @@ private class ModsUpdaterViewModel(
                     onStop()
                 },
                 onNoModUpdates = {
-                    viewModelScope.launch(Dispatchers.Main) {
-                        Toast.makeText(context, context.getString(R.string.mods_update_no_mods_update), Toast.LENGTH_SHORT).show()
-                    }
+                    showToast(androidText(R.string.mods_update_no_mods_update), Toast.LENGTH_SHORT)
                     modsUpdater = null
                     modsUpdateOperation = ModsUpdateOperation.None
                     onStop()
@@ -644,11 +644,13 @@ fun ModsManagerScreen(
             modsUpdater = updaterViewModel.modsUpdater,
             onUpdate = { mods ->
                 updaterViewModel.update(
-                    context = context,
                     mods = mods,
                     refreshMods = {
                         //刷新模组
                         viewModel.refresh(context)
+                    },
+                    showToast = { text, duration ->
+                        eventViewModel.sendToast(text, duration)
                     },
                     onStart = {
                         eventViewModel.sendKeepScreen(true)

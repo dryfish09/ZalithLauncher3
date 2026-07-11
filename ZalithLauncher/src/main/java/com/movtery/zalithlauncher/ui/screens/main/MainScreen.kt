@@ -106,6 +106,7 @@ import com.movtery.zalithlauncher.ui.screens.content.VersionExportScreen
 import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.WebViewScreen
+import com.movtery.zalithlauncher.ui.screens.content.assetinfo.AssetInfoScreen
 import com.movtery.zalithlauncher.ui.screens.content.navigateToDownload
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
@@ -124,6 +125,7 @@ import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ModpackImportViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import com.movtery.zalithlauncher.viewmodel.sendKeepScreen
+import com.movtery.zalithlauncher.viewmodel.sendToast
 
 @Composable
 fun MainScreen(
@@ -375,11 +377,14 @@ private fun <E: TitledNavKey> TopBar(
                         )
                     }
                 } else {
-                    val parentText = stringResource(parent)
-                    val childText = child?.let { stringResource(it) }
+                    val titleText = if (child != null) {
+                        androidText(parent, androidText(" - "), child)
+                    } else {
+                        parent
+                    }
 
-                    Text(
-                        text = if (childText != null) "$parentText - $childText" else parentText,
+                    AndroidStringText(
+                        text = titleText,
                         style = style,
                         softWrap = softWarp,
                         maxLines = maxLines
@@ -588,6 +593,9 @@ private fun NavigationUI(
                         openLink = { url ->
                             eventViewModel.sendEvent(EventViewModel.Event.OpenLink(url))
                         },
+                        showToast = { text, duration ->
+                            eventViewModel.sendToast(text, duration)
+                        },
                         submitError = submitError
                     )
                 }
@@ -642,6 +650,15 @@ private fun NavigationUI(
                         eventViewModel = eventViewModel,
                         modpackImportViewModel = modpackImportViewModel,
                         submitError = submitError
+                    )
+                }
+                entry<NestedNavKey.AssetInfo> { key ->
+                    AssetInfoScreen(
+                        key = key,
+                        mainScreenKey = screenBackStackModel.mainScreen.currentKey,
+                        assetInfoScreenKey = key.currentKey,
+                        eventViewModel = eventViewModel,
+                        submitError = submitError,
                     )
                 }
                 entry<NormalNavKey.Multiplayer> {
@@ -780,10 +797,9 @@ private fun TaskMenu(
                         contentType = { "task" }
                     ) { task ->
                         TaskItem(
-                            taskProgress = task.currentProgress,
-                            taskMessageRes = task.currentMessageRes,
-                            taskMessageArgs = task.currentMessageArgs,
-                            taskRateBytesPerSec = task.currentRateBytesPerSec,
+                            taskProgress = taskProgress,
+                            taskMessage = taskMessage,
+                            rateBytesPerSec = rateBytesPerSec,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 6.dp)
@@ -801,9 +817,8 @@ private fun TaskMenu(
 @Composable
 private fun TaskItem(
     taskProgress: Float,
-    taskMessageRes: Int?,
-    taskMessageArgs: Array<out Any>?,
-    taskRateBytesPerSec: Long,
+    taskMessage: AndroidStringText?,
+    rateBytesPerSec: Long?,
     modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = cardColor(false),
@@ -838,13 +853,9 @@ private fun TaskItem(
                     .weight(1f)
                     .align(Alignment.CenterVertically)
             ) {
-                taskMessageRes?.let { messageRes ->
-                    Text(
-                        text = if (taskMessageArgs != null) {
-                            stringResource(messageRes, *taskMessageArgs)
-                        } else {
-                            stringResource(messageRes)
-                        },
+                taskMessage?.let { message ->
+                    AndroidStringText(
+                        text = message,
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
@@ -871,7 +882,7 @@ private fun TaskItem(
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
-                    taskRateBytesPerSec.takeIf { it >= 0L }?.let { bytes ->
+                    rateBytesPerSec?.let { bytes ->
                         val text = remember(bytes) { "${formatFileSize(bytes)}/s" }
                         Text(
                             text = text,

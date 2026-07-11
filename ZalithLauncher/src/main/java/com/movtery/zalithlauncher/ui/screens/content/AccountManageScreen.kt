@@ -104,6 +104,7 @@ import com.movtery.zalithlauncher.ui.components.PlayerSkin
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
+import com.movtery.zalithlauncher.ui.components.SimpleListItem
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
@@ -153,7 +154,7 @@ private data class AccountActions(
     val backToMainScreen: () -> Unit,
     val navigateToWeb: (url: String) -> Unit,
     val checkIfInWebScreen: () -> Boolean,
-    val formatError: (Context, Throwable) -> String,
+    val formatError: (Throwable) -> AndroidStringText,
     val submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
 )
 
@@ -175,6 +176,7 @@ enum class FirstLoginMenu {
  * @param backStackViewModel 屏幕堆栈管理器
  * @param backToMainScreen 返回主屏幕的回调
  * @param openLink 外部链接跳转回调
+ * @param showToast 展示一个 Toast
  * @param submitError 全局错误提交回调
  * @param viewModel 账号管理 ViewModel (Hilt 自动注入)
  */
@@ -184,10 +186,10 @@ fun AccountManageScreen(
     backStackViewModel: ScreenBackStackViewModel,
     backToMainScreen: () -> Unit,
     openLink: (url: String) -> Unit,
+    showToast: (AndroidStringText, duration: Int) -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     viewModel: AccountManageViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val loginUiState by viewModel.loginUiState.collectAsStateWithLifecycle()
     val profileUiState by viewModel.profileUiState.collectAsStateWithLifecycle()
     val operationUiState by viewModel.operationUiState.collectAsStateWithLifecycle()
@@ -205,7 +207,7 @@ fun AccountManageScreen(
             backToMainScreen = backToMainScreen,
             navigateToWeb = { url -> backStackViewModel.mainScreen.backStack.navigateToWeb(url) },
             checkIfInWebScreen = { backStackViewModel.mainScreen.currentKey is NormalNavKey.WebScreen },
-            formatError = { _, th -> viewModel.formatAccountError(th) },
+            formatError = { th -> viewModel.formatAccountError(th) },
             submitError = submitError,
         )
     }
@@ -228,12 +230,7 @@ fun AccountManageScreen(
                 }
 
                 is AccountManageEffect.ShowToast -> {
-                    val message = if (effect.formatArgs.isEmpty()) {
-                        context.getString(effect.messageRes)
-                    } else {
-                        context.getString(effect.messageRes, *effect.formatArgs.toTypedArray())
-                    }
-                    Toast.makeText(context, message, effect.duration).show()
+                    showToast(effect.text, effect.duration)
                 }
             }
         }
@@ -263,7 +260,7 @@ private fun AccountManageContent(
     loginUiState: AccountManageViewModel.LoginUiState,
     profileUiState: AccountManageViewModel.ProfileUiState,
     operationUiState: AccountManageViewModel.OperationUiState,
-    actions: AccountActions
+    actions: AccountActions,
 ) {
     val refreshWardrobe by AccountsManager.refreshWardrobe.collectAsStateWithLifecycle()
     val currentAccount = profileUiState.currentAccount
@@ -869,9 +866,6 @@ private fun OtherLoginOperation(
     operation: OtherLoginOperation,
     actions: AccountActions
 ) {
-    val context = LocalContext.current
-    val loggingInFailedTitle = stringResource(R.string.account_logging_in_failed)
-
     when (operation) {
         is OtherLoginOperation.None -> {}
         is OtherLoginOperation.OnLogin -> {
@@ -902,12 +896,11 @@ private fun OtherLoginOperation(
         }
 
         is OtherLoginOperation.OnFailed -> {
-            val message = actions.formatError(context, operation.th)
             LaunchedEffect(operation) {
                 actions.submitError(
                     ErrorViewModel.ThrowableMessage(
-                        title = loggingInFailedTitle,
-                        message = message
+                        title = androidText(R.string.account_logging_in_failed),
+                        message = actions.formatError(operation.th)
                     )
                 )
                 actions.onIntent(AccountManageIntent.UpdateOtherLoginOp(OtherLoginOperation.None))
@@ -918,13 +911,20 @@ private fun OtherLoginOperation(
             SimpleListDialog(
                 title = stringResource(R.string.account_other_login_select_role),
                 items = operation.profiles,
-                itemTextProvider = { it.name },
                 onItemSelected = { operation.selected(it) },
                 onDismissRequest = {
                     actions.onIntent(
                         AccountManageIntent.UpdateOtherLoginOp(
                             OtherLoginOperation.None
                         )
+                    )
+                },
+                itemLayout = { item, isCurrent, onClick ->
+                    SimpleListItem(
+                        selected = isCurrent,
+                        itemName = item.name,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = onClick
                     )
                 }
             )
@@ -940,8 +940,6 @@ private fun ServerTypeOperation(
     operation: ServerOperation,
     actions: AccountActions
 ) {
-    val addingFailureTitle = stringResource(R.string.account_other_login_adding_failure)
-
     when (operation) {
         is ServerOperation.AddNew -> {
             var serverUrl by rememberSaveable { mutableStateOf("") }
@@ -992,12 +990,11 @@ private fun ServerTypeOperation(
         }
 
         is ServerOperation.OnThrowable -> {
-            val message = operation.throwable.getMessageOrToString()
             LaunchedEffect(operation) {
                 actions.submitError(
                     ErrorViewModel.ThrowableMessage(
-                        title = addingFailureTitle,
-                        message = message
+                        title = androidText(R.string.account_other_login_adding_failure),
+                        message = androidText(operation.throwable.getMessageOrToString())
                     )
                 )
                 actions.onIntent(AccountManageIntent.UpdateServerOp(ServerOperation.None))
@@ -1090,9 +1087,6 @@ private fun AccountOperation(
     operation: AccountOperation,
     actions: AccountActions
 ) {
-    val context = LocalContext.current
-    val loggingInFailedTitle = stringResource(R.string.account_logging_in_failed)
-
     when (operation) {
         is AccountOperation.Delete -> {
             SimpleAlertDialog(
@@ -1104,12 +1098,11 @@ private fun AccountOperation(
         }
 
         is AccountOperation.OnFailed -> {
-            val message = actions.formatError(context, operation.th)
             LaunchedEffect(operation) {
                 actions.submitError(
                     ErrorViewModel.ThrowableMessage(
-                        title = loggingInFailedTitle,
-                        message = message
+                        title = androidText(R.string.account_logging_in_failed),
+                        message = actions.formatError(operation.th)
                     )
                 )
                 actions.onIntent(AccountManageIntent.UpdateAccountOp(AccountOperation.None))
@@ -1137,7 +1130,7 @@ private fun AccountManageContentPreview() {
                         backToMainScreen = {},
                         navigateToWeb = {},
                         checkIfInWebScreen = { false },
-                        formatError = { _, _ -> "" },
+                        formatError = { AndroidStringText.Text("") },
                         submitError = {},
                     )
                 )

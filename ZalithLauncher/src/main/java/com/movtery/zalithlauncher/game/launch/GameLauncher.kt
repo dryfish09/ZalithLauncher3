@@ -80,6 +80,7 @@ class GameLauncher(
     openPath: (folder: File) -> Unit
 ) : Launcher(onExit, openPath) {
     private lateinit var gameManifest: GameManifest
+    private var jnaDir: File? = null
     private val offlineServer = OfflineYggdrasilServer(0)
 
     private val version = config.version
@@ -112,6 +113,15 @@ class GameLauncher(
             .setInheriting()
             .build()
 
+        //jna
+        jnaDir = gameManifest.libraries?.find { library ->
+            library.name.startsWith("net.java.dev.jna:jna:")
+        }?.let { library ->
+            parseLibraryComponents(library.name).version
+        }?.let { jnaVersion ->
+            File(LibPath.JNA, jnaVersion)
+        }?.takeIf { it.exists() }
+
         CallbackBridge.nativeSetUseInputStackQueue(gameManifest.arguments != null)
 
         val customArgs = version.getJvmArgs().takeIf { it.isNotBlank() } ?: AllSettings.jvmArgs.getValue()
@@ -139,18 +149,10 @@ class GameLauncher(
             put("sort.patch", "true")
         }
 
-        //jna
-        gameManifest.libraries?.find { library ->
-            library.name.startsWith("net.java.dev.jna:jna:")
-        }?.let { library ->
-            parseLibraryComponents(library.name).version
-        }?.let { jnaVersion ->
-            val jnaDir = File(LibPath.JNA, jnaVersion)
-            if (jnaDir.exists()) {
-                val dirPath = jnaDir.absolutePath
-                put("java.library.path", "$dirPath:${PathManager.DIR_NATIVE_LIB}")
-                put("jna.boot.library.path", dirPath) //覆盖父类添加的jna路径
-            }
+        //Jna
+        jnaDir?.let { dir ->
+            val dirPath = dir.absolutePath
+            put("jna.boot.library.path", dirPath) //覆盖父类添加的jna路径
         }
     }
 
@@ -213,10 +215,8 @@ class GameLauncher(
 
         //初始化运行环境
         this.runtime = runtime
-        val runtimeLibraryPath = getRuntimeLibraryPath()
-
         val launchArgs = LaunchArgs(
-            runtimeLibraryPath = runtimeLibraryPath,
+            runtimeLibraryPath = getRuntimeLibraryPath(),
             account = usingAccount,
             offlineServer = offlineServer,
             gameDirPath = gameDirPath,
@@ -239,6 +239,13 @@ class GameLauncher(
             userArgs = customArgs,
             screenSize = screenSize
         )
+    }
+
+    override fun getRuntimeLibraryPath(): String {
+        val parent = super.getRuntimeLibraryPath()
+        return jnaDir?.absolutePath?.let { dirPath ->
+            "$parent:$dirPath"
+        } ?: parent
     }
 
     private fun tryStartTouchProxy() {

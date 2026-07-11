@@ -658,8 +658,7 @@ private fun PackExportOperation(
                 is SerializationException, is JsonSyntaxException -> stringResource(R.string.error_parse_failed)
                 is DownloadFailedException -> stringResource(R.string.download_install_error_download_failed)
                 else -> {
-                    val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
-                    stringResource(R.string.empty_holder, errorMessage)
+                    th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
                 }
             }
             val dismiss = {

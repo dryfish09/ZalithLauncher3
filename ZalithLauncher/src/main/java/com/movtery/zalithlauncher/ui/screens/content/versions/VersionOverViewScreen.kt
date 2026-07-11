@@ -55,6 +55,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -184,8 +185,8 @@ fun VersionOverViewScreen(
                         }.onFailure { e ->
                             submitError(
                                 ErrorViewModel.ThrowableMessage(
-                                    title = context.getString(R.string.error_create_dir, folder.absolutePath),
-                                    message = e.getMessageOrToString()
+                                    title = androidText(R.string.error_create_dir, folder.absolutePath),
+                                    message = androidText(e.getMessageOrToString())
                                 )
                             )
                             return@VersionQuickActions
@@ -210,6 +211,7 @@ private fun VersionInfoLayout(
     resetIcon: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val errorImportImageText = stringResource(R.string.error_import_image)
     val iconFile = remember {
         VersionsManager.getVersionIconFile(version)
     }
@@ -257,8 +259,8 @@ private fun VersionInfoLayout(
                                         FileUtils.deleteQuietly(iconFile)
                                         submitError(
                                             ErrorViewModel.ThrowableMessage(
-                                                title = context.getString(R.string.error_import_image),
-                                                message = e.getMessageOrToString()
+                                                title = androidText(errorImportImageText),
+                                                message = androidText(e.getMessageOrToString())
                                             )
                                         )
                                     },
@@ -558,8 +560,8 @@ private fun VersionsOperation(
                     Logger.error(TAG, "Failed to run task.", e)
                     submitError(
                         ErrorViewModel.ThrowableMessage(
-                            title = errorMessage,
-                            message = e.getMessageOrToString()
+                            title = androidText(errorMessage),
+                            message = androidText(e.getMessageOrToString())
                         )
                     )
                 }

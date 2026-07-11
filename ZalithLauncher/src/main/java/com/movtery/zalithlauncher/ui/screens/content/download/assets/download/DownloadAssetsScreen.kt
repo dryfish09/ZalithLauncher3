@@ -76,6 +76,7 @@ import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.buildAppendedText
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.CheckChip
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
@@ -289,13 +290,16 @@ fun DownloadAssetsScreen(
     currentKey: TitledNavKey?,
     key: NormalNavKey.DownloadAssets,
     eventViewModel: EventViewModel,
-    onItemClicked: (PlatformClasses, PlatformVersion, iconUrl: String?, deps: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>) -> Unit
+    onItemClicked: (PlatformClasses, PlatformVersion, iconUrl: String?, deps: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>) -> Unit,
+    nestedNavKeyClass: Class<out TitledNavKey>? = null,
+    versionsUIWeight: Float = 6.5f,
+    projectUIWeight: Float = 3.5f,
 ) {
     val viewModel: DownloadScreenViewModel = rememberDownloadAssetsViewModel(key)
 
     BaseScreen(
         levels1 = listOf(
-            Pair(NestedNavKey.Download::class.java, mainScreenKey)
+            Pair(nestedNavKeyClass ?: NestedNavKey.Download::class.java, mainScreenKey)
         ),
         Triple(parentScreenKey, parentCurrentKey, false),
         Triple(key, currentKey, false),
@@ -306,7 +310,7 @@ fun DownloadAssetsScreen(
             val yOffset by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible)
             Versions(
                 modifier = Modifier
-                    .weight(6.5f)
+                    .weight(versionsUIWeight)
                     .fillMaxHeight()
                     .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                 viewModel = viewModel,
@@ -326,7 +330,7 @@ fun DownloadAssetsScreen(
             )
             ProjectInfo(
                 modifier = Modifier
-                    .weight(3.5f)
+                    .weight(projectUIWeight)
                     .fillMaxHeight()
                     .padding(vertical = 12.dp)
                     .padding(end = 12.dp)
@@ -486,15 +490,16 @@ private fun Versions(
         }
         is DownloadAssetsState.Error -> {
             Box(modifier.padding(all = 12.dp)) {
-                val message = if (versions.args != null) {
-                    stringResource(versions.message, *versions.args)
-                } else {
-                    stringResource(versions.message)
-                }
-
                 ScalingLabel(
                     modifier = Modifier.align(Alignment.Center),
-                    text = stringResource(R.string.download_assets_failed_to_get_versions, message),
+                    text = {
+                        AndroidStringText(
+                            text = buildAppendedText {
+                                append(R.string.download_assets_failed_to_get_versions)
+                                append(versions.message)
+                            }
+                        )
+                    },
                     onClick = onReload
                 )
             }
@@ -650,15 +655,16 @@ private fun ProjectInfo(
                         .fillMaxSize()
                         .padding(all = 12.dp)
                 ) {
-                    val message = if (result.args != null) {
-                        stringResource(result.message, *result.args)
-                    } else {
-                        stringResource(result.message)
-                    }
-
                     ScalingLabel(
                         modifier = Modifier.align(Alignment.Center),
-                        text = stringResource(R.string.download_assets_failed_to_get_project, message),
+                        text = {
+                            AndroidStringText(
+                                text = buildAppendedText {
+                                    append(R.string.download_assets_failed_to_get_project)
+                                    append(result.message)
+                                }
+                            )
+                        },
                         onClick = onReload
                     )
                 }

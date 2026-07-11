@@ -57,6 +57,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.launcherMMKV
 import com.movtery.zalithlauncher.setting.enums.BackgroundBlur
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.VideoPlayer
 import com.movtery.zalithlauncher.ui.screens.content.FirstLoginMenu
@@ -69,7 +70,9 @@ import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
+import com.movtery.zalithlauncher.viewmodel.sendToast
 import dev.chrisbanes.haze.HazeInputScale
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.blur.HazeColorEffect
@@ -145,6 +148,7 @@ sealed interface LaunchGameOperation {
 @Composable
 fun LaunchGameOperation(
     activity: Activity,
+    eventViewModel: EventViewModel,
     launchGameOperation: LaunchGameOperation,
     updateOperation: (LaunchGameOperation) -> Unit,
     exitActivity: () -> Unit,
@@ -157,9 +161,7 @@ fun LaunchGameOperation(
         is LaunchGameOperation.None -> {}
         is LaunchGameOperation.NoVersion -> {
             LaunchedEffect(Unit) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(activity, R.string.game_launch_no_version, Toast.LENGTH_SHORT).show()
-                }
+                eventViewModel.sendToast(androidText(R.string.game_launch_no_version))
                 toVersionManageScreen()
                 updateOperation(LaunchGameOperation.None)
             }
@@ -177,9 +179,7 @@ fun LaunchGameOperation(
         }
         is LaunchGameOperation.NoAccount -> {
             LaunchedEffect(Unit) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(activity, R.string.game_launch_no_account, Toast.LENGTH_SHORT).show()
-                }
+                eventViewModel.sendToast(androidText(R.string.game_launch_no_account))
                 val isOffline = AccountsManager.isOffline.value
                 toAccountManageScreen(
                     if (isOffline) FirstLoginMenu.MICROSOFT
