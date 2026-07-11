@@ -357,7 +357,7 @@ private fun GameActionContent(
                     if (GameRecorder.isRecording) {
                         GameRecorder.stopRecording(scope)
                     } else {
-                        val display = context.resources.displayMetrics
+                        val display = LocalContext.current.resources.displayMetrics
                         GameRecorder.startRecording(display.widthPixels, display.heightPixels)
                     }
                 },
