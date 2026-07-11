@@ -432,6 +432,9 @@
     <string name="multirt_no_java_8">Bu özellik için Java 8 gereklidir, ancak bulunamadı.</string>
     <string name="execute_jar_title">Jar Çalıştır</string>
     <string name="versions_manage_game_path_default">Varsayılan Oyun Klasörü</string>
+    <string name="versions_manage_game_path_default_badge">Varsayılan Klasör</string>
+    <string name="versions_manage_select_default_folder_warning_title">Varsayılan Klasör Değiştirilsin mi?</string>
+    <string name="versions_manage_select_default_folder_warning_text">İzole edilmiş sürümler yeni klasöre taşınacak. Bu biraz zaman alabilir.</string>
     <string name="versions_manage_game_path_add_new">Oyun Klasörü Ekle</string>
     <string name="versions_manage_game_path_edit_title">Oyun Klasörünü Yeniden Adlandır</string>
     <string name="versions_manage_game_path_delete_title">Oyun Klasörünü Sil</string>
