@@ -157,7 +157,8 @@
     <string name="crash_link_share_uploading">Uploading logs to %s</string>
     <string name="crash_link_share_failed">Upload Failed</string>
     <string name="crash_link_share_failed_link_not_found">No available link found. Please try again later.</string>
-    <string name="crash_analysis_title">Crash Analysis (%d tips)</string>
+    <string name="crash_analysis_main_crash">Main Crash (%d)</string>
+    <string name="crash_analysis_found_errors">Found Errors (%d)</string>
     <string name="crash_launch_crash_title">App Launch Failed</string>
     <string name="crash_launch_crash_message">The launcher encountered a serious problem and crashed during startup</string>
     <!-- Errors -->

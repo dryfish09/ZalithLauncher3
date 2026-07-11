@@ -255,31 +255,55 @@ class ErrorActivity : BaseAppCompatActivity(refreshData = false) {
 
     @Composable
     private fun ColumnScope.CrashTipsSection(tips: List<CrashTip>) {
-        Text(
-            text = getString(R.string.crash_analysis_title, tips.size),
-            style = MaterialTheme.typography.titleSmall
-        )
-        tips.forEach { tip ->
-            val severityColor = when (tip.severity) {
-                Severity.ERROR -> MaterialTheme.colorScheme.error
-                Severity.WARNING -> MaterialTheme.colorScheme.tertiary
-                Severity.INFO -> MaterialTheme.colorScheme.primary
+        val mainCrash = tips.filter { it.severity == Severity.ERROR }
+        val foundErrors = tips.filter { it.severity != Severity.ERROR }
+
+        if (mainCrash.isNotEmpty()) {
+            Text(
+                text = getString(R.string.crash_analysis_main_crash, mainCrash.size),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.error
+            )
+            mainCrash.forEach { tip ->
+                CrashTipItem(tip)
+            }
+        }
+
+        if (foundErrors.isNotEmpty()) {
+            if (mainCrash.isNotEmpty()) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
             }
             Text(
-                text = "[${tip.severity.name}] ${tip.title}",
-                style = MaterialTheme.typography.labelLarge,
-                color = severityColor
+                text = getString(R.string.crash_analysis_found_errors, foundErrors.size),
+                style = MaterialTheme.typography.titleSmall
             )
-            Text(
-                text = tip.description,
-                style = MaterialTheme.typography.bodySmall
-            )
-            Text(
-                text = "→ ${tip.solution}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
-            )
+            foundErrors.forEach { tip ->
+                CrashTipItem(tip)
+            }
         }
+    }
+
+    @Composable
+    private fun ColumnScope.CrashTipItem(tip: CrashTip) {
+        val severityColor = when (tip.severity) {
+            Severity.ERROR -> MaterialTheme.colorScheme.error
+            Severity.WARNING -> MaterialTheme.colorScheme.tertiary
+            Severity.INFO -> MaterialTheme.colorScheme.primary
+        }
+        Text(
+            text = tip.title,
+            style = MaterialTheme.typography.labelLarge,
+            color = severityColor
+        )
+        Text(
+            text = tip.description,
+            style = MaterialTheme.typography.bodySmall
+        )
+        Text(
+            text = "→ ${tip.solution}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 
