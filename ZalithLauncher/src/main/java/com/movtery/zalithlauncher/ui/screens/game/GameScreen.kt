@@ -22,16 +22,21 @@ import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
@@ -48,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.platform.LocalContext
@@ -120,6 +126,7 @@ import com.movtery.zalithlauncher.ui.control.mouse.SwitchableMouseLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.DraggableGameBall
 import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
+import com.movtery.zalithlauncher.ui.screens.game.elements.GameRecorder
 
 import com.movtery.zalithlauncher.ui.screens.game.elements.JoystickManageOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
@@ -551,6 +558,12 @@ fun GameScreen(
         eventViewModel.sendEvent(EventViewModel.Event.Game.KeyHandle(state.not()))
     }
 
+    LaunchedEffect(GameRecorder.lastSavedFile) {
+        GameRecorder.lastSavedFile?.let { path ->
+            Toast.makeText(context, context.getString(R.string.screen_recorder_saved, path), Toast.LENGTH_LONG).show()
+        }
+    }
+
     SendKeycodeOperation(
         operation = viewModel.sendKeycodeState,
         onChange = { viewModel.sendKeycodeState = it },
@@ -713,6 +726,12 @@ fun GameScreen(
                 onLogStateChange(LogState.CLOSE)
             },
             modifier = Modifier.fillMaxSize()
+        )
+
+        GameRecorderOverlay(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 8.dp, end = 8.dp)
         )
 
         GameMenuSubscreen(
@@ -1155,4 +1174,54 @@ private fun JoystickControlLayout(
             onKeyEvent(event, pressed)
         }
     )
+}
+
+@Composable
+private fun GameRecorderOverlay(modifier: Modifier = Modifier) {
+    AnimatedVisibility(
+        visible = GameRecorder.isRecording || GameRecorder.isSaving,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = modifier
+    ) {
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = if (GameRecorder.isSaving)
+                MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.85f)
+            else
+                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.85f)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (GameRecorder.isSaving) {
+                    LoadingIndicator(
+                        modifier = Modifier.size(14.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.screen_recorder_saving),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.error,
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "REC",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        }
+    }
 }

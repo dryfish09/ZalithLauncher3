@@ -1357,6 +1357,8 @@
 
     <string name="screen_recorder_start">Kaydı Başlat</string>
     <string name="screen_recorder_stop">Kaydı Durdur</string>
+    <string name="screen_recorder_saving">Kaydediliyor…</string>
+    <string name="screen_recorder_saved">Kayıt kaydedildi: %s</string>
     <string name="screen_recorder_notification_channel">Ekran Kaydı</string>
     <string name="screen_recorder_notification_title">Ekran Kaydediliyor</string>
     <string name="screen_recorder_notification_text">Bir ekran kaydı devam ediyor</string>

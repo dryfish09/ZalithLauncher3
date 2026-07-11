@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -341,15 +342,18 @@ private fun GameActionContent(
         }
         //screen recorder
         item {
+            val scope = rememberCoroutineScope()
             MenuTextButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = if (GameRecorder.isRecording)
-                    stringResource(R.string.screen_recorder_stop)
-                else
-                    stringResource(R.string.screen_recorder_start),
+                text = when {
+                    GameRecorder.isSaving -> stringResource(R.string.screen_recorder_saving)
+                    GameRecorder.isRecording -> stringResource(R.string.screen_recorder_stop)
+                    else -> stringResource(R.string.screen_recorder_start)
+                },
+                enabled = !GameRecorder.isSaving,
                 onClick = {
                     if (GameRecorder.isRecording) {
-                        GameRecorder.stopRecording()
+                        GameRecorder.stopRecording(scope)
                     } else {
                         val display = context.resources.displayMetrics
                         GameRecorder.startRecording(display.widthPixels, display.heightPixels)

@@ -20,6 +20,8 @@ import java.util.Locale
 
 object GameRecorder {
     var isRecording by mutableStateOf(false)
+    var isSaving by mutableStateOf(false)
+    var lastSavedFile by mutableStateOf<String?>(null)
     var errorMessage by mutableStateOf<String?>(null)
 
     private var mediaCodec: MediaCodec? = null
@@ -33,6 +35,7 @@ object GameRecorder {
     fun startRecording(outputWidth: Int, outputHeight: Int) {
         if (isRecording) return
         errorMessage = null
+        lastSavedFile = null
         frameWidth = outputWidth
         frameHeight = outputHeight
 
@@ -59,16 +62,23 @@ object GameRecorder {
         isRecording = true
     }
 
-    fun stopRecording() {
+    fun stopRecording(scope: CoroutineScope) {
         if (!isRecording) return
         isRecording = false
+        isSaving = true
         nativeSetRecording(false, 0, 0)
 
-        if (muxerStarted) {
-            drainEncoder(eos = true)
-        }
+        scope.launch(Dispatchers.IO) {
+            if (muxerStarted) {
+                drainEncoder(eos = true)
+            }
 
-        cleanupEncoder()
+            cleanupEncoder()
+
+            val savedPath = outputFile?.absolutePath
+            lastSavedFile = savedPath
+            isSaving = false
+        }
     }
 
     private fun cleanupEncoder() {
