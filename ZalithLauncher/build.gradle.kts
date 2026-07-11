@@ -169,7 +169,7 @@ androidComponents {
 
 
 val mobileGluesLibs by tasks.registering {
-    val abis = setOf("arm64-v8a", "armeabi-v7a")
+    val abis = setOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
     doLast {
         val jniLibsDir = file("src/main/jniLibs")
         val allExist = abis.all { file("$jniLibsDir/$it/libMobileGlues.so").exists() }
@@ -196,20 +196,24 @@ val mobileGluesLibs by tasks.registering {
 
         ZipFile(apkFile).use { zip ->
             abis.forEach { abi ->
-                // Actual APK entry is lowercase; we extract and rename to match renderer
-                val realEntryName = "lib/$abi/libmobileglues.so"
-                val entry = zip.getEntry(realEntryName)
-                if (entry != null) {
-                    val outDir = file("$jniLibsDir/$abi")
-                    outDir.mkdirs()
-                    zip.getInputStream(entry).use { input ->
-                        File(outDir, "libMobileGlues.so").outputStream().use { output ->
-                            input.copyTo(output)
+                val outDir = file("$jniLibsDir/$abi")
+                outDir.mkdirs()
+
+                listOf(
+                    "libmobileglues.so" to "libMobileGlues.so",
+                    "libmobileglues_info_getter.so" to "libmobileglues_info_getter.so",
+                ).forEach { (apkName, outName) ->
+                    val entry = zip.getEntry("lib/$abi/$apkName")
+                    if (entry != null) {
+                        zip.getInputStream(entry).use { input ->
+                            File(outDir, outName).outputStream().use { output ->
+                                input.copyTo(output)
+                            }
                         }
+                        logger.lifecycle("Extracted lib/$abi/$apkName -> $outName")
+                    } else {
+                        logger.warn("lib/$abi/$apkName not found in APK")
                     }
-                    logger.lifecycle("Extracted $realEntryName -> libMobileGlues.so")
-                } else {
-                    logger.warn("$realEntryName not found in APK")
                 }
             }
         }
