@@ -783,6 +783,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                         }.also { view ->
                             applySizeToSurface = { width, height ->
                                 view.holder.setFixedSize(width, height)
+                                view.layoutParams = ViewGroup.LayoutParams(width, height)
                             }
                         }
                     } else {
