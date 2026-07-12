@@ -221,9 +221,50 @@ val mobileGluesLibs by tasks.registering {
     }
 }
 
+val nativeLibPluginLibs by tasks.registering {
+    val abis = setOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+    doLast {
+        val jniLibsDir = file("src/main/jniLibs")
+        val allExist = abis.all { file("$jniLibsDir/$it/libimgui-java.so").exists() }
+        if (allExist) return@doLast
+
+        val apkUrl = "https://github.com/ZalithLauncher/NativeLibPlugin/releases/download/v1.86.12_Patched/app-release.apk"
+        val apkFile = layout.buildDirectory.file("tmp/nativelibplugin.apk").get().asFile
+        apkFile.parentFile.mkdirs()
+
+        logger.lifecycle("Downloading NativeLibPlugin from $apkUrl")
+        URL(apkUrl).openStream().use { input ->
+            apkFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        ZipFile(apkFile).use { zip ->
+            abis.forEach { abi ->
+                val outDir = file("$jniLibsDir/$abi")
+                outDir.mkdirs()
+
+                val entry = zip.getEntry("lib/$abi/libimgui-java.so")
+                if (entry != null) {
+                    zip.getInputStream(entry).use { input ->
+                        File(outDir, "libimgui-java.so").outputStream().use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                    logger.lifecycle("Extracted lib/$abi/libimgui-java.so")
+                } else {
+                    logger.warn("lib/$abi/libimgui-java.so not found in APK")
+                }
+            }
+        }
+        apkFile.delete()
+    }
+}
+
 afterEvaluate {
     tasks.matching { it.name.startsWith("merge") && it.name.endsWith("JniLibs") }.configureEach {
         dependsOn(mobileGluesLibs)
+        dependsOn(nativeLibPluginLibs)
     }
 }
 
