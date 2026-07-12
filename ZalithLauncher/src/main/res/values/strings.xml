@@ -1542,6 +1542,7 @@
     <string name="mobileglues_section_rendering">Rendering</string>
     <string name="mobileglues_section_extensions">Extensions</string>
     <string name="mobileglues_section_cache">Cache</string>
+    <string name="mobileglues_section_other">Other</string>
     <string name="mobileglues_angle_mode">ANGLE Mode</string>
     <string name="mobileglues_angle_disable">Disable</string>
     <string name="mobileglues_angle_auto">Auto</string>

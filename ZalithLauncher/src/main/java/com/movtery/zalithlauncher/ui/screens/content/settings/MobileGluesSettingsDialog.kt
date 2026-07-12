@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import android.widget.Toast
@@ -63,6 +45,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.theme.cardColor
 import com.movtery.zalithlauncher.ui.theme.onCardColor
 import com.movtery.zalithlauncher.utils.settings.MobileGluesConfig
+import com.movtery.zalithlauncher.utils.settings.MobileGluesConfig.Companion.load
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,15 +55,40 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
         MobileGluesConfig.load() ?: MobileGluesConfig()
     }
 
-    var enableANGLE by remember { mutableIntStateOf(config.enableANGLE) }
-    var enableNoError by remember { mutableIntStateOf(config.enableNoError) }
-    var enableExtTimerQuery by remember { mutableStateOf(config.enableExtTimerQuery == 0) }
-    var enableExtComputeShader by remember { mutableStateOf(config.enableExtComputeShader == 1) }
-    var enableExtDirectStateAccess by remember { mutableStateOf(config.enableExtDirectStateAccess == 1) }
-    var maxGlslCacheSize by remember { mutableStateOf(config.maxGlslCacheSize.toString()) }
-    var multidrawMode by remember { mutableIntStateOf(config.multidrawMode) }
-    var angleDepthClearFixMode by remember { mutableIntStateOf(config.angleDepthClearFixMode) }
-    var customGLVersion by remember { mutableIntStateOf(config.customGLVersion) }
+    val knownKeys = remember {
+        setOf(
+            "enableANGLE", "enableNoError", "enableExtTimerQuery",
+            "enableExtComputeShader", "enableExtDirectStateAccess",
+            "maxGlslCacheSize", "multidrawMode", "angleDepthClearFixMode",
+            "customGLVersion", "fsr1Setting"
+        )
+    }
+
+    var enableANGLE by remember { mutableIntStateOf(config.get("enableANGLE", 1)) }
+    var enableNoError by remember { mutableIntStateOf(config.get("enableNoError", 0)) }
+    var enableExtTimerQuery by remember { mutableStateOf(config.get("enableExtTimerQuery", 1) == 0) }
+    var enableExtComputeShader by remember { mutableStateOf(config.get("enableExtComputeShader", 0) == 1) }
+    var enableExtDirectStateAccess by remember { mutableStateOf(config.get("enableExtDirectStateAccess", 0) == 1) }
+    var maxGlslCacheSize by remember { mutableStateOf(config.get("maxGlslCacheSize", 32).toString()) }
+    var multidrawMode by remember { mutableIntStateOf(config.get("multidrawMode", 0)) }
+    var angleDepthClearFixMode by remember { mutableIntStateOf(config.get("angleDepthClearFixMode", 0)) }
+    var customGLVersion by remember { mutableIntStateOf(config.get("customGLVersion", 0)) }
+    var fsr1Setting by remember { mutableIntStateOf(config.get("fsr1Setting", 0)) }
+
+    val unknownKeys = remember(config) {
+        val known = setOf(
+            "enableANGLE", "enableNoError", "enableExtTimerQuery",
+            "enableExtComputeShader", "enableExtDirectStateAccess",
+            "maxGlslCacheSize", "multidrawMode", "angleDepthClearFixMode",
+            "customGLVersion", "fsr1Setting"
+        )
+        config.allKeys.filter { it !in known }
+    }
+
+    var unknownValues by remember(unknownKeys) {
+        mutableStateOf(unknownKeys.associateWith { config.get(it) })
+    }
+
     val disabledLabel = stringResource(R.string.mobileglues_gl_disabled)
     val glVersions = remember(disabledLabel) {
         listOf(
@@ -121,15 +129,17 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
                     Button(
                         modifier = Modifier.weight(1f),
                         onClick = {
-                            config.enableANGLE = enableANGLE
-                            config.enableNoError = enableNoError
-                            config.enableExtTimerQuery = if (enableExtTimerQuery) 0 else 1
-                            config.enableExtComputeShader = if (enableExtComputeShader) 1 else 0
-                            config.enableExtDirectStateAccess = if (enableExtDirectStateAccess) 1 else 0
-                            config.maxGlslCacheSize = maxGlslCacheSize.toIntOrNull() ?: 32
-                            config.multidrawMode = multidrawMode
-                            config.angleDepthClearFixMode = angleDepthClearFixMode
-                            config.customGLVersion = customGLVersion
+                            config.set("enableANGLE", enableANGLE)
+                            config.set("enableNoError", enableNoError)
+                            config.set("enableExtTimerQuery", if (enableExtTimerQuery) 0 else 1)
+                            config.set("enableExtComputeShader", if (enableExtComputeShader) 1 else 0)
+                            config.set("enableExtDirectStateAccess", if (enableExtDirectStateAccess) 1 else 0)
+                            config.set("maxGlslCacheSize", maxGlslCacheSize.toIntOrNull() ?: 32)
+                            config.set("multidrawMode", multidrawMode)
+                            config.set("angleDepthClearFixMode", angleDepthClearFixMode)
+                            config.set("customGLVersion", customGLVersion)
+                            config.set("fsr1Setting", fsr1Setting)
+                            unknownValues.forEach { (k, v) -> config.set(k, v) }
                             config.save()
                             Toast.makeText(context, context.getString(R.string.mobileglues_saved_toast), Toast.LENGTH_SHORT).show()
                             onDismissRequest()
@@ -219,6 +229,19 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true
                     )
+
+                    if (unknownKeys.isNotEmpty()) {
+                        HorizontalDivider()
+                        SectionHeader(stringResource(R.string.mobileglues_section_other))
+
+                        unknownKeys.forEach { key ->
+                            UnknownSettingRow(
+                                key = key,
+                                value = unknownValues[key] ?: 0,
+                                onValueChange = { unknownValues = unknownValues + (key to it) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -240,6 +263,8 @@ fun MobileGluesSettingsDialog(onDismissRequest: () -> Unit) {
                     multidrawMode = 0
                     angleDepthClearFixMode = 0
                     customGLVersion = 0
+                    fsr1Setting = 0
+                    unknownValues = unknownKeys.associateWith { 0 }
                     showResetConfirm = false
                 }) {
                     Text(stringResource(R.string.generic_reset))
@@ -284,6 +309,22 @@ private fun SettingsSwitchRow(
         }
         Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
+}
+
+@Composable
+private fun UnknownSettingRow(key: String, value: Int, onValueChange: (Int) -> Unit) {
+    var textValue by remember(value) { mutableStateOf(value.toString()) }
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(),
+        value = textValue,
+        onValueChange = {
+            textValue = it
+            it.toIntOrNull()?.let { onValueChange(it) }
+        },
+        label = { Text(key) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        singleLine = true
+    )
 }
 
 @Composable

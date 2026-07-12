@@ -1482,6 +1482,7 @@
     <string name="mobileglues_section_rendering">İşleme</string>
     <string name="mobileglues_section_extensions">Uzantılar</string>
     <string name="mobileglues_section_cache">Önbellek</string>
+    <string name="mobileglues_section_other">Diğer</string>
     <string name="mobileglues_angle_mode">ANGLE Modu</string>
     <string name="mobileglues_angle_disable">Devre Dışı</string>
     <string name="mobileglues_angle_auto">Otomatik</string>
