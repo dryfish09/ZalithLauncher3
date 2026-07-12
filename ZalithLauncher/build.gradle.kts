@@ -286,6 +286,7 @@ buildKeys {
     string("URL_HOME", launcherUrl, true)
     string("CURSEFORGE_API", getKeyFromLocal("CURSEFORGE_API_KEY", ".curseforge_api.txt", defaultCurseForgeApiKey), true)
     string("BUILD_ARCH", projectArch)
+    string("LAUNCHER_RELEASE_NAME", "Redstone Melter")
 }
 
 dependencies {
