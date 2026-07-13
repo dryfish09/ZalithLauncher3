@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.PointerIcon as NativePointerIcon
 import androidx.compose.ui.input.pointer.PointerIcon
@@ -209,7 +210,22 @@ fun VirtualPointerLayout(
 
         val view = LocalView.current
         LaunchedEffect(iconPair) {
-            view.pointerIcon = iconPair?.native
+            val native = iconPair?.native
+            if (native != null) {
+                try {
+                    view.pointerIcon = native
+                } catch (e: Exception) {
+                    android.util.Log.e("MouseLayout", "view.pointerIcon failed", e)
+                }
+                // Window-level fallback
+                (view.context as? android.app.Activity)?.window?.let { win ->
+                    try {
+                        win.decorView.pointerIcon = native
+                    } catch (e: Exception) {
+                        android.util.Log.e("MouseLayout", "decorView.pointerIcon failed", e)
+                    }
+                }
+            }
         }
 
         TouchpadLayout(
@@ -397,7 +413,13 @@ private fun customPointerIcon(
             val hotX = (bmp.width * (hotspot.xPercent.toFloat() / 100f)).coerceIn(0f, bmp.width.toFloat())
             val hotY = (bmp.height * (hotspot.yPercent.toFloat() / 100f)).coerceIn(0f, bmp.height.toFloat())
             try {
-                val native = NativePointerIcon.create(bmp, hotX, hotY)
+                val argb = bmp.copy(Bitmap.Config.ARGB_8888, false)
+                if (argb == null) {
+                    android.util.Log.w("MouseLayout", "Failed to copy bitmap to ARGB_8888")
+                    return@withContext null
+                }
+                val native = NativePointerIcon.create(argb, hotX, hotY)
+                android.util.Log.i("MouseLayout", "Created PointerIcon: $native for ${mouseFile.name}")
                 PointerIconPair(PointerIcon(native), native)
             } catch (e: Exception) {
                 android.util.Log.e("MouseLayout", "Failed to create PointerIcon", e)
