@@ -34,15 +34,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.graphics.BitmapFactory
 import android.view.PointerIcon as NativePointerIcon
-import androidx.compose.runtime.produceState
 import androidx.compose.ui.input.pointer.PointerIcon
 import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.R
@@ -205,7 +204,13 @@ fun VirtualPointerLayout(
 
         val customEnabled = AllSettings.customizeSystemPointer.state
         val sysMouseFile = getSysMouseFile(cursorShape)
-        val customIcon = if (customEnabled) customPointerIcon(cursorShape, sysMouseFile) else null
+        val iconPair = if (customEnabled) customPointerIcon(cursorShape, sysMouseFile) else null
+        val pointerIcon = iconPair?.compose ?: cursorShape.composeIcon
+
+        val view = LocalView.current
+        LaunchedEffect(iconPair) {
+            view.pointerIcon = iconPair?.native
+        }
 
         TouchpadLayout(
             modifier = Modifier.fillMaxSize(),
@@ -213,7 +218,7 @@ fun VirtualPointerLayout(
             enableMouseClick = enableMouseClick,
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture,
-            pointerIcon = customIcon ?: cursorShape.composeIcon,
+            pointerIcon = pointerIcon,
             onTap = { fingerPos ->
                 onTap(
                     if (controlMode == MouseControlMode.CLICK) {
@@ -345,14 +350,19 @@ fun getSysMouseFile(
     }
 }
 
+private data class PointerIconPair(
+    val compose: PointerIcon,
+    val native: android.view.PointerIcon
+)
+
 /**
- * 创建自定义系统指针图标
+ * 创建自定义系统指针图标，返回 Compose PointerIcon 和原生 android.view.PointerIcon
  */
 @Composable
 private fun customPointerIcon(
     cursorShape: CursorShape,
     mouseFile: File
-): PointerIcon? {
+): PointerIconPair? {
     val hotspotUnit = remember(cursorShape) {
         when (cursorShape) {
             CursorShape.Arrow -> AllSettings.arrowMouseHotspot
@@ -367,17 +377,35 @@ private fun customPointerIcon(
     }
     val hotspot = hotspotUnit.state
 
-    var icon by remember { mutableStateOf<PointerIcon?>(null) }
+    var pair by remember { mutableStateOf<PointerIconPair?>(null) }
     LaunchedEffect(mouseFile, hotspot) {
-        icon = withContext(Dispatchers.IO) {
-            if (!mouseFile.exists()) return@withContext null
-            val bmp = BitmapFactory.decodeFile(mouseFile.absolutePath) ?: return@withContext null
+        pair = withContext(Dispatchers.IO) {
+            if (!mouseFile.exists()) {
+                android.util.Log.w("MouseLayout", "Custom pointer file not found: ${mouseFile.absolutePath}")
+                return@withContext null
+            }
+            val bmp = try {
+                BitmapFactory.decodeFile(mouseFile.absolutePath)
+            } catch (e: Exception) {
+                android.util.Log.e("MouseLayout", "Failed to decode bitmap", e)
+                null
+            }
+            if (bmp == null) {
+                android.util.Log.w("MouseLayout", "Decoded bitmap is null")
+                return@withContext null
+            }
             val hotX = (bmp.width * (hotspot.xPercent.toFloat() / 100f)).coerceIn(0f, bmp.width.toFloat())
             val hotY = (bmp.height * (hotspot.yPercent.toFloat() / 100f)).coerceIn(0f, bmp.height.toFloat())
-            PointerIcon(NativePointerIcon.create(bmp, hotX, hotY))
+            try {
+                val native = NativePointerIcon.create(bmp, hotX, hotY)
+                PointerIconPair(PointerIcon(native), native)
+            } catch (e: Exception) {
+                android.util.Log.e("MouseLayout", "Failed to create PointerIcon", e)
+                null
+            }
         }
     }
-    return icon
+    return pair
 }
 
 /**
