@@ -367,8 +367,9 @@ private fun customPointerIcon(
     }
     val hotspot = hotspotUnit.state
 
-    val result by produceState<PointerIcon?>(initialValue = null, mouseFile, hotspot) {
-        value = withContext(Dispatchers.IO) {
+    var icon by remember { mutableStateOf<PointerIcon?>(null) }
+    LaunchedEffect(mouseFile, hotspot) {
+        icon = withContext(Dispatchers.IO) {
             if (!mouseFile.exists()) return@withContext null
             val bmp = BitmapFactory.decodeFile(mouseFile.absolutePath) ?: return@withContext null
             val hotX = (bmp.width * (hotspot.xPercent.toFloat() / 100f)).coerceIn(0f, bmp.width.toFloat())
@@ -376,7 +377,7 @@ private fun customPointerIcon(
             PointerIcon(NativePointerIcon.create(bmp, hotX, hotY))
         }
     }
-    return result
+    return icon
 }
 
 /**
