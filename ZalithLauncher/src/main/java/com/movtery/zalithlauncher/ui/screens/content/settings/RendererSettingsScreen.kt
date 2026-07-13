@@ -77,6 +77,7 @@ import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
 import com.movtery.zalithlauncher.path.URL_CLOUD_DRIVE_DRIVER_PLUGINS
 import com.movtery.zalithlauncher.path.URL_CLOUD_RENDERER_PLUGINS
 import com.movtery.zalithlauncher.path.URL_GITHUB_DRIVER_PLUGINS
+import com.movtery.zalithlauncher.utils.driver.TurnipDownloader
 import com.movtery.zalithlauncher.path.URL_GITHUB_RENDERER_PLUGINS
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.unit.floatRange
@@ -333,7 +334,7 @@ fun RendererSettingsScreen(
                             Row {
                                 IconButton(
                                     onClick = {
-                                        eventViewModel.sendEvent(EventViewModel.Event.OpenWeb("https://github.com/K11MCH1/AdrenoToolsDrivers/releases"))
+                                        eventViewModel.sendEvent(EventViewModel.Event.OpenWeb(TurnipDownloader.getRepoReleasesUrl()))
                                     }
                                 ) {
                                     Icon(

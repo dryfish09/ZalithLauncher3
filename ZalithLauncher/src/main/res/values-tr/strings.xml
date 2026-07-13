@@ -480,6 +480,9 @@
     <string name="turnip_driver_installed">Yüklü Sürücüler</string>
     <string name="turnip_driver_available">İndirilebilir</string>
     <string name="turnip_driver_delete_confirm">"%s" sürücüsü silinsin mi? Bu işlem geri alınamaz.</string>
+    <string name="turnip_repo_dialog_title">Turnip Deposu</string>
+    <string name="turnip_repo_dialog_hint">kullanıcı/depo</string>
+    <string name="turnip_import_zip">AdrenoTools ZIP\'i İçe Aktar</string>
     <string name="versions_manage_rename_version">Sürümü Yeniden Adlandır</string>
     <string name="versions_manage_copy_version">Sürümü Kopyala</string>
     <string name="versions_manage_copy_version_tip">Geçerli sürümü, varsayılan olarak sürüm izolasyonu etkinleştirilmiş şekilde yeni bir sürüm olarak kopyalayın. Oluşturulan tüm dosyaları (kaynak paketleri, kayıtlar, oyun ayarları vb.) da dahil etmek için aşağıdaki \"Tüm Dosyaları Kopyala\" seçeneğini işaretleyin.</string>

@@ -58,6 +58,11 @@ object AllSettings : SettingsRegistry() {
     val vulkanDriver = stringSetting("vulkanDriver", "default turnip")
 
     /**
+     * Turnip 驱动下载源（GitHub owner/repo）
+     */
+    val turnipRepo = stringSetting("turnipRepo", "K11MCH1/AdrenoToolsDrivers")
+
+    /**
      * 图形 API（Minecraft 26.2+）
      */
     val graphicsApi = enumSetting("graphicsApi", GraphicsApi.DEFAULT_OPENGL)

@@ -148,7 +148,7 @@ fun WebViewScreen(
 
                                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                                     val url = request?.url?.toString() ?: return false
-                                    if (url.startsWith("https://github.com/K11MCH1/AdrenoToolsDrivers/releases/download/") &&
+                                    if (url.startsWith(TurnipDownloader.getRepoDownloadPrefix()) &&
                                         url.endsWith(".zip", ignoreCase = true)
                                     ) {
                                         TurnipDownloader.downloadUrl(context.applicationContext, url)

@@ -23,6 +23,7 @@ import android.widget.Toast
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.path.PathManager
@@ -51,7 +52,14 @@ object TurnipDownloader {
     private const val TAG = "TurnipDownloader"
     private val client = OkHttpClient()
     private val json = Json { ignoreUnknownKeys = true }
-    private const val REPO_API = "https://api.github.com/repos/K11MCH1/AdrenoToolsDrivers/releases"
+
+    fun getRepo(): String = AllSettings.turnipRepo.state ?: "K11MCH1/AdrenoToolsDrivers"
+
+    private fun getRepoApi(): String = "https://api.github.com/repos/${getRepo()}/releases"
+
+    fun getRepoReleasesUrl(): String = "https://github.com/${getRepo()}/releases"
+
+    fun getRepoDownloadPrefix(): String = "https://github.com/${getRepo()}/releases/download/"
 
     private val _driverChanges = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val driverChanges: SharedFlow<Unit> = _driverChanges.asSharedFlow()
@@ -70,9 +78,10 @@ object TurnipDownloader {
         val result = mutableListOf<TurnipRelease>()
         var page = 1
         var hasMore = true
+        val repoApi = getRepoApi()
 
         while (hasMore) {
-            val url = "$REPO_API?per_page=100&page=$page"
+            val url = "$repoApi?per_page=100&page=$page"
             val request = Request.Builder().url(url).build()
             val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
             if (!response.isSuccessful) break
@@ -240,6 +249,42 @@ object TurnipDownloader {
             },
             onError = { th ->
                 Logger.error(TAG, "Failed to download Turnip driver from URL", th)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Failed: ${th.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        )
+        TaskSystem.submitTask(task)
+    }
+
+    fun importDriverZip(context: Context, zipFile: File) {
+        val dirName = zipFile.name.removeSuffix(".zip").replace(Regex("[/\\\\]+"), "_")
+        val task = Task.runTask(
+            id = "import_turnip_driver_$dirName",
+            task = { it ->
+                it.updateMessage(androidText(R.string.settings_renderer_turnip_extracting))
+                it.updateProgress(-1f)
+
+                val extractDir = File(PathManager.DIR_DRIVERS, dirName)
+                if (extractDir.exists()) {
+                    extractDir.deleteRecursively()
+                }
+                extractDir.mkdirs()
+
+                withContext(Dispatchers.IO) {
+                    ZipFile(zipFile).use { zip ->
+                        zip.extractFromZip("", extractDir)
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    DriverPluginManager.scanExternalDrivers(context)
+                    notifyDriverChanged()
+                    Toast.makeText(context, R.string.settings_renderer_turnip_success, Toast.LENGTH_SHORT).show()
+                }
+            },
+            onError = { th ->
+                Logger.error(TAG, "Failed to import Turnip driver zip", th)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Failed: ${th.message}", Toast.LENGTH_LONG).show()
                 }

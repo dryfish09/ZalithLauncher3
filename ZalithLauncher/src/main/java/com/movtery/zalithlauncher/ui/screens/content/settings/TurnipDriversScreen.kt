@@ -1,5 +1,8 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,16 +40,21 @@ import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.upgrade.GithubReleaseApi
 import com.movtery.zalithlauncher.utils.driver.TurnipDownloader
 import com.movtery.zalithlauncher.utils.driver.TurnipRelease
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 private data class TurnipEntry(val release: TurnipRelease, val asset: GithubReleaseApi.Asset)
@@ -68,20 +77,45 @@ fun TurnipDriversScreen(
     ) {
         val context = LocalContext.current
 
+        var repoKey by remember { mutableStateOf(0) }
         var entries by remember { mutableStateOf<List<TurnipEntry>?>(null) }
         var loading by remember { mutableStateOf(true) }
         var error by remember { mutableStateOf<String?>(null) }
         var installedDrivers by remember { mutableStateOf(emptyList<File>()) }
         var driverToDelete by remember { mutableStateOf<File?>(null) }
+        var showRepoDialog by remember { mutableStateOf(false) }
+        var repoInput by remember { mutableStateOf("") }
+        val scope = rememberCoroutineScope()
 
-        LaunchedEffect(Unit) {
+        val zipPicker = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument()
+        ) { uri: Uri? ->
+            if (uri != null) {
+                val cacheFile = File(PathManager.DIR_CACHE, "imported_driver_${System.currentTimeMillis()}.zip")
+                scope.launch {
+                    withContext(Dispatchers.IO) {
+                        context.contentResolver.openInputStream(uri)?.use { input ->
+                            cacheFile.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                    }
+                    TurnipDownloader.importDriverZip(context, cacheFile)
+                }
+            }
+        }
+
+        LaunchedEffect(repoKey) {
             installedDrivers = scanInstalledDrivers()
             TurnipDownloader.driverChanges.collect {
                 installedDrivers = scanInstalledDrivers()
             }
         }
 
-        LaunchedEffect(Unit) {
+        LaunchedEffect(repoKey) {
+            loading = true
+            entries = null
+            error = null
             try {
                 val releases = TurnipDownloader.fetchAllReleases()
                 entries = releases.flatMap { release ->
@@ -92,6 +126,25 @@ fun TurnipDriversScreen(
             } finally {
                 loading = false
             }
+        }
+
+        if (showRepoDialog) {
+            SimpleEditDialog(
+                title = stringResource(R.string.turnip_repo_dialog_title),
+                value = repoInput,
+                onValueChange = { repoInput = it },
+                label = { Text(stringResource(R.string.turnip_repo_dialog_hint)) },
+                singleLine = true,
+                onDismissRequest = { showRepoDialog = false },
+                onCancel = { showRepoDialog = false },
+                onConfirm = {
+                    if (repoInput.isNotBlank()) {
+                        AllSettings.turnipRepo.save(repoInput.trim())
+                        repoKey++
+                        showRepoDialog = false
+                    }
+                }
+            )
         }
 
         if (error != null) {
@@ -129,11 +182,35 @@ fun TurnipDriversScreen(
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 CardTitleLayout {
-                    Text(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        text = stringResource(R.string.settings_renderer_download_turnip),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.settings_renderer_download_turnip),
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(onClick = { zipPicker.launch(arrayOf("application/zip")) }) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_folder_zip_outlined),
+                                contentDescription = stringResource(R.string.turnip_import_zip),
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                        IconButton(onClick = {
+                            repoInput = AllSettings.turnipRepo.state ?: TurnipDownloader.getRepo()
+                            showRepoDialog = true
+                        }) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_edit_outlined),
+                                contentDescription = stringResource(R.string.generic_edit),
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
                 }
 
                 when {
