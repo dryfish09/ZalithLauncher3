@@ -38,6 +38,7 @@ import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.findBestRAMAllocation
 import com.movtery.zalithlauncher.setting.unit.getOrMin
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.device.Architecture.ARCH_X86
@@ -116,7 +117,12 @@ abstract class Launcher(
             screenSize = screenSize,
             useLocalLanguage = useLocalLanguage
         ).toMutableList()
-        progressFinalUserArgs(args)
+        val effectiveRamAllocation = if (AllSettings.autoRamAllocation.getValue()) {
+            findBestRAMAllocation(context)
+        } else {
+            AllSettings.ramAllocation.getOrMin()
+        }
+        progressFinalUserArgs(args, effectiveRamAllocation)
 
         args.addAll(jvmArgs)
         args.add(0, "$runtimeHome/bin/java")

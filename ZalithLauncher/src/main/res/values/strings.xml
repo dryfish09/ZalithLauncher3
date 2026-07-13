@@ -1107,6 +1107,8 @@
     <string name="settings_game_java_memory_summary">Adjust Minecraft\'s memory usage</string>
     <string name="settings_game_java_memory_used_text">Used: %1$dMB / %2$dMB</string>
     <string name="settings_game_java_memory_allocation_text">Allocated: %dMB</string>
+    <string name="settings_game_auto_ram_allocation_title">Automatic Memory Allocation</string>
+    <string name="settings_game_auto_ram_allocation_summary">Automatically determine the optimal JVM memory based on device RAM. Manual controls are disabled while active</string>
     <string name="settings_game_native_lib_plugin_title">Native Library Plugins</string>
     <string name="settings_game_native_lib_plugin_summary">Lists all loaded native library plugins. You can enable or disable them in the list.</string>
     <string name="settings_game_graphics_api_title">Graphics API</string>

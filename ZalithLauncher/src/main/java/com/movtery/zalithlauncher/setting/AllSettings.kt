@@ -139,6 +139,11 @@ object AllSettings : SettingsRegistry() {
     val ramAllocation = intSetting("ramAllocation", null, min = 256)
 
     /**
+     * 自动内存分配
+     */
+    val autoRamAllocation = boolSetting("autoRamAllocation", false)
+
+    /**
      * 自定义Jvm启动参数
      */
     val jvmArgs = stringSetting("jvmArgs", "")

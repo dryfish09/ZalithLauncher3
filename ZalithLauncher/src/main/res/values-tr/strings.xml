@@ -582,6 +582,8 @@
     <string name="settings_game_java_memory_summary">Minecraft için bellek miktarını ayarla</string>
     <string name="settings_game_java_memory_used_text">Kullanılan: %1$dMB / %2$dMB</string>
     <string name="settings_game_java_memory_allocation_text">Ayrılmış: %dMB</string>
+    <string name="settings_game_auto_ram_allocation_title">Otomatik Bellek Tahsisi</string>
+    <string name="settings_game_auto_ram_allocation_summary">Cihaz RAM\'ine göre optimum JVM belleğini otomatik olarak belirleyin. Etkinleştirildiğinde manuel kontroller devre dışı kalır.</string>
     <string name="settings_game_jvm_args_title">JVM Argümanları</string>
     <string name="settings_game_jvm_args_summary">JVM başlatılırken eklenen JVM parametreleri; emin olunmadan değiştirilmesi önerilmez, çünkü bu çökme olasılığını artırabilir</string>
     <string name="settings_game_show_log_automatic_title">Otomatik Olarak Günlükleri Göster</string>
