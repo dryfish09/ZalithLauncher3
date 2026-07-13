@@ -180,15 +180,6 @@ class GameLauncher(
         }
         envMap["ZALITH_VERSION_CODE"] = BuildConfig.VERSION_CODE.toString()
 
-        // Old Minecraft (pre-1.6, LWJGL 2 era) uses paulscode which loads
-        // OpenAL via System.loadLibrary("openal"). ALSOFT_DRIVERS with
-        // opensl/aaudio may cause issues with old OpenAL Soft.
-        val mcVer = version.getVersionInfo()?.minecraftVersion
-        if (mcVer != null && isPre16Version(mcVer)) {
-            envMap["ALSOFT_DRIVERS"] = ""
-            Logger.info(TAG, "Old version ($mcVer) detected: cleared ALSOFT_DRIVERS for LWJGL 2 OpenAL compat")
-        }
-
         return envMap
     }
 
