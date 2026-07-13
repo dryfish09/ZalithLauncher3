@@ -239,6 +239,9 @@ class GameLauncher(
             Logger.info(TAG, "Old version ($mcVer): added org.lwjgl.librarypath for LWJGL 2 compat")
         } else {
             args.add("-Dorg.lwjgl.openal.libname=${PathManager.DIR_NATIVE_LIB}/libopenal.so")
+            if (args.none { it.startsWith("-Djava.library.path=") }) {
+                args.add("-Djava.library.path=${PathManager.DIR_NATIVE_LIB}")
+            }
         }
     }
 
