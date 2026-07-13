@@ -44,7 +44,9 @@ import com.movtery.zalithlauncher.context.COPY_LABEL_LINK
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.control.ControlManager
+import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
+import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.activities.EXTRA_LAUNCH_VERSION
 import com.movtery.zalithlauncher.ui.activities.EXTRA_OPEN_LOG
@@ -174,12 +176,17 @@ class MainActivity : BaseAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //处理外部导入
+        val isImporting = handleImportIfNeeded(intent)
+
+        //加载渲染器
+        Renderers.init()
+        //加载插件
+        PluginLoader.loadAllPlugins(this, false)
+        refreshData()
 
         //初始化通知管理（创建渠道）
         NotificationManager.initManager(this)
-
-        //处理外部导入
-        val isImporting = handleImportIfNeeded(intent)
 
         //检查更新
         if (!isImporting && launcherUpgradeViewModel.operation == LauncherUpgradeOperation.None) {
@@ -482,6 +489,10 @@ class MainActivity : BaseAppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleImportIfNeeded(intent)
+        // 重载渲染器
+        Renderers.init(true)
+        // 重载插件
+        PluginLoader.loadAllPlugins(this, true)
     }
 
     /**

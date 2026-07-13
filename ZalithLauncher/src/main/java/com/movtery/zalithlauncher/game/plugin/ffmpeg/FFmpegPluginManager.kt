@@ -37,10 +37,39 @@ object FFmpegPluginManager {
     /**
      * Yerleşik FFmpeg native kütüphanelerini yükle
      */
-    fun loadPlugin() {
-        libraryPath = PathManager.DIR_NATIVE_LIB
-        val ffmpegExecutable = File(libraryPath, "libffmpeg.so")
-        executablePath = ffmpegExecutable.absolutePath
-        isAvailable = ffmpegExecutable.exists()
+    fun loadPlugin(
+        context: Context,
+        loaded: (ApkPlugin) -> Unit = {}
+    ) {
+        val manager: PackageManager = context.packageManager
+        runCatching {
+            val info = try {
+                manager.getPackageInfo(
+                    PLUGIN_PACKAGE_NAME,
+                    PackageManager.GET_SHARED_LIBRARY_FILES
+                )
+            } catch (_: PackageManager.NameNotFoundException) {
+                //未安装
+                return
+            }
+            val applicationInfo = info.applicationInfo!!
+            libraryPath = applicationInfo.nativeLibraryDir
+            val ffmpegExecutable = File(libraryPath, "libffmpeg.so")
+            executablePath = ffmpegExecutable.absolutePath
+            isAvailable = ffmpegExecutable.exists()
+
+            if (isAvailable) {
+                cacheAppIcon(context, applicationInfo)
+                runCatching {
+                    ApkPlugin(
+                        packageName = PLUGIN_PACKAGE_NAME,
+                        appName = applicationInfo.loadLabel(manager).toString(),
+                        appVersion = manager.getPackageInfo(PLUGIN_PACKAGE_NAME, 0).versionName ?: ""
+                    )
+                }.getOrNull()?.let { loaded(it) }
+            }
+        }.onFailure { e ->
+            Logger.warning(TAG, "Failed to discover plugin", e)
+        }
     }
 }

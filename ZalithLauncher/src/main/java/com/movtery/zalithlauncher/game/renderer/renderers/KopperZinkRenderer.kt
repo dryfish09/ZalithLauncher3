@@ -23,11 +23,15 @@ import com.movtery.zalithlauncher.game.renderer.RendererInterface
 object KopperZinkRenderer : RendererInterface {
     override fun getRendererId(): String = "opengles3_desktopgl_zink_kopper"
 
-    override fun getUniqueIdentifier(): String = "18d93f17-ff53-a319-fa61-58709a77bf87"
+    override fun getUniqueIdentifier(): String = "0fa435e2-46df-45c9-906c-b29606aaef00"
 
     override fun getRendererName(): String = "Kopper Zink"
 
-    override fun getRendererEnv(): Lazy<Map<String, String>> = lazy { emptyMap() }
+    override fun getRendererEnv(): Lazy<Map<String, String>> = lazy {
+        mapOf(
+            "LIBGL_ES" to "3"
+        )
+    }
 
     override fun getDlopenLibrary(): Lazy<List<String>> = lazy { emptyList() }
 

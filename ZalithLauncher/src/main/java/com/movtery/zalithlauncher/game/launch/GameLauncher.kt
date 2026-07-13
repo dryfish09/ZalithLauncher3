@@ -21,8 +21,8 @@ package com.movtery.zalithlauncher.game.launch
 import android.app.Activity
 import android.os.Build
 import android.os.Parcelable
-import androidx.annotation.Keep
 import android.widget.Toast
+import androidx.annotation.Keep
 import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
@@ -42,6 +42,8 @@ import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
+import com.movtery.zalithlauncher.game.renderer.renderers.GL4ESRenderer
+import com.movtery.zalithlauncher.game.renderer.renderers.NGGL4ESRenderer
 import com.movtery.zalithlauncher.game.support.touch_controller.ControllerProxy
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionInfoParser
@@ -99,7 +101,7 @@ class GameLauncher(
 
     override suspend fun launch(screenSize: IntSize): Int {
         if (!Renderers.isCurrentRendererValid()) {
-            Renderers.setCurrentRenderer(activity, version.getRenderer())
+            Renderers.setCurrentRenderer(version.getRenderer())
         }
 
         val manifest = GSON.fromJson(File(version.getVersionPath(), "${version.getVersionName()}.json").readText(), GameManifest::class.java)
@@ -184,7 +186,10 @@ class GameLauncher(
         appendTitle("DLOPEN Renderer")
 
         RendererPluginManager.selectedRendererPlugin?.let { renderer ->
-            renderer.dlopen.forEach { lib -> ZLBridge.dlopen("${renderer.path}/$lib") }
+            val libs by renderer.getDlopenLibrary()
+            libs.forEach { libPath ->
+                ZLBridge.dlopen(libPath)
+            }
         }
 
         val rendererLib = loadGraphicsLibrary() ?: return
@@ -383,9 +388,11 @@ private fun setRendererEnv(envMap: MutableMap<String, String>) {
 
     if (RendererPluginManager.selectedRendererPlugin != null) return
 
-    if (!rendererId.startsWith("opengles")) {
+    if (renderer != GL4ESRenderer && renderer != NGGL4ESRenderer) {
         envMap["MESA_LOADER_DRIVER_OVERRIDE"] = "zink"
         envMap["MESA_GLSL_CACHE_DIR"] = PathManager.DIR_CACHE.absolutePath
+        envMap["MESA_GL_VERSION_OVERRIDE"] = "4.6"
+        envMap["MESA_GLSL_VERSION_OVERRIDE"] = "460"
         envMap["force_glsl_extensions_warn"] = "true"
         envMap["allow_higher_compat_version"] = "true"
         envMap["allow_glsl_extension_directive_midshader"] = "true"
@@ -415,15 +422,8 @@ private fun setRendererEnv(envMap: MutableMap<String, String>) {
  * @return The name of the loaded library
  */
 private fun loadGraphicsLibrary(): String? {
-    if (!Renderers.isCurrentRendererValid()) return null
-    else {
-        val rendererPlugin = RendererPluginManager.selectedRendererPlugin
-        return if (rendererPlugin != null) {
-            "${rendererPlugin.path}/${rendererPlugin.glName}"
-        } else {
-            Renderers.getCurrentRenderer().getRendererLibrary()
-        }
-    }
+    return if (!Renderers.isCurrentRendererValid()) null
+    else Renderers.getCurrentRenderer().getRendererLibrary()
 }
 
 /**
