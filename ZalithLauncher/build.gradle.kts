@@ -276,8 +276,8 @@ val nativeLibPluginLibs by tasks.registering {
     }
 }
 
-afterEvaluate {
-    tasks.matching { it.name.startsWith("merge") && it.name.endsWith("JniLibs") }.configureEach {
+tasks.configureEach {
+    if (name.startsWith("merge") && name.endsWith("JniLibs")) {
         dependsOn(mobileGluesLibs)
         dependsOn(nativeLibPluginLibs)
     }
