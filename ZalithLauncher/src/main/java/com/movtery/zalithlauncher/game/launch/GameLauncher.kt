@@ -179,6 +179,7 @@ class GameLauncher(
             setRendererEnv(envMap)
         }
         envMap["ZALITH_VERSION_CODE"] = BuildConfig.VERSION_CODE.toString()
+        envMap["ALSOFT_LOGLEVEL"] = "3"
 
         return envMap
     }
