@@ -231,17 +231,11 @@ class GameLauncher(
             args.add("-Dorg.lwjgl.opengl.libname=${loadGraphicsLibrary()}")
         }
 
-        // LWJGL 2 uses System.loadLibrary("openal") via java.library.path,
-        // LWJGL 3 uses -Dorg.lwjgl.openal.libname. Add library path for old versions.
         val mcVer = version.getVersionInfo()?.minecraftVersion
         if (mcVer != null && isPre16Version(mcVer)) {
             args.add("-Dorg.lwjgl.librarypath=${PathManager.DIR_NATIVE_LIB}")
-            Logger.info(TAG, "Old version ($mcVer): added org.lwjgl.librarypath for LWJGL 2 compat")
         } else {
             args.add("-Dorg.lwjgl.openal.libname=${PathManager.DIR_NATIVE_LIB}/libopenal.so")
-            if (args.none { it.startsWith("-Djava.library.path=") }) {
-                args.add("-Djava.library.path=${PathManager.DIR_NATIVE_LIB}")
-            }
         }
     }
 
