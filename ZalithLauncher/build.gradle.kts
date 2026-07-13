@@ -276,11 +276,9 @@ val nativeLibPluginLibs by tasks.registering {
     }
 }
 
-tasks.configureEach {
-    if (name.startsWith("merge") && name.endsWith("JniLibs")) {
-        dependsOn(mobileGluesLibs)
-        dependsOn(nativeLibPluginLibs)
-    }
+tasks.named("preBuild") {
+    dependsOn(mobileGluesLibs)
+    dependsOn(nativeLibPluginLibs)
 }
 
 kotlin {
