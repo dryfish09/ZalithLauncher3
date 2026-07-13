@@ -41,8 +41,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.graphics.BitmapFactory
+import android.view.PointerIcon as NativePointerIcon
 import androidx.compose.runtime.produceState
-import androidx.compose.ui.input.pointer.BitmapPointerIcon
 import androidx.compose.ui.input.pointer.PointerIcon
 import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.R
@@ -373,7 +373,7 @@ private fun customPointerIcon(
             val bmp = BitmapFactory.decodeFile(mouseFile.absolutePath) ?: return@withContext null
             val hotX = (bmp.width * (hotspot.xPercent.toFloat() / 100f)).coerceIn(0f, bmp.width.toFloat())
             val hotY = (bmp.height * (hotspot.yPercent.toFloat() / 100f)).coerceIn(0f, bmp.height.toFloat())
-            PointerIcon(BitmapPointerIcon(bmp, hotX, hotY))
+            PointerIcon(NativePointerIcon.create(bmp, hotX, hotY))
         }
     }
     return result
