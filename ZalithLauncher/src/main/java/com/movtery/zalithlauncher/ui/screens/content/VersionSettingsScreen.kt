@@ -504,12 +504,9 @@ private fun NavigationUI(
                             )
                         },
                         onSwapMoreInfo = { projectId, platform ->
-                            backScreenViewModel.navigateToDownload(
-                                targetScreen = backScreenViewModel.downloadResourcePackScreen.apply {
-                                    navigateTo(
-                                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.RESOURCE_PACK)
-                                    )
-                                }
+                            backScreenViewModel.mainScreen.removeAndNavigateTo(
+                                NestedNavKey.AssetInfo::class,
+                                NestedNavKey.AssetInfo(platform, projectId, PlatformClasses.RESOURCE_PACK)
                             )
                         },
                         submitError = submitError
@@ -527,12 +524,9 @@ private fun NavigationUI(
                             )
                         },
                         onSwapMoreInfo = { projectId, platform ->
-                            backScreenViewModel.navigateToDownload(
-                                targetScreen = backScreenViewModel.downloadShadersScreen.apply {
-                                    navigateTo(
-                                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.SHADERS)
-                                    )
-                                }
+                            backScreenViewModel.mainScreen.removeAndNavigateTo(
+                                NestedNavKey.AssetInfo::class,
+                                NestedNavKey.AssetInfo(platform, projectId, PlatformClasses.SHADERS)
                             )
                         },
                         submitError = submitError
