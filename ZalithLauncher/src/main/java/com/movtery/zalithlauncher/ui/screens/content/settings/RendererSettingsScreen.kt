@@ -95,6 +95,7 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCa
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.TextInputSettingsCard
+import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.device.checkVulkanSupport
 import com.movtery.zalithlauncher.utils.isAdrenoGPU
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
@@ -111,6 +112,44 @@ fun RendererSettingsScreen(
         Triple(key, mainScreenKey, false),
         Triple(NormalNavKey.Settings.Renderer, settingsScreenKey, false)
     ) { isVisible ->
+        val context = LocalContext.current
+        var showMobileGluesSettings by remember { mutableStateOf(false) }
+        var showBenchmark by remember { mutableStateOf(false) }
+        var driverToDelete by remember { mutableStateOf<Driver?>(null) }
+
+        if (showMobileGluesSettings) {
+            MobileGluesSettingsDialog(onDismissRequest = { showMobileGluesSettings = false })
+        }
+
+        if (showBenchmark) {
+            Dialog(
+                onDismissRequest = { showBenchmark = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+                RendererBenchmarkOverlay(
+                    availableRenderers = Renderers.getRenderers(),
+                    onDismiss = { showBenchmark = false }
+                )
+            }
+        }
+
+        driverToDelete?.let { driver ->
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_delete),
+                text = stringResource(R.string.turnip_driver_delete_confirm, driver.name),
+                confirmText = stringResource(R.string.generic_delete),
+                onConfirm = {
+                    java.io.File(driver.path).deleteRecursively()
+                    DriverPluginManager.scanExternalDrivers(context)
+                    if (AllSettings.vulkanDriver.getValue() == driver.id) {
+                        AllSettings.vulkanDriver.save(AllSettings.vulkanDriver.defaultValue)
+                    }
+                    driverToDelete = null
+                },
+                onDismiss = { driverToDelete = null }
+            )
+        }
+
         AnimatedColumn(
             modifier = Modifier
                 .fillMaxWidth()
