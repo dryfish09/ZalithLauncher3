@@ -1061,17 +1061,6 @@
     <string name="settings_control_mouse_pointer_hotspot">İmleç Odak Noktası</string>
     <string name="settings_control_mouse_pointer_hotspot_x_percent">X Ekseni (%%)</string>
     <string name="settings_control_mouse_pointer_hotspot_y_percent">Y Ekseni (%%)</string>
-    <string name="settings_control_mouse_customize_system_pointer_title">Sistem İmlecini Özelleştir</string>
-    <string name="settings_control_mouse_customize_system_pointer_summary">Fiziksel fare bağlandığında kullanılan Android sistem imleçlerini özel görsellerle değiştirin</string>
-    <string name="settings_control_mouse_sys_pointer_arrow_title">Sistem İmleci (Ok)</string>
-    <string name="settings_control_mouse_sys_pointer_link_title">Sistem İmleci (El)</string>
-    <string name="settings_control_mouse_sys_pointer_ibeam_title">Sistem İmleci (Metin)</string>
-    <string name="settings_control_mouse_sys_pointer_crosshair_title">Sistem İmleci (Artı)</string>
-    <string name="settings_control_mouse_sys_pointer_resize_ns_title">Sistem İmleci (Dikey)</string>
-    <string name="settings_control_mouse_sys_pointer_resize_ew_title">Sistem İmleci (Yatay)</string>
-    <string name="settings_control_mouse_sys_pointer_resize_all_title">Sistem İmleci (Taşı)</string>
-    <string name="settings_control_mouse_sys_pointer_not_allowed_title">Sistem İmleci (İzin Yok)</string>
-    <string name="settings_control_mouse_sys_pointer_summary">Fiziksel fare bağlandığında sistem imleç görsellerini özelleştirin</string>
     <string name="settings_control_gyroscope_title">Jiroskop</string>
     <string name="settings_control_gyroscope_unsupported">Cihazınız jiroskopu desteklemiyor</string>
     <string name="settings_control_gyroscope_summary">Jiroskop ile bakış kontrolü</string>

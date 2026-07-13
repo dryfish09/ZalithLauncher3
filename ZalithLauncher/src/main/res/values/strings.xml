@@ -1162,17 +1162,6 @@
     <string name="settings_control_mouse_pointer_hotspot">Set Hotspot</string>
     <string name="settings_control_mouse_pointer_hotspot_x_percent">X Coordinate</string>
     <string name="settings_control_mouse_pointer_hotspot_y_percent">Y Coordinate</string>
-    <string name="settings_control_mouse_customize_system_pointer_title">Customize System Pointer</string>
-    <string name="settings_control_mouse_customize_system_pointer_summary">Replace the Android system pointer icons with custom images for physical mouse cursors</string>
-    <string name="settings_control_mouse_sys_pointer_arrow_title">System Mouse Pointer (Default)</string>
-    <string name="settings_control_mouse_sys_pointer_link_title">System Mouse Pointer (Hand)</string>
-    <string name="settings_control_mouse_sys_pointer_ibeam_title">System Mouse Pointer (Text Cursor)</string>
-    <string name="settings_control_mouse_sys_pointer_crosshair_title">System Mouse Pointer (Crosshair)</string>
-    <string name="settings_control_mouse_sys_pointer_resize_ns_title">System Mouse Pointer (Up/Down)</string>
-    <string name="settings_control_mouse_sys_pointer_resize_ew_title">System Mouse Pointer (Left/Right)</string>
-    <string name="settings_control_mouse_sys_pointer_resize_all_title">System Mouse Pointer (Move)</string>
-    <string name="settings_control_mouse_sys_pointer_not_allowed_title">System Mouse Pointer (Not Allowed)</string>
-    <string name="settings_control_mouse_sys_pointer_summary">Customize the system pointer icon used when a physical mouse is connected</string>
     <string name="settings_control_mouse_long_press_delay_title">Long Press Delay</string>
     <string name="settings_control_mouse_long_press_delay_summary">Set the delay time for recognizing a long press on the screen (does not affect physical mouse long presses, even when physical mouse control is disabled)</string>
     <string name="settings_control_gesture_control_title">Gesture Controls</string>

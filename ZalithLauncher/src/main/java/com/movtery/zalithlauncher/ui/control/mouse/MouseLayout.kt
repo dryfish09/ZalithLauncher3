@@ -35,15 +35,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.view.PointerIcon as NativePointerIcon
-import androidx.compose.ui.input.pointer.PointerIcon
 import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CursorShape
@@ -97,18 +92,6 @@ val resizeAllPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("resize_ALL
  * 禁止/无效操作鼠标指针图标文件
  */
 val notAllowedPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("not_allowed_pointer.image")
-
-/**
- * 系统（物理）鼠标指针图标文件
- */
-val sysArrowPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_default_pointer.image")
-val sysLinkPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_link_pointer.image")
-val sysIBeamPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_ibeam_pointer.image")
-val sysCrossHairPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_crosshair_pointer.image")
-val sysResizeNSPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_resize_NS_pointer.image")
-val sysResizeEWPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_resize_EW_pointer.image")
-val sysResizeAllPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_resize_ALL_pointer.image")
-val sysNotAllowedPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_not_allowed_pointer.image")
 
 /**
  * 虚拟指针模拟层
@@ -203,38 +186,13 @@ fun VirtualPointerLayout(
             )
         }
 
-        val customEnabled = AllSettings.customizeSystemPointer.state
-        val sysMouseFile = getSysMouseFile(cursorShape)
-        val iconPair = if (customEnabled) customPointerIcon(cursorShape, sysMouseFile) else null
-        val pointerIcon = iconPair?.compose ?: cursorShape.composeIcon
-
-        val view = LocalView.current
-        LaunchedEffect(iconPair) {
-            val native = iconPair?.native
-            if (native != null) {
-                try {
-                    view.pointerIcon = native
-                } catch (e: Exception) {
-                    android.util.Log.e("MouseLayout", "view.pointerIcon failed", e)
-                }
-                // Window-level fallback
-                (view.context as? android.app.Activity)?.window?.let { win ->
-                    try {
-                        win.decorView.pointerIcon = native
-                    } catch (e: Exception) {
-                        android.util.Log.e("MouseLayout", "decorView.pointerIcon failed", e)
-                    }
-                }
-            }
-        }
-
         TouchpadLayout(
             modifier = Modifier.fillMaxSize(),
             controlMode = controlMode,
             enableMouseClick = enableMouseClick,
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture,
-            pointerIcon = pointerIcon,
+            pointerIcon = cursorShape.composeIcon,
             onTap = { fingerPos ->
                 onTap(
                     if (controlMode == MouseControlMode.CLICK) {
@@ -343,91 +301,6 @@ fun getMouseFile(
             CursorShape.NotAllowed -> notAllowedPointerFile
         }
     }
-}
-
-/**
- * 根据指针形状返回系统（物理）鼠标指针图片文件
- */
-@Composable
-fun getSysMouseFile(
-    cursorShape: CursorShape
-): File {
-    return remember(cursorShape) {
-        when (cursorShape) {
-            CursorShape.Arrow -> sysArrowPointerFile
-            CursorShape.IBeam -> sysIBeamPointerFile
-            CursorShape.Hand -> sysLinkPointerFile
-            CursorShape.CrossHair -> sysCrossHairPointerFile
-            CursorShape.ResizeNS -> sysResizeNSPointerFile
-            CursorShape.ResizeEW -> sysResizeEWPointerFile
-            CursorShape.ResizeAll -> sysResizeAllPointerFile
-            CursorShape.NotAllowed -> sysNotAllowedPointerFile
-        }
-    }
-}
-
-private data class PointerIconPair(
-    val compose: PointerIcon,
-    val native: android.view.PointerIcon
-)
-
-/**
- * 创建自定义系统指针图标，返回 Compose PointerIcon 和原生 android.view.PointerIcon
- */
-@Composable
-private fun customPointerIcon(
-    cursorShape: CursorShape,
-    mouseFile: File
-): PointerIconPair? {
-    val hotspotUnit = remember(cursorShape) {
-        when (cursorShape) {
-            CursorShape.Arrow -> AllSettings.arrowMouseHotspot
-            CursorShape.IBeam -> AllSettings.iBeamMouseHotspot
-            CursorShape.Hand -> AllSettings.linkMouseHotspot
-            CursorShape.CrossHair -> AllSettings.crossHairMouseHotspot
-            CursorShape.ResizeNS -> AllSettings.resizeNSMouseHotspot
-            CursorShape.ResizeEW -> AllSettings.resizeEWMouseHotspot
-            CursorShape.ResizeAll -> AllSettings.resizeAllMouseHotspot
-            CursorShape.NotAllowed -> AllSettings.notAllowedMouseHotspot
-        }
-    }
-    val hotspot = hotspotUnit.state
-
-    var pair by remember { mutableStateOf<PointerIconPair?>(null) }
-    LaunchedEffect(mouseFile, hotspot) {
-        pair = withContext(Dispatchers.IO) {
-            if (!mouseFile.exists()) {
-                android.util.Log.w("MouseLayout", "Custom pointer file not found: ${mouseFile.absolutePath}")
-                return@withContext null
-            }
-            val bmp = try {
-                BitmapFactory.decodeFile(mouseFile.absolutePath)
-            } catch (e: Exception) {
-                android.util.Log.e("MouseLayout", "Failed to decode bitmap", e)
-                null
-            }
-            if (bmp == null) {
-                android.util.Log.w("MouseLayout", "Decoded bitmap is null")
-                return@withContext null
-            }
-            val hotX = (bmp.width * (hotspot.xPercent.toFloat() / 100f)).coerceIn(0f, bmp.width.toFloat())
-            val hotY = (bmp.height * (hotspot.yPercent.toFloat() / 100f)).coerceIn(0f, bmp.height.toFloat())
-            try {
-                val argb = bmp.copy(Bitmap.Config.ARGB_8888, false)
-                if (argb == null) {
-                    android.util.Log.w("MouseLayout", "Failed to copy bitmap to ARGB_8888")
-                    return@withContext null
-                }
-                val native = NativePointerIcon.create(argb, hotX, hotY)
-                android.util.Log.i("MouseLayout", "Created PointerIcon: $native for ${mouseFile.name}")
-                PointerIconPair(PointerIcon(native), native)
-            } catch (e: Exception) {
-                android.util.Log.e("MouseLayout", "Failed to create PointerIcon", e)
-                null
-            }
-        }
-    }
-    return pair
 }
 
 /**
