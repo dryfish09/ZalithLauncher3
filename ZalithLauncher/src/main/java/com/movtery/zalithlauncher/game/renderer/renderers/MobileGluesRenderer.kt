@@ -19,7 +19,6 @@
 package com.movtery.zalithlauncher.game.renderer.renderers
 
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
-import com.movtery.zalithlauncher.path.PathManager
 
 object MobileGluesRenderer : RendererInterface {
     override fun getRendererId(): String = "mobileglues"
@@ -34,5 +33,5 @@ object MobileGluesRenderer : RendererInterface {
 
     override fun getDlopenLibrary(): Lazy<List<String>> = lazy { emptyList() }
 
-    override fun getRendererLibrary(): String = "${PathManager.DIR_NATIVE_LIB}/libMobileGlues.so"
+    override fun getRendererLibrary(): String = "libMobileGlues.so"
 }

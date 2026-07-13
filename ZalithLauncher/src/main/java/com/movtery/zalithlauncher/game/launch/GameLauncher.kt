@@ -231,6 +231,10 @@ class GameLauncher(
             args.add("-Dorg.lwjgl.opengl.libname=${loadGraphicsLibrary()}")
         }
 
+        if (args.none { it.startsWith("-Djava.library.path=") }) {
+            args.add("-Djava.library.path=${PathManager.DIR_NATIVE_LIB}")
+        }
+
         val mcVer = version.getVersionInfo()?.minecraftVersion
         if (mcVer != null && isPre16Version(mcVer)) {
             args.add("-Dorg.lwjgl.librarypath=${PathManager.DIR_NATIVE_LIB}")
