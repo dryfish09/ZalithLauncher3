@@ -40,6 +40,9 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.graphics.BitmapFactory
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.input.pointer.PointerIcon
 import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CursorShape
@@ -199,13 +202,17 @@ fun VirtualPointerLayout(
             )
         }
 
+        val customEnabled = AllSettings.customizeSystemPointer.state
+        val sysMouseFile = getSysMouseFile(cursorShape)
+        val customIcon = if (customEnabled) customPointerIcon(cursorShape, sysMouseFile) else null
+
         TouchpadLayout(
             modifier = Modifier.fillMaxSize(),
             controlMode = controlMode,
             enableMouseClick = enableMouseClick,
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture,
-            pointerIcon = cursorShape.composeIcon,
+            pointerIcon = customIcon ?: cursorShape.composeIcon,
             onTap = { fingerPos ->
                 onTap(
                     if (controlMode == MouseControlMode.CLICK) {
@@ -314,6 +321,61 @@ fun getMouseFile(
             CursorShape.NotAllowed -> notAllowedPointerFile
         }
     }
+}
+
+/**
+ * 根据指针形状返回系统（物理）鼠标指针图片文件
+ */
+@Composable
+fun getSysMouseFile(
+    cursorShape: CursorShape
+): File {
+    return remember(cursorShape) {
+        when (cursorShape) {
+            CursorShape.Arrow -> sysArrowPointerFile
+            CursorShape.IBeam -> sysIBeamPointerFile
+            CursorShape.Hand -> sysLinkPointerFile
+            CursorShape.CrossHair -> sysCrossHairPointerFile
+            CursorShape.ResizeNS -> sysResizeNSPointerFile
+            CursorShape.ResizeEW -> sysResizeEWPointerFile
+            CursorShape.ResizeAll -> sysResizeAllPointerFile
+            CursorShape.NotAllowed -> sysNotAllowedPointerFile
+        }
+    }
+}
+
+/**
+ * 创建自定义系统指针图标
+ */
+@Composable
+private fun customPointerIcon(
+    cursorShape: CursorShape,
+    mouseFile: File
+): PointerIcon? {
+    val hotspotUnit = remember(cursorShape) {
+        when (cursorShape) {
+            CursorShape.Arrow -> AllSettings.arrowMouseHotspot
+            CursorShape.IBeam -> AllSettings.iBeamMouseHotspot
+            CursorShape.Hand -> AllSettings.linkMouseHotspot
+            CursorShape.CrossHair -> AllSettings.crossHairMouseHotspot
+            CursorShape.ResizeNS -> AllSettings.resizeNSMouseHotspot
+            CursorShape.ResizeEW -> AllSettings.resizeEWMouseHotspot
+            CursorShape.ResizeAll -> AllSettings.resizeAllMouseHotspot
+            CursorShape.NotAllowed -> AllSettings.notAllowedMouseHotspot
+        }
+    }
+    val hotspot = hotspotUnit.state
+
+    val result by produceState<PointerIcon?>(initialValue = null, mouseFile, hotspot) {
+        value = withContext(Dispatchers.IO) {
+            if (!mouseFile.exists()) return@withContext null
+            val bmp = BitmapFactory.decodeFile(mouseFile.absolutePath) ?: return@withContext null
+            val hotX = (bmp.width * (hotspot.xPercent.toFloat() / 100f)).coerceAtLeast(0f)
+            val hotY = (bmp.height * (hotspot.yPercent.toFloat() / 100f)).coerceAtLeast(0f)
+            PointerIcon(bmp, hotX, hotY)
+        }
+    }
+    return result
 }
 
 /**
