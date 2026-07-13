@@ -57,6 +57,7 @@ import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectorySilently
 import com.movtery.zalithlauncher.utils.logging.Logger
+import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isEqualTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
 import kotlinx.parcelize.Parcelize
@@ -183,17 +184,28 @@ class GameLauncher(
         // OpenAL via System.loadLibrary("openal"). ALSOFT_DRIVERS with
         // opensl/aaudio may cause issues with old OpenAL Soft.
         val mcVer = version.getVersionInfo()?.minecraftVersion
-        val isOldVersion = mcVer != null && try {
-            mcVer.isLowerTo("1.6")
-        } catch (_: Exception) {
-            mcVer.startsWith("b") || mcVer.startsWith("a") || mcVer.contains("old")
-        }
-        if (isOldVersion) {
+        if (mcVer != null && isPre16Version(mcVer)) {
             envMap["ALSOFT_DRIVERS"] = ""
             Logger.info(TAG, "Old version ($mcVer) detected: cleared ALSOFT_DRIVERS for LWJGL 2 OpenAL compat")
         }
 
         return envMap
+    }
+
+    /**
+     * Minecraft < 1.6 uses LWJGL 2 (paulscode sound system).
+     * Returns true for versions like "b1.7.3", "1.5.2", "a1.2.6", "old_alpha".
+     */
+    private fun isPre16Version(mcVer: String): Boolean {
+        // Alpha (a1.x) and Beta (b1.x) versions are all pre-1.0 < 1.6
+        val first = mcVer.firstOrNull()
+        if (first == 'a' || first == 'b') return true
+        if (mcVer.startsWith("old_")) return true
+        return try {
+            mcVer.isLowerTo("1.6")
+        } catch (_: Exception) {
+            false
+        }
     }
 
     override fun dlopenEngine() {
@@ -222,12 +234,7 @@ class GameLauncher(
         // LWJGL 2 uses System.loadLibrary("openal") via java.library.path,
         // LWJGL 3 uses -Dorg.lwjgl.openal.libname. Add library path for old versions.
         val mcVer = version.getVersionInfo()?.minecraftVersion
-        val isOldVersion = mcVer != null && try {
-            mcVer.isLowerTo("1.6")
-        } catch (_: Exception) {
-            mcVer.startsWith("b") || mcVer.startsWith("a") || mcVer.contains("old")
-        }
-        if (isOldVersion) {
+        if (mcVer != null && isPre16Version(mcVer)) {
             args.add("-Dorg.lwjgl.librarypath=${PathManager.DIR_NATIVE_LIB}")
             Logger.info(TAG, "Old version ($mcVer): added org.lwjgl.librarypath for LWJGL 2 compat")
         } else {
