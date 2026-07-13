@@ -21,8 +21,8 @@ package com.movtery.zalithlauncher.game.launch
 import android.app.Activity
 import android.os.Build
 import android.os.Parcelable
-import androidx.annotation.Keep
 import android.widget.Toast
+import androidx.annotation.Keep
 import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
@@ -185,7 +185,10 @@ class GameLauncher(
 
         //声音引擎加载后，dlopen渲染器的库
         RendererPluginManager.selectedRendererPlugin?.let { renderer ->
-            renderer.dlopen.forEach { lib -> ZLBridge.dlopen("${renderer.path}/$lib") }
+            val libs by renderer.getDlopenLibrary()
+            libs.forEach { libPath ->
+                ZLBridge.dlopen(libPath)
+            }
         }
 
         val rendererLib = loadGraphicsLibrary() ?: return
@@ -415,15 +418,8 @@ private fun setRendererEnv(envMap: MutableMap<String, String>) {
  * @return The name of the loaded library
  */
 private fun loadGraphicsLibrary(): String? {
-    if (!Renderers.isCurrentRendererValid()) return null
-    else {
-        val rendererPlugin = RendererPluginManager.selectedRendererPlugin
-        return if (rendererPlugin != null) {
-            "${rendererPlugin.path}/${rendererPlugin.glName}"
-        } else {
-            Renderers.getCurrentRenderer().getRendererLibrary()
-        }
-    }
+    return if (!Renderers.isCurrentRendererValid()) null
+    else Renderers.getCurrentRenderer().getRendererLibrary()
 }
 
 /**
