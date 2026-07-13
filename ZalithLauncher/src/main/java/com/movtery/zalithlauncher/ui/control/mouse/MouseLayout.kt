@@ -370,8 +370,8 @@ private fun customPointerIcon(
         value = withContext(Dispatchers.IO) {
             if (!mouseFile.exists()) return@withContext null
             val bmp = BitmapFactory.decodeFile(mouseFile.absolutePath) ?: return@withContext null
-            val hotX = (bmp.width * (hotspot.xPercent.toFloat() / 100f)).coerceAtLeast(0f)
-            val hotY = (bmp.height * (hotspot.yPercent.toFloat() / 100f)).coerceAtLeast(0f)
+            val hotX = (bmp.width * (hotspot.xPercent.toFloat() / 100f)).coerceIn(0f, bmp.width.toFloat())
+            val hotY = (bmp.height * (hotspot.yPercent.toFloat() / 100f)).coerceIn(0f, bmp.height.toFloat())
             PointerIcon(bmp, hotX, hotY)
         }
     }
