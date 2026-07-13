@@ -81,6 +81,14 @@ import com.movtery.zalithlauncher.ui.control.mouse.notAllowedPointerFile
 import com.movtery.zalithlauncher.ui.control.mouse.resizeAllPointerFile
 import com.movtery.zalithlauncher.ui.control.mouse.resizeEWPointerFile
 import com.movtery.zalithlauncher.ui.control.mouse.resizeNSPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.sysArrowPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.sysCrossHairPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.sysIBeamPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.sysLinkPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.sysNotAllowedPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.sysResizeAllPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.sysResizeEWPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.sysResizeNSPointerFile
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
@@ -164,10 +172,150 @@ fun ControlSettingsScreen(
                             eventViewModel = eventViewModel
                         )
                     }
+                    }
+                }
+
+            AnimatedItem(scope) { yOffset ->
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    SwitchSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
+                        unit = AllSettings.customizeSystemPointer,
+                        title = stringResource(R.string.settings_control_mouse_customize_system_pointer_title),
+                        summary = stringResource(R.string.settings_control_mouse_customize_system_pointer_summary)
+                    )
+
+                    if (AllSettings.customizeSystemPointer.state) {
+                        val sysMouseSize = 32
+
+                        var sysArrowOp by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                        MousePointerCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            title = stringResource(R.string.settings_control_mouse_sys_pointer_arrow_title),
+                            summary = stringResource(R.string.settings_control_mouse_sys_pointer_summary),
+                            mouseSize = sysMouseSize,
+                            mousePointerFile = sysArrowPointerFile,
+                            cursorShape = CursorShape.Arrow,
+                            hotspot = AllSettings.arrowMouseHotspot,
+                            mouseOperation = sysArrowOp,
+                            changeOperation = { sysArrowOp = it },
+                            submitError = submitError
+                        )
+
+                        var sysLinkOp by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                        MousePointerCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            title = stringResource(R.string.settings_control_mouse_sys_pointer_link_title),
+                            summary = stringResource(R.string.settings_control_mouse_sys_pointer_summary),
+                            mouseSize = sysMouseSize,
+                            mousePointerFile = sysLinkPointerFile,
+                            cursorShape = CursorShape.Hand,
+                            hotspot = AllSettings.linkMouseHotspot,
+                            mouseOperation = sysLinkOp,
+                            changeOperation = { sysLinkOp = it },
+                            submitError = submitError
+                        )
+
+                        var sysIBeamOp by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                        MousePointerCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            title = stringResource(R.string.settings_control_mouse_sys_pointer_ibeam_title),
+                            summary = stringResource(R.string.settings_control_mouse_sys_pointer_summary),
+                            mouseSize = sysMouseSize,
+                            mousePointerFile = sysIBeamPointerFile,
+                            cursorShape = CursorShape.IBeam,
+                            hotspot = AllSettings.iBeamMouseHotspot,
+                            mouseOperation = sysIBeamOp,
+                            changeOperation = { sysIBeamOp = it },
+                            submitError = submitError
+                        )
+
+                        var sysCrossHairOp by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                        MousePointerCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            title = stringResource(R.string.settings_control_mouse_sys_pointer_crosshair_title),
+                            summary = stringResource(R.string.settings_control_mouse_sys_pointer_summary),
+                            mouseSize = sysMouseSize,
+                            mousePointerFile = sysCrossHairPointerFile,
+                            cursorShape = CursorShape.CrossHair,
+                            hotspot = AllSettings.crossHairMouseHotspot,
+                            mouseOperation = sysCrossHairOp,
+                            changeOperation = { sysCrossHairOp = it },
+                            submitError = submitError
+                        )
+
+                        var sysResizeNSOp by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                        MousePointerCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            title = stringResource(R.string.settings_control_mouse_sys_pointer_resize_ns_title),
+                            summary = stringResource(R.string.settings_control_mouse_sys_pointer_summary),
+                            mouseSize = sysMouseSize,
+                            mousePointerFile = sysResizeNSPointerFile,
+                            cursorShape = CursorShape.ResizeNS,
+                            hotspot = AllSettings.resizeNSMouseHotspot,
+                            mouseOperation = sysResizeNSOp,
+                            changeOperation = { sysResizeNSOp = it },
+                            submitError = submitError
+                        )
+
+                        var sysResizeEWOp by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                        MousePointerCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            title = stringResource(R.string.settings_control_mouse_sys_pointer_resize_ew_title),
+                            summary = stringResource(R.string.settings_control_mouse_sys_pointer_summary),
+                            mouseSize = sysMouseSize,
+                            mousePointerFile = sysResizeEWPointerFile,
+                            cursorShape = CursorShape.ResizeEW,
+                            hotspot = AllSettings.resizeEWMouseHotspot,
+                            mouseOperation = sysResizeEWOp,
+                            changeOperation = { sysResizeEWOp = it },
+                            submitError = submitError
+                        )
+
+                        var sysResizeAllOp by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                        MousePointerCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            title = stringResource(R.string.settings_control_mouse_sys_pointer_resize_all_title),
+                            summary = stringResource(R.string.settings_control_mouse_sys_pointer_summary),
+                            mouseSize = sysMouseSize,
+                            mousePointerFile = sysResizeAllPointerFile,
+                            cursorShape = CursorShape.ResizeAll,
+                            hotspot = AllSettings.resizeAllMouseHotspot,
+                            mouseOperation = sysResizeAllOp,
+                            changeOperation = { sysResizeAllOp = it },
+                            submitError = submitError
+                        )
+
+                        var sysNotAllowedOp by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                        MousePointerCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Bottom,
+                            title = stringResource(R.string.settings_control_mouse_sys_pointer_not_allowed_title),
+                            summary = stringResource(R.string.settings_control_mouse_sys_pointer_summary),
+                            mouseSize = sysMouseSize,
+                            mousePointerFile = sysNotAllowedPointerFile,
+                            cursorShape = CursorShape.NotAllowed,
+                            hotspot = AllSettings.notAllowedMouseHotspot,
+                            mouseOperation = sysNotAllowedOp,
+                            changeOperation = { sysNotAllowedOp = it },
+                            submitError = submitError
+                        )
+                    }
                 }
             }
 
-            AnimatedItem(scope) { yOffset ->
+                AnimatedItem(scope) { yOffset ->
                 SettingsCardColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -726,6 +874,13 @@ private fun MousePointerCard(
                     centerIcon = true,
                     triggerRefresh = triggerState,
                     crossfade = true
+                )
+
+                IconTextButton(
+                    onClick = { filePicker.launch(Unit) },
+                    painter = painterResource(R.drawable.ic_upload),
+                    contentDescription = stringResource(R.string.generic_import),
+                    text = stringResource(R.string.generic_import)
                 )
 
                 IconTextButton(

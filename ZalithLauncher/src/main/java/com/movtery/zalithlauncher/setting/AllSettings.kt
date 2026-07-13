@@ -180,6 +180,11 @@ object AllSettings : SettingsRegistry() {
     val physicalKeyImeCode = intSetting("physicalKeyImeCode", null)
 
     /**
+     * 自定义系统（物理）鼠标指针
+     */
+    val customizeSystemPointer = boolSetting("customizeSystemPointer", false)
+
+    /**
      * 隐藏虚拟鼠标
      */
     val hideMouse = boolSetting("hideMouse", false)

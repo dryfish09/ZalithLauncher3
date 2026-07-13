@@ -95,6 +95,18 @@ val resizeAllPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("resize_ALL
 val notAllowedPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("not_allowed_pointer.image")
 
 /**
+ * 系统（物理）鼠标指针图标文件
+ */
+val sysArrowPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_default_pointer.image")
+val sysLinkPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_link_pointer.image")
+val sysIBeamPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_ibeam_pointer.image")
+val sysCrossHairPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_crosshair_pointer.image")
+val sysResizeNSPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_resize_NS_pointer.image")
+val sysResizeEWPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_resize_EW_pointer.image")
+val sysResizeAllPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_resize_ALL_pointer.image")
+val sysNotAllowedPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("sys_not_allowed_pointer.image")
+
+/**
  * 虚拟指针模拟层
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
  * @param enableMouseClick          是否开启虚拟鼠标点击操作（仅适用于滑动控制）
