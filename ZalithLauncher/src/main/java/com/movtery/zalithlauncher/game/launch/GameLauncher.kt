@@ -57,8 +57,8 @@ import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectorySilently
 import com.movtery.zalithlauncher.utils.logging.Logger
-import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isEqualTo
+import com.movtery.zalithlauncher.utils.string.isLowerTo
 import kotlinx.parcelize.Parcelize
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
@@ -178,6 +178,21 @@ class GameLauncher(
             setRendererEnv(envMap)
         }
         envMap["ZALITH_VERSION_CODE"] = BuildConfig.VERSION_CODE.toString()
+
+        // Old Minecraft (pre-1.6, LWJGL 2 era) uses paulscode which loads
+        // OpenAL via System.loadLibrary("openal"). ALSOFT_DRIVERS with
+        // opensl/aaudio may cause issues with old OpenAL Soft.
+        val mcVer = version.getVersionInfo()?.minecraftVersion
+        val isOldVersion = mcVer != null && try {
+            mcVer.isLowerTo("1.6")
+        } catch (_: Exception) {
+            mcVer.startsWith("b") || mcVer.startsWith("a") || mcVer.contains("old")
+        }
+        if (isOldVersion) {
+            envMap["ALSOFT_DRIVERS"] = ""
+            Logger.info(TAG, "Old version ($mcVer) detected: cleared ALSOFT_DRIVERS for LWJGL 2 OpenAL compat")
+        }
+
         return envMap
     }
 
@@ -203,7 +218,21 @@ class GameLauncher(
         if (Renderers.isCurrentRendererValid()) {
             args.add("-Dorg.lwjgl.opengl.libname=${loadGraphicsLibrary()}")
         }
-        args.add("-Dorg.lwjgl.openal.libname=${PathManager.DIR_NATIVE_LIB}/libopenal.so")
+
+        // LWJGL 2 uses System.loadLibrary("openal") via java.library.path,
+        // LWJGL 3 uses -Dorg.lwjgl.openal.libname. Add library path for old versions.
+        val mcVer = version.getVersionInfo()?.minecraftVersion
+        val isOldVersion = mcVer != null && try {
+            mcVer.isLowerTo("1.6")
+        } catch (_: Exception) {
+            mcVer.startsWith("b") || mcVer.startsWith("a") || mcVer.contains("old")
+        }
+        if (isOldVersion) {
+            args.add("-Dorg.lwjgl.librarypath=${PathManager.DIR_NATIVE_LIB}")
+            Logger.info(TAG, "Old version ($mcVer): added org.lwjgl.librarypath for LWJGL 2 compat")
+        } else {
+            args.add("-Dorg.lwjgl.openal.libname=${PathManager.DIR_NATIVE_LIB}/libopenal.so")
+        }
     }
 
     private suspend fun launchGame(
