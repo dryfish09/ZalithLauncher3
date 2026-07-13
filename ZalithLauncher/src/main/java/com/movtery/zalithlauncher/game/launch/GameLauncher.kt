@@ -179,7 +179,10 @@ class GameLauncher(
             setRendererEnv(envMap)
         }
         envMap["ZALITH_VERSION_CODE"] = BuildConfig.VERSION_CODE.toString()
-        envMap["ALSOFT_LOGLEVEL"] = "3"
+        val mcVer = version.getVersionInfo()?.minecraftVersion
+        if (mcVer != null && isPre16Version(mcVer)) {
+            envMap["ALSOFT_LOGLEVEL"] = "3"
+        }
 
         return envMap
     }
