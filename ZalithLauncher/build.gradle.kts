@@ -172,12 +172,15 @@ val mobileGluesLibs by tasks.registering {
     val abis = setOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
     doLast {
         val jniLibsDir = file("src/main/jniLibs")
-        val allExist = abis.all { file("$jniLibsDir/$it/libMobileGlues.so").exists() }
-        if (allExist) return@doLast
 
         val apiUrl = URL("https://api.github.com/repos/MobileGL-Dev/MobileGlues-release/releases/latest")
         val conn = apiUrl.openConnection() as java.net.HttpURLConnection
         conn.setRequestProperty("Accept", "application/json")
+        val responseCode = conn.responseCode
+        if (responseCode != 200) {
+            val errorBody = conn.errorStream?.readAllBytes()?.decodeToString() ?: "no body"
+            throw GradleException("MobileGlues API request failed (HTTP $responseCode): $errorBody")
+        }
         val releaseJson = conn.inputStream.readAllBytes().decodeToString()
         conn.disconnect()
 
@@ -188,12 +191,19 @@ val mobileGluesLibs by tasks.registering {
         apkFile.parentFile.mkdirs()
 
         logger.lifecycle("Downloading MobileGlues from $assetUrl")
-        URL(assetUrl).openStream().use { input ->
+        val downloadConn = URL(assetUrl).openConnection() as java.net.HttpURLConnection
+        val downloadCode = downloadConn.responseCode
+        if (downloadCode != 200) {
+            val errorBody = downloadConn.errorStream?.readAllBytes()?.decodeToString() ?: "no body"
+            throw GradleException("MobileGlues download failed (HTTP $downloadCode): $errorBody")
+        }
+        downloadConn.inputStream.use { input ->
             apkFile.outputStream().use { output ->
                 input.copyTo(output)
             }
         }
 
+        var extractedCount = 0
         ZipFile(apkFile).use { zip ->
             abis.forEach { abi ->
                 val outDir = file("$jniLibsDir/$abi")
@@ -210,14 +220,19 @@ val mobileGluesLibs by tasks.registering {
                                 input.copyTo(output)
                             }
                         }
+                        extractedCount++
                         logger.lifecycle("Extracted lib/$abi/$apkName -> $outName")
                     } else {
-                        logger.warn("lib/$abi/$apkName not found in APK")
+                        throw GradleException("Required entry lib/$abi/$apkName not found in MobileGlues APK")
                     }
                 }
             }
         }
         apkFile.delete()
+
+        if (extractedCount == 0) {
+            throw GradleException("MobileGlues: no libraries were extracted — build cannot continue")
+        }
     }
 }
 
