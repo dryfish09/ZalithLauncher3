@@ -35,6 +35,7 @@
 - Resource Pack Info Button Now Redirects to Project Page When Available
 - Default Folder Warning Dialog: Isolated Versions Are Moved When Changing Default Path
 - Default Folder Star Icon and Badge on Folder Items
+- Switched Freedreno and Panfrost renderers from OSMesa to Mesa 26.2 EGL with Kopper support (real hardware presentation)
 
 # Coming Soon
 

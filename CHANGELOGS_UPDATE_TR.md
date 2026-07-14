@@ -35,6 +35,7 @@
 - Kaynak Paketi Bilgi Butonu Artık Uygun Olduğunda Proje Sayfasına Yönlendiriyor
 - Varsayılan Klasör Uyarı Diyaloğu: Varsayılan Yol Değiştirilirken İzole Edilmiş Sürümler Taşınır
 - Klasör Öğelerinde Varsayılan Klasör Yıldız Simgesi ve Rozet
+- Freedreno ve Panfrost render motorları OSMesa'dan Mesa 26.2 EGL + Kopper desteğine geçirildi (gerçek donanım sunumu)
 
 # Yakında
 
