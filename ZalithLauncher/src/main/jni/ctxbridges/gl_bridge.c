@@ -71,9 +71,22 @@ static void gl4esi_get_display_dimensions(int* width, int* height) {
     *height = 0;
 }
 
+static bool gl_is_desktop_gl() {
+    const char *renderer = getenv("POJAV_RENDERER");
+    if (!renderer) return false;
+    if (!strncmp(renderer, "opengles3_desktopgl", 19)) return true;
+    if (!strcmp(renderer, "gallium_freedreno")) return true;
+    if (!strcmp(renderer, "gallium_panfrost")) return true;
+    if (!strcmp(renderer, "vulkan_zink")) return true;
+    if (!strcmp(renderer, "custom_gallium")) return true;
+    return false;
+}
+
 gl_render_window_t* gl_init_context(gl_render_window_t *share) {
     gl_render_window_t* bundle = malloc(sizeof(gl_render_window_t));
     memset(bundle, 0, sizeof(gl_render_window_t));
+    bool desktopGl = gl_is_desktop_gl();
+    EGLint renderable_type = desktopGl ? EGL_OPENGL_BIT : EGL_OPENGL_ES2_BIT;
     EGLint egl_attributes[] = { EGL_BLUE_SIZE, 8,
                     EGL_GREEN_SIZE, 8,
                     EGL_RED_SIZE, 8,
@@ -82,7 +95,7 @@ gl_render_window_t* gl_init_context(gl_render_window_t *share) {
                     EGL_SURFACE_TYPE,
                     EGL_WINDOW_BIT|EGL_PBUFFER_BIT,
                     EGL_RENDERABLE_TYPE,
-                    EGL_OPENGL_ES2_BIT,
+                    renderable_type,
                     EGL_NONE
                     };
     EGLint num_configs = 0;
@@ -109,7 +122,7 @@ gl_render_window_t* gl_init_context(gl_render_window_t *share) {
     {
         EGLBoolean bindResult;
 
-        if (!strncmp(getenv("POJAV_RENDERER"), "opengles3_desktopgl", 19))
+        if (desktopGl)
         {
             printf("EGLBridge: Binding to OpenGL\n");
             bindResult = eglBindAPI_p(EGL_OPENGL_API);
@@ -120,10 +133,14 @@ gl_render_window_t* gl_init_context(gl_render_window_t *share) {
         if (!bindResult) printf("EGLBridge: bind failed: %p\n", eglGetError_p());
     }
 
-    int libgl_es = strtol(getenv("LIBGL_ES"), NULL, 0);
-    if (libgl_es < 0 || libgl_es > INT16_MAX) libgl_es = 2;
-    const EGLint egl_context_attributes[] = { EGL_CONTEXT_CLIENT_VERSION, libgl_es, EGL_NONE };
-    bundle->context = eglCreateContext_p(g_EglDisplay, bundle->config, share == NULL ? EGL_NO_CONTEXT : share->context, egl_context_attributes);
+    if (desktopGl) {
+        bundle->context = eglCreateContext_p(g_EglDisplay, bundle->config, share == NULL ? EGL_NO_CONTEXT : share->context, NULL);
+    } else {
+        int libgl_es = strtol(getenv("LIBGL_ES"), NULL, 0);
+        if (libgl_es < 0 || libgl_es > INT16_MAX) libgl_es = 2;
+        const EGLint egl_context_attributes[] = { EGL_CONTEXT_CLIENT_VERSION, libgl_es, EGL_NONE };
+        bundle->context = eglCreateContext_p(g_EglDisplay, bundle->config, share == NULL ? EGL_NO_CONTEXT : share->context, egl_context_attributes);
+    }
 
     if (bundle->context == EGL_NO_CONTEXT)
     {
@@ -265,6 +282,17 @@ void gl_swap_interval(int swapInterval) {
         return;
     }
     eglSwapInterval_p(g_EglDisplay, swapInterval);
+}
+
+void gl_terminate() {
+    if (g_EglDisplay != EGL_NO_DISPLAY) {
+        if (currentBundle && currentBundle->surface != NULL) {
+            eglMakeCurrent_p(g_EglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        }
+        eglTerminate_p(g_EglDisplay);
+        eglReleaseThread_p();
+        g_EglDisplay = EGL_NO_DISPLAY;
+    }
 }
 
 JNIEXPORT void JNICALL
