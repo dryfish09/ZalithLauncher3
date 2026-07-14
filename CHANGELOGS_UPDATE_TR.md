@@ -36,10 +36,5 @@
 - Varsayılan Klasör Uyarı Diyaloğu: Varsayılan Yol Değiştirilirken İzole Edilmiş Sürümler Taşınır
 - Klasör Öğelerinde Varsayılan Klasör Yıldız Simgesi ve Rozet
 - Freedreno ve Panfrost render motorları OSMesa'dan Mesa 26.2 EGL + Kopper desteğine geçirildi (gerçek donanım sunumu)
-
-# Yakında
-
-- Launcher içi ekran kaydedici
-- launcher içi speedrun timer
-- PojavLauncher veya diğer adıyla ZL1 kontrolleri ve düzenleyicisi (yakında)
+- PojavLauncher (ZL1) kontrolleri ve düzenleyicisi
 

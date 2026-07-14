@@ -36,9 +36,4 @@
 - Default Folder Warning Dialog: Isolated Versions Are Moved When Changing Default Path
 - Default Folder Star Icon and Badge on Folder Items
 - Switched Freedreno and Panfrost renderers from OSMesa to Mesa 26.2 EGL with Kopper support (real hardware presentation)
-
-# Coming Soon
-
-- In-Launcher Screen Recorder
-- In-Launcher Speedrun Timer
-- PojavLauncher or also known as ZL1 controls and editor
+- PojavLauncher (ZL1) Controls and Editor
