@@ -29,12 +29,9 @@
 - Oyun-modpack yüklerken küçültme butonu
 - Zeryth Launcher'dan Dosya Yöneticisi Arayüzü Yeniden Tasarımı
 - İzole Edilmiş Sürümleri Oyun Klasörleri Arasında Taşıma
-- Varsayılan Oyun Klasörü Ayarlama Diyaloğu
 - Kenar Çubuğu Geçiş Düğmesi Hizalaması Düzeltildi
 - Gölgelendirici Paket Öğelerine Bilgi Butonu Eklendi (launcher'dan indirildiyse proje sayfasına yönlendirir)
 - Kaynak Paketi Bilgi Butonu Artık Uygun Olduğunda Proje Sayfasına Yönlendiriyor
-- Varsayılan Klasör Uyarı Diyaloğu: Varsayılan Yol Değiştirilirken İzole Edilmiş Sürümler Taşınır
-- Klasör Öğelerinde Varsayılan Klasör Yıldız Simgesi ve Rozet
 - Freedreno ve Panfrost render motorları OSMesa'dan Mesa 26.2 EGL + Kopper desteğine geçirildi (gerçek donanım sunumu)
 - PojavLauncher (ZL1) kontrolleri ve düzenleyicisi
 
