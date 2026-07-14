@@ -77,6 +77,7 @@ import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.AndroidStringText
 import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
