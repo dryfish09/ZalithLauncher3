@@ -33,5 +33,7 @@ object PanfrostRenderer : RendererInterface {
 
     override fun getDlopenLibrary(): Lazy<List<String>> = lazy { emptyList() }
 
-    override fun getRendererLibrary(): String = "libOSMesa_2300d.so"
+    override fun getRendererLibrary(): String = "libgallium_dri.so"
+
+    override fun getRendererEGL(): String = "libEGL_mesa.so"
 }
