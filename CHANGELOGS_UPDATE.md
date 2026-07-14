@@ -33,4 +33,3 @@
 - Info Button Added to Shader Pack Items (redirects to project page if downloaded from launcher)
 - Resource Pack Info Button Now Redirects to Project Page When Available
 - Switched Freedreno and Panfrost renderers from OSMesa to Mesa 26.2 EGL with Kopper support (real hardware presentation)
-- PojavLauncher (ZL1) Controls and Editor
