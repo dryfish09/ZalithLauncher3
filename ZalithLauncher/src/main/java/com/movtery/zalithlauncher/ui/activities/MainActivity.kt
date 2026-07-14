@@ -112,7 +112,7 @@ private const val TAG = "MainActivity"
 
 @AndroidEntryPoint
 class MainActivity : BaseAppCompatActivity() {
-    override fun isFullScreen(): Boolean = AllSettings.launcherFullScreen.getValue()
+    override fun isIgnoreNotch(): Boolean = AllSettings.launcherFullScreen.getValue()
 
     /**
      * 屏幕堆栈管理ViewModel

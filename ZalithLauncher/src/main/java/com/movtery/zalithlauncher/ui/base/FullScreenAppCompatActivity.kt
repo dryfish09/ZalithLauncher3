@@ -18,78 +18,70 @@
 
 package com.movtery.zalithlauncher.ui.base
 
-import android.graphics.Color
 import android.os.Build
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import android.view.View
+import android.view.View.OnSystemUiVisibilityChangeListener
 import android.view.WindowManager
 import androidx.activity.compose.LocalActivity
 import androidx.annotation.CallSuper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 
 abstract class FullScreenAppCompatActivity : AbstractAppCompatActivity() {
     /**
-     * @return 决定是否启用全屏模式
+     * @return 决定是否忽略前置摄像头区域
      */
-    open fun isFullScreen(): Boolean = false
+    open fun isIgnoreNotch(): Boolean = true
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        applyFullImmersive()
+        applyFullscreen()
     }
 
     @CallSuper
     override fun onPostResume() {
         super.onPostResume()
-        applyFullImmersive()
+        applyFullscreen()
     }
 
-    @CallSuper
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            applyFullImmersive()
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    fun setDisplayCutoutMode(fullScreen: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window?.let { window ->
-                val params = window.attributes
-                val newMode = if (fullScreen) {
-                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                } else {
-                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
+    fun applyFullscreen() {
+        val decorView = window.decorView
+        val visibilityChangeListener = OnSystemUiVisibilityChangeListener { visibility: Int ->
+            if (!isInMultiWindowMode) {
+                if ((visibility and View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                    decorView.systemUiVisibility = (
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            )
                 }
-                if (params.layoutInDisplayCutoutMode != newMode) {
-                    params.layoutInDisplayCutoutMode = newMode
-                    window.attributes = params
-                }
+            } else {
+                decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             }
         }
+        decorView.setOnSystemUiVisibilityChangeListener(visibilityChangeListener)
+        visibilityChangeListener.onSystemUiVisibilityChange(decorView.systemUiVisibility) //call it once since the UI state may not change after the call, so the activity wont become fullscreen
+
+        ignoreNotch()
     }
 
-    @Suppress("DEPRECATION")
-    private fun applyFullImmersive() {
-        window?.let { window ->
-            setDisplayCutoutMode(isFullScreen())
-
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            WindowCompat.getInsetsController(window, window.decorView).apply {
-                hide(WindowInsetsCompat.Type.systemBars())
-                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    private fun ignoreNotch() {
+        if (Build.VERSION.SDK_INT >= VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode = if (isIgnoreNotch()) {
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            } else {
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
             }
-
-            window.navigationBarColor = Color.TRANSPARENT
-            window.statusBarColor = Color.TRANSPARENT
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                window.isNavigationBarContrastEnforced = false
-            }
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+            )
         }
     }
 }
@@ -101,6 +93,6 @@ abstract class FullScreenAppCompatActivity : AbstractAppCompatActivity() {
 fun ObserveFullScreenSetting(fullScreen: Boolean) {
     val activity = LocalActivity.current as? FullScreenAppCompatActivity ?: return
     LaunchedEffect(fullScreen) {
-        activity.setDisplayCutoutMode(fullScreen)
+        activity.applyFullscreen()
     }
 }

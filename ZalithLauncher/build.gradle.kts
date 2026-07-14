@@ -63,7 +63,7 @@ android {
         applicationId = zalithPackageName
         applicationIdSuffix = ".v2"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 34
         versionCode = launcherVersionCode
         versionName = launcherVersionName
         manifestPlaceholders["launcher_name"] = launcherAPPName

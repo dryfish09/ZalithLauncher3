@@ -40,7 +40,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.captionBarPadding
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.runtime.Composable
@@ -316,7 +316,7 @@ class VMViewModel : ViewModel() {
 }
 
 class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolder.Callback {
-    override fun isFullScreen(): Boolean = AllSettings.gameFullScreen.getValue()
+    override fun isIgnoreNotch(): Boolean = AllSettings.gameFullScreen.getValue()
 
     private val errorViewModel: ErrorViewModel by viewModels()
 
@@ -695,7 +695,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .captionBarPadding()
                 .background(Color.Black)
         ) {
             val screenSize = rememberBoxSize()

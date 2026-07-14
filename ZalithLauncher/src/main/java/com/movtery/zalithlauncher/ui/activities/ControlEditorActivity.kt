@@ -25,7 +25,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.captionBarPadding
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
@@ -47,7 +47,7 @@ private const val BUNDLE_CONTROL = "BUNDLE_CONTROL"
 
 @AndroidEntryPoint
 class ControlEditorActivity : BaseAppCompatActivity() {
-    override fun isFullScreen(): Boolean = AllSettings.launcherFullScreen.getValue()
+    override fun isIgnoreNotch(): Boolean = AllSettings.gameFullScreen.getValue()
 
     /** 编辑器 */
     private val editorViewModel: EditorViewModel by viewModels()
@@ -93,7 +93,6 @@ class ControlEditorActivity : BaseAppCompatActivity() {
                     BoxWithConstraints(
                         modifier = Modifier
                             .fillMaxSize()
-                            .captionBarPadding()
                     ) {
                         Background(
                             modifier = Modifier.fillMaxSize(),
