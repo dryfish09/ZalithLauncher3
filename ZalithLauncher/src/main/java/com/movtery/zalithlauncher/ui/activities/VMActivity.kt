@@ -41,6 +41,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.runtime.Composable
@@ -91,7 +92,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.terracotta.TerracottaVPNService
 import com.movtery.zalithlauncher.ui.base.BaseAppCompatActivity
-import com.movtery.zalithlauncher.ui.base.applyFullscreen
+import com.movtery.zalithlauncher.ui.base.ObserveFullScreenSetting
 import com.movtery.zalithlauncher.ui.components.rememberBoxSize
 import com.movtery.zalithlauncher.ui.control.input.HidableInputLayout
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
@@ -337,6 +338,8 @@ class VMViewModel : ViewModel() {
 }
 
 class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolder.Callback {
+    override fun isIgnoreNotch(): Boolean = AllSettings.gameFullScreen.getValue()
+
     private val errorViewModel: ErrorViewModel by viewModels()
 
     private val eventViewModel: EventViewModel by viewModels()
@@ -474,6 +477,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
 
         setContent {
             ZalithLauncherTheme {
+                ObserveFullScreenSetting(AllSettings.gameFullScreen.state)
                 Screen {
                     withHandler {
                         ComposableLayout(vmViewModel.textInputMode)
@@ -744,7 +748,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
 
         BoxWithConstraints(
             modifier = Modifier
-                .applyFullscreen(AllSettings.gameFullScreen.state)
+                .fillMaxSize()
                 .background(Color.Black)
         ) {
             val screenSize = rememberBoxSize()

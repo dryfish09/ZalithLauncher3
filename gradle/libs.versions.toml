@@ -1,5 +1,7 @@
 [versions]
 agp = "9.2.0"
+targetSdk = "34"
+minSdk = "26"
 #noinspection GradleDependency,NewerVersionAvailable
 bytehook = "1.0.10"
 coilCompose = "3.5.0"
