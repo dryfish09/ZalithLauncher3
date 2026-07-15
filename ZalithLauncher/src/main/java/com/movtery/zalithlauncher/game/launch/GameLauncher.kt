@@ -421,15 +421,19 @@ private fun setRendererEnv(envMap: MutableMap<String, String>) {
     if (RendererPluginManager.selectedRendererPlugin != null) return
 
     if (renderer != GL4ESRenderer && renderer != NGGL4ESRenderer) {
+        val isZink = rendererId.startsWith("vulkan_zink") || rendererId.contains("zink")
         val mesaDriver = when {
             rendererId == "gallium_freedreno" -> "freedreno"
             rendererId == "gallium_panfrost" -> "panfrost"
-            rendererId.startsWith("vulkan_zink") || rendererId.contains("zink") -> "zink"
+            isZink -> "zink"
             rendererId == "custom_gallium" -> null
             else -> null
         }
         if (mesaDriver != null) {
             envMap["MESA_LOADER_DRIVER_OVERRIDE"] = mesaDriver
+        }
+        if (isZink) {
+            envMap["MESA_ANDROID_NO_KMS_SWRAST"] = "0"
         }
         envMap["MESA_GLSL_CACHE_DIR"] = PathManager.DIR_CACHE.absolutePath
         envMap["MESA_GL_VERSION_OVERRIDE"] = "4.6"
