@@ -34,3 +34,4 @@
 - Resource Pack Info Button Now Redirects to Project Page When Available
 - File manager button moved from sidebar to top bar
 - Fixed create folder dialog not dismissing after creation
+- Upgraded OSMesa to Mesa 25.0.0 with Zink gallium driver (GPU-accelerated OpenGL via Vulkan)

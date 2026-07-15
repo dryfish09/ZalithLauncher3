@@ -34,4 +34,5 @@
 - Kaynak Paketi Bilgi Butonu Artık Uygun Olduğunda Proje Sayfasına Yönlendiriyor
 - Dosya yöneticisi butonu yan menüden üst çubuğa taşındı
 - Klasör oluşturma dialogunun oluşturma sonrası kapanmaması düzeltildi
+- OSMesa, Zink gallium sürücüsüyle Mesa 25.0.0'a yükseltildi (Vulkan üzerinden GPU hızlandırmalı OpenGL)
 
