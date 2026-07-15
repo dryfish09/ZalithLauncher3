@@ -933,7 +933,7 @@
     <string name="control_editor_menu_preview_is_gamepad">Usando controle físico</string>
     <string name="control_editor_menu_widget_snap">Ajuste de controle</string>
     <string name="control_editor_menu_widget_snap_all_layers">Ajustar a todas as camadas de controle</string>
-    <string name="control_editor_menu_widget_snap_mode">Modo de encaixe de controles</string>
+    <string name="control_editor_menu_widget_snap_mode">Modo de encaixe de controle</string>
     <string name="control_editor_menu_widget_snap_mode_fullscreen">Ajuste de tela cheia</string>
     <string name="control_editor_menu_widget_snap_mode_local">Ajuste local</string>
     <string name="control_editor_menu_save_and_exit">Salvar e sair</string>
