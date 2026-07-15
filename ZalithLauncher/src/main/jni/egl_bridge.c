@@ -10,7 +10,9 @@
 #include <unistd.h>
 
 #include <EGL/egl.h>
+#include <GL/osmesa.h>
 #include "ctxbridges/egl_loader.h"
+#include "ctxbridges/osmesa_loader.h"
 #include "ctxbridges/renderer_config.h"
 #include "ctxbridges/virgl_bridge.h"
 #include "driver_helper/nsbypass.h"
@@ -28,6 +30,7 @@
 #include <time.h>
 #include "utils.h"
 #include "ctxbridges/bridge_tbl.h"
+#include "ctxbridges/osm_bridge.h"
 
 #define GLFW_CLIENT_API 0x22001
 /* Consider GLFW_NO_API as Vulkan API */
@@ -63,7 +66,7 @@ EXTERNAL_API void pojavTerminate() {
 
             //case RENDERER_VIRGL:
         case RENDERER_VK_ZINK: {
-            gl_terminate();
+            // Nothing to do here
         } break;
     }
 }
@@ -133,7 +136,7 @@ int pojavInitOpenGL() {
     {
         pojav_environ->config_renderer = RENDERER_VK_ZINK;
         load_vulkan();
-        set_gl_bridge_tbl();
+        set_osm_bridge_tbl();
     }
 
     if (!strcmp(renderer, "vulkan_zink"))
@@ -141,7 +144,7 @@ int pojavInitOpenGL() {
         pojav_environ->config_renderer = RENDERER_VK_ZINK;
         load_vulkan();
         setenv("GALLIUM_DRIVER", "zink", 1);
-        set_gl_bridge_tbl();
+        set_osm_bridge_tbl();
     }
 
     if (!strcmp(renderer, "gallium_freedreno"))
@@ -150,7 +153,7 @@ int pojavInitOpenGL() {
         load_vulkan();
         setenv("MESA_LOADER_DRIVER_OVERRIDE", "kgsl", 1);
         setenv("GALLIUM_DRIVER", "freedreno", 1);
-        set_gl_bridge_tbl();
+        set_osm_bridge_tbl();
     }
 
     if (!strcmp(renderer, "gallium_panfrost"))
@@ -158,7 +161,7 @@ int pojavInitOpenGL() {
         pojav_environ->config_renderer = RENDERER_VK_ZINK;
         setenv("GALLIUM_DRIVER", "panfrost", 1);
         setenv("MESA_DISK_CACHE_SINGLE_FILE", "1", 1);
-        set_gl_bridge_tbl();
+        set_osm_bridge_tbl();
     }
 
     if (!strcmp(renderer, "gallium_virgl"))
