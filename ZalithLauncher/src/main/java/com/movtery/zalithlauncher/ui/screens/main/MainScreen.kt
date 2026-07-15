@@ -223,6 +223,11 @@ fun MainScreen(
                         screenKey = NormalNavKey.Multiplayer
                     )
                 },
+                toFileManagerScreen = {
+                    screenBackStackModel.mainScreen.navigateTo(
+                        screenKey = NormalNavKey.BuiltInFileManager()
+                    )
+                },
                 changeExpandedState = {
                     changeTasksExpandedState()
                 },
@@ -270,11 +275,13 @@ private fun <E: TitledNavKey> TopBar(
     toMainScreen: () -> Unit,
     toSettingsScreen: () -> Unit,
     toDownloadScreen: () -> Unit,
+    toFileManagerScreen: () -> Unit,
     toMultiplayerScreen: () -> Unit,
     changeExpandedState: () -> Unit,
 ) {
     val festivals = LocalFestivals.current
 
+    val inFileManagerScreen = mainScreenKey is NormalNavKey.BuiltInFileManager
     val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
     val inDownloadScreen = mainScreenKey is NestedNavKey.Download
     val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
@@ -429,6 +436,15 @@ private fun <E: TitledNavKey> TopBar(
                         )
                     }
                 }
+
+                TopBarRailItem(
+                    selected = inFileManagerScreen,
+                    painter = painterResource(R.drawable.ic_folder_outlined),
+                    text = stringResource(R.string.page_title_file_manager),
+                    onClick = {
+                        if (!inFileManagerScreen) toFileManagerScreen()
+                    },
+                )
 
                 TopBarRailItem(
                     selected = inMultiplayerScreen,
