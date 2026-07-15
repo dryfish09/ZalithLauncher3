@@ -127,7 +127,7 @@ int pojavInitOpenGL() {
         if (!strcmp(renderer, "opengles3_desktopgl_zink_kopper")) {
             load_vulkan();
             setenv("GALLIUM_DRIVER", "zink", 1);
-            setenv("MESA_ANDROID_NO_KMS_SWRAST", "1", 0);
+            setenv("MESA_ANDROID_NO_KMS_SWRAST", "1", 1);
         }
         set_gl_bridge_tbl();
     }
