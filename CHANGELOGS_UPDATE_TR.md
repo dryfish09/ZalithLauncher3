@@ -32,5 +32,6 @@
 - Kenar Çubuğu Geçiş Düğmesi Hizalaması Düzeltildi
 - Gölgelendirici Paket Öğelerine Bilgi Butonu Eklendi (launcher'dan indirildiyse proje sayfasına yönlendirir)
 - Kaynak Paketi Bilgi Butonu Artık Uygun Olduğunda Proje Sayfasına Yönlendiriyor
-- Freedreno ve Panfrost render motorları OSMesa'dan Mesa 26.2 EGL + Kopper desteğine geçirildi (gerçek donanım sunumu)
+- Dosya yöneticisi butonu yan menüden üst çubuğa taşındı
+- Klasör oluşturma dialogunun oluşturma sonrası kapanmaması düzeltildi
 

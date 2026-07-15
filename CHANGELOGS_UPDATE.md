@@ -32,4 +32,5 @@
 - Fixed Sidebar Toggle Button Alignment
 - Info Button Added to Shader Pack Items (redirects to project page if downloaded from launcher)
 - Resource Pack Info Button Now Redirects to Project Page When Available
-- Switched Freedreno and Panfrost renderers from OSMesa to Mesa 26.2 EGL with Kopper support (real hardware presentation)
+- File manager button moved from sidebar to top bar
+- Fixed create folder dialog not dismissing after creation
