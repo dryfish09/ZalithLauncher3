@@ -426,7 +426,7 @@ private fun setRendererEnv(envMap: MutableMap<String, String>) {
             rendererId == "gallium_panfrost" -> "panfrost"
             rendererId.startsWith("vulkan_zink") || rendererId.contains("zink") -> "zink"
             rendererId == "custom_gallium" -> null
-            else -> "zink"
+            else -> null
         }
         if (mesaDriver != null) {
             envMap["MESA_LOADER_DRIVER_OVERRIDE"] = mesaDriver

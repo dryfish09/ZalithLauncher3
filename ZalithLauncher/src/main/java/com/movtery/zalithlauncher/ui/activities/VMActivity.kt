@@ -776,7 +776,8 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                     },
                 factory = { context ->
                     val useSurfaceView = AllSettings.useSurfaceView.getValue() &&
-                        Renderers.getCurrentRenderer().getUniqueIdentifier() != KopperZinkRenderer.getUniqueIdentifier()
+                        (!Renderers.isCurrentRendererValid() ||
+                        Renderers.getCurrentRenderer().getUniqueIdentifier() != KopperZinkRenderer.getUniqueIdentifier())
                     if (useSurfaceView) {
                         SurfaceView(context).apply {
                             holder.addCallback(this@VMActivity)
