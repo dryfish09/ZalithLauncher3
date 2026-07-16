@@ -298,6 +298,9 @@
     <string name="download_assets_filter_search_name">Search Name</string>
     <string name="download_assets_filter_search_platform">Target Platform</string>
     <string name="download_assets_filter_game_version">Game Version</string>
+    <string name="download_assets_filter_game_version_stable">Stable</string>
+    <string name="download_assets_filter_game_version_snapshots">Snapshots</string>
+    <string name="download_assets_filter_game_version_installed">Installed</string>
     <string name="download_assets_filter_category">Category</string>
     <string name="download_assets_filter_modloader">Mod Loader</string>
     <string name="download_assets_filter_none">None Selected</string>
