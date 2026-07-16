@@ -53,7 +53,7 @@ object TurnipDownloader {
     private val client = OkHttpClient()
     private val json = Json { ignoreUnknownKeys = true }
 
-    fun getRepo(): String = AllSettings.turnipRepo.state ?: "K11MCH1/AdrenoToolsDrivers"
+    fun getRepo(): String = AllSettings.turnipRepo.state ?: "StevenMXZ/Adreno-Tools-Drivers"
 
     private fun getRepoApi(): String = "https://api.github.com/repos/${getRepo()}/releases"
 
