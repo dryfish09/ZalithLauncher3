@@ -7,12 +7,6 @@
 
 **Zalith Launcher 2+** is a community-modified launcher for **Android devices** tailored for [Minecraft: Java Edition](https://www.minecraft.net/). It builds upon the foundation of [Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2), utilizing [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) as its core launching engine with a modern UI built using **Jetpack Compose** and **Material Design 3**.
 
-<p align="center">
-  <a href="https://git.io/typing-svg">
-    <img src="https://readme-typing-svg.demolab.com?font=Geist+Pixel&size=25&duration=1500&pause=500&color=75D1FF&random=true&width=290&height=35&lines=Tons+of+Features;Many+Renderers;70%2B+Completed+Issues;Amazing+UI" alt="Typing SVG" />
-  </a>
-</p>
-
 ## Some Statistics
 
 July 14, 2026:
