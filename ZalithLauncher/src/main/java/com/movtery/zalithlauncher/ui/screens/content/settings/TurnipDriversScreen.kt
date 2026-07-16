@@ -6,7 +6,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import kotlinx.coroutines.CoroutineScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.FloatingActionButton
@@ -281,8 +283,41 @@ fun TurnipDriversScreen(
                                             text = stringResource(R.string.stats_no_data),
                                             style = MaterialTheme.typography.bodyMedium
                                         )
-                                    }
-                                }
+    }
+}
+
+@Composable
+private fun ScrollToTopFloatingButton(
+    visible: Boolean,
+    listState: LazyListState,
+    scope: kotlinx.coroutines.CoroutineScope
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+        ) {
+            FloatingActionButton(
+                onClick = {
+                    scope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            ) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowUp,
+                    contentDescription = stringResource(R.string.generic_scroll_top)
+                )
+            }
+        }
+    }
+}
                             } else {
                                 items(entries!!, key = { "${it.release.tagName}_${it.asset.name}" }) { entry ->
                                     DriverEntry(entry = entry, onClick = {
@@ -292,33 +327,11 @@ fun TurnipDriversScreen(
                             }
                         }
 
-                        Box(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            AnimatedVisibility(
-                                visible = showUpButton,
-                                enter = fadeIn(),
-                                exit = fadeOut(),
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .padding(16.dp)
-                            ) {
-                                FloatingActionButton(
-                                    onClick = {
-                                        scope.launch {
-                                            listState.animateScrollToItem(0)
-                                        }
-                                    },
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.KeyboardArrowUp,
-                                        contentDescription = stringResource(R.string.generic_scroll_top)
-                                    )
-                                }
-                            }
-                        }
+                        ScrollToTopFloatingButton(
+                            visible = showUpButton,
+                            listState = listState,
+                            scope = scope
+                        )
                     }
                 } 
             } 
