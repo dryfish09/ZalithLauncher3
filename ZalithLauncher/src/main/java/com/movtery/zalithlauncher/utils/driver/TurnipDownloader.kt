@@ -95,16 +95,11 @@ object TurnipDownloader {
             }
 
             releases.forEach { release ->
-                val version = parseVersion(release.tagName)
-                if (version >= 23) {
-                    val zipAssets = release.assets.filter { it.name.endsWith(".zip", ignoreCase = true) }
-                    if (zipAssets.isNotEmpty()) {
-                        result.add(TurnipRelease(release.tagName, zipAssets))
-                    }
-                } else if (version < 23) {
-                    hasMore = false
+                val zipAssets = release.assets.filter { it.name.endsWith(".zip", ignoreCase = true) }
+                if (zipAssets.isNotEmpty()) {
+                    result.add(TurnipRelease(release.tagName, zipAssets))
                 }
-            }
+            } // being more spesific isnt good -revon
 
             page++
         }
