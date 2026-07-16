@@ -19,7 +19,9 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -37,6 +39,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
@@ -164,12 +167,12 @@ fun RendererSettingsScreen(
                         .fillMaxWidth()
                         .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    OutlinedButton(
-                        modifier = Modifier.fillMaxWidth(),
+                    RunBenchmarkPill(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
                         onClick = { showBenchmark = true }
-                    ) {
-                        Text(stringResource(R.string.benchmark_run))
-                    }
+                    )
 
                     ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
@@ -552,6 +555,48 @@ fun DriverSummaryLayout(driver: Driver) {
             Text(
                 modifier = Modifier.alpha(0.7f),
                 text = text, style = MaterialTheme.typography.labelSmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun RunBenchmarkPill(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val gradient = remember(colorScheme) {
+        Brush.horizontalGradient(
+            listOf(colorScheme.primary, colorScheme.tertiary)
+        )
+    }
+
+    Surface(
+        modifier = modifier,
+        shape = CircleShape,
+        color = Color.Transparent,
+        shadowElevation = 3.dp,
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier
+                .background(brush = gradient, shape = CircleShape)
+                .padding(horizontal = 20.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_rocket_launch_filled),
+                contentDescription = null,
+                tint = colorScheme.onPrimary,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                modifier = Modifier.padding(start = 10.dp),
+                text = stringResource(R.string.benchmark_run),
+                style = MaterialTheme.typography.titleSmall,
+                color = colorScheme.onPrimary
             )
         }
     }
