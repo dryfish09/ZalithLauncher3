@@ -95,14 +95,25 @@ private class SearchScreenViewModel(
     var searchPlatform by mutableStateOf(initialPlatform)
     var searchFilter by mutableStateOf(PlatformSearchFilter())
 
+    /** 过滤器变更时的回调，由外部设置以持久化保存过滤器 */
+    var onFilterChange: (PlatformSearchFilter) -> Unit = {}
+
     private val _searchedMcMods = MutableStateFlow<List<ModTranslations.McMod>>(emptyList())
     /** 搜索得到的所有 MCMOD 项目 */
     val searchedMcMods = _searchedMcMods.asStateFlow()
     var currentSearchJob: Job? = null
     var currentSearchMCMODSJob: Job? = null
 
-    /** Issue #9: 已安装的Minecraft版本号（用于在版本列表顶部显示） */
-    val installedVersionIds: List<String> = VersionsManager.versions.value.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct()
+    /**
+     * Issue #9: 已安装的Minecraft版本号（用于在版本列表顶部显示，并渲染已安装星标）。
+     * 持续订阅 [VersionsManager.versions]，因此安装/删除版本、导入/移除实例后会自动刷新，
+     * 无需重启启动器；缓存为一个已 distinct 的 List，滚动时不会重复触发文件系统扫描——
+     * 真正的扫描仍然只发生在 VersionsManager.refresh() 内部（由安装/删除/导入等操作触发）。
+     */
+    var installedVersionIds: List<String> by mutableStateOf(
+        VersionsManager.versions.value.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct()
+    )
+        private set
 
     /**
      * 仅更新搜索名称
@@ -191,6 +202,12 @@ private class SearchScreenViewModel(
     }
 
     init {
+        viewModelScope.launch {
+            VersionsManager.versions.collect { versions ->
+                installedVersionIds = versions.mapNotNull { it.getVersionInfo()?.minecraftVersion }.distinct()
+            }
+        }
+
         //从 MMKV 恢复持久化的过滤器状态
         if (filterPersistenceKey != null) {
             val filter = loadSearchFilter(filterPersistenceKey)
@@ -223,8 +240,8 @@ private class SearchScreenViewModel(
             }
         }
 
-        // Issue #9: 如果只有一个已安装版本，自动预选该版本
-        if (installedVersionIds.size == 1) {
+        // Issue #9: 如果只有一个已安装版本，且用户未保存过版本偏好，则自动预选该版本
+        if (searchFilter.gameVersion == null && installedVersionIds.size == 1) {
             searchFilter = searchFilter.copy(gameVersion = installedVersionIds.first())
         }
 
@@ -264,6 +281,8 @@ private fun rememberSearchAssetsViewModel(
  * @param initialPlatform 初始搜索平台
  * @param onPlatformChange 搜索平台变更
  * @param enablePlatform 是否允许更改平台
+ * @param initialFilter 初始过滤器，从持久化存储中恢复（不含搜索文本和分页参数）
+ * @param onFilterChange 过滤器（排序/版本/分类/加载器）变更时的回调，用于持久化保存
  * @param getCategories 根据平台获取可用的资源类别过滤器
  * @param enableModLoader 是否允许更改模组加载器
  * @param getModloaders 根据平台获取可用的模组加载器过滤器
@@ -283,6 +302,8 @@ fun SearchAssetsScreen(
     initialPlatform: Platform,
     onPlatformChange: (Platform) -> Unit = {},
     enablePlatform: Boolean = true,
+    initialFilter: PlatformSearchFilter = PlatformSearchFilter(),
+    onFilterChange: ((Platform, PlatformSearchFilter) -> Unit)? = null,
     getCategories: (Platform) -> List<PlatformFilterCode>,
     enableModLoader: Boolean = false,
     getModloaders: (Platform) -> List<PlatformDisplayLabel> = { emptyList() },
@@ -299,6 +320,13 @@ fun SearchAssetsScreen(
         getCategories = getCategories,
         getModloaders = getModloaders
     )
+
+    // 每次重组时更新 ViewModel 的过滤器变更回调
+    viewModel.onFilterChange = if (onFilterChange != null) {
+        { filter -> onFilterChange(viewModel.searchPlatform, filter) }
+    } else {
+        {}
+    }
 
     //跟随平台自动变更的内容
     val categories = remember(viewModel.searchPlatform) {
