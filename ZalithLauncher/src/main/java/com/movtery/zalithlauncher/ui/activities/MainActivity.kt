@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.activities
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -30,8 +31,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
@@ -86,6 +93,7 @@ import com.movtery.zalithlauncher.utils.isChinese
 import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.network.openLink
 import com.movtery.zalithlauncher.utils.network.openLinkInternal
+import com.movtery.zalithlauncher.utils.PlayerNoticeManager
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -486,6 +494,8 @@ class MainActivity : BaseAppCompatActivity() {
                         AllSettings.autoVulkanChecker.save(false)
                     }
                 )
+
+                PlayerNoticeDialog()
             }
         }
     }
@@ -842,5 +852,42 @@ class MainActivity : BaseAppCompatActivity() {
             return true
         }
         return super.dispatchKeyEvent(event)
+    }
+}
+
+@Composable
+private fun PlayerNoticeDialog() {
+    var content by remember { mutableStateOf("") }
+    var isDismissed by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            val notice = PlayerNoticeManager.fetchNotice()
+            if (notice.isNotEmpty()) {
+                if (PlayerNoticeManager.isDismissed(notice)) {
+                    if (content != notice) {
+                        isDismissed = false
+                    } else {
+                        isDismissed = true
+                    }
+                    content = notice
+                } else {
+                    content = notice
+                    isDismissed = false
+                }
+            }
+            delay(60_000)
+        }
+    }
+
+    if (content.isNotEmpty() && !isDismissed) {
+        SimpleAlertDialog(
+            title = stringResource(R.string.generic_info),
+            text = content,
+            onDismiss = {
+                PlayerNoticeManager.dismiss(content)
+                isDismissed = true
+            }
+        )
     }
 }
