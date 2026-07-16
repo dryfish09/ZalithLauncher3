@@ -114,9 +114,32 @@ fun TurnipDriversScreen(
                         context.contentResolver.openInputStream(uri)?.use { input ->
                             cacheFile.outputStream().use { output ->
                                 input.copyTo(output)
-                            }
-                        }
-                    }
+        }
+    }
+}
+
+@Composable
+private fun ScrollToTopFAB(visible: Boolean, onClick: () -> Unit) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(16.dp)
+    ) {
+        FloatingActionButton(
+            onClick = onClick,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowUp,
+                contentDescription = stringResource(R.string.generic_scroll_top)
+            )
+        }
+    }
+}
                     TurnipDownloader.importDriverZip(context, cacheFile)
                 }
             }
@@ -294,29 +317,14 @@ fun TurnipDriversScreen(
                             }
                         }
 
-                        AnimatedVisibility(
+                        ScrollToTopFAB(
                             visible = showUpButton,
-                            enter = fadeIn(),
-                            exit = fadeOut(),
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(16.dp)
-                        ) {
-                            FloatingActionButton(
-                                onClick = {
-                                    scope.launch {
-                                        listState.animateScrollToItem(0)
-                                    }
-                                },
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowUp,
-                                    contentDescription = stringResource(R.string.generic_scroll_top)
-                                )
+                            onClick = {
+                                scope.launch {
+                                    listState.animateScrollToItem(0)
+                                }
                             }
-                        }
+                        )
                     }
                 }
             }
