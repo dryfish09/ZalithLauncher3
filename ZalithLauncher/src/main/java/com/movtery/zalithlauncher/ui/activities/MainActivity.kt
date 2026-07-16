@@ -34,6 +34,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -860,23 +863,33 @@ private fun PlayerNoticeDialog() {
     var content by remember { mutableStateOf("") }
     var isDismissed by remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) {
-        while (true) {
-            val notice = PlayerNoticeManager.fetchNotice()
-            if (notice.isNotEmpty()) {
-                if (PlayerNoticeManager.isDismissed(notice)) {
-                    if (content != notice) {
-                        isDismissed = false
-                    } else {
-                        isDismissed = true
-                    }
-                    content = notice
-                } else {
-                    content = notice
+    suspend fun fetch() {
+        val notice = PlayerNoticeManager.fetchNotice()
+        if (notice.isNotEmpty()) {
+            if (PlayerNoticeManager.isDismissed(notice)) {
+                if (content != notice) {
                     isDismissed = false
                 }
+                content = notice
+            } else {
+                content = notice
+                isDismissed = false
             }
-            delay(60_000)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        fetch()
+        while (true) {
+            delay(90_000)
+            fetch()
+        }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            fetch()
         }
     }
 
