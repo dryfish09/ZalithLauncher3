@@ -174,15 +174,25 @@ val mobileGluesLibs by tasks.registering {
         val jniLibsDir = file("src/main/jniLibs")
 
         val apiUrl = URL("https://api.github.com/repos/MobileGL-Dev/MobileGlues-release/releases/latest")
-        val conn = apiUrl.openConnection() as java.net.HttpURLConnection
-        conn.setRequestProperty("Accept", "application/json")
-        val responseCode = conn.responseCode
-        if (responseCode != 200) {
-            val errorBody = conn.errorStream?.readAllBytes()?.decodeToString() ?: "no body"
-            throw GradleException("MobileGlues API request failed (HTTP $responseCode): $errorBody")
-        }
-        val releaseJson = conn.inputStream.readAllBytes().decodeToString()
-        conn.disconnect()
+        val releaseJson = retryWithBackoff(maxRetries = 5, initialDelayMs = 2000) { attempt ->
+            val conn = apiUrl.openConnection() as java.net.HttpURLConnection
+            conn.setRequestProperty("Accept", "application/json")
+            val responseCode = conn.responseCode
+            if (responseCode == 200) {
+                val body = conn.inputStream.readAllBytes().decodeToString()
+                conn.disconnect()
+                body
+            } else {
+                val errorBody = conn.errorStream?.readAllBytes()?.decodeToString() ?: "no body"
+                conn.disconnect()
+                if (responseCode == 403) {
+                    logger.warn("MobileGlues API rate limited (attempt $attempt), retrying...")
+                    null
+                } else {
+                    throw GradleException("MobileGlues API request failed (HTTP $responseCode): $errorBody")
+                }
+            }
+        } ?: throw GradleException("MobileGlues API request failed after retries — rate limited.")
 
         val assetUrl = Regex("\"browser_download_url\":\"([^\"]+\\.apk)\"").find(releaseJson)?.groupValues?.get(1)
             ?: throw GradleException("No APK asset found in latest MobileGlues release")
@@ -234,6 +244,23 @@ val mobileGluesLibs by tasks.registering {
             throw GradleException("MobileGlues: no libraries were extracted — build cannot continue")
         }
     }
+}
+
+fun retryWithBackoff(
+    maxRetries: Int,
+    initialDelayMs: Long,
+    action: (attempt: Int) -> String?
+): String? {
+    var delay = initialDelayMs
+    for (attempt in 1..maxRetries) {
+        val result = action(attempt)
+        if (result != null) return result
+        if (attempt < maxRetries) {
+            Thread.sleep(delay)
+            delay *= 2
+        }
+    }
+    return null
 }
 
 val nativeLibPluginLibs by tasks.registering {
