@@ -6,9 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import kotlinx.coroutines.CoroutineScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.FloatingActionButton
@@ -114,32 +112,9 @@ fun TurnipDriversScreen(
                         context.contentResolver.openInputStream(uri)?.use { input ->
                             cacheFile.outputStream().use { output ->
                                 input.copyTo(output)
-        }
-    }
-}
-
-@Composable
-private fun ScrollToTopFAB(visible: Boolean, onClick: () -> Unit) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(),
-        exit = fadeOut(),
-        modifier = Modifier
-            .align(Alignment.BottomEnd)
-            .padding(16.dp)
-    ) {
-        FloatingActionButton(
-            onClick = onClick,
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-        ) {
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowUp,
-                contentDescription = stringResource(R.string.generic_scroll_top)
-            )
-        }
-    }
-}
+                            }
+                        }
+                    }
                     TurnipDownloader.importDriverZip(context, cacheFile)
                 }
             }
@@ -248,9 +223,9 @@ private fun ScrollToTopFAB(visible: Boolean, onClick: () -> Unit) {
                                 painter = painterResource(R.drawable.ic_edit_outlined),
                                 contentDescription = stringResource(R.string.generic_edit),
                                 modifier = Modifier.size(22.dp)
-                            )
-                        }
-                    }
+        )
+    }
+}
                 }
 
                 when {
@@ -323,15 +298,16 @@ private fun ScrollToTopFAB(visible: Boolean, onClick: () -> Unit) {
                                 scope.launch {
                                     listState.animateScrollToItem(0)
                                 }
-                            }
+                            },
+                            modifier = Modifier.align(Alignment.TopEnd)
                         )
                     }
-                }
-            }
-        }
-    }
-}
-
+                } 
+            } 
+        } 
+    } 
+} 
+	
 
 @Composable
 private fun InstalledDriverEntry(name: String, onDeleteClick: () -> Unit) {
@@ -405,6 +381,31 @@ private fun DriverEntry(entry: TurnipEntry, onClick: () -> Unit) {
                 modifier = Modifier
                     .padding(start = 12.dp)
                     .alpha(0.6f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ScrollToTopFAB(
+    visible: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = modifier.padding(16.dp)
+    ) {
+        FloatingActionButton(
+            onClick = onClick,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowUp,
+                contentDescription = stringResource(R.string.generic_scroll_top)
             )
         }
     }
