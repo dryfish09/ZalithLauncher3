@@ -292,27 +292,31 @@ fun TurnipDriversScreen(
                             }
                         }
 
-                        AnimatedVisibility(
-                            visible = showUpButton,
-                            enter = fadeIn(),
-                            exit = fadeOut(),
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(16.dp)
+                        Box(
+                            modifier = Modifier.fillMaxSize()
                         ) {
-                            FloatingActionButton(
-                                onClick = {
-                                    scope.launch {
-                                        listState.animateScrollToItem(0)
-                                    }
-                                },
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            AnimatedVisibility(
+                                visible = showUpButton,
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(16.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowUp,
-                                    contentDescription = stringResource(R.string.generic_scroll_top)
-                                )
+                                FloatingActionButton(
+                                    onClick = {
+                                        scope.launch {
+                                            listState.animateScrollToItem(0)
+                                        }
+                                    },
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowUp,
+                                        contentDescription = stringResource(R.string.generic_scroll_top)
+                                    )
+                                }
                             }
                         }
                     }
