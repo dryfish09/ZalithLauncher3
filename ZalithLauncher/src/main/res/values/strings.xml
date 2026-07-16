@@ -89,6 +89,7 @@
     <string name="generic_view">View</string>
     <string name="generic_info">Info</string>
     <string name="generic_minimize">Minimize</string>
+    <string name="generic_scroll_top">Scroll to Top</string>
     <!-- Page Title -->
     <string name="page_title_version_list">Version List</string>
     <string name="page_title_version_manage">Manage Versions</string>

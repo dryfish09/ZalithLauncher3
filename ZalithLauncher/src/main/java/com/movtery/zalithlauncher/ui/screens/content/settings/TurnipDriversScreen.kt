@@ -3,6 +3,14 @@ package com.movtery.zalithlauncher.ui.screens.content.settings
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -86,6 +94,13 @@ fun TurnipDriversScreen(
         var showRepoDialog by remember { mutableStateOf(false) }
         var repoInput by remember { mutableStateOf("") }
         val scope = rememberCoroutineScope()
+        
+        val listState = rememberLazyListState()
+        val showUpButton by remember {
+            derivedStateOf {
+                listState.firstVisibleItemIndex > 5
+            }
+        }
 
         val zipPicker = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocument()
@@ -220,65 +235,93 @@ fun TurnipDriversScreen(
                     ) {
                         LoadingIndicator()
                     }
-                    else -> LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        if (installedDrivers.isNotEmpty()) {
-                            item {
-                                Text(
-                                    text = stringResource(R.string.turnip_driver_installed),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    modifier = Modifier
-                                        .padding(horizontal = 4.dp, vertical = 4.dp)
-                                        .alpha(0.7f)
-                                )
-                            }
-                            items(installedDrivers, key = { it.absolutePath }) { driver ->
-                                InstalledDriverEntry(
-                                    name = driver.name,
-                                    onDeleteClick = { driverToDelete = driver }
-                                )
-                            }
-                            item {
-                                Text(
-                                    text = stringResource(R.string.turnip_driver_available),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    modifier = Modifier
-                                        .padding(horizontal = 4.dp, vertical = 4.dp)
-                                        .alpha(0.7f)
-                                )
-                            }
-                        }
-
-                        if (entries.isNullOrEmpty()) {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 32.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
+                    else -> Box(modifier = Modifier.fillMaxSize()) { 
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (installedDrivers.isNotEmpty()) {
+                                item {
                                     Text(
-                                        text = stringResource(R.string.stats_no_data),
-                                        style = MaterialTheme.typography.bodyMedium
+                                        text = stringResource(R.string.turnip_driver_installed),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        modifier = Modifier
+                                            .padding(horizontal = 4.dp, vertical = 4.dp)
+                                            .alpha(0.7f)
+                                    )
+                                }
+                                items(installedDrivers, key = { it.absolutePath }) { driver ->
+                                    InstalledDriverEntry(
+                                        name = driver.name,
+                                        onDeleteClick = { driverToDelete = driver }
+                                    )
+                                }
+                                item {
+                                    Text(
+                                        text = stringResource(R.string.turnip_driver_available),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        modifier = Modifier
+                                            .padding(horizontal = 4.dp, vertical = 4.dp)
+                                            .alpha(0.7f)
                                     )
                                 }
                             }
-                        } else {
-                            items(entries!!, key = { "${it.release.tagName}_${it.asset.name}" }) { entry ->
-                                DriverEntry(entry = entry, onClick = {
-                                    TurnipDownloader.downloadAsset(context, entry.asset)
-                                })
+
+                            if (entries.isNullOrEmpty()) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 32.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.stats_no_data),
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                }
+                            } else {
+                                items(entries!!, key = { "${it.release.tagName}_${it.asset.name}" }) { entry ->
+                                    DriverEntry(entry = entry, onClick = {
+                                        TurnipDownloader.downloadAsset(context, entry.asset)
+                                    })
+                                }
+                            }
+                        }
+
+                        AnimatedVisibility(
+                            visible = showUpButton,
+                            enter = fadeIn(),
+                            exit = fadeOut(),
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(16.dp)
+                        ) {
+                            FloatingActionButton(
+                                onClick = {
+                                    scope.launch {
+                                        listState.animateScrollToItem(0)
+                                    }
+                                },
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowUp,
+                                    contentDescription = stringResource(R.string.generic_scroll_top)
+                                )
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-}
+                } 
+            } 
+        } 
+    } 
+} 
+	
 
 @Composable
 private fun InstalledDriverEntry(name: String, onDeleteClick: () -> Unit) {
