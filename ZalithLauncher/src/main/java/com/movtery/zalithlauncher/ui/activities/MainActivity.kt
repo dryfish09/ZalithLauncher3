@@ -880,7 +880,7 @@ private fun PlayerNoticeDialog() {
     LaunchedEffect(Unit) {
         fetch()
         while (true) {
-            delay(90_000)
+            delay(10_000)
             fetch()
         }
     }
