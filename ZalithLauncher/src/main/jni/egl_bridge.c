@@ -153,15 +153,16 @@ int pojavInitOpenGL() {
     {
         pojav_environ->config_renderer = RENDERER_VK_ZINK;
         load_vulkan();
-        setenv("GALLIUM_DRIVER", "zink", 1);
+        setenv("MESA_LOADER_DRIVER_OVERRIDE", "kgsl", 1);
+        setenv("GALLIUM_DRIVER", "freedreno", 1);
         set_osm_bridge_tbl();
     }
 
     if (!strcmp(renderer, "gallium_panfrost"))
     {
         pojav_environ->config_renderer = RENDERER_VK_ZINK;
-        load_vulkan();
-        setenv("GALLIUM_DRIVER", "zink", 1);
+        setenv("GALLIUM_DRIVER", "panfrost", 1);
+        setenv("MESA_DISK_CACHE_SINGLE_FILE", "1", 1);
         set_osm_bridge_tbl();
     }
 
