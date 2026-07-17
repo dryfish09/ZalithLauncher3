@@ -1061,6 +1061,7 @@
     <string name="settings_tab_info_about">About</string>
     <string name="settings_renderer_global_renderer_title">Global Renderer</string>
     <string name="settings_renderer_global_renderer_summary">The global default renderer uses a dynamic library translation layer to ensure the game runs smoothly on mobile devices</string>
+    <string name="settings_renderer_osmesa_version_title">OSMesa Version</string>
     <string name="settings_renderer_global_vulkan_driver_title">Vulkan Driver</string>
     <string name="settings_renderer_env_title">Environment Variable: %s</string>
     <string name="settings_renderer_from_plugins">From %s plugin</string>

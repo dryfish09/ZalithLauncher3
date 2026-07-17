@@ -230,6 +230,26 @@ fun RendererSettingsScreen(
                         }
                     )
 
+                    ListSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Single,
+                        items = listOf(23, 25),
+                        currentId = AllSettings.osmesaVersion.state.toString(),
+                        defaultId = "23",
+                        title = stringResource(R.string.settings_renderer_osmesa_version_title),
+                        getItemText = { "OSMesa $it" },
+                        getItemId = { it.toString() },
+                        onValueChange = { value -> AllSettings.osmesaVersion.save(value) }
+                    )
+                }
+            }
+
+            AnimatedItem(scope) { yOffset ->
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
                     val currentRendererId = AllSettings.renderer.state
                     val v2PluginEnvUnits = remember(currentRendererId) {
                         Renderers.getRenderers()

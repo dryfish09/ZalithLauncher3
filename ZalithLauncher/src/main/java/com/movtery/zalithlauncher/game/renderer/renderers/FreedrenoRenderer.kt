@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.game.renderer.renderers
 
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
+import com.movtery.zalithlauncher.game.renderer.osmesaLibrary
 
 object FreedrenoRenderer : RendererInterface {
     override fun getRendererId(): String = "gallium_freedreno"
@@ -31,5 +32,5 @@ object FreedrenoRenderer : RendererInterface {
 
     override fun getDlopenLibrary(): Lazy<List<String>> = lazy { emptyList() }
 
-    override fun getRendererLibrary(): String = "libOSMesa_8.so"
+    override fun getRendererLibrary(): String = osmesaLibrary()
 }
