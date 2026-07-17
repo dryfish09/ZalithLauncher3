@@ -121,16 +121,14 @@ void load_vulkan() {
 int pojavInitOpenGL() {
     const char *renderer = getenv("POJAV_RENDERER");
 
-    if (!strcmp(renderer, "opengles3_desktopgl_zink_kopper"))
-    {
-        pojav_environ->config_renderer = RENDERER_VK_ZINK;
-        load_vulkan();
-        setenv("GALLIUM_DRIVER", "zink", 1);
-        set_osm_bridge_tbl();
-    }
-    else if (!strncmp("opengles", renderer, 8) || !strcmp(renderer, "mobileglues"))
+    if (!strncmp("opengles", renderer, 8) || !strcmp(renderer, "mobileglues"))
     {
         pojav_environ->config_renderer = RENDERER_GL4ES;
+        if (!strcmp(renderer, "opengles3_desktopgl_zink_kopper")) {
+            load_vulkan();
+            setenv("GALLIUM_DRIVER", "zink", 1);
+            setenv("MESA_ANDROID_NO_KMS_SWRAST", "1", 1);
+        }
         set_gl_bridge_tbl();
     }
 
@@ -153,15 +151,16 @@ int pojavInitOpenGL() {
     {
         pojav_environ->config_renderer = RENDERER_VK_ZINK;
         load_vulkan();
-        setenv("GALLIUM_DRIVER", "zink", 1);
+        setenv("MESA_LOADER_DRIVER_OVERRIDE", "kgsl", 1);
+        setenv("GALLIUM_DRIVER", "freedreno", 1);
         set_osm_bridge_tbl();
     }
 
     if (!strcmp(renderer, "gallium_panfrost"))
     {
         pojav_environ->config_renderer = RENDERER_VK_ZINK;
-        load_vulkan();
-        setenv("GALLIUM_DRIVER", "zink", 1);
+        setenv("GALLIUM_DRIVER", "panfrost", 1);
+        setenv("MESA_DISK_CACHE_SINGLE_FILE", "1", 1);
         set_osm_bridge_tbl();
     }
 
