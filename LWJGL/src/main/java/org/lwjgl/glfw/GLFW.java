@@ -1060,7 +1060,6 @@ public class GLFW
         // Custom defaults for specific renderers
         switch (pojavRenderer) {
             case "vulkan_zink":
-            case "opengles3_desktopgl_zink_kopper":
                 glMajor = 4;
                 glMinor = 6;
                 break;

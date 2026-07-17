@@ -19,7 +19,6 @@
 package com.movtery.zalithlauncher.game.renderer.renderers
 
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
-import com.movtery.zalithlauncher.game.renderer.osmesaLibrary
 
 object KopperZinkRenderer : RendererInterface {
     override fun getRendererId(): String = "opengles3_desktopgl_zink_kopper"
@@ -36,5 +35,5 @@ object KopperZinkRenderer : RendererInterface {
 
     override fun getDlopenLibrary(): Lazy<List<String>> = lazy { emptyList() }
 
-    override fun getRendererLibrary(): String = osmesaLibrary()
+    override fun getRendererLibrary(): String = "libOSMesa_8.so"
 }

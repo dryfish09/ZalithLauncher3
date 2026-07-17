@@ -19,7 +19,6 @@
 package com.movtery.zalithlauncher.game.renderer.renderers
 
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
-import com.movtery.zalithlauncher.game.renderer.osmesaLibrary
 
 object PanfrostRenderer : RendererInterface {
     override fun getRendererId(): String = "gallium_panfrost"
@@ -34,5 +33,5 @@ object PanfrostRenderer : RendererInterface {
 
     override fun getDlopenLibrary(): Lazy<List<String>> = lazy { emptyList() }
 
-    override fun getRendererLibrary(): String = osmesaLibrary()
+    override fun getRendererLibrary(): String = "libOSMesa_8.so"
 }

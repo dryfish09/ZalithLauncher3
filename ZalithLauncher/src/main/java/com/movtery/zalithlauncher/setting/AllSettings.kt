@@ -53,11 +53,6 @@ object AllSettings : SettingsRegistry() {
     val renderer = stringSetting("renderer", "")
 
     /**
-     * OSMesa 版本 (23 或 25)
-     */
-    val osmesaVersion = intSetting("osmesaVersion", 23)
-
-    /**
      * Vulkan 驱动器
      */
     val vulkanDriver = stringSetting("vulkanDriver", "default turnip")
