@@ -82,7 +82,8 @@ object GameRecorder {
             rec.apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     runCatching {
-                        setAudioSource(MediaRecorder.AudioSource.PLAYBACK_CAPTURE)
+                        @Suppress("DEPRECATION")
+                        setAudioSource(7) // MediaRecorder.AudioSource.PLAYBACK_CAPTURE (API 29)
                         setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                     }
                 }
