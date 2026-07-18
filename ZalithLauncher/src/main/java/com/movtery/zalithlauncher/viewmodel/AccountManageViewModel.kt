@@ -43,6 +43,7 @@ import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException
 import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.game.account.microsoftLogin
 import com.movtery.zalithlauncher.game.account.refreshMicrosoft
+import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.wardrobe.capeLocalRes
@@ -468,13 +469,22 @@ class AccountManageViewModel @Inject constructor(
                         androidText(R.string.generic_warning),
                         androidText(R.string.account_change_cape_invalid)
                     )
+                    FileUtils.deleteQuietly(cacheFile)
+                    _accountSkinDialogState.update { it.copy(importingCape = false) }
                     return@onSuccess
                 }
-                _accountSkinDialogState.update {
-                    it.copy(
-                        pendingCapeData = ChangeCape.SelectedCustomCape(cacheFile)
-                    )
-                }
+                val account = intent.account
+                val uuid = account.uniqueUUID
+                val imageBytes = cacheFile.readBytes()
+                AccountCapeCollection.addCape(
+                    accountUUID = uuid,
+                    name = AccountCapeCollection.generateAutoName(uuid),
+                    source = context.getString(R.string.account_capes_source_imported),
+                    imageBytes = imageBytes
+                )
+                FileUtils.deleteQuietly(cacheFile)
+                _accountSkinDialogState.update { it.copy(importingCape = false) }
+                emitToast(androidText(R.string.account_capes_saved_to_capes))
             }.onFailure { th ->
                 _accountSkinDialogState.update {
                     it.copy(importingCape = false)
@@ -483,10 +493,6 @@ class AccountManageViewModel @Inject constructor(
                     androidText(R.string.generic_error),
                     androidText(context.getString(R.string.account_change_cape_failed_to_import) + "\r\n" + th.getMessageOrToString())
                 )
-            }
-
-            _accountSkinDialogState.update {
-                it.copy(importingCape = false)
             }
         }
     }

@@ -99,6 +99,7 @@ import com.movtery.zalithlauncher.ui.screens.content.HomePageEditorScreen
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.content.LicenseScreen
 import com.movtery.zalithlauncher.ui.screens.content.GameStatsScreen
+import com.movtery.zalithlauncher.ui.screens.content.LabynetCapesScreen
 import com.movtery.zalithlauncher.ui.screens.content.PlayTimeStatsScreen
 import com.movtery.zalithlauncher.ui.screens.content.LogViewScreen
 import com.movtery.zalithlauncher.ui.screens.content.MultiplayerScreen
@@ -719,6 +720,12 @@ private fun NavigationUI(
                 }
                 entry<NormalNavKey.PlayTimeStats> {
                     PlayTimeStatsScreen(
+                        backStackViewModel = screenBackStackModel,
+                    )
+                }
+                entry<NormalNavKey.LabynetCapes> { key ->
+                    LabynetCapesScreen(
+                        key = key,
                         backStackViewModel = screenBackStackModel,
                     )
                 }

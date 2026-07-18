@@ -222,4 +222,11 @@ sealed interface NormalNavKey : TitledNavKey {
     @Serializable data class License(
         val raw: Int
     ): NormalNavKey
+
+    /** Laby.net 披风浏览屏幕 */
+    @Serializable data class LabynetCapes(
+        val accountUUID: String
+    ): NormalNavKey {
+        @Contextual override val title: AndroidStringText = androidText(R.string.account_capes_labynet_title)
+    }
 }

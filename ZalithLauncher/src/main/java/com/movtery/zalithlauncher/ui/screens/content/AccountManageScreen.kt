@@ -108,6 +108,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleListItem
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.CapeSelectorDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ChangeSkinDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginOperation
@@ -155,6 +156,7 @@ private data class AccountActions(
     val openLink: (url: String) -> Unit,
     val backToMainScreen: () -> Unit,
     val navigateToWeb: (url: String) -> Unit,
+    val navigateToLabynetCapes: (accountUUID: String) -> Unit,
     val checkIfInWebScreen: () -> Boolean,
     val formatError: (Throwable) -> AndroidStringText,
     val submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
@@ -208,6 +210,11 @@ fun AccountManageScreen(
             openLink = openLink,
             backToMainScreen = backToMainScreen,
             navigateToWeb = { url -> backStackViewModel.mainScreen.backStack.navigateToWeb(url) },
+            navigateToLabynetCapes = { uuid ->
+                backStackViewModel.mainScreen.backStack.navigateTo(
+                    NormalNavKey.LabynetCapes(uuid)
+                )
+            },
             checkIfInWebScreen = { backStackViewModel.mainScreen.currentKey is NormalNavKey.WebScreen },
             formatError = { th -> viewModel.formatAccountError(th) },
             submitError = submitError,
@@ -268,6 +275,7 @@ private fun AccountManageContent(
     val currentAccount = profileUiState.currentAccount
     val isOffline = profileUiState.isOffline
     val context = LocalContext.current
+    var capeSelectorAccountUuid by remember { mutableStateOf<String?>(null) }
 
     val accountSkin = remember(currentAccount, refreshWardrobe) {
         currentAccount?.getSkinFile()?.takeIf { it.exists() }
@@ -528,6 +536,13 @@ private fun AccountManageContent(
                                     actions.onIntent(
                                         AccountManageIntent.UpdateAccountOp(AccountOperation.Delete(account))
                                     )
+                                },
+                                onOpenCapeSelector = {
+                                    AccountCapeCollection.migrateLegacy(account.uniqueUUID)
+                                    capeSelectorAccountUuid = account.uniqueUUID
+                                },
+                                onOpenLabynetCapes = {
+                                    actions.navigateToLabynetCapes(account.uniqueUUID)
                                 }
                             )
                         }
@@ -542,6 +557,16 @@ private fun AccountManageContent(
                 }
             }
         }
+    }
+
+    capeSelectorAccountUuid?.let { uuid ->
+        CapeSelectorDialog(
+            accountUUID = uuid,
+            onDismiss = { capeSelectorAccountUuid = null },
+            onCapeActivated = {
+                AccountsManager.refreshWardrobe()
+            }
+        )
     }
 
     AccountOperation(operationUiState.accountOp, actions)
@@ -569,7 +594,9 @@ private fun AccountCard(
     openChangeSkinDialog: () -> Unit,
     onRefreshClick: () -> Unit,
     onCopyUUID: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onOpenCapeSelector: () -> Unit = {},
+    onOpenLabynetCapes: () -> Unit = {}
 ) {
     val isSelected = currentAccount?.uniqueUUID == account.uniqueUUID
     val context = LocalContext.current
@@ -580,105 +607,131 @@ private fun AccountCard(
         onClick = onSelected,
         elevation = CardDefaults.cardElevation(defaultElevation = elevation)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // Drag handle + profile head
-            Box(
-                modifier = dragHandleModifier,
-                contentAlignment = Alignment.Center
+        Column(modifier = Modifier.padding(12.dp).fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                PlayerFace(
-                    modifier = Modifier.size(44.dp),
-                    account = account,
-                    avatarSize = 44.dp
-                )
+                // Drag handle + profile head
+                Box(
+                    modifier = dragHandleModifier,
+                    contentAlignment = Alignment.Center
+                ) {
+                    PlayerFace(
+                        modifier = Modifier.size(44.dp),
+                        account = account,
+                        avatarSize = 44.dp
+                    )
+                }
+
+                // Account info
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = account.username,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                        if (isSelected) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_check),
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    Text(
+                        text = getAccountTypeName(context, account),
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.alpha(0.6f)
+                    )
+                }
+
+                // Action buttons
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    if (!account.isAuthServerAccount()) {
+                        IconButton(
+                            modifier = Modifier.size(36.dp),
+                            onClick = openChangeSkinDialog
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_checkroom),
+                                contentDescription = stringResource(R.string.account_change_skin),
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                    if (!account.isLocalAccount()) {
+                        IconButton(
+                            modifier = Modifier.size(36.dp),
+                            onClick = onRefreshClick
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_refresh),
+                                contentDescription = stringResource(R.string.generic_refresh),
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                    IconButton(
+                        modifier = Modifier.size(36.dp),
+                        onClick = onCopyUUID
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_copy_all_outlined),
+                            contentDescription = stringResource(R.string.account_local_uuid_copy),
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                    IconButton(
+                        modifier = Modifier.size(36.dp),
+                        onClick = onDeleteClick
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_delete_outlined),
+                            contentDescription = stringResource(R.string.generic_delete),
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                        )
+                    }
+                }
             }
 
-            // Account info
-            Column(
-                modifier = Modifier.weight(1f)
+            Spacer(Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                FilledTonalButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = onOpenCapeSelector
                 ) {
                     Text(
-                        text = account.username,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false)
-                    )
-                    if (isSelected) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_check),
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-                Text(
-                    text = getAccountTypeName(context, account),
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.alpha(0.6f)
-                )
-            }
-
-            // Action buttons
-            Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                if (!account.isAuthServerAccount()) {
-                    IconButton(
-                        modifier = Modifier.size(36.dp),
-                        onClick = openChangeSkinDialog
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_checkroom),
-                            contentDescription = stringResource(R.string.account_change_skin),
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                    }
-                }
-                if (!account.isLocalAccount()) {
-                    IconButton(
-                        modifier = Modifier.size(36.dp),
-                        onClick = onRefreshClick
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_refresh),
-                            contentDescription = stringResource(R.string.generic_refresh),
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                    }
-                }
-                IconButton(
-                    modifier = Modifier.size(36.dp),
-                    onClick = onCopyUUID
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_copy_all_outlined),
-                        contentDescription = stringResource(R.string.account_local_uuid_copy),
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        text = stringResource(R.string.account_capes_select),
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
-                IconButton(
-                    modifier = Modifier.size(36.dp),
-                    onClick = onDeleteClick
+                FilledTonalButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = onOpenLabynetCapes
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_delete_outlined),
-                        contentDescription = stringResource(R.string.generic_delete),
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                    Text(
+                        text = stringResource(R.string.account_capes_install),
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
             }
