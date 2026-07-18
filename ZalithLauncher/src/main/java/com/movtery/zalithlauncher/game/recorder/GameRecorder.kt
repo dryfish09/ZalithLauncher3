@@ -56,7 +56,7 @@ object GameRecorder {
     @Volatile private var pendingUri: android.net.Uri? = null
     @Volatile private var pendingFile: File? = null
 
-    fun start(context: Context, withMic: Boolean = false) {
+    fun start(context: Context) {
         if (_state.value != RecordingState.IDLE) return
 
         val view = GameSurfaceRegistry.getView()
@@ -80,10 +80,14 @@ object GameRecorder {
                 MediaRecorder()
             }
             rec.apply {
-                if (withMic) setAudioSource(MediaRecorder.AudioSource.MIC)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    runCatching {
+                        setAudioSource(MediaRecorder.AudioSource.PLAYBACK_CAPTURE)
+                        setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    }
+                }
                 setVideoSource(MediaRecorder.VideoSource.SURFACE)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                if (withMic) setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 setVideoEncoder(MediaRecorder.VideoEncoder.H264)
                 setVideoSize(w, h)
                 setVideoFrameRate(FRAME_RATE)
@@ -95,7 +99,26 @@ object GameRecorder {
                     Log.e(TAG, "MediaRecorder error what=$what extra=$extra")
                     cleanup()
                 }
-                prepare()
+                try {
+                    prepare()
+                } catch (e: Exception) {
+                    Log.w(TAG, "prepare with audio failed, retrying video-only: ${e.message}")
+                    reset()
+                    setVideoSource(MediaRecorder.VideoSource.SURFACE)
+                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                    setVideoEncoder(MediaRecorder.VideoEncoder.H264)
+                    setVideoSize(w, h)
+                    setVideoFrameRate(FRAME_RATE)
+                    setVideoEncodingBitRate(VIDEO_BIT_RATE)
+                    setOutputFile(
+                        context.contentResolver.openFileDescriptor(uri, "w")!!.fileDescriptor
+                    )
+                    setOnErrorListener { _, what2, extra2 ->
+                        Log.e(TAG, "MediaRecorder error what=$what2 extra=$extra2")
+                        cleanup()
+                    }
+                    prepare()
+                }
             }
 
             inputSurface = rec.surface
@@ -109,7 +132,7 @@ object GameRecorder {
             _state.value = RecordingState.RECORDING
             scheduleNextFrame()
 
-            Log.i(TAG, "Recording started ${w}x${h} mic=$withMic")
+            Log.i(TAG, "Recording started ${w}x${h}")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start recording: ${e.message}")
             cleanup()
