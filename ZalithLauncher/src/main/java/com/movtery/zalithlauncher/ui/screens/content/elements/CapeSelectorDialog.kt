@@ -1,5 +1,11 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,17 +43,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import kotlin.math.roundToInt
 import androidx.compose.ui.window.DialogProperties
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
@@ -64,7 +68,6 @@ fun CapeSelectorDialog(
     onCapeActivated: () -> Unit,
     onCapeDeleted: () -> Unit = {}
 ) {
-    val context = LocalContext.current
     var manifest by remember(accountUUID) { mutableStateOf(AccountCapeCollection.loadManifest(accountUUID)) }
     val sortedCapes = remember(manifest) {
         manifest.capes.sortedByDescending { it.favorite }
@@ -210,7 +213,6 @@ private fun CapeEntryCard(
     onRename: (String) -> Unit,
     onDelete: () -> Unit
 ) {
-    val context = LocalContext.current
     val isNoCape = entry == null
     var editing by remember { mutableStateOf(false) }
     var editName by remember(entry?.name) { mutableStateOf(entry?.name ?: "") }
@@ -245,15 +247,32 @@ private fun CapeEntryCard(
                     )
                 } else {
                     val capeFile = File(AccountCapeCollection.getCollectionDir(accountUUID), "${entry.id}.${entry.ext}")
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(capeFile)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = entry.name,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
-                    )
+                    val capeBitmap = remember(capeFile) {
+                        runCatching {
+                            val opts = BitmapFactory.Options().apply { inScaled = false }
+                            val bitmap = BitmapFactory.decodeFile(capeFile.absolutePath, opts) ?: return@runCatching null
+                            val scaleFactor = bitmap.width / 64f
+                            val start = (1 * scaleFactor).roundToInt()
+                            val capeWidth = (10 * scaleFactor).roundToInt()
+                            val capeHeight = (16 * scaleFactor).roundToInt()
+                            val cropped = Bitmap.createBitmap(capeWidth, capeHeight, Bitmap.Config.ARGB_8888)
+                            Canvas(cropped).drawBitmap(
+                                bitmap,
+                                Rect(start, start, start + capeWidth, start + capeHeight),
+                                RectF(0f, 0f, capeWidth.toFloat(), capeHeight.toFloat()),
+                                Paint().apply { isFilterBitmap = false }
+                            )
+                            if (bitmap !== cropped) bitmap.recycle()
+                            cropped
+                        }.getOrNull()
+                    }
+                    if (capeBitmap != null) {
+                        Image(
+                            bitmap = capeBitmap.asImageBitmap(),
+                            contentDescription = entry.name,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
 
