@@ -83,9 +83,10 @@ object AccountCapeCollection {
         name: String,
         source: String = "gallery",
         labyCapeId: String? = null,
-        imageBytes: ByteArray
+        imageBytes: ByteArray,
+        ext: String = "png"
     ): CapeEntry {
-        val tempFile = File.createTempFile("cape_import_", ".png")
+        val tempFile = File.createTempFile("cape_import_", ".$ext")
         try {
             tempFile.writeBytes(imageBytes)
             return addCape(
@@ -93,7 +94,8 @@ object AccountCapeCollection {
                 textureFile = tempFile,
                 name = name,
                 source = source,
-                labyCapeId = labyCapeId
+                labyCapeId = labyCapeId,
+                ext = ext
             )
         } finally {
             tempFile.delete()
