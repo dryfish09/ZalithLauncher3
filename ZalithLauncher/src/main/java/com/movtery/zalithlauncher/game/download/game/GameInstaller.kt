@@ -334,6 +334,7 @@ class GameInstaller(
                     legacyFabricDir = pathConfig.legacyFabricDir,
                     quiltDir = pathConfig.quiltDir,
                     cleanroomDir = pathConfig.cleanroomDir,
+                    babricDir = pathConfig.babricDir,
                     tempModsDir = pathConfig.tempModsDir
                 )
 
