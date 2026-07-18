@@ -13,21 +13,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.NavigateNext
+import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,7 +51,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.labynet.LabyCapeApi
-import com.movtery.zalithlauncher.game.account.labynet.LabyProfileCape
+import com.movtery.zalithlauncher.game.account.labynet.OfficialCape
 import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
@@ -84,7 +89,7 @@ fun LabynetCapesScreen(
     }
     val scope = rememberCoroutineScope()
 
-    var capes by remember { mutableStateOf<List<LabyProfileCape>>(emptyList()) }
+    var capes by remember { mutableStateOf<List<OfficialCape>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var downloading by remember { mutableStateOf(false) }
@@ -92,9 +97,9 @@ fun LabynetCapesScreen(
     LaunchedEffect(Unit) {
         try {
             val result = withContext(Dispatchers.IO) {
-                LabyCapeApi.fetchProfileCapes(client, key.accountUUID)
+                LabyCapeApi.fetchOfficialCapes(client)
             }
-            capes = result
+            capes = result.filter { !it.texture.isNullOrBlank() }
         } catch (e: Exception) {
             error = "${e::class.simpleName}: ${e.message ?: "Unknown"}"
         } finally {
@@ -163,35 +168,39 @@ fun LabynetCapesScreen(
 
                     else -> {
                         val context = LocalContext.current
-                        LazyColumn(
+                        LazyVerticalGrid(
+                            columns = GridCells.Adaptive(minSize = 150.dp),
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(8.dp),
                             contentPadding = PaddingValues(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            items(capes, key = { it.id }) { cape ->
-                                LabynetCapeCard(
+                            items(capes, key = { it.name }) { cape ->
+                                OfficialCapeCard(
                                     cape = cape,
                                     isDownloading = downloading,
                                     onDownload = {
+                                        val textureUrl = cape.texture ?: return@OfficialCapeCard
                                         downloading = true
                                         scope.launch(Dispatchers.IO) {
                                             try {
-                                                val tempFile = File.createTempFile("laby_cape_", ".png")
+                                                val ext = "png"
+                                                val tempFile = File.createTempFile("cape_", ".$ext")
                                                 try {
-                                                    LabyCapeApi.downloadCapeImage(client, cape.id, tempFile)
+                                                    LabyCapeApi.downloadCapeImage(client, textureUrl, tempFile)
                                                     AccountCapeCollection.addCape(
                                                         accountUUID = key.accountUUID,
                                                         textureFile = tempFile,
-                                                        name = cape.name.ifBlank { "Laby.net Cape" },
-                                                        source = "Laby.net",
-                                                        ext = "webp"
+                                                        name = cape.alias.ifBlank { cape.name },
+                                                        source = "Official",
+                                                        ext = ext
                                                     )
                                                     withContext(Dispatchers.Main) {
                                                         Toast.makeText(
                                                             context,
-                                                            context.getString(R.string.account_capes_labynet_downloaded, cape.name.ifBlank { "Cape" }),
+                                                            context.getString(R.string.account_capes_labynet_downloaded, cape.alias.ifBlank { cape.name }),
                                                             Toast.LENGTH_SHORT
                                                         ).show()
                                                     }
@@ -222,43 +231,52 @@ fun LabynetCapesScreen(
 }
 
 @Composable
-private fun LabynetCapeCard(
-    cape: LabyProfileCape,
+private fun OfficialCapeCard(
+    cape: OfficialCape,
     isDownloading: Boolean,
     onDownload: () -> Unit
 ) {
     val context = LocalContext.current
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp)
+                    .height(90.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(LabyCapeApi.getCapeImageUrl(cape.id))
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = cape.name,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
-                )
+                if (cape.texture != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(cape.texture)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = cape.alias,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Text(
+                        text = "?",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                    )
+                }
             }
 
             Text(
-                text = cape.name.ifBlank { "Laby.net Cape" },
+                text = cape.alias.ifBlank { cape.name },
                 style = MaterialTheme.typography.labelMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -268,7 +286,7 @@ private fun LabynetCapeCard(
 
             Button(
                 onClick = onDownload,
-                enabled = !isDownloading,
+                enabled = !isDownloading && cape.texture != null,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (isDownloading) {

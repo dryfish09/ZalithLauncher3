@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.game.account.labynet
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.serialization.Serializable
@@ -13,43 +14,71 @@ import java.io.File
 private val json = Json { ignoreUnknownKeys = true }
 
 @Serializable
-data class LabyProfileCape(
-    val id: String = "",
-    @kotlinx.serialization.SerialName("image_hash")
-    val imageHash: String = "",
-    val name: String = ""
+data class OfficialCape(
+    val name: String = "",
+    val alias: String = "",
+    val texture: String? = null,
+    val wiki: String? = null
 )
 
 @Serializable
-data class LabyProfileTextures(
-    val cape: LabyProfileCape? = null
+data class GalleryCapeTexture(
+    val preview: String? = null
 )
 
 @Serializable
-data class LabyProfile(
-    val textures: LabyProfileTextures? = null
+data class GalleryCape(
+    val hash: String = "",
+    val title: String = "",
+    val type: Int = 0,
+    val type_name: String = "",
+    val texture: GalleryCapeTexture? = null
+)
+
+@Serializable
+data class GalleryResponse(
+    val gallery: GalleryData? = null
+)
+
+@Serializable
+data class GalleryData(
+    val data: List<GalleryCape> = emptyList(),
+    val totalPages: Int = 1,
+    val current_page: Int = 1,
+    val hasNextPage: Boolean = false,
+    val hasPrevPage: Boolean = false
+)
+
+@Serializable
+data class OfficialCapesResponse(
+    val success: Boolean = false,
+    val data: List<OfficialCape> = emptyList()
 )
 
 object LabyCapeApi {
+    private const val API_BASE = "https://api.minecraftcapes.net"
+    private const val TEXTURE_BASE = "https://textures.minecraftcapes.net"
 
-    suspend fun fetchProfileCapes(client: HttpClient, uuid: String): List<LabyProfileCape> {
-        val response = client.get("https://laby.net/$uuid/get-profile")
-        val profile = response.body<LabyProfile>()
-        val cape = profile.textures?.cape
-        return if (cape != null && cape.id.isNotBlank()) listOf(cape) else emptyList()
+    suspend fun fetchOfficialCapes(client: HttpClient): List<OfficialCape> {
+        val response = client.get("$API_BASE/api/gallery/officialcapes")
+        val result = response.body<OfficialCapesResponse>()
+        return result.data
+    }
+
+    suspend fun fetchGalleryCapes(client: HttpClient, page: Int = 1): GalleryResponse {
+        val response = client.get("$API_BASE/api/gallery/get") {
+            parameter("page", page.toString())
+        }
+        return response.body<GalleryResponse>()
     }
 
     suspend fun downloadCapeImage(
         client: HttpClient,
-        textureId: String,
+        imageUrl: String,
         targetFile: File
     ) {
-        val url = "https://labymod.net/$textureId.png"
-        val response = client.get(url)
+        val response = client.get(imageUrl)
         val channel = response.bodyAsChannel()
         FileUtils.copyInputStreamToFile(channel.toInputStream(), targetFile)
     }
-
-    fun getCapeImageUrl(textureId: String): String =
-        "https://labymod.net/$textureId.png"
 }
