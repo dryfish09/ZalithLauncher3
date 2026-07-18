@@ -289,3 +289,9 @@ function loadSkinAndCape(skinUrl, model = "auto-detect", capeUrl = null) {
     skinViewer.loadSkin(skinUrl, { model: model });
     skinViewer.loadCape(capeUrl);
 }
+
+function setControlsEnabled(enabled) {
+    skinViewer.controls.enableRotate = enabled;
+    skinViewer.controls.enableZoom = enabled;
+    skinViewer.controls.enablePan = enabled;
+}

@@ -1605,6 +1605,28 @@
     <string name="versions_manage_move_versions_moving">Đang di chuyển %1$s…</string>
     <string name="versions_manage_move_versions_done">Di chuyển hoàn tất</string>
     <string name="versions_manage_move_versions_failed">Di chuyển thất bại</string>
+    <string name="account_capes_install">Cài Áo Choàng</string>
+    <string name="account_capes_install_from_labynet">Cài từ Laby.net</string>
+    <string name="account_capes_select">Chọn Áo Choàng</string>
+    <string name="account_capes_source_imported">Bộ Sưu Tập</string>
+    <string name="account_capes_saved_toast">Đã lưu áo choàng</string>
+    <string name="account_capes_select_title">Áo Choàng Của Tôi</string>
+    <string name="account_capes_no_capes">Chưa có áo choàng nào. Nhấn \"Cài Áo Choàng\" để bắt đầu.</string>
+    <string name="account_capes_none">Không Có Áo Choàng</string>
+    <string name="account_capes_favorite">Yêu Thích</string>
+    <string name="account_capes_unfavorite">Bỏ Yêu Thích</string>
+    <string name="account_capes_activate">Kích Hoạt</string>
+    <string name="account_capes_rename_hint">Tên áo choàng</string>
+    <string name="account_capes_labynet_title">Bộ Sưu Tập Áo Choàng</string>
+    <string name="account_capes_labynet_loading">Đang tải áo choàng…</string>
+    <string name="account_capes_labynet_download">Tải Xuống</string>
+    <string name="account_capes_labynet_downloading">Đang tải xuống…</string>
+    <string name="account_capes_labynet_downloaded">Đã tải áo choàng \"%s\"</string>
+    <string name="account_capes_labynet_download_failed">Tải xuống thất bại: %s</string>
+    <string name="account_capes_labynet_failed">Không thể tải áo choàng: %s</string>
+    <string name="account_capes_labynet_no_capes">Không tìm thấy áo choàng nào cho tài khoản này.</string>
+    <string name="account_capes_delete_title">Xóa Áo Choàng</string>
+    <string name="account_capes_delete_message">Bạn có chắc muốn xóa \"%s\"?</string>
 
     <!-- Screen Recorder -->
     <string name="quick_access_shortcut_recordings">Bản ghi</string>

@@ -1517,6 +1517,28 @@
     <string name="account_change_cape_reset">Reset Cape</string>
     <string name="account_change_cape_invalid">Invalid cape file! Cape must be 64x32 pixels PNG.</string>
     <string name="account_change_cape_failed_to_import">Failed to import cape: %s</string>
+    <string name="account_capes_install">Install Capes</string>
+    <string name="account_capes_install_from_labynet">Install from Laby.net</string>
+    <string name="account_capes_select">Select Cape</string>
+    <string name="account_capes_source_imported">Gallery</string>
+    <string name="account_capes_saved_toast">Cape saved to capes</string>
+    <string name="account_capes_select_title">My Capes</string>
+    <string name="account_capes_no_capes">No capes installed yet. Tap "Install Capes" to get started.</string>
+    <string name="account_capes_none">No Cape</string>
+    <string name="account_capes_favorite">Favorite</string>
+    <string name="account_capes_unfavorite">Unfavorite</string>
+    <string name="account_capes_activate">Activate</string>
+    <string name="account_capes_rename_hint">Cape name</string>
+    <string name="account_capes_labynet_title">Cape Gallery</string>
+    <string name="account_capes_labynet_loading">Loading capes…</string>
+    <string name="account_capes_labynet_download">Download</string>
+    <string name="account_capes_labynet_downloading">Downloading…</string>
+    <string name="account_capes_labynet_downloaded">Cape \"%s\" downloaded</string>
+    <string name="account_capes_labynet_download_failed">Download failed: %s</string>
+    <string name="account_capes_labynet_failed">Failed to load capes: %s</string>
+    <string name="account_capes_labynet_no_capes">No capes found for this account.</string>
+    <string name="account_capes_delete_title">Delete Cape</string>
+    <string name="account_capes_delete_message">Are you sure you want to delete \"%s\"?</string>
 
     <!-- Rank and Play Time -->
     <string name="rank_novice">Novice</string>

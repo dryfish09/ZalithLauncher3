@@ -132,9 +132,11 @@ import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
 import com.movtery.zalithlauncher.game.account.getUUIDFromUserName
+import com.movtery.zalithlauncher.game.account.isAuthServerAccount
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
+import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.wardrobe.capeLocalRes
@@ -1289,7 +1291,8 @@ fun ChangeSkinDialog(
     onApplySkin: (File, SkinModelType) -> Unit,
     onApplyCape: (PlayerProfile.Cape) -> Unit,
     onApplyCustomCape: (File) -> Unit = {},
-    onFetchCapes: () -> Unit
+    onFetchCapes: () -> Unit,
+    onInstallCapes: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val playerSkin = remember { PlayerSkin(context) }
@@ -1301,6 +1304,8 @@ fun ChangeSkinDialog(
     }
 
     var showCapeSelector by remember { mutableStateOf(false) }
+    var showCapeCollectionSelector by remember { mutableStateOf(false) }
+    var capeRefreshKey by remember { mutableStateOf(0) }
 
     var isFetchingCapes by remember { mutableStateOf(false) }
 
@@ -1368,7 +1373,7 @@ fun ChangeSkinDialog(
         playerSkin.resetSkin()
     }
 
-    LaunchedEffect(pageFinished, skinState, capeState, currentCapeToLoad) {
+    LaunchedEffect(pageFinished, skinState, capeState, currentCapeToLoad, capeRefreshKey) {
         if (!pageFinished) return@LaunchedEffect
 
         // Determine skin stream and model
@@ -1643,26 +1648,39 @@ fun ChangeSkinDialog(
                                     }
                                 },
                                 onClick = {
-                                    capePicker.launch(arrayOf("image/png"))
+                                    capePicker.launch(arrayOf("image/png", "image/webp", "image/jpeg"))
                                 },
                                 enabled = !isImportingCape
                             )
 
-                            //离线账号重置披风
-                            if (account.getCapeFile().exists() && capeState != ChangeCape.ResetCape) {
+                            //披风选择与安装（仅非验证服务器账号）
+                            if (!account.isAuthServerAccount()) {
                                 InfoLayoutTextItem(
                                     modifier = Modifier.fillMaxWidth(),
-                                    title = stringResource(R.string.account_change_cape_reset),
+                                    title = stringResource(R.string.account_capes_select),
                                     icon = {
                                         Icon(
                                             modifier = Modifier.size(22.dp),
-                                            painter = painterResource(R.drawable.ic_restart_alt),
+                                            painter = painterResource(R.drawable.ic_styler),
                                             contentDescription = null
                                         )
                                     },
                                     onClick = {
-                                        onCapeStateChange(ChangeCape.ResetCape)
+                                        AccountCapeCollection.migrateLegacy(account.uniqueUUID)
+                                        showCapeCollectionSelector = true
                                     }
+                                )
+                                InfoLayoutTextItem(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    title = stringResource(R.string.account_capes_install),
+                                    icon = {
+                                        Icon(
+                                            modifier = Modifier.size(22.dp),
+                                            painter = painterResource(R.drawable.ic_download),
+                                            contentDescription = null
+                                        )
+                                    },
+                                    onClick = onInstallCapes
                                 )
                             }
 
@@ -1764,6 +1782,25 @@ fun ChangeSkinDialog(
             },
             onDismiss = {
                 showCapeSelector = false
+            }
+        )
+    }
+
+    if (showCapeCollectionSelector) {
+        CapeSelectorDialog(
+            accountUUID = account.uniqueUUID,
+            onDismiss = {
+                showCapeCollectionSelector = false
+                capeRefreshKey++
+                AccountsManager.refreshWardrobe()
+            },
+            onCapeActivated = {
+                capeRefreshKey++
+                AccountsManager.refreshWardrobe()
+            },
+            onCapeDeleted = {
+                capeRefreshKey++
+                AccountsManager.refreshWardrobe()
             }
         )
     }

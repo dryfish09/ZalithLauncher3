@@ -1270,6 +1270,28 @@
     <string name="festivals_new_year">新年快樂！</string>
     <string name="festivals_april_fools">愚人節快樂！</string>
     <string name="festivals_christmas">聖誕節快樂！</string>
+    <string name="account_capes_install">安裝披風</string>
+    <string name="account_capes_install_from_labynet">從 Laby.net 安裝</string>
+    <string name="account_capes_select">選擇披風</string>
+    <string name="account_capes_source_imported">圖庫</string>
+    <string name="account_capes_saved_toast">披風已儲存</string>
+    <string name="account_capes_select_title">我的披風</string>
+    <string name="account_capes_no_capes">尚未安裝披風。點擊「安裝披風」開始。</string>
+    <string name="account_capes_none">無披風</string>
+    <string name="account_capes_favorite">收藏</string>
+    <string name="account_capes_unfavorite">取消收藏</string>
+    <string name="account_capes_activate">啟用</string>
+    <string name="account_capes_rename_hint">披風名稱</string>
+    <string name="account_capes_labynet_title">披風畫廊</string>
+    <string name="account_capes_labynet_loading">正在載入披風…</string>
+    <string name="account_capes_labynet_download">下載</string>
+    <string name="account_capes_labynet_downloading">正在下載…</string>
+    <string name="account_capes_labynet_downloaded">披風「%s」已下載</string>
+    <string name="account_capes_labynet_download_failed">下載失敗：%s</string>
+    <string name="account_capes_labynet_failed">載入披風失敗：%s</string>
+    <string name="account_capes_labynet_no_capes">找不到此帳號的披風。</string>
+    <string name="account_capes_delete_title">刪除披風</string>
+    <string name="account_capes_delete_message">確定要刪除「%s」嗎？</string>
 
     <!-- Screen Recorder -->
     <string name="quick_access_shortcut_recordings">錄製</string>
