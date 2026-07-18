@@ -22,7 +22,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVer
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.models.FabricLikeLoader
 
 object BabricVersions : FabricLikeVersions(
-    officialUrl = "https://meta.babric.net/v2"
+    officialUrl = "https://meta.babric.glass-launcher.net/v2"
 ) {
     suspend fun fetchBabricLoaderList(mcVersion: String, force: Boolean = false): List<BabricVersion>? {
         val list: List<FabricLikeLoader> = fetchLoaderList(force, "BabricVersions", mcVersion) ?: return null
