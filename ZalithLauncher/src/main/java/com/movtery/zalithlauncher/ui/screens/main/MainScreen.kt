@@ -98,7 +98,6 @@ import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreen
 import com.movtery.zalithlauncher.ui.screens.content.HomePageEditorScreen
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.content.LicenseScreen
-import com.movtery.zalithlauncher.ui.screens.content.McVideoSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.GameStatsScreen
 import com.movtery.zalithlauncher.ui.screens.content.CapeGalleryScreen
 import com.movtery.zalithlauncher.ui.screens.content.PlayTimeStatsScreen
@@ -736,11 +735,7 @@ private fun NavigationUI(
                         backStackViewModel = screenBackStackModel,
                     )
                 }
-                entry<NormalNavKey.McVideoSettings> {
-                    McVideoSettingsScreen(
-                        backStackViewModel = screenBackStackModel,
-                    )
-                }
+
             }
         }
 

@@ -88,7 +88,7 @@ fun McVideoSettingsScreen(
     val scope = rememberCoroutineScope()
 
     BaseScreen(
-        screenKey = NormalNavKey.McVideoSettings,
+        screenKey = NormalNavKey.Settings.McVideoSettings,
         currentKey = backStackViewModel.mainScreen.currentKey
     ) {
         val allVersions = remember { VersionsManager.versions.value }
@@ -345,8 +345,8 @@ private fun FloatSliderOption(
             }
             Slider(
                 value = value,
-                onValueChange = { onValueChange(it.coerceIn(range.first, range.last)) },
-                valueRange = range.first..range.last,
+                onValueChange = { onValueChange(it.coerceIn(range.start, range.endInclusive)) },
+                valueRange = range.start..range.endInclusive,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -524,27 +524,27 @@ private val knownOptionTypes = mapOf(
 )
 
 private val knownOptionKeys = listOf(
-    "renderDistance" to "Render Distance" to "12",
-    "graphics" to "Graphics" to "fast",
-    "smoothLighting" to "Smooth Lighting" to "false",
-    "particles" to "Particles" to "all",
-    "ao" to "Ambient Occlusion" to "100",
-    "clouds" to "Clouds" to "fancy",
-    "fullscreen" to "Fullscreen" to "false",
-    "vsync" to "VSync" to "false",
-    "enableVsync" to "Enable VSync" to "false",
-    "maxFps" to "Max Framerate" to "120",
-    "entityDistanceScaling" to "Entity Distance" to "1.0",
-    "gamma" to "Gamma" to "500",
-    "guiScale" to "GUI Scale" to "0",
-    "biomeBlendRadius" to "Biome Blend" to "4",
-    "mipmapLevels" to "Mipmap Levels" to "4",
-    "screenEffectScale" to "Screen Effect Scale" to "100",
-    "fov" to "FOV" to "70",
-    "fovScale" to "FOV Scale" to "1.0",
-    "renderClouds" to "Render Clouds" to "true",
-    "chunkBuilderThreads" to "Chunk Builder Threads" to "4",
-    "hideGLDebugInfo" to "Hide GL Debug Info" to "true",
-    "entityShadows" to "Entity Shadows" to "true",
-    "prioritizeChunkUpdates" to "Prioritize Chunk Updates" to "default"
+    Triple("renderDistance", "Render Distance", "12"),
+    Triple("graphics", "Graphics", "fast"),
+    Triple("smoothLighting", "Smooth Lighting", "false"),
+    Triple("particles", "Particles", "all"),
+    Triple("ao", "Ambient Occlusion", "100"),
+    Triple("clouds", "Clouds", "fancy"),
+    Triple("fullscreen", "Fullscreen", "false"),
+    Triple("vsync", "VSync", "false"),
+    Triple("enableVsync", "Enable VSync", "false"),
+    Triple("maxFps", "Max Framerate", "120"),
+    Triple("entityDistanceScaling", "Entity Distance", "1.0"),
+    Triple("gamma", "Gamma", "500"),
+    Triple("guiScale", "GUI Scale", "0"),
+    Triple("biomeBlendRadius", "Biome Blend", "4"),
+    Triple("mipmapLevels", "Mipmap Levels", "4"),
+    Triple("screenEffectScale", "Screen Effect Scale", "100"),
+    Triple("fov", "FOV", "70"),
+    Triple("fovScale", "FOV Scale", "1.0"),
+    Triple("renderClouds", "Render Clouds", "true"),
+    Triple("chunkBuilderThreads", "Chunk Builder Threads", "4"),
+    Triple("hideGLDebugInfo", "Hide GL Debug Info", "true"),
+    Triple("entityShadows", "Entity Shadows", "true"),
+    Triple("prioritizeChunkUpdates", "Prioritize Chunk Updates", "default")
 )

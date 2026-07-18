@@ -66,6 +66,7 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.GamepadSettingsScr
 import com.movtery.zalithlauncher.ui.screens.content.settings.JavaManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.LauncherSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSettingsScreen
+import com.movtery.zalithlauncher.ui.screens.content.McVideoSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.TurnipDriversScreen
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.onBack
@@ -99,6 +100,7 @@ fun SettingsScreen(
             )
             NavigationUI(
                 key = key,
+                backStackViewModel = backStackViewModel,
                 mainScreenKey = backStackViewModel.mainScreen.currentKey,
                 settingsScreenKey = backStackViewModel.settingsScreen.currentKey,
                 onCurrentKeyChange = { newKey ->
@@ -118,6 +120,7 @@ fun SettingsScreen(
 
 private val settingItems = listOf(
     CategoryItem(NormalNavKey.Settings.Renderer, { CategoryIcon(R.drawable.ic_video_settings, R.string.settings_tab_renderer) }, R.string.settings_tab_renderer),
+    CategoryItem(NormalNavKey.Settings.McVideoSettings, { CategoryIcon(R.drawable.ic_videocam_outlined, R.string.page_title_mc_video_settings) }, R.string.page_title_mc_video_settings),
     CategoryItem(NormalNavKey.Settings.Game, { CategoryIcon(R.drawable.ic_rocket_launch_filled, R.string.settings_tab_game) }, R.string.settings_tab_game),
     CategoryItem(NormalNavKey.Settings.Control, { CategoryIcon(R.drawable.ic_videogame_asset_outlined, R.string.settings_tab_control) }, R.string.settings_tab_control),
     CategoryItem(NormalNavKey.Settings.Gamepad, { CategoryIcon(R.drawable.ic_sports_esports_outlined, R.string.settings_tab_gamepad) }, R.string.settings_tab_gamepad),
@@ -188,6 +191,7 @@ private fun TabMenu(
 @Composable
 private fun NavigationUI(
     key: NestedNavKey.Settings,
+    backStackViewModel: ScreenBackStackViewModel,
     mainScreenKey: TitledNavKey?,
     settingsScreenKey: TitledNavKey?,
     onCurrentKeyChange: (TitledNavKey?) -> Unit,
@@ -227,6 +231,9 @@ private fun NavigationUI(
                 entryProvider = entryProvider {
                     entry<NormalNavKey.Settings.Renderer> {
                         RendererSettingsScreen(key, settingsScreenKey, mainScreenKey, eventViewModel)
+                    }
+                    entry<NormalNavKey.Settings.McVideoSettings> {
+                        McVideoSettingsScreen(backStackViewModel)
                     }
                     entry<NormalNavKey.Settings.TurnipDrivers> {
                         TurnipDriversScreen(key, settingsScreenKey, mainScreenKey)
