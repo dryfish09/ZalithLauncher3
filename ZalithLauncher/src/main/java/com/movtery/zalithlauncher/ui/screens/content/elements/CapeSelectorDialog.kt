@@ -1,14 +1,15 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clipToBounds
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -129,7 +130,8 @@ fun CapeSelectorDialog(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(2f)
+                            .heightIn(max = 180.dp)
+                            .clipToBounds()
                             .clip(RoundedCornerShape(12.dp))
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                     ) {
