@@ -223,6 +223,11 @@ sealed interface NormalNavKey : TitledNavKey {
         val raw: Int
     ): NormalNavKey
 
+    /** Minecraft 视频设置屏幕 */
+    @Serializable data object McVideoSettings : NormalNavKey {
+        @Contextual override val title: AndroidStringText = androidText(R.string.page_title_mc_video_settings)
+    }
+
     /** 披风浏览屏幕 */
     @Serializable data class CapeGallery(
         val accountUUID: String
