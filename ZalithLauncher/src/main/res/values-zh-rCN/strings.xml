@@ -1605,4 +1605,23 @@
     <string name="versions_manage_move_versions_moving">正在移动 %1$s…</string>
     <string name="versions_manage_move_versions_done">移动完成</string>
     <string name="versions_manage_move_versions_failed">移动失败</string>
+
+    <!-- Screen Recorder -->
+    <string name="quick_access_shortcut_recordings">录制</string>
+    <string name="game_menu_option_screen_recorder">屏幕录制</string>
+    <string name="recorder_stop_and_save">停止并保存</string>
+    <string name="recorder_pause">暂停</string>
+    <string name="recorder_resume">继续</string>
+    <string name="recorder_started">录制已开始</string>
+    <string name="recorder_saved">录制已保存</string>
+    <string name="recorder_error">录制启动失败</string>
+    <string name="page_title_recordings">录制</string>
+    <string name="recordings_empty">还没有录制。\n从游戏内菜单开始录制。</string>
+    <string name="recordings_play">播放</string>
+    <string name="recordings_share">分享</string>
+    <string name="recordings_rename">重命名</string>
+    <string name="recordings_rename_hint">文件名（不含扩展名）</string>
+    <string name="recordings_reveal">在文件管理器中显示</string>
+    <string name="recordings_delete_title">删除录制？</string>
+    <string name="recordings_delete_message">"%s" 将被永久删除。</string>
 </resources>

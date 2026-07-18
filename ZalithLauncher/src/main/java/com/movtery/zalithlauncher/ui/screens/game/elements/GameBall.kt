@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,8 +47,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.recorder.RecordingState
 import com.movtery.zalithlauncher.ui.components.FloatingBall
 import com.movtery.zalithlauncher.ui.screens.content.elements.MemoryPreview
 
@@ -60,8 +63,15 @@ fun DraggableGameBall(
     showMemory: Boolean,
     opened: Boolean,
     alpha: Float = 1f,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    recordingState: RecordingState = RecordingState.IDLE,
+    onPauseRecording: () -> Unit = {},
+    onResumeRecording: () -> Unit = {},
+    onStopRecording: () -> Unit = {}
 ) {
+    val isRecordingActive = recordingState == RecordingState.RECORDING ||
+            recordingState == RecordingState.PAUSED
+
     FloatingBall(
         modifier = Modifier.focusProperties {
             canFocus = false
@@ -69,14 +79,73 @@ fun DraggableGameBall(
         position = position,
         onPositionChanged = onPositionChanged,
         onSavePos = onSavePos,
-        onClick = onClick,
+        onClick = if (isRecordingActive) { {} } else onClick,
         alpha = alpha
     ) {
-        GameBallContent(
-            gameFps = gameFps,
-            showMemory = showMemory,
-            opened = opened,
+        Crossfade(targetState = isRecordingActive, label = "ballMode") { recording ->
+            if (recording) {
+                RecordingControlContent(
+                    isPaused = recordingState == RecordingState.PAUSED,
+                    onPause = onPauseRecording,
+                    onResume = onResumeRecording,
+                    onStop = onStopRecording
+                )
+            } else {
+                GameBallContent(
+                    gameFps = gameFps,
+                    showMemory = showMemory,
+                    opened = opened,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecordingControlContent(
+    isPaused: Boolean,
+    onPause: () -> Unit,
+    onResume: () -> Unit,
+    onStop: () -> Unit
+) {
+    Row(
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_fiber_manual_record),
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = if (isPaused) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                   else Color.Red
         )
+        Spacer(Modifier.width(2.dp))
+        IconButton(
+            onClick = if (isPaused) onResume else onPause,
+            modifier = Modifier.size(32.dp)
+        ) {
+            Icon(
+                painter = painterResource(
+                    if (isPaused) R.drawable.ic_play_arrow_filled
+                    else R.drawable.ic_pause_filled
+                ),
+                contentDescription = stringResource(
+                    if (isPaused) R.string.recorder_resume else R.string.recorder_pause
+                ),
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        IconButton(
+            onClick = onStop,
+            modifier = Modifier.size(32.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_stop_filled),
+                contentDescription = stringResource(R.string.recorder_stop_and_save),
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+        }
     }
 }
 

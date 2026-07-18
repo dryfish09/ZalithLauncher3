@@ -1605,4 +1605,23 @@
     <string name="versions_manage_move_versions_moving">Moving %1$s…</string>
     <string name="versions_manage_move_versions_done">Move complete</string>
     <string name="versions_manage_move_versions_failed">Move failed</string>
+
+    <!-- Screen Recorder -->
+    <string name="quick_access_shortcut_recordings">Recordings</string>
+    <string name="game_menu_option_screen_recorder">Screen Recorder</string>
+    <string name="recorder_stop_and_save">Stop &amp; Save</string>
+    <string name="recorder_pause">Pause</string>
+    <string name="recorder_resume">Resume</string>
+    <string name="recorder_started">Recording started</string>
+    <string name="recorder_saved">Recording saved</string>
+    <string name="recorder_error">Recording failed to start</string>
+    <string name="page_title_recordings">Recordings</string>
+    <string name="recordings_empty">No recordings yet.\nStart recording from the in-game menu.</string>
+    <string name="recordings_play">Play</string>
+    <string name="recordings_share">Share</string>
+    <string name="recordings_rename">Rename</string>
+    <string name="recordings_rename_hint">File name (without extension)</string>
+    <string name="recordings_reveal">Show in File Manager</string>
+    <string name="recordings_delete_title">Delete recording?</string>
+    <string name="recordings_delete_message">"%s" will be permanently deleted.</string>
 </resources>
