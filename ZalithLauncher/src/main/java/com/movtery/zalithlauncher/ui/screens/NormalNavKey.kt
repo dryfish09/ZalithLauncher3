@@ -228,5 +228,8 @@ sealed interface NormalNavKey : TitledNavKey {
         val accountUUID: String
     ): NormalNavKey {
         @Contextual override val title: AndroidStringText = androidText(R.string.account_capes_labynet_title)
+    /** 录像管理屏幕 */
+    @Serializable data object Recordings : NormalNavKey {
+        @Contextual override val title: AndroidStringText = androidText(R.string.page_title_recordings)
     }
 }

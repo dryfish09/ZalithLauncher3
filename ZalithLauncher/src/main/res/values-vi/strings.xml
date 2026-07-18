@@ -1627,4 +1627,23 @@
     <string name="account_capes_labynet_no_capes">Không tìm thấy áo choàng nào cho tài khoản này.</string>
     <string name="account_capes_delete_title">Xóa Áo Choàng</string>
     <string name="account_capes_delete_message">Bạn có chắc muốn xóa \"%s\"?</string>
+
+    <!-- Screen Recorder -->
+    <string name="quick_access_shortcut_recordings">Bản ghi</string>
+    <string name="game_menu_option_screen_recorder">Ghi Màn Hình</string>
+    <string name="recorder_stop_and_save">Dừng và Lưu</string>
+    <string name="recorder_pause">Tạm dừng</string>
+    <string name="recorder_resume">Tiếp tục</string>
+    <string name="recorder_started">Đã bắt đầu ghi</string>
+    <string name="recorder_saved">Đã lưu bản ghi</string>
+    <string name="recorder_error">Không thể bắt đầu ghi</string>
+    <string name="page_title_recordings">Bản ghi</string>
+    <string name="recordings_empty">Chưa có bản ghi nào.\nBắt đầu ghi từ menu trong trò chơi.</string>
+    <string name="recordings_play">Phát</string>
+    <string name="recordings_share">Chia sẻ</string>
+    <string name="recordings_rename">Đổi tên</string>
+    <string name="recordings_rename_hint">Tên tệp (không bao gồm phần mở rộng)</string>
+    <string name="recordings_reveal">Hiện trong Trình Quản Lý Tệp</string>
+    <string name="recordings_delete_title">Xóa bản ghi?</string>
+    <string name="recordings_delete_message">"%s" sẽ bị xóa vĩnh viễn.</string>
 </resources>

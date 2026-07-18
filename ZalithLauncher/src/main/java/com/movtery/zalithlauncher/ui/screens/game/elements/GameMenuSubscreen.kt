@@ -105,7 +105,8 @@ fun GameMenuSubscreen(
     onReplacementControl: () -> Unit,
     onManageJoystick: () -> Unit,
     onEditLayout: () -> Unit,
-    onShowToast: (AndroidStringText, Int) -> Unit
+    onShowToast: (AndroidStringText, Int) -> Unit,
+    onStartRecording: () -> Unit = {}
 ) {
     val ctx = LocalContext.current
     DualMenuSubscreen(
@@ -190,7 +191,8 @@ fun GameMenuSubscreen(
                 enableTerracotta = enableTerracotta,
                 onOpenTerracottaMenu = onOpenTerracottaMenu,
                 onRefreshWindowSize = onRefreshWindowSize,
-                onShowToast = onShowToast
+                onShowToast = onShowToast,
+                onStartRecording = onStartRecording
             )
         }
     )
@@ -206,6 +208,7 @@ private fun GameActionContent(
     onOpenTerracottaMenu: () -> Unit,
     onRefreshWindowSize: () -> Unit,
     onShowToast: (AndroidStringText, Int) -> Unit,
+    onStartRecording: () -> Unit = {},
     modifier: Modifier = Modifier,
     color: Color = cardColor(false),
     contentColor: Color = onCardColor(),
@@ -233,6 +236,16 @@ private fun GameActionContent(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.game_menu_option_switch_log),
                 onClick = onSwitchLog,
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+        //录屏
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.game_menu_option_screen_recorder),
+                onClick = onStartRecording,
                 color = color,
                 contentColor = contentColor,
             )

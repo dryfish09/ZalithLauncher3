@@ -101,6 +101,8 @@ import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerI
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerTouchModifier
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.game.recorder.GameRecorder
+import com.movtery.zalithlauncher.game.recorder.RecordingState
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.setting.enums.toAction
@@ -540,6 +542,7 @@ fun GameScreen(
         eventViewModel.sendEvent(EventViewModel.Event.Game.SwitchIme(mode))
     }
     val editorViewModel = rememberEditorViewModel("ControlEditor_Times=${viewModel.editorRefresh}")
+    val recordingState by GameRecorder.state.collectAsStateWithLifecycle()
     val cursorMode by ZLBridgeStates.cursorMode.collectAsStateWithLifecycle()
     val isGrabbing = remember(cursorMode) {
         cursorMode == CURSOR_DISABLED
@@ -741,6 +744,16 @@ fun GameScreen(
             onInputMethod = {
                 eventViewModel.sendEvent(EventViewModel.Event.Game.SwitchIme(null))
             },
+            onStartRecording = {
+                viewModel.gameMenuState = MenuState.HIDE
+                if (recordingState == RecordingState.IDLE) {
+                    GameRecorder.start(context)
+                    eventViewModel.sendToast(
+                        androidText(R.string.recorder_started),
+                        android.widget.Toast.LENGTH_SHORT
+                    )
+                }
+            },
             onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },
             onReplacementControl = { viewModel.replacementControlState = ReplacementControlState.Show },
             onManageJoystick = {
@@ -812,6 +825,16 @@ fun GameScreen(
                     alpha = AllSettings.menuBallOpacity.state / 100f,
                     onClick = {
                         viewModel.switchMenu()
+                    },
+                    recordingState = recordingState,
+                    onPauseRecording = { GameRecorder.pause() },
+                    onResumeRecording = { GameRecorder.resume() },
+                    onStopRecording = {
+                        GameRecorder.stopAndSave(context)
+                        eventViewModel.sendToast(
+                            androidText(R.string.recorder_saved),
+                            android.widget.Toast.LENGTH_SHORT
+                        )
                     }
                 )
             }
