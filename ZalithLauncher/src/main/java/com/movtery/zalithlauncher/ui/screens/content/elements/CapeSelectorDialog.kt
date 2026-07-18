@@ -1,15 +1,11 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clipToBounds
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -47,7 +43,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
@@ -57,8 +52,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.game.account.wardrobe.CapeEntry
-import com.movtery.zalithlauncher.ui.components.ModelAnimation
-import com.movtery.zalithlauncher.ui.components.PlayerSkin
+
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 import java.io.File
@@ -76,31 +70,6 @@ fun CapeSelectorDialog(
         manifest.capes.sortedByDescending { it.favorite }
     }
     var confirmDeleteId by remember { mutableStateOf<String?>(null) }
-
-    val playerSkin = remember { PlayerSkin(context) }
-    DisposableEffect(Unit) {
-        onDispose { playerSkin.destroy() }
-    }
-
-    var previewReady by remember { mutableStateOf(false) }
-    val activeEntry = remember(manifest) {
-        manifest.activeCapeId?.let { id -> manifest.capes.find { it.id == id } }
-    }
-
-    LaunchedEffect(activeEntry) {
-        if (previewReady) {
-            if (activeEntry != null) {
-                val capeFile = File(AccountCapeCollection.getCollectionDir(accountUUID), "${activeEntry.id}.${activeEntry.ext}")
-                runCatching {
-                    capeFile.inputStream().use { stream ->
-                        playerSkin.loadCape(stream)
-                    }
-                }
-            } else {
-                playerSkin.loadCape(inputStream = null)
-            }
-        }
-    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -126,42 +95,6 @@ fun CapeSelectorDialog(
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 180.dp)
-                            .clipToBounds()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        AndroidView(
-                            factory = { ctx ->
-                                playerSkin.loadWebView(
-                                    context = ctx,
-                                    onPageFinished = {
-                                        previewReady = true
-                                        playerSkin.startAnim(ModelAnimation.NewIdle)
-                                        playerSkin.setAzimuthAndPitch(180, 5, 50)
-                                        if (activeEntry != null) {
-                                            val capeFile = File(AccountCapeCollection.getCollectionDir(accountUUID), "${activeEntry.id}.${activeEntry.ext}")
-                                            runCatching {
-                                                capeFile.inputStream().use { stream ->
-                                                    playerSkin.loadCape(stream)
-                                                }
-                                            }
-                                        }
-                                    }
-                                ).apply {
-                                    isClickable = false
-                                    isFocusable = false
-                                }
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-
-                    Spacer(Modifier.height(8.dp))
 
                     val hasActiveCape = manifest.activeCapeId != null
 

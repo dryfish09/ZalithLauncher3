@@ -2,14 +2,12 @@ package com.movtery.zalithlauncher.ui.screens.content
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clipToBounds
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -49,7 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
+
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -60,8 +58,7 @@ import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
-import com.movtery.zalithlauncher.ui.components.PlayerSkin
-import com.movtery.zalithlauncher.ui.components.ModelAnimation
+
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import io.ktor.client.HttpClient
@@ -100,44 +97,17 @@ fun CapeGalleryScreen(
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var downloading by remember { mutableStateOf(false) }
-    var previewCape by remember { mutableStateOf<OfficialCape?>(null) }
-
-    val playerSkin = remember { PlayerSkin(context) }
-    DisposableEffect(Unit) {
-        onDispose { playerSkin.destroy() }
-    }
 
     LaunchedEffect(Unit) {
         try {
             val result = withContext(Dispatchers.IO) {
                 LabyCapeApi.fetchOfficialCapes(client)
             }
-            val filtered = result.filter { !it.texture.isNullOrBlank() }
-            capes = filtered
-            if (filtered.isNotEmpty() && previewCape == null) {
-                previewCape = filtered.first()
-            }
+            capes = result.filter { !it.texture.isNullOrBlank() }
         } catch (e: Exception) {
             error = "${e::class.simpleName}: ${e.message ?: "Unknown"}"
         } finally {
             loading = false
-        }
-    }
-
-    var previewReady by remember { mutableStateOf(false) }
-
-    LaunchedEffect(previewCape, previewReady) {
-        if (previewReady && previewCape != null) {
-            val cape = previewCape ?: return@LaunchedEffect
-            val textureUrl = cape.texture ?: return@LaunchedEffect
-            withContext(Dispatchers.IO) {
-                try {
-                    val bytes = java.net.URL(textureUrl).openStream().readBytes()
-                    withContext(Dispatchers.Main) {
-                        playerSkin.loadCape(java.io.ByteArrayInputStream(bytes))
-                    }
-                } catch (_: Exception) { }
-            }
         }
     }
 
@@ -159,35 +129,6 @@ fun CapeGalleryScreen(
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 180.dp)
-                        .padding(horizontal = 8.dp)
-                        .clipToBounds()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    AndroidView(
-                        factory = { ctx ->
-                            playerSkin.loadWebView(
-                                context = ctx,
-                                onPageFinished = {
-                                    previewReady = true
-                                    playerSkin.startAnim(ModelAnimation.NewIdle)
-                                    playerSkin.setAzimuthAndPitch(180, 5, 50)
-                                }
-                            ).apply {
-                                isClickable = false
-                                isFocusable = false
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-
-                Spacer(Modifier.height(8.dp))
 
                 when {
                     loading -> {
@@ -281,8 +222,7 @@ fun CapeGalleryScreen(
                                                 downloading = false
                                             }
                                         }
-                                    },
-                                    onSelect = { previewCape = cape }
+                                    }
                                 )
                             }
                         }
@@ -297,16 +237,14 @@ fun CapeGalleryScreen(
 private fun OfficialCapeCard(
     cape: OfficialCape,
     isDownloading: Boolean,
-    onDownload: () -> Unit,
-    onSelect: () -> Unit = {}
+    onDownload: () -> Unit
 ) {
     val context = LocalContext.current
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        onClick = onSelect
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.padding(8.dp),
