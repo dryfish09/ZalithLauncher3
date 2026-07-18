@@ -114,7 +114,7 @@ android {
     packaging {
         jniLibs {
             useLegacyPackaging = true
-            pickFirsts += listOf("**/libbytehook.so")
+            pickFirsts += listOf("**/libbytehook.so", "**/libopenal.so")
         }
     }
 
@@ -364,11 +364,9 @@ dependencies {
     implementation(libs.editor)
     implementation(libs.dev.haze)
     implementation(libs.dev.haze.blur)
-    //Project
     implementation(project(":LayerController"))
     implementation(project(":ColorPicker"))
     implementation(project(":Terracotta"))
-    //Utils
     implementation(libs.bytehook)
     implementation(libs.gson)
     implementation(libs.commons.io)
@@ -393,18 +391,14 @@ dependencies {
     implementation(libs.process.phoenix)
     implementation(libs.lunarcalendar)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
-    //Safe
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.sqlcipher.android)
     ksp(libs.androidx.room.compiler)
-    //Support
     implementation(libs.proxy.client.android)
-    //Hilt
     implementation(libs.dagger.hilt.android)
     ksp(libs.dagger.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-    //Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
