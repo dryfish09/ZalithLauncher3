@@ -1798,6 +1798,7 @@ fun ChangeSkinDialog(
                 capeRefreshKey++
                 AccountsManager.refreshWardrobe()
             },
+            onOpenGallery = onInstallCapes,
             onCapeDeleted = {
                 capeRefreshKey++
                 AccountsManager.refreshWardrobe()

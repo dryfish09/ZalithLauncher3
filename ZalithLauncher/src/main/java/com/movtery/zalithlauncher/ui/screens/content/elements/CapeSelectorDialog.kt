@@ -68,6 +68,7 @@ fun CapeSelectorDialog(
     accountUUID: String,
     onDismiss: () -> Unit,
     onCapeActivated: () -> Unit,
+    onOpenGallery: () -> Unit,
     onCapeDeleted: () -> Unit = {}
 ) {
     var manifest by remember(accountUUID) { mutableStateOf(AccountCapeCollection.loadManifest(accountUUID)) }
@@ -167,11 +168,16 @@ fun CapeSelectorDialog(
 
                     Spacer(Modifier.height(12.dp))
 
-                    Button(
-                        modifier = Modifier.align(Alignment.End),
-                        onClick = onDismiss
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Text(stringResource(R.string.generic_close))
+                        Button(onClick = onOpenGallery) {
+                            Text(stringResource(R.string.account_change_cape_upload))
+                        }
+                        Button(onClick = onDismiss) {
+                            Text(stringResource(R.string.generic_close))
+                        }
                     }
                 }
             }
