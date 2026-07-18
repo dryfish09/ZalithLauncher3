@@ -222,4 +222,9 @@ sealed interface NormalNavKey : TitledNavKey {
     @Serializable data class License(
         val raw: Int
     ): NormalNavKey
+
+    /** 录像管理屏幕 */
+    @Serializable data object Recordings : NormalNavKey {
+        @Contextual override val title: AndroidStringText = androidText(R.string.page_title_recordings)
+    }
 }

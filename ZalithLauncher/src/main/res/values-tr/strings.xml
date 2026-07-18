@@ -1541,4 +1541,23 @@
     <string name="versions_manage_move_versions_moving">%1$s taşınıyor…</string>
     <string name="versions_manage_move_versions_done">Taşıma tamamlandı</string>
     <string name="versions_manage_move_versions_failed">Taşıma başarısız</string>
+
+    <!-- Screen Recorder -->
+    <string name="quick_access_shortcut_recordings">Kayıtlar</string>
+    <string name="game_menu_option_screen_recorder">Ekran Kaydedici</string>
+    <string name="recorder_stop_and_save">Durdur ve Kaydet</string>
+    <string name="recorder_pause">Duraklat</string>
+    <string name="recorder_resume">Devam Et</string>
+    <string name="recorder_started">Kayıt başlatıldı</string>
+    <string name="recorder_saved">Kayıt kaydedildi</string>
+    <string name="recorder_error">Kayıt başlatılamadı</string>
+    <string name="page_title_recordings">Kayıtlar</string>
+    <string name="recordings_empty">Henüz kayıt yok.\nOyun içi menüden kayda başlayın.</string>
+    <string name="recordings_play">Oynat</string>
+    <string name="recordings_share">Paylaş</string>
+    <string name="recordings_rename">Yeniden Adlandır</string>
+    <string name="recordings_rename_hint">Dosya adı (uzantısız)</string>
+    <string name="recordings_reveal">Dosya Yöneticisinde Göster</string>
+    <string name="recordings_delete_title">Kayıt silinsin mi?</string>
+    <string name="recordings_delete_message">"%s" kalıcı olarak silinecek.</string>
 </resources>
