@@ -1582,9 +1582,4 @@
     <string name="recordings_reveal">Dosya Yöneticisinde Göster</string>
     <string name="recordings_delete_title">Kayıt silinsin mi?</string>
     <string name="recordings_delete_message">"%s" kalıcı olarak silinecek.</string>
-    <string name="page_title_mc_video_settings">Video Ayarları</string>
-    <string name="mc_video_settings_version">Sürüm</string>
-    <string name="mc_video_settings_save">Kaydet</string>
-    <string name="mc_video_settings_saved">Ayarlar kaydedildi</string>
-    <string name="mc_video_settings_no_version">Yüklü sürüm yok</string>
 </resources>

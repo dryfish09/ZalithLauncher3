@@ -98,11 +98,6 @@
     <string name="page_title_file_manager">File Manager</string>
     <string name="page_title_file_editor">Edit File</string>
     <string name="page_title_home_page_editor">Home Page Editor</string>
-    <string name="page_title_mc_video_settings">Video Settings</string>
-    <string name="mc_video_settings_version">Version</string>
-    <string name="mc_video_settings_save">Save</string>
-    <string name="mc_video_settings_saved">Settings saved</string>
-    <string name="mc_video_settings_no_version">No versions installed</string>
     <!-- Files -->
     <string name="files_browse_folder">Browse Folder</string>
     <string name="files_importing">Importing Files</string>
