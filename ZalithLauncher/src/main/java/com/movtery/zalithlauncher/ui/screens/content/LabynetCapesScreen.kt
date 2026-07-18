@@ -98,7 +98,7 @@ fun LabynetCapesScreen(
                 })
             }
             defaultRequest {
-                url("https://api.laby.net/api/v3/capes")
+                url("https://laby.net/api/v3/capes")
                 header("User-Agent", "ZalithLauncher/2.0")
             }
         }

@@ -107,10 +107,8 @@ import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListItem
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
-import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
-import com.movtery.zalithlauncher.ui.screens.content.elements.CapeSelectorDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ChangeSkinDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginOperation
@@ -277,7 +275,7 @@ private fun AccountManageContent(
     val currentAccount = profileUiState.currentAccount
     val isOffline = profileUiState.isOffline
     val context = LocalContext.current
-    var capeSelectorAccountUuid by remember { mutableStateOf<String?>(null) }
+
 
     val accountSkin = remember(currentAccount, refreshWardrobe) {
         currentAccount?.getSkinFile()?.takeIf { it.exists() }
@@ -554,19 +552,6 @@ private fun AccountManageContent(
         }
     }
 
-    capeSelectorAccountUuid?.let { uuid ->
-        CapeSelectorDialog(
-            accountUUID = uuid,
-            onDismiss = { capeSelectorAccountUuid = null },
-            onCapeActivated = {
-                AccountsManager.refreshWardrobe()
-            },
-            onCapeDeleted = {
-                AccountsManager.refreshWardrobe()
-            }
-        )
-    }
-
     AccountOperation(operationUiState.accountOp, actions)
     LoginMenuOperation(loginUiState.menuOp, actions, profileUiState.authServers)
     MicrosoftLoginOperation(loginUiState.microsoftOp, actions)
@@ -578,10 +563,6 @@ private fun AccountManageContent(
         skinDialogState = operationUiState.accountSkinDialogState,
         accountCapes = profileUiState.accountCapeOpMap,
         actions = actions,
-        onCapeSelectorOpen = { uuid ->
-            AccountCapeCollection.migrateLegacy(uuid)
-            capeSelectorAccountUuid = uuid
-        }
     )
 }
 
@@ -1045,8 +1026,7 @@ private fun AccountSkinOperation(
     accountSkinOperation: AccountSkinOperation,
     skinDialogState: AccountManageViewModel.AccountSkinDialogState,
     accountCapes: Map<String, List<PlayerProfile.Cape>>,
-    actions: AccountActions,
-    onCapeSelectorOpen: (String) -> Unit = {}
+    actions: AccountActions
 ) {
     when (accountSkinOperation) {
         is AccountSkinOperation.None -> {}
@@ -1105,9 +1085,7 @@ private fun AccountSkinOperation(
                 onApplyCustomCape = { file ->
                     actions.onIntent(AccountManageIntent.ApplyCustomCape(account, file))
                 },
-                onSelectCape = {
-                    onCapeSelectorOpen(account.uniqueUUID)
-                },
+
                 onInstallCapes = {
                     actions.navigateToLabynetCapes(account.uniqueUUID)
                 }

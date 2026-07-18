@@ -136,6 +136,7 @@ import com.movtery.zalithlauncher.game.account.isAuthServerAccount
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
+import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.wardrobe.capeLocalRes
@@ -1291,7 +1292,6 @@ fun ChangeSkinDialog(
     onApplyCape: (PlayerProfile.Cape) -> Unit,
     onApplyCustomCape: (File) -> Unit = {},
     onFetchCapes: () -> Unit,
-    onSelectCape: () -> Unit = {},
     onInstallCapes: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -1304,6 +1304,8 @@ fun ChangeSkinDialog(
     }
 
     var showCapeSelector by remember { mutableStateOf(false) }
+    var showCapeCollectionSelector by remember { mutableStateOf(false) }
+    var capeRefreshKey by remember { mutableStateOf(0) }
 
     var isFetchingCapes by remember { mutableStateOf(false) }
 
@@ -1371,7 +1373,7 @@ fun ChangeSkinDialog(
         playerSkin.resetSkin()
     }
 
-    LaunchedEffect(pageFinished, skinState, capeState, currentCapeToLoad) {
+    LaunchedEffect(pageFinished, skinState, capeState, currentCapeToLoad, capeRefreshKey) {
         if (!pageFinished) return@LaunchedEffect
 
         // Determine skin stream and model
@@ -1663,7 +1665,10 @@ fun ChangeSkinDialog(
                                             contentDescription = null
                                         )
                                     },
-                                    onClick = onSelectCape
+                                    onClick = {
+                                        AccountCapeCollection.migrateLegacy(account.uniqueUUID)
+                                        showCapeCollectionSelector = true
+                                    }
                                 )
                                 InfoLayoutTextItem(
                                     modifier = Modifier.fillMaxWidth(),
@@ -1777,6 +1782,22 @@ fun ChangeSkinDialog(
             },
             onDismiss = {
                 showCapeSelector = false
+            }
+        )
+    }
+
+    if (showCapeCollectionSelector) {
+        CapeSelectorDialog(
+            accountUUID = account.uniqueUUID,
+            onDismiss = {
+                showCapeCollectionSelector = false
+                capeRefreshKey++
+            },
+            onCapeActivated = {
+                capeRefreshKey++
+            },
+            onCapeDeleted = {
+                capeRefreshKey++
             }
         )
     }

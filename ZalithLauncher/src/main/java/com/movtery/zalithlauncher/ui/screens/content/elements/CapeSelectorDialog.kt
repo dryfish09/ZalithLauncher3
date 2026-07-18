@@ -62,10 +62,12 @@ fun CapeSelectorDialog(
     onCapeActivated: () -> Unit,
     onCapeDeleted: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     var manifest by remember(accountUUID) { mutableStateOf(AccountCapeCollection.loadManifest(accountUUID)) }
     val sortedCapes = remember(manifest) {
         manifest.capes.sortedByDescending { it.favorite }
     }
+    var confirmDeleteId by remember { mutableStateOf<String?>(null) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -129,9 +131,7 @@ fun CapeSelectorDialog(
                                         manifest = AccountCapeCollection.loadManifest(accountUUID)
                                     },
                                     onDelete = {
-                                        AccountCapeCollection.removeCape(accountUUID, entry.id)
-                                        manifest = AccountCapeCollection.loadManifest(accountUUID)
-                                        onCapeDeleted()
+                                        confirmDeleteId = entry.id
                                     }
                                 )
                             }
@@ -149,6 +149,32 @@ fun CapeSelectorDialog(
                 }
             }
         }
+    }
+
+    confirmDeleteId?.let { id ->
+        val entry = manifest.capes.find { it.id == id }
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { confirmDeleteId = null },
+            title = { Text(stringResource(R.string.account_capes_delete_title)) },
+            text = {
+                Text(stringResource(R.string.account_capes_delete_message, entry?.name ?: ""))
+            },
+            confirmButton = {
+                Button(onClick = {
+                    AccountCapeCollection.removeCape(accountUUID, id)
+                    manifest = AccountCapeCollection.loadManifest(accountUUID)
+                    confirmDeleteId = null
+                    onCapeDeleted()
+                }) {
+                    Text(stringResource(R.string.generic_delete))
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { confirmDeleteId = null }) {
+                    Text(stringResource(R.string.generic_cancel))
+                }
+            }
+        )
     }
 }
 

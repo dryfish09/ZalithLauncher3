@@ -23,7 +23,7 @@ data class LabyCape(
 )
 
 object LabyCapeApi {
-    private const val BASE_URL = "https://api.laby.net/api/v3"
+    private const val BASE_URL = "https://laby.net/api/v3"
 
     suspend fun fetchAllCapes(client: HttpClient): List<LabyCape> {
         val response = client.get("$BASE_URL/capes")
