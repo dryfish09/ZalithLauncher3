@@ -79,6 +79,7 @@ fun CapeGalleryScreen(
     key: NormalNavKey.CapeGallery,
     backStackViewModel: ScreenBackStackViewModel
 ) {
+    val context = LocalContext.current
     val client = remember {
         HttpClient {
             install(ContentNegotiation) {
@@ -227,7 +228,6 @@ fun CapeGalleryScreen(
                     }
 
                     else -> {
-                        val context = LocalContext.current
                         LazyVerticalGrid(
                             columns = GridCells.Adaptive(minSize = 150.dp),
                             modifier = Modifier

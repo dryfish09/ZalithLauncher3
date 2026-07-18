@@ -173,7 +173,7 @@ fun CapeSelectorDialog(
                                 entry = null,
                                 isActive = !hasActiveCape,
                                 onActivate = {
-                                    AccountCapeCollection.setActiveCape(accountUUID, null)
+                                    AccountCapeCollection.clearActiveCape(accountUUID)
                                     manifest = AccountCapeCollection.loadManifest(accountUUID)
                                     onCapeActivated()
                                 },

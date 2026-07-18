@@ -122,6 +122,10 @@ object AccountCapeCollection {
         }
     }
 
+    fun clearActiveCape(accountUUID: String) {
+        saveManifest(accountUUID, loadManifest(accountUUID).copy(activeCapeId = null))
+    }
+
     fun toggleFavorite(accountUUID: String, capeId: String) {
         val manifest = loadManifest(accountUUID)
         val updated = manifest.copy(
