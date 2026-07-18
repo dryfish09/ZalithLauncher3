@@ -25,6 +25,7 @@
 ### Related Issues
 <!-- Link related issues -->
 Fixes #(issue_number)
+
 Closes #(issue_number)
 
 ### Screenshots (if UI changes)
