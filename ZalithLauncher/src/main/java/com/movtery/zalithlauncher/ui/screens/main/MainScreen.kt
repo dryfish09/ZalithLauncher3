@@ -727,6 +727,9 @@ private fun NavigationUI(
                 entry<NormalNavKey.CapeGallery> { key ->
                     CapeGalleryScreen(
                         key = key,
+                        backStackViewModel = screenBackStackModel,
+                    )
+                }
                 entry<NormalNavKey.Recordings> {
                     RecordingsScreen(
                         backStackViewModel = screenBackStackModel,
