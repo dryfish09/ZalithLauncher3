@@ -1535,6 +1535,7 @@
     <string name="account_capes_labynet_downloaded">Cape \"%s\" downloaded</string>
     <string name="account_capes_labynet_download_failed">Download failed: %s</string>
     <string name="account_capes_labynet_failed">Failed to load capes: %s</string>
+    <string name="account_capes_labynet_no_capes">No Laby.net capes found for this account.</string>
     <string name="account_capes_delete_title">Delete Cape</string>
     <string name="account_capes_delete_message">Are you sure you want to delete \"%s\"?</string>
 

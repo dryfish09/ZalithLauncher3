@@ -13,34 +13,43 @@ import java.io.File
 private val json = Json { ignoreUnknownKeys = true }
 
 @Serializable
-data class LabyCape(
-    val name: String = "",
-    val description: Map<String, String> = emptyMap(),
+data class LabyProfileCape(
+    val id: String = "",
     @kotlinx.serialization.SerialName("image_hash")
     val imageHash: String = "",
-    @kotlinx.serialization.SerialName("use_count")
-    val useCount: Int = 0
+    val name: String = ""
+)
+
+@Serializable
+data class LabyProfileTextures(
+    val cape: LabyProfileCape? = null
+)
+
+@Serializable
+data class LabyProfile(
+    val textures: LabyProfileTextures? = null
 )
 
 object LabyCapeApi {
-    private const val BASE_URL = "https://laby.net/api/v3"
 
-    suspend fun fetchAllCapes(client: HttpClient): List<LabyCape> {
-        val response = client.get("$BASE_URL/capes")
-        return response.body<List<LabyCape>>()
+    suspend fun fetchProfileCapes(client: HttpClient, uuid: String): List<LabyProfileCape> {
+        val response = client.get("https://laby.net/$uuid/get-profile")
+        val profile = response.body<LabyProfile>()
+        val cape = profile.textures?.cape
+        return if (cape != null && cape.id.isNotBlank()) listOf(cape) else emptyList()
     }
 
     suspend fun downloadCapeImage(
         client: HttpClient,
-        imageHash: String,
+        textureId: String,
         targetFile: File
     ) {
-        val url = "https://laby.net/texture/cape/$imageHash.webp"
+        val url = "https://labymod.net/$textureId.png"
         val response = client.get(url)
         val channel = response.bodyAsChannel()
         FileUtils.copyInputStreamToFile(channel.toInputStream(), targetFile)
     }
 
-    fun getCapeImageUrl(imageHash: String): String =
-        "https://laby.net/texture/cape/$imageHash.webp"
+    fun getCapeImageUrl(textureId: String): String =
+        "https://labymod.net/$textureId.png"
 }
