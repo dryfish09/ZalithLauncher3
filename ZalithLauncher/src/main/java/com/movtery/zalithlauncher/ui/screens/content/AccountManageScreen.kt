@@ -156,7 +156,7 @@ private data class AccountActions(
     val openLink: (url: String) -> Unit,
     val backToMainScreen: () -> Unit,
     val navigateToWeb: (url: String) -> Unit,
-    val navigateToLabynetCapes: (accountUUID: String) -> Unit,
+    val navigateToCapeGallery: (accountUUID: String) -> Unit,
     val checkIfInWebScreen: () -> Boolean,
     val formatError: (Throwable) -> AndroidStringText,
     val submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
@@ -210,9 +210,9 @@ fun AccountManageScreen(
             openLink = openLink,
             backToMainScreen = backToMainScreen,
             navigateToWeb = { url -> backStackViewModel.mainScreen.backStack.navigateToWeb(url) },
-            navigateToLabynetCapes = { uuid ->
+            navigateToCapeGallery = { uuid ->
                 backStackViewModel.mainScreen.backStack.navigateTo(
-                    NormalNavKey.LabynetCapes(uuid)
+                    NormalNavKey.CapeGallery(uuid)
                 )
             },
             checkIfInWebScreen = { backStackViewModel.mainScreen.currentKey is NormalNavKey.WebScreen },
@@ -1087,7 +1087,7 @@ private fun AccountSkinOperation(
                 },
 
                 onInstallCapes = {
-                    actions.navigateToLabynetCapes(account.uniqueUUID)
+                    actions.navigateToCapeGallery(account.uniqueUUID)
                 }
             )
         }
@@ -1144,7 +1144,7 @@ private fun AccountManageContentPreview() {
                         openLink = {},
                         backToMainScreen = {},
                         navigateToWeb = {},
-                        navigateToLabynetCapes = {},
+                        navigateToCapeGallery = {},
                         checkIfInWebScreen = { false },
                         formatError = { AndroidStringText.Text("") },
                         submitError = {},

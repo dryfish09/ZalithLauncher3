@@ -1792,12 +1792,15 @@ fun ChangeSkinDialog(
             onDismiss = {
                 showCapeCollectionSelector = false
                 capeRefreshKey++
+                AccountsManager.refreshWardrobe()
             },
             onCapeActivated = {
                 capeRefreshKey++
+                AccountsManager.refreshWardrobe()
             },
             onCapeDeleted = {
                 capeRefreshKey++
+                AccountsManager.refreshWardrobe()
             }
         )
     }

@@ -1605,4 +1605,26 @@
     <string name="versions_manage_move_versions_moving">正在移动 %1$s…</string>
     <string name="versions_manage_move_versions_done">移动完成</string>
     <string name="versions_manage_move_versions_failed">移动失败</string>
+    <string name="account_capes_install">安装披风</string>
+    <string name="account_capes_install_from_labynet">从 Laby.net 安装</string>
+    <string name="account_capes_select">选择披风</string>
+    <string name="account_capes_source_imported">图库</string>
+    <string name="account_capes_saved_toast">披风已保存</string>
+    <string name="account_capes_select_title">我的披风</string>
+    <string name="account_capes_no_capes">还没有安装披风。点击"安装披风"开始。</string>
+    <string name="account_capes_none">无披风</string>
+    <string name="account_capes_favorite">收藏</string>
+    <string name="account_capes_unfavorite">取消收藏</string>
+    <string name="account_capes_activate">激活</string>
+    <string name="account_capes_rename_hint">披风名称</string>
+    <string name="account_capes_labynet_title">披风画廊</string>
+    <string name="account_capes_labynet_loading">正在加载披风…</string>
+    <string name="account_capes_labynet_download">下载</string>
+    <string name="account_capes_labynet_downloading">正在下载…</string>
+    <string name="account_capes_labynet_downloaded">披风"%s"已下载</string>
+    <string name="account_capes_labynet_download_failed">下载失败：%s</string>
+    <string name="account_capes_labynet_failed">加载披风失败：%s</string>
+    <string name="account_capes_labynet_no_capes">未找到此账号的披风。</string>
+    <string name="account_capes_delete_title">删除披风</string>
+    <string name="account_capes_delete_message">确定要删除"%s"吗？</string>
 </resources>

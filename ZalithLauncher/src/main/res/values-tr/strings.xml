@@ -1541,4 +1541,26 @@
     <string name="versions_manage_move_versions_moving">%1$s taşınıyor…</string>
     <string name="versions_manage_move_versions_done">Taşıma tamamlandı</string>
     <string name="versions_manage_move_versions_failed">Taşıma başarısız</string>
+    <string name="account_capes_install">Pelerin Yükle</string>
+    <string name="account_capes_install_from_labynet">Laby.net\'ten Yükle</string>
+    <string name="account_capes_select">Pelerin Seç</string>
+    <string name="account_capes_source_imported">Galeri</string>
+    <string name="account_capes_saved_toast">Pelerin kaydedildi</string>
+    <string name="account_capes_select_title">Pelerinlerim</string>
+    <string name="account_capes_no_capes">Henüz pelerin yüklenmedi. Başlamak için \"Pelerin Yükle\"ye dokunun.</string>
+    <string name="account_capes_none">Pelerin Yok</string>
+    <string name="account_capes_favorite">Favori</string>
+    <string name="account_capes_unfavorite">Favorilerden Çıkar</string>
+    <string name="account_capes_activate">Etkinleştir</string>
+    <string name="account_capes_rename_hint">Pelerin adı</string>
+    <string name="account_capes_labynet_title">Pelerin Galerisi</string>
+    <string name="account_capes_labynet_loading">Pelerinler yükleniyor…</string>
+    <string name="account_capes_labynet_download">İndir</string>
+    <string name="account_capes_labynet_downloading">İndiriliyor…</string>
+    <string name="account_capes_labynet_downloaded">\"%s\" pelerini indirildi</string>
+    <string name="account_capes_labynet_download_failed">İndirme başarısız: %s</string>
+    <string name="account_capes_labynet_failed">Pelerinler yüklenemedi: %s</string>
+    <string name="account_capes_labynet_no_capes">Bu hesap için pelerin bulunamadı.</string>
+    <string name="account_capes_delete_title">Pelerini Sil</string>
+    <string name="account_capes_delete_message">\"%s\" pelerinini silmek istediğinize emin misiniz?</string>
 </resources>
