@@ -1643,7 +1643,7 @@ fun ChangeSkinDialog(
                                     }
                                 },
                                 onClick = {
-                                    capePicker.launch(arrayOf("image/png"))
+                                    capePicker.launch(arrayOf("image/png", "image/webp", "image/jpeg"))
                                 },
                                 enabled = !isImportingCape
                             )

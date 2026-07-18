@@ -476,11 +476,32 @@ class AccountManageViewModel @Inject constructor(
                 val account = intent.account
                 val uuid = account.uniqueUUID
                 val imageBytes = cacheFile.readBytes()
+                val detectedExt = when {
+                    imageBytes.size > 8 &&
+                        imageBytes[0] == 0x89.toByte() &&
+                        imageBytes[1] == 0x50.toByte() &&
+                        imageBytes[2] == 0x4E.toByte() &&
+                        imageBytes[3] == 0x47.toByte() -> "png"
+                    imageBytes.size > 2 &&
+                        imageBytes[0] == 0xFF.toByte() &&
+                        imageBytes[1] == 0xD8.toByte() -> "jpg"
+                    imageBytes.size > 12 &&
+                        imageBytes[0] == 0x52.toByte() &&
+                        imageBytes[1] == 0x49.toByte() &&
+                        imageBytes[2] == 0x46.toByte() &&
+                        imageBytes[3] == 0x46.toByte() &&
+                        imageBytes[8] == 0x57.toByte() &&
+                        imageBytes[9] == 0x45.toByte() &&
+                        imageBytes[10] == 0x42.toByte() &&
+                        imageBytes[11] == 0x50.toByte() -> "webp"
+                    else -> "png"
+                }
                 AccountCapeCollection.addCape(
                     accountUUID = uuid,
                     name = AccountCapeCollection.generateAutoName(uuid),
                     source = context.getString(R.string.account_capes_source_imported),
-                    imageBytes = imageBytes
+                    imageBytes = imageBytes,
+                    ext = detectedExt
                 )
                 FileUtils.deleteQuietly(cacheFile)
                 _accountSkinDialogState.update { it.copy(importingCape = false) }
