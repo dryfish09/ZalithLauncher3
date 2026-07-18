@@ -1519,6 +1519,8 @@
     <string name="account_change_cape_failed_to_import">Failed to import cape: %s</string>
     <string name="account_capes_install">Install Capes</string>
     <string name="account_capes_install_from_labynet">Install from Laby.net</string>
+    <string name="account_capes_select">Select Cape</string>
+    <string name="account_capes_source_imported">Gallery</string>
     <string name="account_capes_saved_toast">Cape saved to capes</string>
     <string name="account_capes_select_title">My Capes</string>
     <string name="account_capes_no_capes">No capes installed yet. Tap "Install Capes" to get started.</string>
@@ -1530,8 +1532,9 @@
     <string name="account_capes_labynet_loading">Loading capes…</string>
     <string name="account_capes_labynet_download">Download</string>
     <string name="account_capes_labynet_downloading">Downloading…</string>
-    <string name="account_capes_labynet_downloaded">Downloaded</string>
-    <string name="account_capes_labynet_failed">Failed to load capes</string>
+    <string name="account_capes_labynet_downloaded">Cape \"%s\" downloaded</string>
+    <string name="account_capes_labynet_download_failed">Download failed: %s</string>
+    <string name="account_capes_labynet_failed">Failed to load capes: %s</string>
 
     <!-- Rank and Play Time -->
     <string name="rank_novice">Novice</string>

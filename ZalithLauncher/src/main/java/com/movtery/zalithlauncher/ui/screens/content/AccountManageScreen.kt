@@ -106,6 +106,8 @@ import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListItem
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.CapeSelectorDialog
@@ -1184,6 +1186,7 @@ private fun AccountManageContentPreview() {
                         openLink = {},
                         backToMainScreen = {},
                         navigateToWeb = {},
+                        navigateToLabynetCapes = {},
                         checkIfInWebScreen = { false },
                         formatError = { AndroidStringText.Text("") },
                         submitError = {},

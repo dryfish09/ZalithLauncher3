@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -66,8 +65,8 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.account.labynet.LabyCape
 import com.movtery.zalithlauncher.game.account.labynet.LabyCapeApi
-import com.movtery.zalithlauncher.game.account.labynet.LabyCapeInfo
 import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
@@ -81,13 +80,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.io.File
 
 @Composable
 fun LabynetCapesScreen(
     key: NormalNavKey.LabynetCapes,
     backStackViewModel: ScreenBackStackViewModel
 ) {
-    val httpClient = remember {
+    val client = remember {
         HttpClient {
             install(ContentNegotiation) {
                 json(Json {
@@ -97,10 +97,9 @@ fun LabynetCapesScreen(
             }
         }
     }
-    val api = remember { LabyCapeApi(httpClient) }
     val scope = rememberCoroutineScope()
 
-    var capes by remember { mutableStateOf<List<LabyCapeInfo>>(emptyList()) }
+    var capes by remember { mutableStateOf<List<LabyCape>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     val downloading = remember { mutableStateMapOf<String, Boolean>() }
@@ -108,7 +107,7 @@ fun LabynetCapesScreen(
     LaunchedEffect(Unit) {
         try {
             val result = withContext(Dispatchers.IO) {
-                api.fetchAllCapes()
+                LabyCapeApi.fetchAllCapes(client)
             }
             capes = result
         } catch (e: Exception) {
@@ -153,7 +152,7 @@ fun LabynetCapesScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = stringResource(R.string.account_capes_labynet_error, error ?: ""),
+                                text = stringResource(R.string.account_capes_labynet_failed, error ?: ""),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.error,
                                 textAlign = TextAlign.Center,
@@ -185,45 +184,44 @@ fun LabynetCapesScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            items(capes, key = { it.id.toString() }) { cape ->
+                            items(capes, key = { it.imageHash }) { cape ->
                                 LabynetCapeCard(
                                     cape = cape,
-                                    isDownloading = downloading[cape.id.toString()] == true,
+                                    isDownloading = downloading[cape.imageHash] == true,
                                     onDownload = {
-                                        val capeId = cape.id.toString()
-                                        downloading[capeId] = true
+                                        val hash = cape.imageHash
+                                        downloading[hash] = true
                                         scope.launch(Dispatchers.IO) {
                                             try {
-                                                val imageBytes = api.downloadCapeImage(cape.imageHash)
-                                                val entry = AccountCapeCollection.addCape(
-                                                    accountUUID = key.accountUUID,
-                                                    name = cape.name,
-                                                    source = "Laby.net",
-                                                    imageBytes = imageBytes
-                                                )
-                                                withContext(Dispatchers.Main) {
-                                                    Toast.makeText(
-                                                        context,
-                                                        context.getString(
-                                                            R.string.account_capes_downloaded,
-                                                            entry.name
-                                                        ),
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
+                                                val tempFile = File.createTempFile("laby_cape_", ".png")
+                                                try {
+                                                    LabyCapeApi.downloadCapeImage(client, hash, tempFile)
+                                                    AccountCapeCollection.addCape(
+                                                        accountUUID = key.accountUUID,
+                                                        textureFile = tempFile,
+                                                        name = cape.name,
+                                                        source = "Laby.net"
+                                                    )
+                                                    withContext(Dispatchers.Main) {
+                                                        Toast.makeText(
+                                                            context,
+                                                            context.getString(R.string.account_capes_labynet_downloaded, cape.name),
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                    }
+                                                } finally {
+                                                    tempFile.delete()
                                                 }
                                             } catch (e: Exception) {
                                                 withContext(Dispatchers.Main) {
                                                     Toast.makeText(
                                                         context,
-                                                        context.getString(
-                                                            R.string.account_capes_download_failed,
-                                                            e.message ?: ""
-                                                        ),
+                                                        context.getString(R.string.account_capes_labynet_download_failed, e.message ?: ""),
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
                                             } finally {
-                                                downloading[capeId] = false
+                                                downloading[hash] = false
                                             }
                                         }
                                     }
@@ -239,7 +237,7 @@ fun LabynetCapesScreen(
 
 @Composable
 private fun LabynetCapeCard(
-    cape: LabyCapeInfo,
+    cape: LabyCape,
     isDownloading: Boolean,
     onDownload: () -> Unit
 ) {
@@ -264,7 +262,7 @@ private fun LabynetCapeCard(
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(context)
-                        .data("https://laby.net/texture/cape/${cape.imageHash}.png")
+                        .data(LabyCapeApi.getCapeImageUrl(cape.imageHash))
                         .crossfade(true)
                         .build(),
                     contentDescription = cape.name,

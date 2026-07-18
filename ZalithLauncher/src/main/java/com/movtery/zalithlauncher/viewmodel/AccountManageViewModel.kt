@@ -484,7 +484,7 @@ class AccountManageViewModel @Inject constructor(
                 )
                 FileUtils.deleteQuietly(cacheFile)
                 _accountSkinDialogState.update { it.copy(importingCape = false) }
-                emitToast(androidText(R.string.account_capes_saved_to_capes))
+                emitToast(androidText(R.string.account_capes_saved_toast))
             }.onFailure { th ->
                 _accountSkinDialogState.update {
                     it.copy(importingCape = false)

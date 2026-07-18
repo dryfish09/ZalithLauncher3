@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
