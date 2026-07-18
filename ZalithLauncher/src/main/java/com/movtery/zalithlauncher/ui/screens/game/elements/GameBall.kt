@@ -41,18 +41,26 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.recorder.RecordingState
 import com.movtery.zalithlauncher.ui.components.FloatingBall
 import com.movtery.zalithlauncher.ui.screens.content.elements.MemoryPreview
+import kotlinx.coroutines.delay
 
 @Composable
 fun DraggableGameBall(
@@ -108,45 +116,78 @@ private fun RecordingControlContent(
     onResume: () -> Unit,
     onStop: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_fiber_manual_record),
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-            tint = if (isPaused) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                   else Color.Red
-        )
-        Spacer(Modifier.width(2.dp))
-        IconButton(
-            onClick = if (isPaused) onResume else onPause,
-            modifier = Modifier.size(32.dp)
-        ) {
-            Icon(
-                painter = painterResource(
-                    if (isPaused) R.drawable.ic_play_arrow_filled
-                    else R.drawable.ic_pause_filled
-                ),
-                contentDescription = stringResource(
-                    if (isPaused) R.string.recorder_resume else R.string.recorder_pause
-                ),
-                modifier = Modifier.size(20.dp)
-            )
-        }
-        IconButton(
-            onClick = onStop,
-            modifier = Modifier.size(32.dp)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_stop_filled),
-                contentDescription = stringResource(R.string.recorder_stop_and_save),
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.error
-            )
+    var elapsedMs by remember { mutableLongStateOf(0L) }
+
+    LaunchedEffect(isPaused) {
+        if (!isPaused) {
+            val start = System.currentTimeMillis() - elapsedMs
+            while (true) {
+                elapsedMs = System.currentTimeMillis() - start
+                delay(1000L)
+            }
         }
     }
+
+    Column(
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(R.drawable.ic_fiber_manual_record),
+                contentDescription = null,
+                modifier = Modifier.size(12.dp),
+                tint = if (isPaused) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                       else Color.Red
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = formatElapsed(elapsedMs),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 11.sp
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = if (isPaused) onResume else onPause,
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    painter = painterResource(
+                        if (isPaused) R.drawable.ic_play_arrow_filled
+                        else R.drawable.ic_pause_filled
+                    ),
+                    contentDescription = stringResource(
+                        if (isPaused) R.string.recorder_resume else R.string.recorder_pause
+                    ),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            IconButton(
+                onClick = onStop,
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_stop_filled),
+                    contentDescription = stringResource(R.string.recorder_stop_and_save),
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+    }
+}
+
+private fun formatElapsed(ms: Long): String {
+    val totalSec = ms / 1000L
+    val h = totalSec / 3600
+    val m = (totalSec % 3600) / 60
+    val s = totalSec % 60
+    return if (h > 0) "%d:%02d:%02d".format(h, m, s)
+           else "%02d:%02d".format(m, s)
 }
 
 @Composable
