@@ -577,7 +577,11 @@ private fun AccountManageContent(
         accountSkinOperation = operationUiState.accountSkinOp,
         skinDialogState = operationUiState.accountSkinDialogState,
         accountCapes = profileUiState.accountCapeOpMap,
-        actions = actions
+        actions = actions,
+        onCapeSelectorOpen = { uuid ->
+            AccountCapeCollection.migrateLegacy(uuid)
+            capeSelectorAccountUuid = uuid
+        }
     )
 }
 
@@ -1041,7 +1045,8 @@ private fun AccountSkinOperation(
     accountSkinOperation: AccountSkinOperation,
     skinDialogState: AccountManageViewModel.AccountSkinDialogState,
     accountCapes: Map<String, List<PlayerProfile.Cape>>,
-    actions: AccountActions
+    actions: AccountActions,
+    onCapeSelectorOpen: (String) -> Unit = {}
 ) {
     when (accountSkinOperation) {
         is AccountSkinOperation.None -> {}
@@ -1101,8 +1106,7 @@ private fun AccountSkinOperation(
                     actions.onIntent(AccountManageIntent.ApplyCustomCape(account, file))
                 },
                 onSelectCape = {
-                    AccountCapeCollection.migrateLegacy(account.uniqueUUID)
-                    capeSelectorAccountUuid = account.uniqueUUID
+                    onCapeSelectorOpen(account.uniqueUUID)
                 },
                 onInstallCapes = {
                     actions.navigateToLabynetCapes(account.uniqueUUID)
