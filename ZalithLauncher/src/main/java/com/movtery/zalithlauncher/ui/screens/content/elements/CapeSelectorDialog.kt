@@ -54,6 +54,11 @@ import kotlin.math.roundToInt
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.asImageBitmap
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
@@ -68,7 +73,6 @@ fun CapeSelectorDialog(
     accountUUID: String,
     onDismiss: () -> Unit,
     onCapeActivated: () -> Unit,
-    onOpenGallery: () -> Unit,
     onCapeDeleted: () -> Unit = {}
 ) {
     var manifest by remember(accountUUID) { mutableStateOf(AccountCapeCollection.loadManifest(accountUUID)) }
@@ -76,6 +80,42 @@ fun CapeSelectorDialog(
         manifest.capes.sortedByDescending { it.favorite }
     }
     var confirmDeleteId by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    var isImporting by remember { mutableStateOf(false) }
+
+    val capePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        isImporting = true
+        try {
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return@rememberLauncherForActivityResult
+            val tempFile = File(context.cacheDir, "import_cape_${System.currentTimeMillis()}")
+            FileOutputStream(tempFile).use { output ->
+                inputStream.copyTo(output)
+            }
+            inputStream.close()
+            val ext = when {
+                uri.toString().endsWith(".webp", true) -> "webp"
+                uri.toString().endsWith(".jpg", true) || uri.toString().endsWith(".jpeg", true) -> "jpg"
+                else -> "png"
+            }
+            AccountCapeCollection.addCape(
+                accountUUID = accountUUID,
+                textureFile = tempFile,
+                name = tempFile.nameWithoutExtension,
+                source = "Imported",
+                ext = ext
+            )
+            tempFile.delete()
+            manifest = AccountCapeCollection.loadManifest(accountUUID)
+            Toast.makeText(context, context.getString(R.string.account_capes_saved_toast), Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, context.getString(R.string.account_change_cape_failed_to_import, e.message ?: ""), Toast.LENGTH_SHORT).show()
+        } finally {
+            isImporting = false
+        }
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -172,7 +212,10 @@ fun CapeSelectorDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Button(onClick = onOpenGallery) {
+                        Button(
+                            enabled = !isImporting,
+                            onClick = { capePicker.launch(arrayOf("image/png", "image/webp", "image/jpeg")) }
+                        ) {
                             Text(stringResource(R.string.account_change_cape_upload))
                         }
                         Button(onClick = onDismiss) {

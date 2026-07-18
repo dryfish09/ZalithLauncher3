@@ -1283,7 +1283,6 @@ fun ChangeSkinDialog(
     onCapeStateChange: (ChangeCape) -> Unit,
     isImportingSkin: Boolean,
     isImportingCape: Boolean = false,
-    onSkinPicked: (Uri) -> Unit,
     onCapePicked: (Account, Uri) -> Unit = { _, _ -> },
     onDismissRequest: () -> Unit,
     onResetSkin: () -> Unit,
@@ -1629,30 +1628,6 @@ fun ChangeSkinDialog(
                                 )
                             }
 
-                            //自定义披风上传
-                            InfoLayoutTextItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = stringResource(R.string.account_change_cape_upload),
-                                icon = {
-                                    if (isImportingCape) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(22.dp),
-                                            strokeWidth = 2.dp
-                                        )
-                                    } else {
-                                        Icon(
-                                            modifier = Modifier.size(22.dp),
-                                            painter = painterResource(R.drawable.ic_upload),
-                                            contentDescription = null
-                                        )
-                                    }
-                                },
-                                onClick = {
-                                    capePicker.launch(arrayOf("image/png", "image/webp", "image/jpeg"))
-                                },
-                                enabled = !isImportingCape
-                            )
-
                             //披风选择与安装（仅非验证服务器账号）
                             if (!account.isAuthServerAccount()) {
                                 InfoLayoutTextItem(
@@ -1798,7 +1773,6 @@ fun ChangeSkinDialog(
                 capeRefreshKey++
                 AccountsManager.refreshWardrobe()
             },
-            onOpenGallery = onInstallCapes,
             onCapeDeleted = {
                 capeRefreshKey++
                 AccountsManager.refreshWardrobe()
