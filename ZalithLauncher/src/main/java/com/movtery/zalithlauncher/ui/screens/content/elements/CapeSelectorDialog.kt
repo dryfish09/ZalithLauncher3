@@ -67,6 +67,7 @@ import com.movtery.zalithlauncher.game.account.wardrobe.CapeEntry
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 fun CapeSelectorDialog(

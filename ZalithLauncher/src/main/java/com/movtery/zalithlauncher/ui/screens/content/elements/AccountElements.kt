@@ -1282,6 +1282,7 @@ fun ChangeSkinDialog(
     capeState: ChangeCape,
     onCapeStateChange: (ChangeCape) -> Unit,
     isImportingSkin: Boolean,
+    onSkinPicked: (Uri) -> Unit,
     isImportingCape: Boolean = false,
     onCapePicked: (Account, Uri) -> Unit = { _, _ -> },
     onDismissRequest: () -> Unit,
