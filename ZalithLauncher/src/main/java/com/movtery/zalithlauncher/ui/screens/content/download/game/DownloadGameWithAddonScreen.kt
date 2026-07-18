@@ -62,6 +62,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.cleanroom.CleanroomVersions
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.babric.BabricVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricAPIVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.legacyfabric.LegacyFabricAPIVersions
@@ -187,6 +188,12 @@ private class AddonsViewModel(
         { addonList.cleanroomList = it }
     )
 
+    fun reloadBabric() = launchAddonReload(
+        { currentAddon.babricState = it },
+        { BabricVersions.fetchBabricLoaderList(gameVersion) },
+        { addonList.babricList = it }
+    )
+
     private fun <T> launchAddonReload(
         updateState: (AddonState) -> Unit,
         fetch: suspend () -> T?,
@@ -217,6 +224,9 @@ private class AddonsViewModel(
         }
         if (loaderSupports.isCleanroomSupports) {
             reloadCleanroom()
+        }
+        if (loaderSupports.isBabricSupports) {
+            reloadBabric()
         }
     }
 
@@ -296,7 +306,9 @@ fun DownloadGameWithAddonScreen(
                             quiltAPI = viewModel.currentAddon.quiltAPIVersion.value
                                 .takeIf { loaderSupports.isQuiltSupports },
                             cleanroom = viewModel.currentAddon.cleanroomVersion.value
-                                .takeIf { loaderSupports.isCleanroomSupports }
+                                .takeIf { loaderSupports.isCleanroomSupports },
+                            babric = viewModel.currentAddon.babricVersion.value
+                                .takeIf { loaderSupports.isBabricSupports }
                         )
                     )
                 }
@@ -534,6 +546,22 @@ fun DownloadGameWithAddonScreen(
                     }
                 }
 
+                if (loaderSupports.isBabricSupports) {
+                    AnimatedItem(scope) { yOffset ->
+                        BabricList(
+                            modifier = Modifier.offset {
+                                IntOffset(
+                                    x = 0,
+                                    y = yOffset.roundToPx()
+                                )
+                            },
+                            currentAddon = viewModel.currentAddon,
+                            onValueChanged = { viewModel.refreshIcon() },
+                            addonList = viewModel.addonList
+                        ) { viewModel.reloadBabric() }
+                    }
+                }
+
                 Spacer(Modifier)
             }
         }
@@ -734,6 +762,7 @@ private fun VersionIconPreview(
             currentAddon.legacyFabricVersion.value != null -> R.drawable.img_loader_legacy_fabric
             currentAddon.quiltVersion.value != null -> R.drawable.img_loader_quilt
             currentAddon.cleanroomVersion.value != null -> R.drawable.img_loader_cleanroom
+            currentAddon.babricVersion.value != null -> R.drawable.img_loader_fabric
             else -> R.drawable.img_minecraft
         }
     }
@@ -764,6 +793,7 @@ private fun AutoChangeVersionName(
         currentAddon.legacyFabricVersion.value,
         currentAddon.quiltVersion.value,
         currentAddon.cleanroomVersion.value,
+        currentAddon.babricVersion.value,
     ) {
         if (editedByUser) return@LaunchedEffect
 
@@ -786,6 +816,7 @@ private fun AutoChangeVersionName(
                     legacyFabricVersion.value != null -> append(formatModloader(ModLoader.LEGACY_FABRIC.displayName, legacyFabricVersion.value!!.version))
                     quiltVersion.value != null -> append(formatModloader(ModLoader.QUILT.displayName, quiltVersion.value!!.version))
                     cleanroomVersion.value != null -> append(formatModloader(ModLoader.CLEANROOM.displayName, cleanroomVersion.value!!.version))
+                    babricVersion.value != null -> append(formatModloader(ModLoader.BABRIC.displayName, babricVersion.value!!.version))
                     else -> {
                         changeValue(gameVersion)
                         return@LaunchedEffect
