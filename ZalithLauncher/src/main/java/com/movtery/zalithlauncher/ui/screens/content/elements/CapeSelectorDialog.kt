@@ -157,7 +157,7 @@ private fun CapeEntryCard(
     var editing by remember { mutableStateOf(false) }
     var editName by remember(entry.name) { mutableStateOf(entry.name) }
 
-    val capeFile = File(AccountCapeCollection.getCollectionDir(accountUUID), "${entry.id}.png")
+    val capeFile = File(AccountCapeCollection.getCollectionDir(accountUUID), "${entry.id}.${entry.ext}")
 
     SettingsCard(
         modifier = Modifier.fillMaxWidth(),

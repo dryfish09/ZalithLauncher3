@@ -35,12 +35,12 @@ object LabyCapeApi {
         imageHash: String,
         targetFile: File
     ) {
-        val url = "https://laby.net/texture/cape/$imageHash.png"
+        val url = "https://laby.net/texture/cape/$imageHash.webp"
         val response = client.get(url)
         val channel = response.bodyAsChannel()
         FileUtils.copyInputStreamToFile(channel.toInputStream(), targetFile)
     }
 
     fun getCapeImageUrl(imageHash: String): String =
-        "https://laby.net/texture/cape/$imageHash.png"
+        "https://laby.net/texture/cape/$imageHash.webp"
 }

@@ -200,7 +200,8 @@ fun LabynetCapesScreen(
                                                         accountUUID = key.accountUUID,
                                                         textureFile = tempFile,
                                                         name = cape.name,
-                                                        source = "Laby.net"
+                                                        source = "Laby.net",
+                                                        ext = "webp"
                                                     )
                                                     withContext(Dispatchers.Main) {
                                                         Toast.makeText(

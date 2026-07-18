@@ -14,7 +14,8 @@ data class CapeEntry(
     var name: String,
     var favorite: Boolean = false,
     val source: String = "gallery",
-    val labyCapeId: String? = null
+    val labyCapeId: String? = null,
+    val ext: String = "png"
 )
 
 @Serializable
@@ -32,8 +33,8 @@ object AccountCapeCollection {
     private fun getManifestFile(accountUUID: String): File =
         File(getCollectionDir(accountUUID), "capes.json")
 
-    private fun getCapeTextureFile(accountUUID: String, capeId: String): File =
-        File(getCollectionDir(accountUUID), "$capeId.png")
+    private fun getCapeTextureFile(accountUUID: String, entry: CapeEntry): File =
+        File(getCollectionDir(accountUUID), "${entry.id}.${entry.ext}")
 
     fun loadManifest(accountUUID: String): CapeManifest {
         val file = getManifestFile(accountUUID)
@@ -60,12 +61,13 @@ object AccountCapeCollection {
         textureFile: File,
         name: String,
         source: String = "gallery",
-        labyCapeId: String? = null
+        labyCapeId: String? = null,
+        ext: String = "png"
     ): CapeEntry {
         val manifest = loadManifest(accountUUID)
         val id = UUID.randomUUID().toString().lowercase()
-        val entry = CapeEntry(id = id, name = name, source = source, labyCapeId = labyCapeId)
-        val targetFile = getCapeTextureFile(accountUUID, id)
+        val entry = CapeEntry(id = id, name = name, source = source, labyCapeId = labyCapeId, ext = ext)
+        val targetFile = getCapeTextureFile(accountUUID, entry)
         getCollectionDir(accountUUID).mkdirs()
         FileUtils.copyFile(textureFile, targetFile)
         val updated = manifest.copy(
@@ -100,6 +102,7 @@ object AccountCapeCollection {
 
     fun removeCape(accountUUID: String, capeId: String) {
         val manifest = loadManifest(accountUUID)
+        val entry = manifest.capes.find { it.id == capeId }
         val updated = manifest.copy(
             capes = manifest.capes.filter { it.id != capeId },
             activeCapeId = if (manifest.activeCapeId == capeId) {
@@ -107,7 +110,7 @@ object AccountCapeCollection {
             } else manifest.activeCapeId
         )
         saveManifest(accountUUID, updated)
-        getCapeTextureFile(accountUUID, capeId).delete()
+        if (entry != null) getCapeTextureFile(accountUUID, entry).delete()
     }
 
     fun setActiveCape(accountUUID: String, capeId: String) {
@@ -140,7 +143,8 @@ object AccountCapeCollection {
     fun getActiveCapeFile(accountUUID: String): File? {
         val manifest = loadManifest(accountUUID)
         val activeId = manifest.activeCapeId ?: return null
-        val file = getCapeTextureFile(accountUUID, activeId)
+        val entry = manifest.capes.find { it.id == activeId } ?: return null
+        val file = getCapeTextureFile(accountUUID, entry)
         return if (file.exists()) file else null
     }
 
@@ -150,8 +154,8 @@ object AccountCapeCollection {
         val manifest = loadManifest(accountUUID)
         if (manifest.capes.isNotEmpty()) return
         val id = UUID.randomUUID().toString().lowercase()
-        val entry = CapeEntry(id = id, name = "My Cape", source = "gallery")
-        val targetFile = getCapeTextureFile(accountUUID, id)
+        val entry = CapeEntry(id = id, name = "My Cape", source = "gallery", ext = "png")
+        val targetFile = getCapeTextureFile(accountUUID, entry)
         getCollectionDir(accountUUID).mkdirs()
         FileUtils.copyFile(legacyFile, targetFile)
         saveManifest(accountUUID, CapeManifest(activeCapeId = id, capes = listOf(entry)))
