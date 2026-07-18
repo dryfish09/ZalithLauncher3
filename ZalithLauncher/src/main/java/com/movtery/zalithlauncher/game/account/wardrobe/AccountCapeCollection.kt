@@ -119,11 +119,17 @@ object AccountCapeCollection {
         val manifest = loadManifest(accountUUID)
         if (manifest.capes.any { it.id == capeId }) {
             saveManifest(accountUUID, manifest.copy(activeCapeId = capeId))
+            val entry = manifest.capes.find { it.id == capeId }!!
+            val source = getCapeTextureFile(accountUUID, entry)
+            val target = File(PathManager.DIR_ACCOUNT_CAPE, "$accountUUID.png")
+            target.parentFile?.mkdirs()
+            source.copyTo(target, overwrite = true)
         }
     }
 
     fun clearActiveCape(accountUUID: String) {
         saveManifest(accountUUID, loadManifest(accountUUID).copy(activeCapeId = null))
+        File(PathManager.DIR_ACCOUNT_CAPE, "$accountUUID.png").delete()
     }
 
     fun toggleFavorite(accountUUID: String, capeId: String) {

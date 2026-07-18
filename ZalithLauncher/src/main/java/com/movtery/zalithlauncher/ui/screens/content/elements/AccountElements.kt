@@ -1305,6 +1305,7 @@ fun ChangeSkinDialog(
     var showCapeSelector by remember { mutableStateOf(false) }
     var showCapeCollectionSelector by remember { mutableStateOf(false) }
     var capeRefreshKey by remember { mutableStateOf(0) }
+    var capeCollectionChanged by remember { mutableStateOf(false) }
 
     var isFetchingCapes by remember { mutableStateOf(false) }
 
@@ -1692,8 +1693,9 @@ fun ChangeSkinDialog(
 
                         Button(
                             modifier = Modifier.weight(1f),
-                            enabled = skinState != ChangeSkin.None || capeState != ChangeCape.None,
+                            enabled = skinState != ChangeSkin.None || capeState != ChangeCape.None || capeCollectionChanged,
                             onClick = {
+                                capeCollectionChanged = false
                                 when (skinState) {
                                     is ChangeSkin.ChangeSkinData -> {
                                         onApplySkin(skinState.cacheFile, skinState.skinModel)
@@ -1770,10 +1772,12 @@ fun ChangeSkinDialog(
                 AccountsManager.refreshWardrobe()
             },
             onCapeActivated = {
+                capeCollectionChanged = true
                 capeRefreshKey++
                 AccountsManager.refreshWardrobe()
             },
             onCapeDeleted = {
+                capeCollectionChanged = true
                 capeRefreshKey++
                 AccountsManager.refreshWardrobe()
             }
