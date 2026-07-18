@@ -538,13 +538,6 @@ private fun AccountManageContent(
                                     actions.onIntent(
                                         AccountManageIntent.UpdateAccountOp(AccountOperation.Delete(account))
                                     )
-                                },
-                                onOpenCapeSelector = {
-                                    AccountCapeCollection.migrateLegacy(account.uniqueUUID)
-                                    capeSelectorAccountUuid = account.uniqueUUID
-                                },
-                                onOpenLabynetCapes = {
-                                    actions.navigateToLabynetCapes(account.uniqueUUID)
                                 }
                             )
                         }
@@ -566,6 +559,9 @@ private fun AccountManageContent(
             accountUUID = uuid,
             onDismiss = { capeSelectorAccountUuid = null },
             onCapeActivated = {
+                AccountsManager.refreshWardrobe()
+            },
+            onCapeDeleted = {
                 AccountsManager.refreshWardrobe()
             }
         )
@@ -596,9 +592,7 @@ private fun AccountCard(
     openChangeSkinDialog: () -> Unit,
     onRefreshClick: () -> Unit,
     onCopyUUID: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onOpenCapeSelector: () -> Unit = {},
-    onOpenLabynetCapes: () -> Unit = {}
+    onDeleteClick: () -> Unit
 ) {
     val isSelected = currentAccount?.uniqueUUID == account.uniqueUUID
     val context = LocalContext.current
@@ -712,31 +706,6 @@ private fun AccountCard(
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                FilledTonalButton(
-                    modifier = Modifier.weight(1f),
-                    onClick = onOpenCapeSelector
-                ) {
-                    Text(
-                        text = stringResource(R.string.account_capes_select),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
-                FilledTonalButton(
-                    modifier = Modifier.weight(1f),
-                    onClick = onOpenLabynetCapes
-                ) {
-                    Text(
-                        text = stringResource(R.string.account_capes_install),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
-            }
         }
     }
 }
@@ -1130,6 +1099,13 @@ private fun AccountSkinOperation(
                 },
                 onApplyCustomCape = { file ->
                     actions.onIntent(AccountManageIntent.ApplyCustomCape(account, file))
+                },
+                onSelectCape = {
+                    AccountCapeCollection.migrateLegacy(account.uniqueUUID)
+                    capeSelectorAccountUuid = account.uniqueUUID
+                },
+                onInstallCapes = {
+                    actions.navigateToLabynetCapes(account.uniqueUUID)
                 }
             )
         }

@@ -75,6 +75,8 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -95,6 +97,10 @@ fun LabynetCapesScreen(
                     isLenient = true
                 })
             }
+            defaultRequest {
+                url("https://api.laby.net/api/v3/capes")
+                header("User-Agent", "ZalithLauncher/2.0")
+            }
         }
     }
     val scope = rememberCoroutineScope()
@@ -111,7 +117,7 @@ fun LabynetCapesScreen(
             }
             capes = result
         } catch (e: Exception) {
-            error = e.message ?: "Unknown error"
+            error = "${e::class.simpleName}: ${e.message ?: "Unknown"}"
         } finally {
             loading = false
         }

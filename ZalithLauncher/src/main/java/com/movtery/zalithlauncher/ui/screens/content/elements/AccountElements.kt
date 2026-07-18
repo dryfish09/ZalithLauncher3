@@ -1289,7 +1289,9 @@ fun ChangeSkinDialog(
     onApplySkin: (File, SkinModelType) -> Unit,
     onApplyCape: (PlayerProfile.Cape) -> Unit,
     onApplyCustomCape: (File) -> Unit = {},
-    onFetchCapes: () -> Unit
+    onFetchCapes: () -> Unit,
+    onSelectCape: () -> Unit = {},
+    onInstallCapes: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val playerSkin = remember { PlayerSkin(context) }
@@ -1648,21 +1650,31 @@ fun ChangeSkinDialog(
                                 enabled = !isImportingCape
                             )
 
-                            //离线账号重置披风
-                            if (account.getCapeFile().exists() && capeState != ChangeCape.ResetCape) {
+                            //披风选择与安装（仅非验证服务器账号）
+                            if (!account.isAuthServerAccount()) {
                                 InfoLayoutTextItem(
                                     modifier = Modifier.fillMaxWidth(),
-                                    title = stringResource(R.string.account_change_cape_reset),
+                                    title = stringResource(R.string.account_capes_select),
                                     icon = {
                                         Icon(
                                             modifier = Modifier.size(22.dp),
-                                            painter = painterResource(R.drawable.ic_restart_alt),
+                                            painter = painterResource(R.drawable.ic_styler),
                                             contentDescription = null
                                         )
                                     },
-                                    onClick = {
-                                        onCapeStateChange(ChangeCape.ResetCape)
-                                    }
+                                    onClick = onSelectCape
+                                )
+                                InfoLayoutTextItem(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    title = stringResource(R.string.account_capes_install),
+                                    icon = {
+                                        Icon(
+                                            modifier = Modifier.size(22.dp),
+                                            painter = painterResource(R.drawable.ic_download),
+                                            contentDescription = null
+                                        )
+                                    },
+                                    onClick = onInstallCapes
                                 )
                             }
 

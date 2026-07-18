@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Button
@@ -57,7 +58,8 @@ import java.io.File
 fun CapeSelectorDialog(
     accountUUID: String,
     onDismiss: () -> Unit,
-    onCapeActivated: () -> Unit
+    onCapeActivated: () -> Unit,
+    onCapeDeleted: () -> Unit = {}
 ) {
     var manifest by remember(accountUUID) { mutableStateOf(AccountCapeCollection.loadManifest(accountUUID)) }
     val sortedCapes = remember(manifest) {
@@ -124,6 +126,11 @@ fun CapeSelectorDialog(
                                     onRename = { newName ->
                                         AccountCapeCollection.renameCape(accountUUID, entry.id, newName)
                                         manifest = AccountCapeCollection.loadManifest(accountUUID)
+                                    },
+                                    onDelete = {
+                                        AccountCapeCollection.removeCape(accountUUID, entry.id)
+                                        manifest = AccountCapeCollection.loadManifest(accountUUID)
+                                        onCapeDeleted()
                                     }
                                 )
                             }
@@ -151,7 +158,8 @@ private fun CapeEntryCard(
     isActive: Boolean,
     onActivate: () -> Unit,
     onToggleFavorite: () -> Unit,
-    onRename: (String) -> Unit
+    onRename: (String) -> Unit,
+    onDelete: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var editing by remember { mutableStateOf(false) }
@@ -175,7 +183,8 @@ private fun CapeEntryCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .width(80.dp)
+                    .height(40.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
@@ -186,7 +195,7 @@ private fun CapeEntryCard(
                         .build(),
                     contentDescription = entry.name,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
             }
 
@@ -236,6 +245,14 @@ private fun CapeEntryCard(
                     ),
                     tint = if (entry.favorite) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+            }
+
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.generic_delete),
+                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                 )
             }
         }
