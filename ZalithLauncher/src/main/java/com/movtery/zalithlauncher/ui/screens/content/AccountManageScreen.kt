@@ -90,6 +90,7 @@ import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.auth_server.ELY_BY_AUTH_SERVER_URL
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.isAuthServerAccount
+import com.movtery.zalithlauncher.game.account.isElyByAccount
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
@@ -513,7 +514,7 @@ private fun AccountManageContent(
                                 dragHandleModifier = dragHandleModifier,
                                 onSelected = { AccountsManager.setCurrentAccount(account) },
                                 openChangeSkinDialog = {
-                                    if (!account.isAuthServerAccount()) {
+                                    if (!account.isAuthServerAccount() || account.isElyByAccount()) {
                                         actions.onIntent(
                                             AccountManageIntent.UpdateAccountSkinOp(
                                                 AccountSkinOperation.ChangeSkin(account)
@@ -640,7 +641,7 @@ private fun AccountCard(
 
                 // Action buttons
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    if (!account.isAuthServerAccount()) {
+                    if (!account.isAuthServerAccount() || account.isElyByAccount()) {
                         IconButton(
                             modifier = Modifier.size(36.dp),
                             onClick = openChangeSkinDialog

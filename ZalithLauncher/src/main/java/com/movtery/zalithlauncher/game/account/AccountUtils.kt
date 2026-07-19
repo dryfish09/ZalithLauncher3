@@ -27,6 +27,7 @@ import com.movtery.zalithlauncher.context.COPY_LABEL_DEVICE_CODE
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.auth_server.AuthServerHelper
+import com.movtery.zalithlauncher.game.account.auth_server.ELY_BY_AUTH_SERVER_URL
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.auth_server.getAuthServeInfo
 import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
@@ -80,8 +81,12 @@ fun Account?.isNoLoginRequired(): Boolean {
     return this == null || isLocalAccount()
 }
 
+fun Account.isElyByAccount(): Boolean {
+    return isAuthServerAccount() && otherBaseUrl == ELY_BY_AUTH_SERVER_URL
+}
+
 fun Account.isSkinChangeAllowed(): Boolean {
-    return isMicrosoftAccount() || isLocalAccount()
+    return isMicrosoftAccount() || isLocalAccount() || isElyByAccount()
 }
 
 fun Account.accountTypePriority(): Int {

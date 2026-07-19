@@ -133,6 +133,7 @@ import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
 import com.movtery.zalithlauncher.game.account.getUUIDFromUserName
 import com.movtery.zalithlauncher.game.account.isAuthServerAccount
+import com.movtery.zalithlauncher.game.account.isElyByAccount
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
@@ -1631,7 +1632,7 @@ fun ChangeSkinDialog(
                             }
 
                             //披风选择与安装（仅非验证服务器账号）
-                            if (!account.isAuthServerAccount()) {
+                            if (!account.isAuthServerAccount() || account.isElyByAccount()) {
                                 InfoLayoutTextItem(
                                     modifier = Modifier.fillMaxWidth(),
                                     title = stringResource(R.string.account_capes_select),
