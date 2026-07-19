@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -57,6 +56,7 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.path.URL_EASYTIER
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.terracotta.Terracotta
+import com.movtery.zalithlauncher.ui.androidText
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedRow
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
@@ -75,6 +75,7 @@ import com.movtery.zalithlauncher.ui.theme.cardTitleColor
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
+import com.movtery.zalithlauncher.viewmodel.sendToast
 
 @Composable
 fun MultiplayerScreen(
@@ -113,7 +114,7 @@ fun MultiplayerScreen(
                         if (logFile.exists()) {
                             shareFile(context, logFile)
                         } else {
-                            Toast.makeText(context, context.getString(R.string.terracotta_export_log_share_null), Toast.LENGTH_SHORT).show()
+                            eventViewModel.sendToast(androidText(R.string.terracotta_export_log_share_null))
                         }
                     }
                 )

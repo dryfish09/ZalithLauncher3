@@ -311,7 +311,7 @@ abstract class Launcher(
         return jvmLibDir
     }
 
-    protected fun getRuntimeLibraryPath(): String {
+    protected open fun getRuntimeLibraryPath(): String {
         val javaLibDir = getJavaLibDir()
         val jvmLibDir = getJvmLibDir()
 
