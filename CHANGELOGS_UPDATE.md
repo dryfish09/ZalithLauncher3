@@ -1,36 +1,33 @@
-# Plus 1.2 (Universal updates/all versions)
+# Plus 1.3 (Capes, Babric, Screen Recorder & more)
 
+### Capes
+- New cape collection system with minecraftcapes.net gallery API
+- Cape selector dialog with rename (edit icon), favorite, delete, "No Cape" option
+- Cape gallery with download from official gallery
+- Cropped cape back thumbnails (bilinear filtering)
+- Upload cape from gallery button inside CapeSelectorDialog
+- Button renames: "Select Cape" → "Capes", "Upload Cape from Gallery"
+- Wardrobe preview fixes for cape changes
+- Client-side ely.by cape support
 
-- New render engines:
+### Babric Mod Loader
+- Full Babric mod loader support for b1.7.3
 
-  Kopper zink,
-  MobileGlues (fixed)
+### Screen Recorder
+- Built-in game screen recorder with elapsed timer
+- Audio support (PLAYBACK_CAPTURE), fallback to video-only
 
-- New Main Menu UI
-- New Account Management UI
-- ely.by Login
-- Mod Download Button with Dependencies
-- New Version Listing
-- Default Resolution Set to 70%
-- Option to Hide Controller While Game is Loading
-- New Sidebar
-- Distant Horizons Support
-- Changelog Card Added to Main Screen (Markdown preview, click for full changelog)
-- Latest Log Card Now Shows Full Log Content
-- Daily Hours Display on Playtime Button
-- "Click for more" at the Bottom of All Cards
-- Microphone Permission Dialog on First Game Launch (For mods like Simple Voice Chat)
-- Changelog Support
-- In-Launcher File Manager
-- New Download Screens
-- New Downloaded Shaderpack and Resourcepack Screens
-- Kopper Zink Renderer Fixes
-- New Mobileglues Configuration Screen
-- Minimize button when downloading game-modpack
-- File Manager UI Redesign from Zeryth Launcher
-- Move Isolated Versions Between Game Folders
-- Fixed Sidebar Toggle Button Alignment
-- Info Button Added to Shader Pack Items (redirects to project page if downloaded from launcher)
-- Resource Pack Info Button Now Redirects to Project Page When Available
-- File manager button moved from sidebar to top bar
-- Fixed create folder dialog not dismissing after creation
+### Fixes
+- OpenAL crash fix on null device (`ALSOFT_DISABLE_EVENTS`)
+- Duplicate libopenal.so warning resolved
+- Gallery cape thumbnail loading moved off main thread
+
+### Other
+- Player notice polling with retry + backoff
+- Stable/Snapshots tab pill in GameVersionFilter
+- SearchAssetsScreen improvements
+- OSMesa updated to nightly build
+- Default transition animation changed to SLICE_IN
+- CI upgraded to action-gh-release v3
+- Translations: zh-cn, vi-vn, tr updates
+- Pull request template added

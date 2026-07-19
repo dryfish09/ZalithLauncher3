@@ -1,37 +1,33 @@
-## Plus 1.2 (Her versiyon için/evrensel)
+# Plus 1.3 (Pelerinler, Babric, Ekran Kaydedici ve daha fazlası)
 
+### Pelerinler
+- minecraftcapes.net galeri API'si ile yeni pelerin koleksiyon sistemi
+- Düzenleme (kalem simgesi), favori, silme, "Pelerin Yok" seçeneği ile pelerin seçici diyalogu
+- Resmi galeriden indirme ile pelerin galerisi
+- Kırpılmış pelerin arka küçük resimleri (bilinear filtreleme)
+- Pelerin seçici diyaloguna "Galeriden Pelerin Yükle" butonu eklendi
+- Buton isimleri: "Pelerin Seç" → "Pelerinler", "Galeriden Pelerin Yükle"
+- Pelerin değişiklikleri için gardırop önizleme düzeltmeleri
+- ely.by hesapları için istemci taraflı pelerin desteği
 
-- Yeni render motorları:
+### Babric Mod Yükleyici
+- b1.7.3 için tam Babric mod yükleyici desteği
 
-  Kopper zink,
-  MobileGlues (düzeltildi)
+### Ekran Kaydedici
+- Süre sayacı ile yerleşik oyun ekran kaydedicisi
+- Ses desteği (PLAYBACK_CAPTURE), video-only'ya düşüş
 
-- Yeni Ana Menü Arayüzü
-- Yeni Hesap Yönetimi Arayüzü
-- ely.by Girişi
-- Bağımlılıklarla Mod İndirme Butonu
-- Yeni Sürüm Listeleme
-- Varsayılan Çözünürlük %70 Olarak Ayarlandı
-- Oyun Yüklenirken Kontrolcüyü Gizleme Seçeneği
-- Yeni Kenar Çubuğu
-- Distant Horizons Desteği
-- Ana ekrana changelog kartı eklendi (Markdown önizleme, tam changelog için tıklama)
-- Son log kartı artık tam log içeriğini gösteriyor
-- Oyun süresi butonunda günlük saat gösterimi
-- Tüm kartlarda "daha fazlası için tıklayın" altta
-- İlk oyun başlatmada mikrofon izin dialogu (Simple Voice Chat gibi modlar için)
-- Changelog desteği
-- Launcher içi dosya yöneticisi
-- Yeni yükleme ekranları
-- Yeni indirilmiş shaderpack ve resourcepack ekranları
-- Kopper Zink renderer fixleri
-- Yeni Mobileglues konfigurasyon ekranı
-- Oyun-modpack yüklerken küçültme butonu
-- Zeryth Launcher'dan Dosya Yöneticisi Arayüzü Yeniden Tasarımı
-- İzole Edilmiş Sürümleri Oyun Klasörleri Arasında Taşıma
-- Kenar Çubuğu Geçiş Düğmesi Hizalaması Düzeltildi
-- Gölgelendirici Paket Öğelerine Bilgi Butonu Eklendi (launcher'dan indirildiyse proje sayfasına yönlendirir)
-- Kaynak Paketi Bilgi Butonu Artık Uygun Olduğunda Proje Sayfasına Yönlendiriyor
-- Dosya yöneticisi butonu yan menüden üst çubuğa taşındı
-- Klasör oluşturma dialogunun oluşturma sonrası kapanmaması düzeltildi
+### Düzeltmeler
+- Boş cihazda OpenAL çökme düzeltmesi (`ALSOFT_DISABLE_EVENTS`)
+- Yinelenen libopenal.so uyarısı çözüldü
+- Galeri pelerin küçük resim yüklemesi ana iş parçacığından taşındı
 
+### Diğer
+- Yeniden deneme + geri çekilme ile oyuncu bildirimi yoklaması
+- GameVersionFilter'da Kararlı/Snapshot sekme hapı
+- SearchAssetsScreen iyileştirmeleri
+- OSMesa gecelik yapıya güncellendi
+- Varsayılan geçiş animasyonu SLICE_IN olarak değiştirildi
+- CI action-gh-release v3'e yükseltildi
+- Çeviriler: zh-cn, vi-vn, tr güncellemeleri
+- Pull request şablonu eklendi
