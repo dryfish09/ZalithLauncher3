@@ -20,11 +20,11 @@ package com.movtery.zalithlauncher.ui.screens.game.elements
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,11 +41,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
@@ -53,14 +49,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.recorder.RecordingState
 import com.movtery.zalithlauncher.ui.components.FloatingBall
 import com.movtery.zalithlauncher.ui.screens.content.elements.MemoryPreview
-import kotlinx.coroutines.delay
 
 @Composable
 fun DraggableGameBall(
@@ -73,6 +66,7 @@ fun DraggableGameBall(
     alpha: Float = 1f,
     onClick: () -> Unit = {},
     recordingState: RecordingState = RecordingState.IDLE,
+    elapsedMs: Long = 0L,
     onPauseRecording: () -> Unit = {},
     onResumeRecording: () -> Unit = {},
     onStopRecording: () -> Unit = {}
@@ -87,107 +81,86 @@ fun DraggableGameBall(
         position = position,
         onPositionChanged = onPositionChanged,
         onSavePos = onSavePos,
-        onClick = if (isRecordingActive) { {} } else onClick,
+        onClick = onClick,
         alpha = alpha
     ) {
-        Crossfade(targetState = isRecordingActive, label = "ballMode") { recording ->
-            if (recording) {
-                RecordingControlContent(
-                    isPaused = recordingState == RecordingState.PAUSED,
-                    onPause = onPauseRecording,
-                    onResume = onResumeRecording,
-                    onStop = onStopRecording
-                )
-            } else {
-                GameBallContent(
-                    gameFps = gameFps,
-                    showMemory = showMemory,
-                    opened = opened,
-                )
-            }
-        }
+        GameBallContent(
+            gameFps = gameFps,
+            showMemory = showMemory,
+            opened = opened,
+            isRecordingActive = isRecordingActive,
+            isPaused = recordingState == RecordingState.PAUSED,
+            elapsedMs = elapsedMs,
+            onPauseRecording = onPauseRecording,
+            onResumeRecording = onResumeRecording,
+            onStopRecording = onStopRecording,
+        )
     }
 }
 
 @Composable
 private fun RecordingControlContent(
     isPaused: Boolean,
+    elapsedMs: Long,
     onPause: () -> Unit,
     onResume: () -> Unit,
     onStop: () -> Unit
 ) {
-    var elapsedMs by remember { mutableLongStateOf(0L) }
-
-    LaunchedEffect(isPaused) {
-        if (!isPaused) {
-            val start = System.currentTimeMillis() - elapsedMs
-            while (true) {
-                elapsedMs = System.currentTimeMillis() - start
-                delay(1000L)
-            }
-        }
-    }
-
-    Column(
+    Row(
         modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            painter = painterResource(R.drawable.ic_fiber_manual_record),
+            contentDescription = null,
+            modifier = Modifier.size(12.dp),
+            tint = if (isPaused) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                   else Color.Red
+        )
+        Spacer(Modifier.width(3.dp))
+        Text(
+            text = elapsedMs.formatElapsedTime(),
+            style = MaterialTheme.typography.labelSmall,
+        )
+        IconButton(
+            onClick = if (isPaused) onResume else onPause,
+            modifier = Modifier.size(28.dp)
+        ) {
             Icon(
-                painter = painterResource(R.drawable.ic_fiber_manual_record),
-                contentDescription = null,
-                modifier = Modifier.size(12.dp),
-                tint = if (isPaused) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                       else Color.Red
-            )
-            Spacer(Modifier.width(4.dp))
-            Text(
-                text = formatElapsed(elapsedMs),
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp
+                painter = painterResource(
+                    if (isPaused) R.drawable.ic_play_arrow_filled
+                    else R.drawable.ic_pause_filled
                 ),
-                color = MaterialTheme.colorScheme.onSurface
+                contentDescription = stringResource(
+                    if (isPaused) R.string.recorder_resume else R.string.recorder_pause
+                ),
+                modifier = Modifier.size(18.dp)
             )
         }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                onClick = if (isPaused) onResume else onPause,
-                modifier = Modifier.size(28.dp)
-            ) {
-                Icon(
-                    painter = painterResource(
-                        if (isPaused) R.drawable.ic_play_arrow_filled
-                        else R.drawable.ic_pause_filled
-                    ),
-                    contentDescription = stringResource(
-                        if (isPaused) R.string.recorder_resume else R.string.recorder_pause
-                    ),
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-            IconButton(
-                onClick = onStop,
-                modifier = Modifier.size(28.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_stop_filled),
-                    contentDescription = stringResource(R.string.recorder_stop_and_save),
-                    modifier = Modifier.size(18.dp),
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
+        IconButton(
+            onClick = onStop,
+            modifier = Modifier.size(28.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_stop_filled),
+                contentDescription = stringResource(R.string.recorder_stop_and_save),
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
         }
     }
 }
 
-private fun formatElapsed(ms: Long): String {
-    val totalSec = ms / 1000L
-    val h = totalSec / 3600
-    val m = (totalSec % 3600) / 60
-    val s = totalSec % 60
-    return if (h > 0) "%d:%02d:%02d".format(h, m, s)
-           else "%02d:%02d".format(m, s)
+private fun Long.formatElapsedTime(): String {
+    val totalSeconds = this / 1000L
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+    return if (hours > 0) {
+        "%02d:%02d:%02d".format(hours, minutes, seconds)
+    } else {
+        "%02d:%02d".format(minutes, seconds)
+    }
 }
 
 @Composable
@@ -195,6 +168,12 @@ private fun GameBallContent(
     gameFps: Int?,
     showMemory: Boolean,
     opened: Boolean,
+    isRecordingActive: Boolean = false,
+    isPaused: Boolean = false,
+    elapsedMs: Long = 0L,
+    onPauseRecording: () -> Unit = {},
+    onResumeRecording: () -> Unit = {},
+    onStopRecording: () -> Unit = {},
 ) {
     val showFps = remember(gameFps) {
         gameFps != null
@@ -271,6 +250,20 @@ private fun GameBallContent(
             ) {
                 Spacer(Modifier.height(4.dp))
             }
+        }
+
+        AnimatedVisibility(
+            visible = isRecordingActive,
+            enter = expandIn(expandFrom = Alignment.CenterStart) + fadeIn(),
+            exit = shrinkOut(shrinkTowards = Alignment.CenterStart) + fadeOut(),
+        ) {
+            RecordingControlContent(
+                isPaused = isPaused,
+                elapsedMs = elapsedMs,
+                onPause = onPauseRecording,
+                onResume = onResumeRecording,
+                onStop = onStopRecording,
+            )
         }
     }
 }

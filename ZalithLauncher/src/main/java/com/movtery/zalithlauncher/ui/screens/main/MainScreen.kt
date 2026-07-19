@@ -230,6 +230,12 @@ fun MainScreen(
                         screenKey = NormalNavKey.BuiltInFileManager()
                     )
                 },
+                toRecordingsScreen = {
+                    screenBackStackModel.mainScreen.removeAndNavigateTo(
+                        removes = screenBackStackModel.clearBeforeNavKeys,
+                        screenKey = NormalNavKey.Recordings
+                    )
+                },
                 changeExpandedState = {
                     changeTasksExpandedState()
                 },
@@ -279,12 +285,14 @@ private fun <E: TitledNavKey> TopBar(
     toDownloadScreen: () -> Unit,
     toFileManagerScreen: () -> Unit,
     toMultiplayerScreen: () -> Unit,
+    toRecordingsScreen: () -> Unit,
     changeExpandedState: () -> Unit,
 ) {
     val festivals = LocalFestivals.current
 
     val inFileManagerScreen = mainScreenKey is NormalNavKey.BuiltInFileManager
     val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
+    val inRecordingsScreen = mainScreenKey is NormalNavKey.Recordings
     val inDownloadScreen = mainScreenKey is NestedNavKey.Download
     val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
 
@@ -445,6 +453,15 @@ private fun <E: TitledNavKey> TopBar(
                     text = stringResource(R.string.page_title_file_manager),
                     onClick = {
                         if (!inFileManagerScreen) toFileManagerScreen()
+                    },
+                )
+
+                TopBarRailItem(
+                    selected = inRecordingsScreen,
+                    painter = painterResource(R.drawable.ic_videocam_outlined),
+                    text = stringResource(R.string.page_title_recordings),
+                    onClick = {
+                        if (!inRecordingsScreen) toRecordingsScreen()
                     },
                 )
 

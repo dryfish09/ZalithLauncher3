@@ -543,6 +543,7 @@ fun GameScreen(
     }
     val editorViewModel = rememberEditorViewModel("ControlEditor_Times=${viewModel.editorRefresh}")
     val recordingState by GameRecorder.state.collectAsStateWithLifecycle()
+    val elapsedMs by GameRecorder.elapsedMs.collectAsStateWithLifecycle()
     val cursorMode by ZLBridgeStates.cursorMode.collectAsStateWithLifecycle()
     val isGrabbing = remember(cursorMode) {
         cursorMode == CURSOR_DISABLED
@@ -827,6 +828,7 @@ fun GameScreen(
                         viewModel.switchMenu()
                     },
                     recordingState = recordingState,
+                    elapsedMs = elapsedMs,
                     onPauseRecording = { GameRecorder.pause() },
                     onResumeRecording = { GameRecorder.resume() },
                     onStopRecording = {

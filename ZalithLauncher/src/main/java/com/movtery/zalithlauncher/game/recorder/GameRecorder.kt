@@ -30,6 +30,13 @@ import android.util.Log
 import android.view.PixelCopy
 import android.view.SurfaceView
 import android.view.TextureView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,11 +49,19 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 private const val TAG = "GameRecorder"
 private const val FRAME_RATE = 30
-private const val VIDEO_BIT_RATE = 6_000_000
+private const val VIDEO_BIT_RATE = 6_000_000 // 6 Mbps
 
 object GameRecorder {
     private val _state = MutableStateFlow(RecordingState.IDLE)
     val state: StateFlow<RecordingState> = _state.asStateFlow()
+
+    private val _elapsedMs = MutableStateFlow(0L)
+    val elapsedMs: StateFlow<Long> = _elapsedMs.asStateFlow()
+
+    private val timerScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private var timerJob: Job? = null
+    @Volatile private var accumulatedMs = 0L
+    @Volatile private var resumeTimeMs = 0L
 
     @Volatile private var recorder: MediaRecorder? = null
     @Volatile private var inputSurface: android.view.Surface? = null
@@ -56,7 +71,7 @@ object GameRecorder {
     @Volatile private var pendingUri: android.net.Uri? = null
     @Volatile private var pendingFile: File? = null
 
-    fun start(context: Context) {
+    fun start(context: Context, withMic: Boolean = false) {
         if (_state.value != RecordingState.IDLE) return
 
         val view = GameSurfaceRegistry.getView()
@@ -80,15 +95,14 @@ object GameRecorder {
                 MediaRecorder()
             }
             rec.apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    runCatching {
-                        @Suppress("DEPRECATION")
-                        setAudioSource(7) // MediaRecorder.AudioSource.PLAYBACK_CAPTURE (API 29)
-                        setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                    }
-                }
+                if (withMic) setAudioSource(MediaRecorder.AudioSource.MIC)
                 setVideoSource(MediaRecorder.VideoSource.SURFACE)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                if (withMic) {
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    setAudioEncodingBitRate(128_000)
+                    setAudioSamplingRate(44_100)
+                }
                 setVideoEncoder(MediaRecorder.VideoEncoder.H264)
                 setVideoSize(w, h)
                 setVideoFrameRate(FRAME_RATE)
@@ -100,26 +114,7 @@ object GameRecorder {
                     Log.e(TAG, "MediaRecorder error what=$what extra=$extra")
                     cleanup()
                 }
-                try {
-                    prepare()
-                } catch (e: Exception) {
-                    Log.w(TAG, "prepare with audio failed, retrying video-only: ${e.message}")
-                    reset()
-                    setVideoSource(MediaRecorder.VideoSource.SURFACE)
-                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                    setVideoEncoder(MediaRecorder.VideoEncoder.H264)
-                    setVideoSize(w, h)
-                    setVideoFrameRate(FRAME_RATE)
-                    setVideoEncodingBitRate(VIDEO_BIT_RATE)
-                    setOutputFile(
-                        context.contentResolver.openFileDescriptor(uri, "w")!!.fileDescriptor
-                    )
-                    setOnErrorListener { _, what2, extra2 ->
-                        Log.e(TAG, "MediaRecorder error what=$what2 extra=$extra2")
-                        cleanup()
-                    }
-                    prepare()
-                }
+                prepare()
             }
 
             inputSurface = rec.surface
@@ -131,9 +126,15 @@ object GameRecorder {
 
             isCapturing.set(true)
             _state.value = RecordingState.RECORDING
+
+            accumulatedMs = 0L
+            resumeTimeMs = System.currentTimeMillis()
+            _elapsedMs.value = 0L
+            startTimerTick()
+
             scheduleNextFrame()
 
-            Log.i(TAG, "Recording started ${w}x${h}")
+            Log.i(TAG, "Recording started ${w}x${h} mic=$withMic")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start recording: ${e.message}")
             cleanup()
@@ -144,8 +145,11 @@ object GameRecorder {
         if (_state.value != RecordingState.RECORDING) return
         try {
             recorder?.pause()
+            accumulatedMs += System.currentTimeMillis() - resumeTimeMs
+            timerJob?.cancel()
+            timerJob = null
             _state.value = RecordingState.PAUSED
-            Log.i(TAG, "Recording paused")
+            Log.i(TAG, "Recording paused at ${accumulatedMs}ms")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to pause: ${e.message}")
         }
@@ -155,6 +159,8 @@ object GameRecorder {
         if (_state.value != RecordingState.PAUSED) return
         try {
             recorder?.resume()
+            resumeTimeMs = System.currentTimeMillis()
+            startTimerTick()
             _state.value = RecordingState.RECORDING
             scheduleNextFrame()
             Log.i(TAG, "Recording resumed")
@@ -168,6 +174,9 @@ object GameRecorder {
         if (current == RecordingState.IDLE || current == RecordingState.STOPPING) return
         _state.value = RecordingState.STOPPING
         isCapturing.set(false)
+
+        timerJob?.cancel()
+        timerJob = null
 
         captureHandler?.post { finalise(context) }
             ?: run { finalise(context) }
@@ -224,6 +233,16 @@ object GameRecorder {
         }.onFailure { Log.w(TAG, "drawToSurface failed: ${it.message}") }
     }
 
+    private fun startTimerTick() {
+        timerJob?.cancel()
+        timerJob = timerScope.launch {
+            while (isActive) {
+                _elapsedMs.value = accumulatedMs + (System.currentTimeMillis() - resumeTimeMs)
+                delay(250L)
+            }
+        }
+    }
+
     private fun finalise(context: Context) {
         try {
             recorder?.stop()
@@ -251,6 +270,10 @@ object GameRecorder {
             captureHandler = null
             pendingUri = null
             pendingFile = null
+            timerJob?.cancel()
+            timerJob = null
+            _elapsedMs.value = 0L
+            accumulatedMs = 0L
             _state.value = RecordingState.IDLE
         }
     }
@@ -265,13 +288,17 @@ object GameRecorder {
         captureThread?.quit()
         captureThread = null
         captureHandler = null
+        timerJob?.cancel()
+        timerJob = null
+        _elapsedMs.value = 0L
+        accumulatedMs = 0L
         _state.value = RecordingState.IDLE
     }
 
     private fun createOutputEntry(context: Context): Pair<android.net.Uri, File> {
         val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val fileName = "ZalithRec_$ts.mp4"
-        val relPath = "Movies/Zalith Recordings"
+        val fileName = "ZerythRec_$ts.mp4"
+        val relPath = "Movies/Zeryth Recordings"
 
         val values = ContentValues().apply {
             put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
@@ -285,7 +312,7 @@ object GameRecorder {
         val publicMovies = android.os.Environment.getExternalStoragePublicDirectory(
             android.os.Environment.DIRECTORY_MOVIES
         )
-        val file = File(publicMovies, "Zalith Recordings/$fileName")
+        val file = File(publicMovies, "Zeryth Recordings/$fileName")
         return Pair(uri, file)
     }
 }

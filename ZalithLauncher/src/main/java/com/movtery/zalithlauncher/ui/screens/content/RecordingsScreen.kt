@@ -76,6 +76,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.RecordingPlayerOverlay
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.Dispatchers
@@ -108,8 +109,9 @@ fun RecordingsScreen(backStackViewModel: ScreenBackStackViewModel) {
         var recordings by remember { mutableStateOf<List<RecordingEntry>>(emptyList()) }
         var loading by remember { mutableStateOf(true) }
         val thumbnails = remember { mutableStateMapOf<Long, Bitmap>() }
-        var renameTarget by remember { mutableStateOf<RecordingEntry?>(null) }
-        var deleteTarget by remember { mutableStateOf<RecordingEntry?>(null) }
+        var renameTarget  by remember { mutableStateOf<RecordingEntry?>(null) }
+        var deleteTarget  by remember { mutableStateOf<RecordingEntry?>(null) }
+        var playingEntry  by remember { mutableStateOf<RecordingEntry?>(null) }
 
         fun reload() {
             scope.launch {
@@ -165,7 +167,7 @@ fun RecordingsScreen(backStackViewModel: ScreenBackStackViewModel) {
                         RecordingCard(
                             entry = entry,
                             thumbnail = thumbnails[entry.id],
-                            onPlay = { playRecording(context, entry.uri) },
+                            onPlay = { playingEntry = entry },
                             onShare = { shareRecording(context, entry.uri) },
                             onRename = { renameTarget = entry },
                             onDelete = { deleteTarget = entry },
@@ -174,7 +176,7 @@ fun RecordingsScreen(backStackViewModel: ScreenBackStackViewModel) {
                                     .getExternalStoragePublicDirectory(
                                         android.os.Environment.DIRECTORY_MOVIES
                                     )
-                                val uri2 = Uri.parse("$dir/Zalith Recordings")
+                                val uri2 = Uri.parse("$dir/Zeryth Recordings")
                                 val intent = Intent(Intent.ACTION_VIEW).apply {
                                     setDataAndType(uri2, "*/*")
                                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -247,6 +249,14 @@ fun RecordingsScreen(backStackViewModel: ScreenBackStackViewModel) {
                         Text(stringResource(R.string.generic_cancel))
                     }
                 }
+            )
+        }
+
+        playingEntry?.let { entry ->
+            RecordingPlayerOverlay(
+                uri   = entry.uri,
+                title = entry.displayName.removeSuffix(".mp4"),
+                onDismiss = { playingEntry = null }
             )
         }
     }
@@ -390,7 +400,7 @@ private fun queryRecordings(context: Context): List<RecordingEntry> {
     )
     val selection = "${MediaStore.Video.Media.RELATIVE_PATH} LIKE ? AND " +
             "${MediaStore.Video.Media.IS_PENDING} = 0"
-    val selectionArgs = arrayOf("%Zalith Recordings%")
+    val selectionArgs = arrayOf("%Zeryth Recordings%")
     val sortOrder = "${MediaStore.Video.Media.DATE_ADDED} DESC"
 
     val results = mutableListOf<RecordingEntry>()
