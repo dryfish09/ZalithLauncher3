@@ -1513,13 +1513,13 @@
     <string name="festivals_april_fools">Happy April Fools\' Day!</string>
     <string name="festivals_christmas">Merry Christmas!</string>
     <!-- Custom Cape Upload -->
-    <string name="account_change_cape_upload">Change Cape</string>
+    <string name="account_change_cape_upload">Upload Cape from Gallery</string>
     <string name="account_change_cape_reset">Reset Cape</string>
     <string name="account_change_cape_invalid">Invalid cape file! Cape must be 64x32 pixels PNG.</string>
     <string name="account_change_cape_failed_to_import">Failed to import cape: %s</string>
     <string name="account_capes_install">Install Capes</string>
     <string name="account_capes_install_from_labynet">Install from Laby.net</string>
-    <string name="account_capes_select">Select Cape</string>
+    <string name="account_capes_select">Capes</string>
     <string name="account_capes_source_imported">Gallery</string>
     <string name="account_capes_saved_toast">Cape saved to capes</string>
     <string name="account_capes_select_title">My Capes</string>

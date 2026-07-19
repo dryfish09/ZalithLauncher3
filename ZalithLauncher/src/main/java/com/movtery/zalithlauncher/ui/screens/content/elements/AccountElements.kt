@@ -1282,8 +1282,8 @@ fun ChangeSkinDialog(
     capeState: ChangeCape,
     onCapeStateChange: (ChangeCape) -> Unit,
     isImportingSkin: Boolean,
-    isImportingCape: Boolean = false,
     onSkinPicked: (Uri) -> Unit,
+    isImportingCape: Boolean = false,
     onCapePicked: (Account, Uri) -> Unit = { _, _ -> },
     onDismissRequest: () -> Unit,
     onResetSkin: () -> Unit,
@@ -1306,6 +1306,7 @@ fun ChangeSkinDialog(
     var showCapeSelector by remember { mutableStateOf(false) }
     var showCapeCollectionSelector by remember { mutableStateOf(false) }
     var capeRefreshKey by remember { mutableStateOf(0) }
+    var capeCollectionChanged by remember { mutableStateOf(false) }
 
     var isFetchingCapes by remember { mutableStateOf(false) }
 
@@ -1629,30 +1630,6 @@ fun ChangeSkinDialog(
                                 )
                             }
 
-                            //自定义披风上传
-                            InfoLayoutTextItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = stringResource(R.string.account_change_cape_upload),
-                                icon = {
-                                    if (isImportingCape) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(22.dp),
-                                            strokeWidth = 2.dp
-                                        )
-                                    } else {
-                                        Icon(
-                                            modifier = Modifier.size(22.dp),
-                                            painter = painterResource(R.drawable.ic_upload),
-                                            contentDescription = null
-                                        )
-                                    }
-                                },
-                                onClick = {
-                                    capePicker.launch(arrayOf("image/png", "image/webp", "image/jpeg"))
-                                },
-                                enabled = !isImportingCape
-                            )
-
                             //披风选择与安装（仅非验证服务器账号）
                             if (!account.isAuthServerAccount()) {
                                 InfoLayoutTextItem(
@@ -1717,8 +1694,9 @@ fun ChangeSkinDialog(
 
                         Button(
                             modifier = Modifier.weight(1f),
-                            enabled = skinState != ChangeSkin.None || capeState != ChangeCape.None,
+                            enabled = skinState != ChangeSkin.None || capeState != ChangeCape.None || capeCollectionChanged,
                             onClick = {
+                                capeCollectionChanged = false
                                 when (skinState) {
                                     is ChangeSkin.ChangeSkinData -> {
                                         onApplySkin(skinState.cacheFile, skinState.skinModel)
@@ -1795,12 +1773,26 @@ fun ChangeSkinDialog(
                 AccountsManager.refreshWardrobe()
             },
             onCapeActivated = {
+                capeCollectionChanged = true
                 capeRefreshKey++
                 AccountsManager.refreshWardrobe()
+                val f = account.getCapeFile()
+                if (f.exists()) {
+                    f.inputStream().use { playerSkin.loadCape(it) }
+                } else {
+                    playerSkin.loadCape(cape = null)
+                }
             },
             onCapeDeleted = {
+                capeCollectionChanged = true
                 capeRefreshKey++
                 AccountsManager.refreshWardrobe()
+                val f = account.getCapeFile()
+                if (f.exists()) {
+                    f.inputStream().use { playerSkin.loadCape(it) }
+                } else {
+                    playerSkin.loadCape(cape = null)
+                }
             }
         )
     }

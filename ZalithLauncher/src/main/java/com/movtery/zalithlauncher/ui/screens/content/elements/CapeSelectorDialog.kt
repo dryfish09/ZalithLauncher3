@@ -1,5 +1,11 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Button
@@ -40,27 +46,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import kotlin.math.roundToInt
 import androidx.compose.ui.window.DialogProperties
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.game.account.wardrobe.CapeEntry
-import com.movtery.zalithlauncher.ui.components.ModelAnimation
-import com.movtery.zalithlauncher.ui.components.PlayerSkin
+
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 fun CapeSelectorDialog(
@@ -69,35 +78,45 @@ fun CapeSelectorDialog(
     onCapeActivated: () -> Unit,
     onCapeDeleted: () -> Unit = {}
 ) {
-    val context = LocalContext.current
     var manifest by remember(accountUUID) { mutableStateOf(AccountCapeCollection.loadManifest(accountUUID)) }
     val sortedCapes = remember(manifest) {
         manifest.capes.sortedByDescending { it.favorite }
     }
     var confirmDeleteId by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    var isImporting by remember { mutableStateOf(false) }
 
-    val playerSkin = remember { PlayerSkin(context) }
-    DisposableEffect(Unit) {
-        onDispose { playerSkin.destroy() }
-    }
-
-    var previewReady by remember { mutableStateOf(false) }
-    val activeEntry = remember(manifest) {
-        manifest.activeCapeId?.let { id -> manifest.capes.find { it.id == id } }
-    }
-
-    LaunchedEffect(activeEntry) {
-        if (previewReady) {
-            if (activeEntry != null) {
-                val capeFile = File(AccountCapeCollection.getCollectionDir(accountUUID), "${activeEntry.id}.${activeEntry.ext}")
-                runCatching {
-                    capeFile.inputStream().use { stream ->
-                        playerSkin.loadCape(stream)
-                    }
-                }
-            } else {
-                playerSkin.loadCape(inputStream = null)
+    val capePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        isImporting = true
+        try {
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return@rememberLauncherForActivityResult
+            val tempFile = File(context.cacheDir, "import_cape_${System.currentTimeMillis()}")
+            FileOutputStream(tempFile).use { output ->
+                inputStream.copyTo(output)
             }
+            inputStream.close()
+            val ext = when {
+                uri.toString().endsWith(".webp", true) -> "webp"
+                uri.toString().endsWith(".jpg", true) || uri.toString().endsWith(".jpeg", true) -> "jpg"
+                else -> "png"
+            }
+            AccountCapeCollection.addCape(
+                accountUUID = accountUUID,
+                textureFile = tempFile,
+                name = tempFile.nameWithoutExtension,
+                source = "Imported",
+                ext = ext
+            )
+            tempFile.delete()
+            manifest = AccountCapeCollection.loadManifest(accountUUID)
+            Toast.makeText(context, context.getString(R.string.account_capes_saved_toast), Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, context.getString(R.string.account_change_cape_failed_to_import, e.message ?: ""), Toast.LENGTH_SHORT).show()
+        } finally {
+            isImporting = false
         }
     }
 
@@ -125,41 +144,6 @@ fun CapeSelectorDialog(
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(2f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        AndroidView(
-                            factory = { ctx ->
-                                playerSkin.loadWebView(
-                                    context = ctx,
-                                    onPageFinished = {
-                                        previewReady = true
-                                        playerSkin.startAnim(ModelAnimation.NewIdle)
-                                        playerSkin.setAzimuthAndPitch(180, 5, 50)
-                                        if (activeEntry != null) {
-                                            val capeFile = File(AccountCapeCollection.getCollectionDir(accountUUID), "${activeEntry.id}.${activeEntry.ext}")
-                                            runCatching {
-                                                capeFile.inputStream().use { stream ->
-                                                    playerSkin.loadCape(stream)
-                                                }
-                                            }
-                                        }
-                                    }
-                                ).apply {
-                                    isClickable = false
-                                    isFocusable = false
-                                }
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-
-                    Spacer(Modifier.height(8.dp))
 
                     val hasActiveCape = manifest.activeCapeId != null
 
@@ -227,11 +211,19 @@ fun CapeSelectorDialog(
 
                     Spacer(Modifier.height(12.dp))
 
-                    Button(
-                        modifier = Modifier.align(Alignment.End),
-                        onClick = onDismiss
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Text(stringResource(R.string.generic_close))
+                        Button(
+                            enabled = !isImporting,
+                            onClick = { capePicker.launch(arrayOf("image/png", "image/webp", "image/jpeg")) }
+                        ) {
+                            Text(stringResource(R.string.account_change_cape_upload))
+                        }
+                        Button(onClick = onDismiss) {
+                            Text(stringResource(R.string.generic_close))
+                        }
                     }
                 }
             }
@@ -275,7 +267,6 @@ private fun CapeEntryCard(
     onRename: (String) -> Unit,
     onDelete: () -> Unit
 ) {
-    val context = LocalContext.current
     val isNoCape = entry == null
     var editing by remember { mutableStateOf(false) }
     var editName by remember(entry?.name) { mutableStateOf(entry?.name ?: "") }
@@ -310,30 +301,66 @@ private fun CapeEntryCard(
                     )
                 } else {
                     val capeFile = File(AccountCapeCollection.getCollectionDir(accountUUID), "${entry.id}.${entry.ext}")
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(capeFile)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = entry.name,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
-                    )
+                    val density = LocalDensity.current
+                    val targetH = with(density) { 40.dp.toPx() }.roundToInt()
+                    val capeBitmap = remember(capeFile, density) {
+                        runCatching {
+                            val opts = BitmapFactory.Options().apply { inScaled = false }
+                            val bitmap = BitmapFactory.decodeFile(capeFile.absolutePath, opts) ?: return@runCatching null
+                            val scaleFactor = bitmap.width / 64f
+                            val start = (1 * scaleFactor).roundToInt()
+                            val capeW = (10 * scaleFactor).roundToInt()
+                            val capeH = (16 * scaleFactor).roundToInt()
+                            val targetW = (targetH.toFloat() * capeW / capeH).roundToInt()
+                            val scaled = Bitmap.createBitmap(targetW, targetH, Bitmap.Config.ARGB_8888)
+                            Canvas(scaled).drawBitmap(
+                                bitmap,
+                                Rect(start, start, start + capeW, start + capeH),
+                                RectF(0f, 0f, targetW.toFloat(), targetH.toFloat()),
+                                Paint().apply { isFilterBitmap = true }
+                            )
+                            if (bitmap !== scaled) bitmap.recycle()
+                            scaled
+                        }.getOrNull()
+                    }
+                    val bmp = capeBitmap
+                    if (bmp != null) {
+                        Image(
+                            bitmap = bmp.asImageBitmap(),
+                            contentDescription = entry.name,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (isNoCape) stringResource(R.string.account_capes_none)
-                    else entry!!.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = if (!isNoCape) Modifier.clickable {
-                        editName = entry.name
-                        editing = true
-                    } else Modifier
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = if (isNoCape) stringResource(R.string.account_capes_none)
+                        else entry!!.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (!isNoCape) {
+                        IconButton(
+                            onClick = {
+                                editName = entry.name
+                                editing = true
+                            },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = stringResource(R.string.generic_rename),
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                }
 
                 if (!isNoCape && editing) {
                     OutlinedTextField(

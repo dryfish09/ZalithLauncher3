@@ -124,6 +124,7 @@ object AccountCapeCollection {
 
     fun clearActiveCape(accountUUID: String) {
         saveManifest(accountUUID, loadManifest(accountUUID).copy(activeCapeId = null))
+        File(PathManager.DIR_ACCOUNT_CAPE, "$accountUUID.png").delete()
     }
 
     fun toggleFavorite(accountUUID: String, capeId: String) {
