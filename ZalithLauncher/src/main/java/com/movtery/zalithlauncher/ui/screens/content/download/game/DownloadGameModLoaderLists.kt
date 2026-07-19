@@ -275,7 +275,7 @@ fun rememberLoaderVerSupports(mcVer: String) = remember(mcVer) {
         isQuiltSupports = fabricLike,
         isCleanroomSupports = mcVer == "1.12.2",
         isLegacyFabricSupports = !fabricLike,
-        isBabricSupports = mcVer.startsWith("b") && mcVer.isBiggerVer("b1.7.2")
+        isBabricSupports = mcVer == "b1.7.3"
     )
 }
 
