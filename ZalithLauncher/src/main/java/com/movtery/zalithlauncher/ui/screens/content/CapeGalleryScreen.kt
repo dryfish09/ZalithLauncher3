@@ -290,9 +290,10 @@ private fun OfficialCapeCard(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                if (capeBitmap != null) {
+                val bitmap = capeBitmap
+                if (bitmap != null) {
                     Image(
-                        bitmap = capeBitmap.asImageBitmap(),
+                        bitmap = bitmap.asImageBitmap(),
                         contentDescription = cape.alias,
                         modifier = Modifier.fillMaxSize()
                     )

@@ -318,9 +318,10 @@ private fun CapeEntryCard(
                             cropped
                         }.getOrNull()
                     }
-                    if (capeBitmap != null) {
+                    val bmp = capeBitmap
+                    if (bmp != null) {
                         Image(
-                            bitmap = capeBitmap.asImageBitmap(),
+                            bitmap = bmp.asImageBitmap(),
                             contentDescription = entry.name,
                             modifier = Modifier.fillMaxSize()
                         )
