@@ -24,6 +24,7 @@ import com.movtery.zalithlauncher.BuildKeys
 import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.isAuthServerAccount
+import com.movtery.zalithlauncher.game.account.isElyByAccount
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.offline.OfflineYggdrasilServer
 import com.movtery.zalithlauncher.game.multirt.Runtime
@@ -185,6 +186,21 @@ class LaunchArgs(
             if (account.otherBaseUrl!!.contains("auth.mc-user.com")) {
                 argsList.add("-javaagent:${LibPath.NIDE_8_AUTH.absolutePath}=${account.otherBaseUrl!!.replace("https://auth.mc-user.com:233/", "")}")
                 argsList.add("-Dnide8auth.client=true")
+            } else if (account.isElyByAccount() && account.getCapeFile().exists() && account.hasSkinFile) {
+                offlineServer.start()
+                offlineServer.addCharacter(account)
+                offlineServer.getPort()?.let { port ->
+                    val msg = "Using offline Yggdrasil server with ely.by cape on port $port"
+                    LoggerBridge.append(msg)
+                    Logger.info(TAG, msg)
+                    argsList.add("-javaagent:${LibPath.AUTHLIB_INJECTOR.absolutePath}=http://localhost:$port")
+                    argsList.add("-Dauthlibinjector.side=client")
+                } ?: run {
+                    val msg = "Failed to start offline Yggdrasil server for ely.by cape!"
+                    LoggerBridge.append(msg)
+                    Logger.warning(TAG, msg)
+                    offlineServer.stop()
+                }
             } else {
                 argsList.add("-javaagent:${LibPath.AUTHLIB_INJECTOR.absolutePath}=${account.otherBaseUrl}")
                 argsList.add("-Dauthlibinjector.side=client")
