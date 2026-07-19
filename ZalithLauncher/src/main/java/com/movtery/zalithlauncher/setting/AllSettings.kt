@@ -98,9 +98,14 @@ object AllSettings : SettingsRegistry() {
     val zinkPreferSystemDriver = boolSetting("zinkPreferSystemDriver", false)
 
     /**
-     * Zink 垂直同步
+     * 帧生成（交换链帧加倍）
      */
-    val vsyncInZink = boolSetting("vsyncInZink", false)
+    val frameGeneration = boolSetting("frameGeneration", false)
+
+    /**
+     * 帧率上限（0 = 无限制）
+     */
+    val fpsLimit = intSetting("fpsLimit", 0, 0..240)
 
     /**
      * 强制在高性能核心运行
