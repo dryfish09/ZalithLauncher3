@@ -1451,7 +1451,7 @@
     <string name="settings_renderer_turnip_success">Turnip Sürücüsü başarıyla yüklendi</string>
     <string name="launcher_ram_usage">RAM: %1$dMB / %2$dMB</string>
     <string name="launcher_fps_display">FPS: %d</string>
-    <string name="account_change_cape_upload">Pelerin Değiştir</string>
+    <string name="account_change_cape_upload">Galeriden Pelerin Yükle</string>
     <string name="account_change_cape_reset">Pelerini Sıfırla</string>
     <string name="account_change_cape_invalid">Geçersiz pelerin dosyası! Pelerin 64x32 piksel PNG olmalıdır.</string>
     <string name="account_change_cape_failed_to_import">Pelerin içe aktarılamadı: %s</string>
@@ -1543,7 +1543,7 @@
     <string name="versions_manage_move_versions_failed">Taşıma başarısız</string>
     <string name="account_capes_install">Pelerin Yükle</string>
     <string name="account_capes_install_from_labynet">Laby.net\'ten Yükle</string>
-    <string name="account_capes_select">Pelerin Seç</string>
+    <string name="account_capes_select">Pelerinler</string>
     <string name="account_capes_source_imported">Galeri</string>
     <string name="account_capes_saved_toast">Pelerin kaydedildi</string>
     <string name="account_capes_select_title">Pelerinlerim</string>

@@ -1,6 +1,13 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +37,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -41,16 +47,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
+import kotlin.math.roundToInt
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.labynet.LabyCapeApi
 import com.movtery.zalithlauncher.game.account.labynet.OfficialCape
@@ -239,7 +242,35 @@ private fun OfficialCapeCard(
     isDownloading: Boolean,
     onDownload: () -> Unit
 ) {
-    val context = LocalContext.current
+    var capeBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(cape.texture) {
+        if (cape.texture != null) {
+            try {
+                val url = java.net.URL(cape.texture)
+                val connection = url.openConnection()
+                connection.connectTimeout = 5000
+                val bytes = connection.getInputStream().readBytes()
+                val opts = BitmapFactory.Options().apply { inScaled = false }
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+                if (bitmap != null) {
+                    val scaleFactor = bitmap.width / 64f
+                    val start = (1 * scaleFactor).roundToInt()
+                    val capeWidth = (10 * scaleFactor).roundToInt()
+                    val capeHeight = (16 * scaleFactor).roundToInt()
+                    val cropped = Bitmap.createBitmap(capeWidth, capeHeight, Bitmap.Config.ARGB_8888)
+                    Canvas(cropped).drawBitmap(
+                        bitmap,
+                        Rect(start, start, start + capeWidth, start + capeHeight),
+                        RectF(0f, 0f, capeWidth.toFloat(), capeHeight.toFloat()),
+                        Paint().apply { isFilterBitmap = false }
+                    )
+                    if (bitmap !== cropped) bitmap.recycle()
+                    capeBitmap = cropped
+                }
+            } catch (_: Exception) { }
+        }
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -259,15 +290,11 @@ private fun OfficialCapeCard(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                if (cape.texture != null) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(cape.texture)
-                            .crossfade(true)
-                            .build(),
+                if (capeBitmap != null) {
+                    Image(
+                        bitmap = capeBitmap.asImageBitmap(),
                         contentDescription = cape.alias,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
+                        modifier = Modifier.fillMaxSize()
                     )
                 } else {
                     Text(
