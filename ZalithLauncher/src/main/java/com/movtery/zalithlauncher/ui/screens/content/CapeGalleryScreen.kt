@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -243,8 +244,11 @@ private fun OfficialCapeCard(
     onDownload: () -> Unit
 ) {
     var capeBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    val density = LocalDensity.current
+    val targetH = with(density) { 90.dp.toPx() }.roundToInt()
 
     LaunchedEffect(cape.texture) {
+        capeBitmap = null
         if (cape.texture != null) {
             try {
                 val url = java.net.URL(cape.texture)
@@ -256,17 +260,18 @@ private fun OfficialCapeCard(
                 if (bitmap != null) {
                     val scaleFactor = bitmap.width / 64f
                     val start = (1 * scaleFactor).roundToInt()
-                    val capeWidth = (10 * scaleFactor).roundToInt()
-                    val capeHeight = (16 * scaleFactor).roundToInt()
-                    val cropped = Bitmap.createBitmap(capeWidth, capeHeight, Bitmap.Config.ARGB_8888)
-                    Canvas(cropped).drawBitmap(
+                    val capeW = (10 * scaleFactor).roundToInt()
+                    val capeH = (16 * scaleFactor).roundToInt()
+                    val targetW = (targetH.toFloat() * capeW / capeH).roundToInt()
+                    val scaled = Bitmap.createBitmap(targetW, targetH, Bitmap.Config.ARGB_8888)
+                    Canvas(scaled).drawBitmap(
                         bitmap,
-                        Rect(start, start, start + capeWidth, start + capeHeight),
-                        RectF(0f, 0f, capeWidth.toFloat(), capeHeight.toFloat()),
-                        Paint().apply { isFilterBitmap = false }
+                        Rect(start, start, start + capeW, start + capeH),
+                        RectF(0f, 0f, targetW.toFloat(), targetH.toFloat()),
+                        Paint().apply { isFilterBitmap = true }
                     )
-                    if (bitmap !== cropped) bitmap.recycle()
-                    capeBitmap = cropped
+                    if (bitmap !== scaled) bitmap.recycle()
+                    capeBitmap = scaled
                 }
             } catch (_: Exception) { }
         }

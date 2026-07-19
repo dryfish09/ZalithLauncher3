@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Button
@@ -48,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlin.math.roundToInt
@@ -299,23 +301,26 @@ private fun CapeEntryCard(
                     )
                 } else {
                     val capeFile = File(AccountCapeCollection.getCollectionDir(accountUUID), "${entry.id}.${entry.ext}")
-                    val capeBitmap = remember(capeFile) {
+                    val density = LocalDensity.current
+                    val targetH = with(density) { 40.dp.toPx() }.roundToInt()
+                    val capeBitmap = remember(capeFile, density) {
                         runCatching {
                             val opts = BitmapFactory.Options().apply { inScaled = false }
                             val bitmap = BitmapFactory.decodeFile(capeFile.absolutePath, opts) ?: return@runCatching null
                             val scaleFactor = bitmap.width / 64f
                             val start = (1 * scaleFactor).roundToInt()
-                            val capeWidth = (10 * scaleFactor).roundToInt()
-                            val capeHeight = (16 * scaleFactor).roundToInt()
-                            val cropped = Bitmap.createBitmap(capeWidth, capeHeight, Bitmap.Config.ARGB_8888)
-                            Canvas(cropped).drawBitmap(
+                            val capeW = (10 * scaleFactor).roundToInt()
+                            val capeH = (16 * scaleFactor).roundToInt()
+                            val targetW = (targetH.toFloat() * capeW / capeH).roundToInt()
+                            val scaled = Bitmap.createBitmap(targetW, targetH, Bitmap.Config.ARGB_8888)
+                            Canvas(scaled).drawBitmap(
                                 bitmap,
-                                Rect(start, start, start + capeWidth, start + capeHeight),
-                                RectF(0f, 0f, capeWidth.toFloat(), capeHeight.toFloat()),
-                                Paint().apply { isFilterBitmap = false }
+                                Rect(start, start, start + capeW, start + capeH),
+                                RectF(0f, 0f, targetW.toFloat(), targetH.toFloat()),
+                                Paint().apply { isFilterBitmap = true }
                             )
-                            if (bitmap !== cropped) bitmap.recycle()
-                            cropped
+                            if (bitmap !== scaled) bitmap.recycle()
+                            scaled
                         }.getOrNull()
                     }
                     val bmp = capeBitmap
@@ -330,17 +335,32 @@ private fun CapeEntryCard(
             }
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (isNoCape) stringResource(R.string.account_capes_none)
-                    else entry!!.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = if (!isNoCape) Modifier.clickable {
-                        editName = entry.name
-                        editing = true
-                    } else Modifier
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = if (isNoCape) stringResource(R.string.account_capes_none)
+                        else entry!!.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (!isNoCape) {
+                        IconButton(
+                            onClick = {
+                                editName = entry.name
+                                editing = true
+                            },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = stringResource(R.string.generic_rename),
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                }
 
                 if (!isNoCape && editing) {
                     OutlinedTextField(
