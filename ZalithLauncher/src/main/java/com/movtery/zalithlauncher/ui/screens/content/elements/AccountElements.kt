@@ -1776,11 +1776,23 @@ fun ChangeSkinDialog(
                 capeCollectionChanged = true
                 capeRefreshKey++
                 AccountsManager.refreshWardrobe()
+                val f = account.getCapeFile()
+                if (f.exists()) {
+                    f.inputStream().use { playerSkin.loadCape(it) }
+                } else {
+                    playerSkin.loadCape(cape = null)
+                }
             },
             onCapeDeleted = {
                 capeCollectionChanged = true
                 capeRefreshKey++
                 AccountsManager.refreshWardrobe()
+                val f = account.getCapeFile()
+                if (f.exists()) {
+                    f.inputStream().use { playerSkin.loadCape(it) }
+                } else {
+                    playerSkin.loadCape(cape = null)
+                }
             }
         )
     }
