@@ -98,6 +98,11 @@ object AllSettings : SettingsRegistry() {
     val zinkPreferSystemDriver = boolSetting("zinkPreferSystemDriver", false)
 
     /**
+     * Zink 垂直同步
+     */
+    val vsyncInZink = boolSetting("vsyncInZink", false)
+
+    /**
      * 帧生成（交换链帧加倍）
      */
     val frameGeneration = boolSetting("frameGeneration", false)
