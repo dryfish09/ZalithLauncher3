@@ -251,10 +251,13 @@ private fun OfficialCapeCard(
         capeBitmap = null
         if (cape.texture != null) {
             try {
-                val url = java.net.URL(cape.texture)
-                val connection = url.openConnection()
-                connection.connectTimeout = 5000
-                val bytes = connection.getInputStream().readBytes()
+                val bytes = withContext(Dispatchers.IO) {
+                    val url = java.net.URL(cape.texture)
+                    val connection = url.openConnection()
+                    connection.setRequestProperty("User-Agent", "ZalithLauncher/2.0")
+                    connection.connectTimeout = 5000
+                    connection.getInputStream().readBytes()
+                }
                 val opts = BitmapFactory.Options().apply { inScaled = false }
                 val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
                 if (bitmap != null) {
