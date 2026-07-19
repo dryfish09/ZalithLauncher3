@@ -169,6 +169,11 @@ object AllSettings : SettingsRegistry() {
     val hideControlsDuringLoading = boolSetting("hideControlsDuringLoading", true)
 
     /**
+     * 禁用加载弹出提示
+     */
+    val disableLoadingPopup = boolSetting("disableLoadingPopup", false)
+
+    /**
      * 日志字体大小
      */
     val logTextSize = intSetting("logTextSize", 15, 5..20)

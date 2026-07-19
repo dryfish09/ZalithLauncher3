@@ -502,6 +502,7 @@
     <string name="game_menu_option_show_menu_hided">Game menu overlay has been disabled. You can open the game menu using the system back button</string>
     <string name="game_menu_option_controls_opacity">Control Layout Opacity</string>
     <string name="game_menu_option_hide_controls_loading">Hide Controls During Loading</string>
+    <string name="game_menu_option_disable_loading_popup">Disable Loading Popup</string>
     <string name="game_styles_joystick">Manage Joystick</string>
     <string name="game_styles_joystick_enable">Enable Joystick</string>
     <string name="game_styles_joystick_x">Joystick X Position</string>

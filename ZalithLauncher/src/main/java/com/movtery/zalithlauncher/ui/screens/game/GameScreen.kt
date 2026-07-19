@@ -718,7 +718,7 @@ fun GameScreen(
                 .padding(all = 16.dp),
             versionName = version.getVersionName(),
             versionInfo = version.getVersionInfo()?.getInfoString(),
-            visible = showGameInfo
+            visible = showGameInfo && !AllSettings.disableLoadingPopup.state
         )
 
         LogBox(

@@ -251,6 +251,18 @@ private fun GameActionContent(
             )
         }
 
+        //加载弹出提示
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.game_menu_option_disable_loading_popup),
+                switch = AllSettings.disableLoadingPopup.state,
+                onSwitch = { AllSettings.disableLoadingPopup.save(it) },
+                color = color,
+                contentColor = contentColor
+            )
+        }
+
         //如果开启多人联机，则展示这个按钮
         if (enableTerracotta) {
             item {

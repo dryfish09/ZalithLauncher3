@@ -798,6 +798,7 @@
     <string name="game_menu_option_show_menu_hided">Oyun menüsü yer paylaşımı devre dışı bırakıldı. Oyun menüsünü sistem geri düğmesini kullanarak açabilirsiniz</string>
     <string name="game_menu_option_controls_opacity">Kontrol Düzeni Şeffaflığı</string>
     <string name="game_menu_option_hide_controls_loading">Yüklenirken Kontrolleri Gizle</string>
+    <string name="game_menu_option_disable_loading_popup">Yükleme Pop-up\'ını Devre Dışı Bırak</string>
     <string name="game_styles_joystick">Joystick\'i Yönetin</string>
     <string name="game_styles_joystick_enable">Joystick\'i Etkinleştir</string>
     <string name="game_styles_joystick_x">Joystick X Konumu</string>
