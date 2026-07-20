@@ -1233,4 +1233,6 @@
     <string name="download_assets_id_not_found">Projeto não encontrado!</string>
     <string name="download_assets_id_unsupported">Projeto não suportado!</string>
     <string name="settings_launcher_color_theme_style">Estilo de paleta</string>
+    <string name="settings_renderer_env_title">Variável de ambiente: %s</string>
+    <string name="settings_renderer_config_title">Configuração do Renderizador</string>
 </resources>
