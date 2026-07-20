@@ -40,6 +40,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -208,6 +209,7 @@ private fun SelectableEnvItem(
     position: CardPosition,
     modifier: Modifier = Modifier
 ) {
+    val hasCheckbox = unit.rawEnv.check != null
     var expanded by remember { mutableStateOf(false) }
 
     DialogItemLayout(
@@ -217,27 +219,49 @@ private fun SelectableEnvItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = !expanded }
-                .padding(all = 16.dp),
+                .clickable(enabled = unit.isEnabled) { expanded = !expanded }
+                .then(
+                    if (hasCheckbox) {
+                        Modifier.padding(vertical = 16.dp)
+                            .padding(start = 8.dp, end = 16.dp)
+                    } else Modifier.padding(all = 16.dp)
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TitleAndSummary(
+            if (hasCheckbox) {
+                Checkbox(
+                    checked = unit.isEnabled,
+                    onCheckedChange = { enabled ->
+                        unit.saveCheck(enabled)
+                        if (!enabled) expanded = false
+                    }
+                )
+            }
+            Column(
                 modifier = Modifier.weight(1f),
-                title = stringResource(R.string.settings_renderer_env_title, unit.rawEnv.key),
-                summary = unit.summary
-            )
-            Text(
-                modifier = Modifier.alpha(0.7f),
-                text = unit.state,
-                style = MaterialTheme.typography.labelSmall
-            )
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                TitleAndSummary(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.settings_renderer_env_title, unit.rawEnv.key),
+                    summary = unit.summary
+                )
+                Text(
+                    modifier = Modifier.alpha(if (!hasCheckbox || unit.isEnabled) 0.7f else 0.38f),
+                    text = stringResource(R.string.settings_element_selected, unit.state),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
             val rotation by animateFloatAsState(
                 targetValue = if (expanded) -180f else 0f,
                 animationSpec = getAnimateTween()
             )
             IconButton(
                 modifier = Modifier.rotate(rotation),
-                onClick = { expanded = !expanded }
+                enabled = unit.isEnabled,
+                onClick = {
+                    if (!hasCheckbox || unit.isEnabled) expanded = !expanded
+                }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_drop_down_rounded),
