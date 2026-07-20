@@ -425,22 +425,42 @@ fun RendererSettingsScreen(
                         summary = stringResource(R.string.settings_renderer_force_big_core_summary)
                     )
 
-                    IntSliderSettingsCard(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Middle,
-                        value = AllSettings.fpsLimit.state,
-                        onValueChange = { AllSettings.fpsLimit.updateState(it) },
-                        onValueChangeFinished = {
-                            val fps = AllSettings.fpsLimit.state
-                            AllSettings.fpsLimit.save(fps)
-                            ZLBridge.fpsLimitSet(fps)
-                        },
+                        unit = AllSettings.fpsLimitEnabled,
                         title = stringResource(R.string.settings_renderer_fps_limit_title),
                         summary = stringResource(R.string.settings_renderer_fps_limit_summary),
-                        valueRange = AllSettings.fpsLimit.floatRange,
-                        suffix = " FPS",
-                        fineTuningControl = false
+                        onCheckedChange = { checked ->
+                            AllSettings.fpsLimitEnabled.save(checked)
+                            if (checked) {
+                                val ctx = LocalContext.current
+                                val hz = ctx.display?.refreshRate?.roundToInt() ?: 60
+                                AllSettings.fpsLimit.save(hz)
+                                ZLBridge.fpsLimitSet(hz)
+                            } else {
+                                ZLBridge.fpsLimitSet(0)
+                            }
+                        }
                     )
+
+                    if (AllSettings.fpsLimitEnabled.state) {
+                        IntSliderSettingsCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            value = AllSettings.fpsLimit.state,
+                            onValueChange = { AllSettings.fpsLimit.updateState(it) },
+                            onValueChangeFinished = {
+                                val fps = AllSettings.fpsLimit.state
+                                AllSettings.fpsLimit.save(fps)
+                                ZLBridge.fpsLimitSet(fps)
+                            },
+                            title = stringResource(R.string.settings_renderer_fps_limit_title),
+                            valueRange = AllSettings.fpsLimit.floatRange,
+                            suffix = " FPS",
+                            fineTuningControl = false
+                        )
+                    }
 
                     val isKopperZinkSelected = AllSettings.renderer.state == KopperZinkRenderer.getUniqueIdentifier()
                     var surfaceViewAutoDisabledAlert by remember { mutableStateOf(false) }

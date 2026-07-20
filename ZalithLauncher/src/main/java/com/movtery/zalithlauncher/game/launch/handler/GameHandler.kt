@@ -88,7 +88,9 @@ class GameHandler(
         scope: CoroutineScope
     ) {
         ZLBridge.setupBridgeWindow(surface)
-        ZLBridge.fpsLimitSet(AllSettings.fpsLimit.getValue())
+        if (AllSettings.fpsLimitEnabled.getValue()) {
+            ZLBridge.fpsLimitSet(AllSettings.fpsLimit.getValue())
+        }
 
         MCOptions.setup(activity, version)
 

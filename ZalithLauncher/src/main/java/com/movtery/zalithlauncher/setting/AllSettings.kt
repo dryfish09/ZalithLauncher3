@@ -108,9 +108,14 @@ object AllSettings : SettingsRegistry() {
     val frameGeneration = boolSetting("frameGeneration", false)
 
     /**
-     * 帧率上限（0 = 无限制）
+     * 启用帧率上限
      */
-    val fpsLimit = intSetting("fpsLimit", 0, 0..240)
+    val fpsLimitEnabled = boolSetting("fpsLimitEnabled", false)
+
+    /**
+     * 帧率上限
+     */
+    val fpsLimit = intSetting("fpsLimit", 60, 15..240)
 
     /**
      * 强制在高性能核心运行

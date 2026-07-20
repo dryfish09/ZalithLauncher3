@@ -458,20 +458,42 @@ private fun ControlOverview(
         }
         //帧率上限
         item {
-            MenuSliderLayout(
+            MenuSwitchButton(
                 modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.settings_renderer_fps_limit_title),
-                value = AllSettings.fpsLimit.state,
-                valueRange = AllSettings.fpsLimit.floatRange,
-                onValueChange = { AllSettings.fpsLimit.updateState(it) },
-                onValueChangeFinished = {
-                    AllSettings.fpsLimit.save(it)
-                    ZLBridge.fpsLimitSet(it)
+                text = stringResource(R.string.settings_renderer_fps_limit_title),
+                switch = AllSettings.fpsLimitEnabled.state,
+                onSwitch = { checked ->
+                    AllSettings.fpsLimitEnabled.save(checked)
+                    if (checked) {
+                        val ctx = LocalContext.current
+                        val hz = ctx.display?.refreshRate?.roundToInt() ?: 60
+                        AllSettings.fpsLimit.save(hz)
+                        ZLBridge.fpsLimitSet(hz)
+                    } else {
+                        ZLBridge.fpsLimitSet(0)
+                    }
                 },
-                suffix = " FPS",
                 color = color,
-                contentColor = contentColor,
+                contentColor = contentColor
             )
+        }
+        if (AllSettings.fpsLimitEnabled.state) {
+            item {
+                MenuSliderLayout(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.settings_renderer_fps_limit_title),
+                    value = AllSettings.fpsLimit.state,
+                    valueRange = AllSettings.fpsLimit.floatRange,
+                    onValueChange = { AllSettings.fpsLimit.updateState(it) },
+                    onValueChangeFinished = {
+                        AllSettings.fpsLimit.save(it)
+                        ZLBridge.fpsLimitSet(it)
+                    },
+                    suffix = " FPS",
+                    color = color,
+                    contentColor = contentColor,
+                )
+            }
         }
         //加载时隐藏控制布局
         item {
