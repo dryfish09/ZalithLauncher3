@@ -71,6 +71,7 @@ import com.movtery.zalithlauncher.ui.theme.cardColor
 import com.movtery.zalithlauncher.ui.theme.cardTitleColor
 import com.movtery.zalithlauncher.ui.theme.onCardColor
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
+import kotlin.math.roundToInt
 
 private data class IconTab(val iconRes: Int, val iconSize: Dp = 18.dp)
 
@@ -383,6 +384,7 @@ private fun ControlOverview(
     onManageJoystick: () -> Unit,
     onEditLayout: () -> Unit
 ) {
+    val display = LocalContext.current.display
     val listState = rememberLazyListState()
     LazyColumn(
         modifier = modifier.lazyScrollWithBar(listState),
@@ -465,8 +467,7 @@ private fun ControlOverview(
                 onSwitch = { checked ->
                     AllSettings.fpsLimitEnabled.save(checked)
                     if (checked) {
-                        val ctx = LocalContext.current
-                        val hz = ctx.display?.refreshRate?.roundToInt() ?: 60
+                        val hz = display?.refreshRate?.roundToInt() ?: 60
                         AllSettings.fpsLimit.save(hz)
                         ZLBridge.fpsLimitSet(hz)
                     } else {

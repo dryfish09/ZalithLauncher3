@@ -67,6 +67,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.movtery.zalithlauncher.R
 import kotlinx.coroutines.Dispatchers
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.movtery.zalithlauncher.game.plugin.driver.Driver
@@ -425,6 +426,8 @@ fun RendererSettingsScreen(
                         summary = stringResource(R.string.settings_renderer_force_big_core_summary)
                     )
 
+                    val display = LocalContext.current.display
+
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Middle,
@@ -434,8 +437,7 @@ fun RendererSettingsScreen(
                         onCheckedChange = { checked ->
                             AllSettings.fpsLimitEnabled.save(checked)
                             if (checked) {
-                                val ctx = LocalContext.current
-                                val hz = ctx.display?.refreshRate?.roundToInt() ?: 60
+                                val hz = display?.refreshRate?.roundToInt() ?: 60
                                 AllSettings.fpsLimit.save(hz)
                                 ZLBridge.fpsLimitSet(hz)
                             } else {
