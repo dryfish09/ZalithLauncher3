@@ -622,11 +622,19 @@ fun GameScreen(
     ) { result ->
         pendingStartRecording = false
         if (result.resultCode == android.app.Activity.RESULT_OK && result.data != null) {
-            val projection = mediaProjectionManager
-                .getMediaProjection(result.resultCode, result.data!!)
-                ?: run { stopProjectionService(); return@rememberLauncherForActivityResult }
-            GameRecorder.start(context, projection)
-            eventViewModel.sendToast(androidText(R.string.recorder_started), Toast.LENGTH_SHORT)
+            try {
+                val projection = mediaProjectionManager
+                    .getMediaProjection(result.resultCode, result.data!!)
+                if (projection != null) {
+                    GameRecorder.start(context, projection)
+                    eventViewModel.sendToast(androidText(R.string.recorder_started), Toast.LENGTH_SHORT)
+                } else {
+                    eventViewModel.sendToast(androidText(R.string.recorder_error), Toast.LENGTH_SHORT)
+                }
+            } catch (e: SecurityException) {
+                eventViewModel.sendToast(androidText(R.string.recorder_error), Toast.LENGTH_SHORT)
+            }
+            stopProjectionService()
         } else {
             stopProjectionService()
         }
