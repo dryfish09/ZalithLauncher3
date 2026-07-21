@@ -161,6 +161,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.projection.MediaProjectionManager
@@ -614,9 +615,8 @@ fun GameScreen(
             if (result.resultCode == android.app.Activity.RESULT_OK && result.data != null) {
                 context.stopService(Intent(context, MediaProjectionForegroundService::class.java))
                 pendingStartRecording = false
-                val projection = (context.getSystemService(Context.MEDIA_PROJECTION_SERVICE)
-                        as MediaProjectionManager)
-                    .getMediaProjection(result.resultCode, result.data!!)
+                val projection = context.getSystemService(MediaProjectionManager::class.java)
+                    .getMediaProjection(result.resultCode, result.data)!!
                 GameRecorder.start(context, projection)
                 eventViewModel.sendToast(androidText(R.string.recorder_started), Toast.LENGTH_SHORT)
             } else {
@@ -632,7 +632,7 @@ fun GameScreen(
             context.startForegroundService(
                 Intent(context, MediaProjectionForegroundService::class.java)
             )
-            val mgr = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+            val mgr = context.getSystemService(MediaProjectionManager::class.java)
             launchProjectionConsent.launch(mgr.createScreenCaptureIntent())
         }
     }
@@ -798,8 +798,7 @@ fun GameScreen(
                         context.startForegroundService(
                             Intent(context, MediaProjectionForegroundService::class.java)
                         )
-                        val mgr = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE)
-                                as MediaProjectionManager
+                        val mgr = context.getSystemService(MediaProjectionManager::class.java)
                         launchProjectionConsent.launch(mgr.createScreenCaptureIntent())
                     }
                 }
