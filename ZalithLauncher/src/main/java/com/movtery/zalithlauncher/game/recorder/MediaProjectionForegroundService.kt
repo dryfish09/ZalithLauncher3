@@ -24,12 +24,16 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.notification.NOTIFICATION_ID_RECORDING_SERVICE
 import com.movtery.zalithlauncher.notification.NotificationChannelData
 
 class MediaProjectionForegroundService : Service() {
+    companion object {
+        private const val TAG = "MediaProjectionFGS"
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -43,14 +47,20 @@ class MediaProjectionForegroundService : Service() {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(
-                NOTIFICATION_ID_RECORDING_SERVICE,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
-            )
-        } else {
-            startForeground(NOTIFICATION_ID_RECORDING_SERVICE, notification)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    NOTIFICATION_ID_RECORDING_SERVICE,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+                )
+            } else {
+                startForeground(NOTIFICATION_ID_RECORDING_SERVICE, notification)
+            }
+        } catch (e: SecurityException) {
+            Log.w(TAG, "startForeground failed (mediaProjection type not allowed): ${e.message}")
+            stopSelf()
+            return START_NOT_STICKY
         }
 
         return START_NOT_STICKY
