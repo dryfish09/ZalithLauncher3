@@ -616,7 +616,7 @@ fun GameScreen(
                 context.stopService(Intent(context, MediaProjectionForegroundService::class.java))
                 pendingStartRecording = false
                 val projection = context.getSystemService(MediaProjectionManager::class.java)
-                    .getMediaProjection(result.resultCode, result.data)!!
+                    .getMediaProjection(result.resultCode, result.data!!)
                 GameRecorder.start(context, projection)
                 eventViewModel.sendToast(androidText(R.string.recorder_started), Toast.LENGTH_SHORT)
             } else {
