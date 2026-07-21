@@ -1650,4 +1650,9 @@
     <string name="recordings_reveal">Show in File Manager</string>
     <string name="recordings_delete_title">Delete recording?</string>
     <string name="recordings_delete_message">"%s" will be permanently deleted.</string>
+    <string name="recorder_mic_on">Microphone On</string>
+    <string name="recorder_mic_off">Microphone Off</string>
+    <string name="recorder_notification_channel_name">Screen Recording</string>
+    <string name="recorder_notification_title">Recording in progress</string>
+    <string name="recorder_notification_text">Game audio and screen are being captured</string>
 </resources>

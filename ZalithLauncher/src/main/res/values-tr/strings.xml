@@ -1585,4 +1585,9 @@
     <string name="recordings_reveal">Dosya Yöneticisinde Göster</string>
     <string name="recordings_delete_title">Kayıt silinsin mi?</string>
     <string name="recordings_delete_message">"%s" kalıcı olarak silinecek.</string>
+    <string name="recorder_mic_on">Mikrofon Açık</string>
+    <string name="recorder_mic_off">Mikrofon Kapalı</string>
+    <string name="recorder_notification_channel_name">Ekran Kaydı</string>
+    <string name="recorder_notification_title">Kayıt devam ediyor</string>
+    <string name="recorder_notification_text">Oyun sesi ve ekranı kaydediliyor</string>
 </resources>

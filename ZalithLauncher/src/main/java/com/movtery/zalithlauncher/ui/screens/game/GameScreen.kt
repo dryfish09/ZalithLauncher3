@@ -160,6 +160,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.media.projection.MediaProjectionManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.movtery.zalithlauncher.game.recorder.MediaProjectionForegroundService
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
@@ -544,6 +552,7 @@ fun GameScreen(
     val editorViewModel = rememberEditorViewModel("ControlEditor_Times=${viewModel.editorRefresh}")
     val recordingState by GameRecorder.state.collectAsStateWithLifecycle()
     val elapsedMs by GameRecorder.elapsedMs.collectAsStateWithLifecycle()
+    val micEnabled by GameRecorder.micEnabled.collectAsStateWithLifecycle()
     val cursorMode by ZLBridgeStates.cursorMode.collectAsStateWithLifecycle()
     val isGrabbing = remember(cursorMode) {
         cursorMode == CURSOR_DISABLED
@@ -595,6 +604,38 @@ fun GameScreen(
             eventViewModel.sendToast(text, duration)
         }
     )
+
+    // ── Recording launchers ───────────────────────────────────────────────────
+    // Flow: RECORD_AUDIO permission → MediaProjection consent dialog → start.
+    var pendingStartRecording by remember { mutableStateOf(false) }
+
+    val launchProjectionConsent =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == android.app.Activity.RESULT_OK && result.data != null) {
+                context.stopService(Intent(context, MediaProjectionForegroundService::class.java))
+                pendingStartRecording = false
+                val projection = (context.getSystemService(Context.MEDIA_PROJECTION_SERVICE)
+                        as MediaProjectionManager)
+                    .getMediaProjection(result.resultCode, result.data!!)
+                GameRecorder.start(context, projection)
+                eventViewModel.sendToast(androidText(R.string.recorder_started), Toast.LENGTH_SHORT)
+            } else {
+                pendingStartRecording = false
+            }
+        }
+
+    val requestAudioPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (pendingStartRecording && granted) {
+            pendingStartRecording = false
+            context.startForegroundService(
+                Intent(context, MediaProjectionForegroundService::class.java)
+            )
+            val mgr = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+            launchProjectionConsent.launch(mgr.createScreenCaptureIntent())
+        }
+    }
 
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
@@ -748,11 +789,19 @@ fun GameScreen(
             onStartRecording = {
                 viewModel.gameMenuState = MenuState.HIDE
                 if (recordingState == RecordingState.IDLE) {
-                    GameRecorder.start(context)
-                    eventViewModel.sendToast(
-                        androidText(R.string.recorder_started),
-                        android.widget.Toast.LENGTH_SHORT
-                    )
+                    pendingStartRecording = true
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+                        != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        requestAudioPermission.launch(Manifest.permission.RECORD_AUDIO)
+                    } else {
+                        context.startForegroundService(
+                            Intent(context, MediaProjectionForegroundService::class.java)
+                        )
+                        val mgr = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE)
+                                as MediaProjectionManager
+                        launchProjectionConsent.launch(mgr.createScreenCaptureIntent())
+                    }
                 }
             },
             onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },
@@ -829,6 +878,7 @@ fun GameScreen(
                     },
                     recordingState = recordingState,
                     elapsedMs = elapsedMs,
+                    micEnabled = micEnabled,
                     onPauseRecording = { GameRecorder.pause() },
                     onResumeRecording = { GameRecorder.resume() },
                     onStopRecording = {
@@ -837,7 +887,8 @@ fun GameScreen(
                             androidText(R.string.recorder_saved),
                             android.widget.Toast.LENGTH_SHORT
                         )
-                    }
+                    },
+                    onToggleMic = { GameRecorder.toggleMicrophone() }
                 )
             }
         }

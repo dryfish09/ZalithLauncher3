@@ -161,6 +161,12 @@
         </service>
 
         <service
+            android:name=".game.recorder.MediaProjectionForegroundService"
+            android:enabled="true"
+            android:foregroundServiceType="mediaProjection"
+            android:exported="false" />
+
+        <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false"
             android:exported="false">
