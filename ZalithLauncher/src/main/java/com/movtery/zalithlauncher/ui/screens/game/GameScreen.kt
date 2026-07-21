@@ -165,6 +165,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.projection.MediaProjectionManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -629,9 +630,11 @@ fun GameScreen(
     ) { granted ->
         if (pendingStartRecording && granted) {
             pendingStartRecording = false
-            context.startForegroundService(
-                Intent(context, MediaProjectionForegroundService::class.java)
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                context.startForegroundService(
+                    Intent(context, MediaProjectionForegroundService::class.java)
+                )
+            }
             val mgr = context.getSystemService(MediaProjectionManager::class.java)
             launchProjectionConsent.launch(mgr.createScreenCaptureIntent())
         }
@@ -795,9 +798,11 @@ fun GameScreen(
                     ) {
                         requestAudioPermission.launch(Manifest.permission.RECORD_AUDIO)
                     } else {
-                        context.startForegroundService(
-                            Intent(context, MediaProjectionForegroundService::class.java)
-                        )
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            context.startForegroundService(
+                                Intent(context, MediaProjectionForegroundService::class.java)
+                            )
+                        }
                         val mgr = context.getSystemService(MediaProjectionManager::class.java)
                         launchProjectionConsent.launch(mgr.createScreenCaptureIntent())
                     }
