@@ -448,20 +448,20 @@ private fun <E: TitledNavKey> TopBar(
                 }
 
                 TopBarRailItem(
-                    selected = inFileManagerScreen,
-                    painter = painterResource(R.drawable.ic_folder_outlined),
-                    text = stringResource(R.string.page_title_file_manager),
+                    selected = inRecordingsScreen,
+                    painter = painterResource(R.drawable.ic_videocam_filled),
+                    text = stringResource(R.string.page_title_recordings),
                     onClick = {
-                        if (!inFileManagerScreen) toFileManagerScreen()
+                        if (!inRecordingsScreen) toRecordingsScreen()
                     },
                 )
 
                 TopBarRailItem(
-                    selected = inRecordingsScreen,
-                    painter = painterResource(R.drawable.ic_videocam_outlined),
-                    text = stringResource(R.string.page_title_recordings),
+                    selected = inFileManagerScreen,
+                    painter = painterResource(R.drawable.ic_folder_filled),
+                    text = stringResource(R.string.page_title_file_manager),
                     onClick = {
-                        if (!inRecordingsScreen) toRecordingsScreen()
+                        if (!inFileManagerScreen) toFileManagerScreen()
                     },
                 )
 
